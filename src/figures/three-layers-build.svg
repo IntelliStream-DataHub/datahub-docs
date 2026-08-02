@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" class="fig-three-layers-build" role="img" aria-label="Three panels that build left to right. Panel one, taxonomy: a tree of classes, Equipment branching to RotatingEquipment and StaticEquipment, and below them Pump and Vessel, one parent each. Panel two, ontology: the same classes plus named relationship types, a Pump is partOf a Line and an Instrument monitors a Pump, which makes a network rather than a tree. Panel three, knowledge graph: the same relationship types filled with real assets, P-101 is partOf Line 3 and 21-PT-1234 monitors P-101.">
+<text class="fig-title" x="20" y="24">Taxonomy, ontology, knowledge graph</text>
+<text class="fig-sub" x="20" y="44">Each layer keeps everything to its left and adds one thing.</text>
+
+<g >
+  <rect class="fig-track" x="20" y="60" width="230" height="260" rx="14"/>
+  <text class="fig-box-title" x="32" y="84">1 · Taxonomy</text>
+  <text class="fig-box-sub" x="32" y="102">what kinds of things exist</text>
+
+  <path class="fig-track" d="M135 152 V166 H80 V180"/>
+  <path class="fig-track" d="M135 152 V166 H190 V180"/>
+  <path class="fig-track" d="M80 224 V254"/>
+  <path class="fig-track" d="M190 224 V254"/>
+
+  <rect class="fig-box" x="75" y="118" width="120" height="34" rx="10"/>
+  <text class="fig-box-title" x="135" y="140" text-anchor="middle">Equipment</text>
+
+  <rect class="fig-box" x="32" y="180" width="96" height="44" rx="10"/>
+  <text class="fig-box-title" x="80" y="198" text-anchor="middle">Rotating</text>
+  <text class="fig-box-title" x="80" y="213" text-anchor="middle">Equipment</text>
+
+  <rect class="fig-box" x="142" y="180" width="96" height="44" rx="10"/>
+  <text class="fig-box-title" x="190" y="198" text-anchor="middle">Static</text>
+  <text class="fig-box-title" x="190" y="213" text-anchor="middle">Equipment</text>
+
+  <rect class="fig-box" x="32" y="254" width="96" height="34" rx="10"/>
+  <text class="fig-box-title" x="80" y="276" text-anchor="middle">Pump</text>
+
+  <rect class="fig-box" x="142" y="254" width="96" height="34" rx="10"/>
+  <text class="fig-box-title" x="190" y="276" text-anchor="middle">Vessel</text>
+
+  <text class="fig-box-sub" x="32" y="308">a tree — one parent each</text>
+</g>
+
+<g >
+  <rect class="fig-track" x="265" y="60" width="230" height="260" rx="14"/>
+  <text class="fig-box-title" x="277" y="84">2 · Ontology</text>
+  <text class="fig-box-sub" x="277" y="102">how things can relate</text>
+
+  <path class="fig-centre" d="M415 186 V166"/>
+  <path class="fig-centre" d="M415 156 L410 166 L420 166 Z"/>
+  <text class="fig-box-sub" x="406" y="173" text-anchor="end">partOf</text>
+
+  <path class="fig-centre" d="M345 254 V234"/>
+  <path class="fig-centre" d="M345 224 L340 234 L350 234 Z"/>
+  <text class="fig-box-sub" x="354" y="241">monitors</text>
+
+  <rect class="fig-box" x="387" y="118" width="96" height="34" rx="10"/>
+  <text class="fig-box-title" x="435" y="140" text-anchor="middle">Line</text>
+
+  <rect class="fig-box" x="332" y="186" width="96" height="34" rx="10"/>
+  <text class="fig-box-title" x="380" y="208" text-anchor="middle">Pump</text>
+
+  <rect class="fig-box" x="277" y="254" width="96" height="34" rx="10"/>
+  <text class="fig-box-title" x="325" y="276" text-anchor="middle">Instrument</text>
+
+  <text class="fig-box-sub" x="277" y="308">a network of typed relations</text>
+</g>
+
+<g >
+  <rect class="fig-track" x="510" y="60" width="230" height="260" rx="14"/>
+  <text class="fig-box-title" x="522" y="84">3 · Knowledge graph</text>
+  <text class="fig-box-sub" x="522" y="102">what is actually out there</text>
+
+  <path class="fig-centre" d="M660 186 V166"/>
+  <path class="fig-centre" d="M660 156 L655 166 L665 166 Z"/>
+  <text class="fig-box-sub" x="651" y="173" text-anchor="end">partOf</text>
+
+  <path class="fig-centre" d="M590 254 V234"/>
+  <path class="fig-centre" d="M590 224 L585 234 L595 234 Z"/>
+  <text class="fig-box-sub" x="599" y="241">monitors</text>
+
+  <rect class="fig-lit-box c-green" x="632" y="118" width="96" height="34" rx="10"/>
+  <text class="fig-lit-title" x="680" y="140" text-anchor="middle">Line 3</text>
+
+  <rect class="fig-lit-box c-blue" x="577" y="186" width="96" height="34" rx="10"/>
+  <text class="fig-lit-title" x="625" y="208" text-anchor="middle">P-101</text>
+
+  <rect class="fig-lit-box c-orange" x="522" y="254" width="96" height="34" rx="10"/>
+  <text class="fig-lit-title" x="570" y="276" text-anchor="middle">21-PT-1234</text>
+
+  <text class="fig-box-sub" x="522" y="308">real things, real connections</text>
+</g>
+</svg>

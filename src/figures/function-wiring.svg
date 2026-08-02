@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 352" class="fig-function-wiring" role="img" aria-label="A graph fragment: three time series and a maintenance event stream flow into a bearing stress detector function, which writes new stress-detected events, anchored to Pump P-101.">
+<text class="fig-title" x="20" y="24">A function is a node: it reads, and it writes</text>
+<text class="fig-sub" x="20" y="44">Three signals and the maintenance history in; new typed events out, anchored to the equipment.</text>
+<rect class="fig-lit-box c-green" x="20" y="78" width="216" height="44" rx="12"/><text class="fig-lit-title" x="128" y="105" text-anchor="middle">21-VT-2101 · vibration</text>
+<path class="fig-exit-path fig-flow" d="M236 100 L330 146" fill="none"/>
+<path class="fig-centre" d="M330 141 L340 146 L330 151 z"/>
+<rect class="fig-lit-box c-green" x="20" y="136" width="216" height="44" rx="12"/><text class="fig-lit-title" x="128" y="163" text-anchor="middle">21-TT-2102 · bearing temp</text>
+<path class="fig-exit-path fig-flow" d="M236 158 L330 162" fill="none"/>
+<path class="fig-centre" d="M330 157 L340 162 L330 167 z"/>
+<rect class="fig-lit-box c-green" x="20" y="194" width="216" height="44" rx="12"/><text class="fig-lit-title" x="128" y="221" text-anchor="middle">21-ST-2103 · shaft speed</text>
+<path class="fig-exit-path fig-flow" d="M236 216 L330 178" fill="none"/>
+<path class="fig-centre" d="M330 173 L340 178 L330 183 z"/>
+<rect class="fig-lit-box c-orange" x="20" y="252" width="216" height="44" rx="12"/><text class="fig-lit-title" x="128" y="279" text-anchor="middle">Maintenance events</text>
+<path class="fig-exit-path fig-flow" d="M236 274 L330 194" fill="none"/>
+<path class="fig-centre" d="M330 189 L340 194 L330 199 z"/>
+<text class="fig-box-sub" x="283" y="112" text-anchor="middle">reads</text>
+<rect class="fig-lit-box c-blue" x="340" y="138" width="170" height="64" rx="12"/><text class="fig-lit-title" x="425" y="164" text-anchor="middle">Function</text><text class="fig-lit-sub" x="425" y="182" text-anchor="middle">bearing stress detector</text>
+<path class="fig-exit-path fig-flow" d="M510 155 L560 124" fill="none"/>
+<path class="fig-centre" d="M556 118 L566 121 L558 129 z"/>
+<text class="fig-box-sub" x="533" y="118" text-anchor="middle">writes</text>
+<rect class="fig-lit-box c-orange" x="566" y="90" width="174" height="56" rx="12"/><text class="fig-lit-title" x="653" y="113" text-anchor="middle">Events</text><text class="fig-lit-sub" x="653" y="131" text-anchor="middle">stress detected</text>
+<line class="fig-track" x1="653" y1="146" x2="653" y2="190"/>
+<text class="fig-box-sub" x="665" y="172">concerns</text>
+<rect class="fig-centre" x="566" y="190" width="174" height="44" rx="12"/><text class="fig-centre-title" x="653" y="217" text-anchor="middle">Pump P-101</text>
+<text class="fig-box-sub" x="20" y="322">Wiring this, which series a function reads, what it writes, and which equipment its output concerns, works today.</text>
+<text class="fig-box-sub" x="20" y="340">When execution ships, this exact wiring is what runs, and what lineage is read from.</text>
+</svg>

@@ -1,0 +1,533 @@
+---
+sidebar_position: 5
+title: AI agents
+description: Why AI agents reason faster and more accurately against a knowledge graph, the use cases that work today, and how agents can write and operate their own integrations.
+---
+import AgentLoop from '@site/src/figures/agent-loop.svg';
+import AgentOrganisation from '@site/src/figures/agent-organisation.svg';
+
+
+# AI agents
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Board members</Persona>
+  <Persona>Engineers</Persona>
+  <Persona>Operations</Persona>
+</Personas>
+
+<KeyIdea>
+An AI agent given a stream of raw numbers can only observe that something looks unusual. The
+same agent given <span className="hl">a knowledge graph of your operation</span> knows what the
+number measures, what that equipment feeds, what happened to it last month, and which
+obligation depends on it.
+
+That is the difference between guessing and reasoning, and it shows up as
+<span className="t-success"> faster answers with far fewer wrong ones</span>. The graph is not a
+nice-to-have for agents; it is the thing that makes them accurate enough to act on.
+</KeyIdea>
+
+## What is an AI agent?
+
+<p className="lead">
+An AI agent is software that is given a <strong>goal</strong> rather than a set of
+instructions, and works out the steps itself, taking one step, looking at the result,
+and deciding what to do next.
+</p>
+
+That is the whole distinction, and it is worth being precise about because "AI" is used for
+several different things:
+
+| | What you give it | What it gives back |
+| --- | --- | --- |
+| **A model** | One input | One output. A number, a classification, a sentence |
+| **A chatbot** | A question | An answer, from what it already knows |
+| <span className="t-brand">**An agent**</span> | A **goal**, plus tools and access | A result reached by taking steps, checking them, and continuing until done |
+
+The practical difference: you can ask a model *"is this reading abnormal?"* and you can ask an
+agent *"find out why this reading is abnormal, and tell me what to do about it."* The second
+is an open-ended task with no fixed number of steps, and the agent decides how many it needs.
+
+An agent has three things a model does not:
+
+- **A goal it keeps working toward**, rather than a single question it answers once.
+- **Tools it can use**, query the graph, read time series, search events and documents,
+  run an analysis, draft a work order, call an external system.
+- **The ability to judge its own progress**, to look at what came back and decide whether
+  it is closer to the goal or needs a different approach.
+
+### A useful analogy: a robot for knowledge work
+
+For an industrial audience, the closest familiar thing is the robot. The
+[third revolution](/start/industry-4) put a robot in the cell: given a goal ("weld this
+seam"), it works out nothing, but it executes tirelessly, repeatably, within a cage. An
+agent is the same idea applied to information work, with one upgrade: it also works out the
+steps.
+
+| | Industrial robot | AI agent |
+| --- | --- | --- |
+| **Works on** | Matter: welds, lifts, assembles | Information: investigates, drafts, reconciles |
+| **Given** | A programmed path | A goal |
+| **Bounded by** | A physical cage and interlocks | Permissions and step limits |
+| **Tireless at** | The same motion, thousands of times | The same investigation, across thousands of signals |
+| **Fails badly when** | The part is not where the program assumes | The context is not where the goal needs it |
+
+The last row is the one to internalise. A robot whose part arrives misplaced does not
+improvise, it fails, which is why cells are engineered around it. An agent without reliable
+context does something worse: it improvises confidently. The knowledge graph plays the role
+for agents that fixturing plays for robots, it makes the environment dependable enough for
+autonomy to be safe.
+
+## How agent loops work
+
+That third property is the important one, and it is what "agent loop" means. Rather than
+producing an answer in one pass, an agent <span className="hl">cycles</span>: observe, reason,
+act, check, and around again until the goal is met or a limit stops it.
+
+<Figure
+  caption="The loop is what makes an agent useful on open-ended work. Each pass narrows the problem, and the graph at the centre is what the agent observes and reasons over at every turn."
+  wide
+>
+  <AgentLoop />
+</Figure>
+
+Walking one lap, for a real question:
+
+<Steps>
+  <Step title="Observe, what is actually true right now">
+    The agent reads the [graph](/concepts/knowledge-graph), the relevant time series and the
+    events in the window. *"Discharge pressure on P-101 dropped 8% at 14:20."*
+  </Step>
+  <Step title="Reason, decide the single next step">
+    Not the whole plan. Just the most useful next move. *"Check whether anything was raised
+    against P-101 or the equipment feeding it around 14:20."*
+  </Step>
+  <Step title="Act, take that step">
+    Query the events on those resources. Acting can also mean running a
+    [relationship analysis](/using/relationship-analysis), reading an attached
+    [document](/using/files), or, with permission, drafting something.
+  </Step>
+  <Step title="Check, did that get me closer?">
+    *"A maintenance event opened on the upstream valve at 14:05. That is plausibly the
+    cause, but I have not confirmed the valve position changed."* Not done, so go around
+    again, this time observing the valve's own signals.
+  </Step>
+</Steps>
+
+After two or three laps the agent has a chain of evidence rather than a guess, and it exits
+with an answer that names the resources, events and values behind it.
+
+### Why the loop needs the graph
+
+Each lap begins with *observe*, and what the agent can observe determines how good the next
+step is. With a knowledge graph, "what feeds P-101" is a fact it can read in one step. Without
+one, that same question is itself a research problem, so the agent burns laps rediscovering
+the plant instead of investigating the fault, and every wrong guess compounds into the next
+lap.
+
+<span className="t-brand">A better observation step makes every subsequent step better.</span>
+That is the mechanism behind agents being both faster and more accurate here, and it is why
+the graph sits at the centre of the diagram rather than off to one side.
+
+### Where loops are used in practice
+
+| Loop | Goal | Typical exit |
+| --- | --- | --- |
+| **Investigation** | Explain an [anomaly](https://en.wikipedia.org/wiki/Anomaly_detection) | A sourced causal chain, or "inconclusive, here is what I checked" |
+| **Monitoring** | Watch for a condition, continuously | An [event](/using/events) raised against the right resource |
+| **Planning** | Turn a finding into executable work | A drafted work order, permit or schedule, for approval |
+| **Reporting** | Produce a figure in a required format | A submission with [lineage](/concepts/lineage-and-quality) attached |
+| **Integration building** | Connect a new source system | Working, tested integration code. [More below →](#agents-that-build-and-run-your-integrations) |
+
+The integration loop is worth noting because it is the clearest example of the pattern: write
+code, run it, read the error, fix it, run it again. That cycle is exactly what an agent loop
+is for, and it is why agents are unusually effective at integration work.
+
+### Guardrails on a loop
+
+A loop that can run indefinitely and act on the world needs limits. The ones that matter:
+
+- **A step limit.** Every loop needs a maximum number of laps, so a confused agent stops
+  rather than churning. "Inconclusive after 20 steps" is a perfectly good outcome.
+- **Scope limits through permissions.** The agent runs as a
+  [service account](/administration/users-and-access#service-accounts) with access to
+  specific data sets and nothing else. What it cannot read, it cannot reason about; what it
+  cannot write, it cannot damage.
+- **A human gate before anything irreversible.** Drafting is safe. Filing, dispatching and
+  adjusting a setpoint are not. Put the approval where accountability already sits.
+- **A logged trail.** Every step recorded, so a conclusion can be audited afterwards, the
+  same standard you would apply to a person's investigation.
+
+:::tip The failure mode to design against
+An agent that cannot tell it is stuck will keep going confidently. The check step is what
+prevents that, so judge an agent on <span className="t-accent">whether it knows when to stop and
+say "I could not determine this"</span>, not only on whether its answers are right when it
+does produce them.
+:::
+
+## Why the graph makes agents better
+
+Three concrete mechanisms, and they compound.
+
+### It removes the search problem
+
+Without a model, an agent asked *"why did energy consumption jump last Tuesday?"* must first
+work out which meters exist, which system holds them, which lines were running, and how any
+of it connects. Most of its effort, and most of its mistakes, happen before it reaches the
+actual question.
+
+With a model, the connections are already facts it can follow. The agent spends its reasoning
+on the question instead of on reconstructing the plant from tag names.
+
+### It constrains the answer space
+
+An agent free-associating over unlabelled data can produce a plausible answer that is
+physically impossible, attributing a pressure change to equipment that is not connected to
+the vessel in question. The graph makes that failure mode <span className="t-brand">structurally
+unavailable</span>: if there is no path between two assets, the agent cannot invent one.
+
+Constraining what an agent is *allowed to conclude* is the cheapest accuracy improvement
+available, and a knowledge graph is exactly that constraint expressed as data.
+
+### It makes the answer checkable
+
+Every claim an agent makes against the graph comes with the path it walked, and, once
+[lineage](/concepts/lineage-and-quality) ships, the ancestry of the values it used. A human
+can audit the reasoning rather than accepting or rejecting a verdict on faith.
+
+This is what makes agent output usable in a regulated or safety-relevant setting at all. An
+unverifiable answer is not a cheap answer; it is a liability.
+
+<Figure
+  src="/img/figures/knowledge-graph-oilgas.svg"
+  alt="A knowledge graph of an oil and gas processing facility: wells feeding a subsea manifold, separator train, compressor, gas turbine, pumps, metering skid and export riser, connected upward to a maintenance program, production revenue, a gas export contract, emissions compliance and the safety case."
+  caption="What an agent sees when it has a model. Not a list of tags, equipment, what it feeds, and the contracts, compliance obligations and safety case that depend on it. An agent can walk from an export-riser reading up to the gas export contract it settles, or down from emissions compliance to the turbine actually producing the emissions."
+  wide
+/>
+
+## Use cases that work today
+
+Grouped by what the agent is actually doing. The pattern to notice: each one turns a signal
+into <span className="t-accent">a decision somebody can act on</span>, and each depends on
+context the graph supplies.
+
+### Perception, turning signals into meaning
+
+Agents that watch continuous data,
+[fed by subscription so every reading is evaluated as it lands](/using/subscriptions), and
+emit typed [events](/using/events) when something operationally significant happens.
+
+| Agent | Watches | Produces |
+| --- | --- | --- |
+| **Leak detection** | Fibre-optic acoustics along a pipeline | A leak located to the metre, long before a survey could reach it |
+| **Corrosion vision** | Inspection drone and camera imagery | Ranked corrosion findings against specific equipment |
+| **Methane watch** | Emissions sensors, cross-checked against satellite passes | A verified emissions figure rather than an estimate |
+| **Hydrate watch** | Subsea temperature and pressure | Early warning that a line is at risk of blocking |
+| **Kick detection** | Drilling telemetry | A well-control alert while there is still time to act |
+| **Red-zone vision** | Deck and plant cameras | A person detected in a lift zone, and the lift held |
+
+The graph's contribution here is calibration. "Unusual" for a pump running a known duty
+cycle is different from "unusual" for the same pump at start-up, and the agent only knows
+which situation it is in because the model tells it.
+
+For the full chain drawn out, signals into a detection function, the event waking an agent,
+the agent's draft going to a person, see
+[from detection to action](/using/functions#and-then-an-agent-picks-it-up).
+
+### Triage, turning noise into one clear action
+
+A process trip triggers hundreds of alarms at once, and operators cannot see which one
+matters. An **alarm triage agent** walks the graph from each alarm to the equipment, the
+function it serves and what depends on it, collapses the flood into the causal chain, and
+presents <span className="t-success">the single action to take</span>, then confirms the plant
+settles afterwards.
+
+This is the highest-value early agent use case in most operations, because the pain is acute,
+the benefit is immediate, and it requires no new instrumentation, only a model of what
+connects to what.
+
+### Planning, turning findings into scheduled work
+
+Agents that convert a detection into work that is actually ready to execute:
+
+- A **work-order agent** turns ranked corrosion findings into draft repair orders.
+- A **parts agent** checks what the repair needs against what is in stock and on order.
+- A **permit agent** drafts the work permit, with the isolations the graph says are required.
+- A **logistics agent** matches the work to a weather window and a vessel schedule.
+
+Each of these is a task where the information exists but assembling it is tedious and
+error-prone. The agent is not making the maintenance decision; it is removing the two days of
+coordination between the decision and the work.
+
+### Optimisation and control, within stated limits
+
+A **setpoint optimiser** proposes better operating points from a process model; a **control
+agent** applies them <span className="t-accent">within limits a human has set</span>. A **dosing
+agent** adjusts chemical treatment so water clears spec before reinjection. An **inhibitor
+agent** keeps a subsea line flowing.
+
+This class needs the most care and gives the most back. The guardrail is not that the agent
+is trusted, it is that the limits are explicit, the actions are logged as events against the
+equipment, and any setpoint can be traced to the reasoning that produced it.
+
+### Reporting and compliance
+
+A **reporting agent** compiles a verified figure into the regulator's format, ready to file,
+and once [lineage](/concepts/lineage-and-quality) ships, with the ancestry intact, so the
+submission carries its own evidence. An **event engine** turns the operational record into the balance sheet auditors
+and the finance team work from.
+
+This is a natural first agent use case for organisations whose pain is reporting rather than
+operations. The work is well defined, repeats on a cycle, and the accuracy is verifiable
+against the raw data.
+
+### Search and briefing
+
+An **operations copilot** answers questions from the field archive, documents, procedures,
+history, and returns <span className="t-brand">sourced answers</span> rather than confident
+prose, because every claim points at the resource or file it came from.
+
+A **briefing agent** pulls the risk, operations, commercial and sustainability picture
+together with live events and briefs leadership in plain terms, the same figures the
+engineers see, framed for the people accountable for them.
+
+## An organisation of agents
+
+One agent is a tool. Several agents, structured, are a capability, and the structure they
+need turns out to be one every reader already knows.
+
+### Coordination
+
+Once several agents run, something has to sequence them. A **coordinator** fuses the models'
+outputs, orders the work and holds production in balance, so a dosing change and a
+maintenance isolation do not arrive at the same operator in the same minute with no sense of
+which comes first.
+
+The coordinator is the point at which a collection of clever tools becomes an operating
+capability. It is also the point at which the model has to be right, because the coordinator
+reasons entirely over relationships.
+
+Scale this up and the shape becomes familiar: <span className="hl">it is an organisation
+chart</span>. **Worker agents** do the tasks, running integrations, drafting the reports,
+flagging faults, watching data quality. **Manager agents** own a domain each: they break
+down what the coordinator hands them, check the work, and tune their workers' incentives.
+One **coordinator agent** holds the whole against the goals leadership set. The reporting
+lines are prompts and scores rather than meetings, but the shape exists for the reasons
+human organisations discovered long ago: span of control, separation of concerns, and
+accountability at every level.
+
+<Figure
+  caption="Every node wearing the robot badge is run by an AI agent; the one node without a badge, leadership, is you. Work flows down the chart, results flow back up, and incentives are tuned at every level, the loop the next section describes. What makes it an organisation rather than a mob is the bottom bar: every agent reasons over the same knowledge graph, so their outputs compose instead of contradicting."
+  wide
+>
+  <AgentOrganisation />
+</Figure>
+
+None of this is a product feature you switch on. The agents run outside the platform, built
+on whichever framework you prefer, and the chart is an architecture pattern, not a module.
+What the platform contributes is the two things no agent framework brings with it: the
+shared [model of the operation](/concepts/knowledge-graph) that lets a hundred agents mean
+the same thing by "pump P-101", and the [event log](/using/events) every action and outcome
+is recorded against.
+
+### Where this is heading: dynamic incentives
+
+Once several agents run continuously, a management question appears that single-task agents
+never raise: **how do you steer them over time?** Rewriting instructions per agent does not
+scale. The direction the field is moving is to steer with **incentives**: score the outcomes
+of an agent's work, feed the score back, and let the agent weight its own priorities by what
+actually helped.
+
+The signals are the ones you would use for a person, observed rather than asserted:
+
+- A warning that an operator **acted on**, against one that was dismissed
+- A drafted work order **accepted as written**, against one rewritten from scratch
+- A prediction **confirmed by the outcome**, against one that quietly expired
+- A falling false-alarm rate, weighted more heavily than a rising detection count
+
+A triage agent steered this way learns to stop surfacing the alerts nobody acts on. A
+work-order agent learns which drafting style planners accept. The feedback loop becomes the
+management tool, which is exactly how you already manage people, made continuous.
+
+Two things make this workable rather than reckless. First,
+<span className="t-brand">the loop runs through the event log</span>: an outcome can only be
+attributed to an agent's action if both were recorded against the same resources, so the
+platform's record of actions and outcomes is the substrate incentives are computed from.
+Second, incentive design needs the same care as human KPIs, and fails the same way:
+reward the measure and you get the measure, not the goal
+([Goodhart's law](https://en.wikipedia.org/wiki/Goodhart%27s_law)). Keep humans owning the
+incentive definitions, keep them few, and audit what behaviour they actually produce.
+
+### The workforce will not stay virtual
+
+Everything above describes software reasoning about information. The same shift is now
+arriving in hardware: [humanoid robots](https://en.wikipedia.org/wiki/Humanoid_robot) and
+[androids](https://en.wikipedia.org/wiki/Android_(robot)) are moving from demonstrations
+toward deployment, inspection robots and drones already walk and fly industrial sites, and
+offshore, [normally unmanned installations](https://en.wikipedia.org/wiki/Normally_unmanned_installation)
+operate today with no permanent crew. The direction for oil and gas is platforms
+<span className="t-brand">designed from the first drawing to run unmanned</span>, visited a
+few times a year.
+
+An unmanned facility is operated **through its [digital twin](/concepts/digital-twin)**:
+when nobody is on board, the model is the only place the operation is visible, and every
+decision, human or machine, is made against it. And notice that the organisation chart
+above does not change when a worker grows a body. The fault-watch agent that flags a
+failing seal and the inspection robot that walks to the flange to confirm it are colleagues
+in the same structure, coordinated the same way, reasoning over the same graph. If
+anything, the embodied worker needs the model *more*: a robot that does not know which pipe
+it is looking at is a camera on legs, and knowing which pipe is exactly what
+[contextualization](/concepts/contextualization) puts into the model.
+
+For a board, this reframes the timing question. The unmanned facility is no longer science
+fiction, it is an engineering programme with published precedents, and the gating asset is
+not the robot, it is <span className="hl">an operation described well enough for machines
+to work in it</span>. **That description is built the same way whether the workforce it
+serves is software, humans or steel**, which is why starting it now is the low-regret move.
+[Why this becomes a requirement →](#why-this-ends-up-being-a-requirement-not-an-option)
+
+## Agents that build and run your integrations
+
+A distinct and underrated use case: <span className="hl">agents are very good at writing and
+operating the integrations that feed DataHub.</span>
+
+Integration work is the single biggest driver of how long a first project takes
+([where to start](/value/where-to-start)), and most of it is not intellectually hard, it is
+laborious, repetitive, and needs patience with other people's data models. That profile suits
+an agent well.
+
+### What an agent can do here
+
+<Steps>
+  <Step title="Explore an unfamiliar source system">
+    Read a source database's structure, sample its contents, and work out what each table
+    actually holds, the job that normally requires vendor training or a week of guessing.
+  </Step>
+  <Step title="Propose the mapping">
+    Which rows become [resources](/using/resources), which columns become
+    [time series](/using/timeseries) with which unit and
+    [value type](/using/timeseries#value-types), which changes become
+    [events](/using/events), and what the stable
+    [external id](/concepts/naming-and-standards#external-ids-are-promises) should be.
+    Because the target model already exists in the graph, the agent has something concrete to
+    map *onto* rather than inventing a schema.
+  </Step>
+  <Step title="Write the integration">
+    Generate the code against the platform's documented API, in whichever language your team
+    maintains.
+  </Step>
+  <Step title="Operate and repair it">
+    Watch the integration in production, notice when a source system changes shape, diagnose
+    what broke, and propose the fix, the part of integration work that is genuinely
+    open-ended and usually gets neglected until something is badly wrong.
+  </Step>
+</Steps>
+
+### Why it works better here than elsewhere
+
+Two properties of the platform make agent-written integrations unusually tractable:
+
+- **The target vocabulary is tiny.** Everything reduces to four building blocks. An agent
+  mapping onto four primitives makes far fewer mistakes than one mapping onto a
+  five-hundred-table enterprise schema. [The four building blocks →](/start/core-ideas)
+- **The API is documented and stable, and the model is inspectable.** The agent can read the
+  existing graph to see how comparable equipment was already modelled, and follow the same
+  conventions rather than inventing new ones.
+
+### The guardrails that matter
+
+An agent writing integrations is writing something that will run unattended against your
+operational data. Treat it accordingly:
+
+- **Review the mapping, not just the code.** A syntactically perfect integration with the
+  wrong external id convention is far more damaging than one that fails to compile, because
+  it succeeds quietly and cannot be undone.
+- **Give it a narrow service account.** Write on the specific data sets it feeds, no read,
+  and read-only credentials on the source.
+  [Service accounts →](/administration/users-and-access#service-accounts)
+- **Land a small pass first.** A few hundred rows, inspected in the console, before the
+  remaining hundreds of thousands.
+- **Keep a human accountable for the conventions.** The data steward still owns naming and
+  data set boundaries. [Who does what →](/start/who-does-what)
+
+## What agents do not remove
+
+Being clear about this protects the credibility of everything above.
+
+| Agents do not remove | Why |
+| --- | --- |
+| **The need for the model** | Everything on this page is downstream of somebody saying what the things in your operation are. Agents make the model more valuable; they do not substitute for it. |
+| **Domain judgement** | An agent narrows the field and assembles the evidence. Deciding what it means, in a plant you are accountable for, remains a human job. |
+| **Accountability** | A drafted permit is drafted. A proposed setpoint is proposed. Approval stays where it already sits. |
+| **Data quality problems** | An agent reasoning over gap-filled data reaches gap-filled conclusions. It can at least *see* the quality flags, but only if lineage exists. |
+
+## Where to start with agents
+
+<Steps>
+  <Step title="Build the model first, for one area">
+    Every agent use case above assumes the graph. Without it you are back to pattern-matching
+    on unlabelled numbers. [Building your model →](/concepts/building-your-model)
+  </Step>
+  <Step title="Pick a use case where being wrong is cheap">
+    Reporting, search, triage suggestions. Not control. The first agent should be one whose
+    errors are visible and harmless while you learn to judge its output.
+  </Step>
+  <Step title="Insist on sourced answers">
+    Every agent claim should point at the resources, events and values behind it. Anything
+    that cannot be traced should not be acted on.
+  </Step>
+  <Step title="Let an agent do the integration work">
+    This is often the fastest payback, because integration effort is the main thing standing
+    between you and the second question.
+  </Step>
+  <Step title="Only then consider agents that act">
+    Control, dosing, scheduling, with explicit limits, logged actions, and a human
+    accountable.
+  </Step>
+</Steps>
+
+## Why this ends up being a requirement, not an option
+
+Worth stating plainly, because it is the strategic case rather than the operational one.
+
+Agent capability is **multiplied** by the quality of the context available to it, not added
+to it. Two competitors adopting the same tools do not get the same result: the one with a
+model gets an agent that can follow a problem through the operation and show its working, and
+the one without gets output that a person has to re-check. Same tools, different multiplier.
+
+That difference compounds, because each answered question makes the next cheaper. And the
+input that drives it, a model of your own operation, is the one thing that cannot be bought
+at short notice: it takes calendar time and the attention of people who know the plant.
+
+Which is why waiting is weaker here than it usually is. Adopting later does not shorten the
+work, it only starts it later.
+[The full argument →](/value/cost-of-doing-nothing#why-this-becomes-a-competitive-requirement-rather-than-an-advantage)
+
+:::tip For a board conversation
+The honest framing is that AI capability is <span className="t-accent">downstream of the data
+model</span>, not an alternative to building one. Organisations that skip the model get
+demonstrations; organisations that build it get compounding capability, because every agent
+they add inherits the same context. That ordering is the whole strategic argument.
+[Board briefing →](/value/board-briefing)
+:::
+
+<References>
+
+- [Intelligent agent](https://en.wikipedia.org/wiki/Intelligent_agent)
+- [Large language model](https://en.wikipedia.org/wiki/Large_language_model)
+- [Retrieval-augmented generation](https://en.wikipedia.org/wiki/Retrieval-augmented_generation)
+- [Human-in-the-loop](https://en.wikipedia.org/wiki/Human-in-the-loop)
+- [Anomaly detection](https://en.wikipedia.org/wiki/Anomaly_detection)
+- [Soft sensor](https://en.wikipedia.org/wiki/Soft_sensor)
+- [Humanoid robot](https://en.wikipedia.org/wiki/Humanoid_robot)
+- [Normally unmanned installation](https://en.wikipedia.org/wiki/Normally_unmanned_installation)
+
+</References>
+
+<Deeper>
+- [Knowledge graphs](/concepts/knowledge-graph): the structure agents reason over
+- [Lineage and data quality](/concepts/lineage-and-quality): what makes agent output checkable
+- [The operational data problem](/start/the-data-problem#why-industry-40-stalls-without-this): why context, not algorithms, is the blocker
+- [Change data capture](/using/cdc-integrations): the integration work agents can take on
+- [Where to start](/value/where-to-start): sequencing a first project
+</Deeper>

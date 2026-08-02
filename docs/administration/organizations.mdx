@@ -1,0 +1,189 @@
+---
+sidebar_position: 3
+title: Organisations and tenants
+description: How multi-tenancy works in DataHub, what isolation you actually get, and how to decide tenant boundaries before you onboard.
+---
+
+# Organisations and tenants
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>Security and risk</Persona>
+  <Persona>Project sponsors</Persona>
+</Personas>
+
+<KeyIdea>
+A **tenant** is a separate world: its own relational database, its own measurement store, and
+its own file storage.
+
+The model is built for <span className="hl">separation at the database level rather than in
+application logic</span>. How much of that you actually get depends on how you deploy it:
+the reference stack shares more than the design allows for, so read
+[what the reference deployment actually does](#what-the-reference-deployment-actually-does)
+before quoting isolation guarantees in a security review.
+</KeyIdea>
+
+## What a tenant is
+
+Each tenant gets its own:
+
+- PostgreSQL database, the model and the system of record
+- ClickHouse database, the measurements
+- File storage root, plus a separate trash root
+- Key-value store endpoints
+- Organisation in your identity provider
+
+**Graph database, with an important caveat.** The tenant's graph database name is
+configurable per tenant and selected per session, but multiple databases require [Neo4j](https://en.wikipedia.org/wiki/Neo4j)
+Enterprise. On Community Edition, which the reference deployment uses,
+<span className="t-accent">all tenants share the single `neo4j` database</span> and graph
+isolation is not enforced at the database level. If you need per-tenant graph isolation, plan
+for Enterprise.
+
+Each customer will also be able to bring **their own** identity providers. An organisation
+can have several of them, and each identity provider belongs to exactly one organisation,
+so several corporate directories, including multiple Entra ID tenants, can authenticate
+into a single deployment.
+
+<Roadmap>
+This is the Keycloak **organizations** work, in active development and expected to land
+during the second half of 2026. Organisations will also carry the **groups** that data set
+read and write access moves to. Check the release notes before designing a rollout against
+it.
+[How organizations will work →](/administration/identity-providers#organizations-each-customers-own-identity-providers)
+</Roadmap>
+
+A user's tenant is resolved from the organisation claim in their access token on every
+request, and every downstream operation, which database to query, which files to read,
+follows from that. The tenant context is cleared at the end of every request, so it cannot
+leak between users sharing a server.
+
+## Why database-per-tenant
+
+This was chosen deliberately over the more common schema-per-tenant approach, and the
+reasons matter when explaining the platform to a security review.
+
+| | |
+| --- | --- |
+| **Hard isolation** | Each tenant database *can* have its own credentials, so cross-tenant access requires a credential compromise rather than an application bug. See the caveat below: the reference stack does not configure it this way. |
+| **Consistency across stores** | The measurement store and the graph database do not have a schema concept the way a relational database does. Their natural isolation unit is the database, so using databases everywhere gives all four stores the same boundary. |
+| **Placement flexibility** | Each tenant carries its own connection details, so a heavy tenant can be moved to dedicated hardware by changing configuration, no application change, no re-architecture. |
+| **Per-tenant resource limits** | With a connection pooler, each tenant gets its own pool with its own cap. One tenant's load cannot starve another's connections. |
+| **Clean lifecycle** | Offboarding a tenant is dropping its databases, the most airtight cleanup available. Backup and restore are per-tenant by construction. |
+
+The honest trade-offs: migrations run once per tenant database, provisioning a tenant means
+creating real databases rather than a schema, and production deployments want an external
+connection pooler. Those are real costs, judged worth paying for the isolation guarantee.
+
+## What the reference deployment actually does
+
+The section above describes what the platform **supports**. The stack that ships for
+evaluation configures much less of it, and the gap matters if you are answering a security
+questionnaire.
+
+| | Supported by the platform | Configured in the reference stack |
+| --- | --- | --- |
+| **PostgreSQL** | A database and role per tenant | Separate databases, **one shared credential** |
+| **ClickHouse** | A database and user per tenant | Separate databases, **one shared credential** |
+| **[Neo4j](https://en.wikipedia.org/wiki/Neo4j)** | A graph database per tenant | **One shared database** (Community Edition supports only one) |
+| **File storage** | A root per tenant | A root per tenant |
+| **Valkey / Kvrocks** | Per-tenant endpoints | Shared instances, with tenant-salted keys |
+
+So the reference deployment gives you
+<span className="hl">separation of data, not separation of credentials</span>, and no graph
+separation at all. That is a deployment choice rather than a platform limit, and
+every row is changeable: give each tenant its own database role, and move to Neo4j Enterprise
+if per-tenant graph databases matter to you.
+
+:::caution Before you quote isolation in a security review
+Check which of the rows above your own deployment has actually configured. The claim
+"cross-tenant access requires a credential compromise" is true only once each tenant has its
+own credentials, which is not the shipped default.
+:::
+
+## Deciding tenant boundaries
+
+This is the <span className="t-accent">hardest decision to reverse</span> in the whole platform,
+because splitting or merging tenants later means moving data between databases.
+
+### Use separate tenants when
+
+- **Different legal entities.** Separate companies, joint ventures, or subsidiaries with
+  distinct data-ownership obligations.
+- **Data residency requirements differ.** Tenants can sit on different database servers in
+  different jurisdictions.
+- **One customer's data must be provably separate from another's.** If you are running
+  DataHub as a service for external customers, one tenant each.
+- **Very different scale.** A tenant that ingests two orders of magnitude more than the
+  others can be placed on dedicated hardware.
+
+### Use one tenant with separate data sets when
+
+- **The same organisation, different sites or departments.** This is the common case.
+  [Data sets](/using/datasets) are the right boundary for "who can see what" within one
+  organisation.
+- **You want cross-site questions to be possible.** This is the important one:
+  <span className="t-brand">you cannot traverse the graph across tenants.</span> A model that
+  spans two sites must live in one tenant.
+
+That last point is the deciding factor most of the time. If somebody will one day want to
+compare two sites, or roll a KPI up across them, **they must share a tenant**.
+
+:::tip The test
+Ask: *"Will anyone ever need to ask a question whose answer spans these two?"* If yes, one
+tenant with two data sets. If never, and you are confident, two tenants.
+:::
+
+## Provisioning a tenant
+
+Tenant provisioning is infrastructure work, and is deliberately outside the platform itself.
+To add one:
+
+<Steps>
+  <Step title="Create the tenant's stores">
+    A relational database and role, a measurement database and user, a graph database, the
+    key-value endpoints, and the file-storage directories.
+  </Step>
+  <Step title="Create the organisation in your identity provider">
+    This is what the organisation claim in users' tokens will refer to. Once the
+    organizations feature lands, this is also where the customer's own identity providers
+    and the [groups that will carry data set access](/administration/identity-providers#organization-groups-will-carry-data-set-access)
+    live.
+  </Step>
+  <Step title="Register the tenant in the secret store">
+    Its connection details and organisation id go into the platform's tenant registry, which
+    lives in the secret store rather than in a database.
+  </Step>
+  <Step title="Wait for the next registry refresh">
+    The platform picks the new tenant up automatically and runs its migrations. No restart
+    required.
+  </Step>
+</Steps>
+
+Automate these steps with whatever tooling fits your environment: they are ordinary
+infrastructure operations, and keeping them in your own automation is intentional.
+
+## Why the registry lives in the secret store
+
+Chicken and egg, mostly. The tenant registry decides *which database to connect to*, so it
+cannot live in one of those databases. It also consists largely of credentials, which belong
+in a secret store with access control and audit rather than in application tables.
+
+The platform reads the registry at startup and refreshes it periodically, which is what
+allows tenants to be added without restarting anything.
+
+## Migrations across many tenants
+
+Schema migrations run automatically at startup, iterating every tenant in the registry and
+applying the same scripts to each. Tenants that appear at runtime are migrated when
+discovered. Migration locking keeps concurrent instances from racing, so starting several
+instances in parallel is safe, the non-leaders wait and then find the work already done.
+
+You do not run migrations by hand.
+
+<Deeper>
+- [Data sets](/using/datasets): the within-tenant access boundary
+- [Users and access](/administration/users-and-access): how the organisation claim reaches the platform
+- [Security and compliance](/administration/security): the isolation story for a risk review
+- [Data lifecycle](/administration/data-lifecycle): per-tenant backup and offboarding
+</Deeper>

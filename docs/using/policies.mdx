@@ -1,0 +1,126 @@
+---
+sidebar_position: 12
+title: Policies
+description: Recording rules on data sets today, lifecycle, access and requirements, and the enforcement that is on the roadmap.
+---
+import PolicyEnforcement from '@site/src/figures/policy-enforcement.svg';
+
+
+# Policies
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona primary>Data stewards</Persona>
+  <Persona>Compliance</Persona>
+</Personas>
+
+<KeyIdea>
+A **policy** is a rule attached to a data set: how long its data is kept, who may access it
+and on what terms, what requirements it must meet.
+
+Today a policy is a <span className="hl">declarative record</span>, it documents the rule
+where the data lives. Enforcement, the platform actually acting on it, is the roadmap part,
+and it is one of the
+[two building blocks still being built](/start/core-ideas#policies-the-rules).
+</KeyIdea>
+
+<Roadmap>
+**Policies are recorded, not enforced.** Nothing in the platform currently expires data,
+gates access or checks requirements because a policy says so: retention is a
+[coming feature](/administration/data-lifecycle#lever-2--retention) planned together with
+policy enforcement, and access today comes entirely from
+[roles in your identity provider](/administration/dataset-permissions). Treat what you write
+as documented intent, and write it as though it will be enforced, because it will be.
+</Roadmap>
+
+## Why record rules before they are enforced
+
+It sounds backwards, and it is the right order, for the same reason the
+[model](/concepts/ontology) comes before the analytics, and for the same reason
+[governance works best attached to the data it governs](/concepts/data-governance).
+
+Most organisations keep data rules in procedure documents: a retention schedule in a PDF, an
+access principle in a policy manual, a regulatory requirement in somebody's head. The rule
+and the data it governs live in different places, so the rule is invisible exactly where
+decisions get made.
+
+A recorded policy fixes the visibility problem on its own:
+
+- **The rule is findable from the data.** Whoever opens the data set sees what governs it,
+  rather than needing to know which document to check.
+- **Intent survives people.** "We keep this for ten years because of obligation X" stops
+  being tribal knowledge, the same argument as for the
+  [model itself](/value/cost-of-doing-nothing#2--knowledge-concentrated-in-people).
+- **Enforcement becomes a switch, not a project.** When it ships, the rules are already
+  written, reviewed and attached. <span className="hl">Organisations that waited will be
+  starting their retention workshops while yours activates.</span>
+
+## The three kinds
+
+| Kind | What it records | Enforced, once shipped |
+| --- | --- | --- |
+| **Lifecycle** | How long data is kept, and what happens when the clock runs out | Measurement history actually expires on schedule |
+| **Access** | Who may read or write, and on what terms | Gating, aligned with the [organization groups](/administration/identity-providers#organization-groups-will-carry-data-set-access) work |
+| **Requirement** | What the data set must satisfy, completeness, standards, review cadence | Checks that flag when the requirement is not met |
+
+<Figure
+  caption="Worth pausing on what this makes possible: because the policy and its enforcer are nodes, you can traverse from a series to the rule that governs it, or from a function to every rule it enforces. Compliance questions become graph questions. The enforcement arrow is the roadmap part; the structure around it can be modelled today."
+  wide
+>
+  <PolicyEnforcement />
+</Figure>
+
+## Writing a policy worth having
+
+The test for a good policy is the same as for a good
+[description](/using/datasets#creating-one): a colleague in a year should understand not
+just the rule but the reason.
+
+<Steps>
+  <Step title="Name the obligation, not just the number">
+    "Retain 10 years, [NORSOK](https://en.wikipedia.org/wiki/NORSOK_standard) requirement
+    for well data" beats "retain 10 years". The reason is what lets a successor revisit the
+    rule safely when the obligation changes.
+  </Step>
+  <Step title="Attach it to the right boundary">
+    Policies live on [data sets](/using/datasets), so the data set boundary decides what a
+    rule can govern. If one rule must cover two data sets, or half of one, that is a sign
+    the boundaries need a look first.
+  </Step>
+  <Step title="Keep lifecycle policies aligned with your audit horizon">
+    <span className="t-accent">A reported figure can only ever be traced to inputs that
+    still exist</span>, so [retention](https://en.wikipedia.org/wiki/Data_retention) rules
+    on anything feeding a regulated report should outlive the report's auditability.
+    [Retention versus traceability →](/administration/data-lifecycle#retention-versus-traceability)
+  </Step>
+  <Step title="Review them like access, on a cadence">
+    A quarterly pass over the policies alongside the
+    [permission review](/administration/dataset-permissions#designing-a-permission-scheme),
+    so recorded intent tracks reality.
+  </Step>
+</Steps>
+
+## Where they appear
+
+Each data set has a **Policies** tab in the console, which is where its rules are recorded
+and read. [Data sets →](/using/datasets#policies)
+
+Policies are one of four pieces that carry governance here, alongside the graph, data sets
+and functions. [How the pieces fit →](/concepts/data-governance#how-the-pieces-carry-it)
+
+<References>
+
+- [Data retention](https://en.wikipedia.org/wiki/Data_retention)
+- [Records management](https://en.wikipedia.org/wiki/Records_management)
+- [NORSOK standards](https://en.wikipedia.org/wiki/NORSOK_standard)
+
+</References>
+
+<Deeper>
+- [Data governance](/concepts/data-governance): the umbrella policies are one piece of
+- [The roadmap building blocks](/start/core-ideas#policies-the-rules): policies and functions in the vocabulary
+- [Data sets](/using/datasets): the boundary a policy governs
+- [Data set permissions](/administration/dataset-permissions): where access actually comes from today
+- [Data lifecycle](/administration/data-lifecycle): retention, and the expiry feature policies will drive
+- [Functions](/using/functions): the other roadmap block, computations where policies are rules
+</Deeper>

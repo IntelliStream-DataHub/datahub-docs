@@ -1,0 +1,193 @@
+---
+sidebar_position: 6
+title: Relationship analysis
+description: Discovering which time series move together, which one leads, and whether the relationship is dependable, explained in plain language.
+---
+
+# Relationship analysis
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Analysts</Persona>
+</Personas>
+
+<KeyIdea>
+Pick one time series and DataHub will find the others that move with it, rank them, and tell
+you three things about each: **how strongly** they are related, **which one leads**, and
+**whether the relationship is dependable** or only shows up sometimes.
+
+No statistics background needed. Every result is labelled in plain language.
+</KeyIdea>
+
+<Roadmap>
+**Relationship analysis is on the roadmap.** The analysis itself is implemented, in a
+separate service that the console's Analyze tab calls directly, but that service is not part
+of the standard deployment yet, so the tab has nothing to call on a default install.
+
+The measures described below are real and worth understanding, because they shape how the
+feature will be used once it ships.
+</Roadmap>
+
+## What it is for
+
+Your [model](/concepts/knowledge-graph) records the relationships you knew about when you
+built it. Relationship analysis finds the ones in the *data*, including connections nobody
+had written down.
+
+Three situations where it earns its keep:
+
+- **An investigation with no obvious cause.** A signal misbehaved and you do not know what
+  else was involved. Rank everything by how strongly it moved with it.
+- **Finding a leading indicator.** If a signal reliably moves 20 minutes before the one you
+  care about, you have an early warning, and the beginning of a predictive alert. Turning
+  that lead into something that fires on its own is what
+  [detection functions](/using/functions#event-detection-drawn) are for, also on the roadmap.
+- **Validating the model.** If two signals are strongly related but their assets are not
+  connected in your graph, either you have found a real connection worth modelling or a
+  common cause worth understanding. Both are useful, and recording the confirmed connection
+  is [contextualization](/concepts/contextualization), how a finding here becomes part of
+  the model rather than a note in a report.
+
+## Running it
+
+<Steps>
+  <Step title="Select a focus time series">
+    The signal you are investigating. Everything is ranked relative to it.
+  </Step>
+  <Step title="Pick a time range">
+    The window to analyse. Range matters, see the note on resolution below.
+  </Step>
+  <Step title="Click Analyze related">
+    Results come back ranked by relevance, with the weakest separated below a threshold
+    line so the list stays readable.
+  </Step>
+  <Step title="Expand the search if needed">
+    **Expand search** widens the pool by ten more candidate series each time you click it,
+    up to 200, and re-runs the analysis. The count resets when you pick a new focus series.
+  </Step>
+</Steps>
+
+Series that are too sparse to analyse, or that you do not have access to, are listed
+as skipped rather than silently dropped, in one combined list.
+
+## Reading the results
+
+Each related series comes back with several measures. Here is what each one actually tells
+you.
+
+### How strongly they move together
+
+| Measure | In plain language |
+| --- | --- |
+| **raw** | How closely the two traces move together as they are. Simple, and easily fooled by a shared trend, two signals that both drift upward look related even when they are not. |
+| **whitened** | The same comparison after removing each signal's own predictable trend and rhythm. This is the more honest number: it asks whether the *surprises* in one signal line up with the surprises in the other. |
+
+When raw is high and whitened is low, you are usually looking at two things that
+<span className="hl">share a background trend</span> rather than two things that actually
+influence each other. That distinction saves a lot of wasted investigation.
+
+### Which one leads
+
+**lead/lag** tells you whether the focus series moves before or after the other, and by how
+much:
+
+- **focus leads by**, your signal moves first. Whatever it reflects happens upstream.
+- **focus lags by**, the other signal moves first. That one is your potential early warning.
+- **synchronous**, no detectable offset at this resolution.
+
+<Figure
+  src="/img/figures/lead-lag.svg"
+  alt="An animation of two signals with the same shape. Compressor power lags suction temperature; sliding it back by 25 minutes makes the two curves line up."
+  caption="What a lag measurement means: the same shape, arriving later. Slide the second signal back by the measured lag and the two line up, which is exactly what makes the first one an early warning for the second."
+  wide
+/>
+
+:::tip Lead and lag depend on the time range
+Lead/lag is measured in whole buckets, and the bucket width comes from the range you
+selected. A wide range gives coarse buckets, so small offsets show as *synchronous*. If you
+need finer resolution, <span className="t-accent">choose a shorter range</span>, the console
+says so where it matters.
+:::
+
+### The rhythm they share
+
+**peak shared period** is the timescale at which the two signals move together most
+strongly, the period of their shared oscillation. A shared 24-hour period usually means
+both are following a daily cycle: ambient temperature, shift patterns, tariff periods. A
+shared period matching a machine's cycle time points at the machine.
+
+The **[coherence](https://en.wikipedia.org/wiki/Coherence_(signal_processing))** plot shows this across periods, so you can see whether the relationship
+lives at one timescale or several.
+
+### Whether you can rely on it
+
+Two labels tell you how much weight to put on the result:
+
+| Label | Meaning |
+| --- | --- |
+| **lasting link** | These two stay tied together over the long run rather than drifting apart, a dependable relationship you can lean on. |
+| **no shared trend** | They drift. Whatever short-term similarity exists, they are not tied together over time. |
+| **consistent** | The relationship holds up across the whole range you selected. |
+| **inconsistent** | It shows up in some parts of the range and not others, worth investigating *when* it appears. |
+
+A relationship that is both a **lasting link** and **consistent** is the kind you can **build
+an alert or a soft sensor on**. One that is **inconsistent** is not worthless, it often means
+the relationship only holds in a particular operating mode, which is itself a finding.
+
+## An example, end to end
+
+An engineer investigating rising energy consumption on a compressor:
+
+<Steps>
+  <Step title="Focus on the compressor's power draw, last week">
+    Run the analysis.
+  </Step>
+  <Step title="The top result is suction temperature, strongly related, focus lags by 25 minutes">
+    Suction temperature moves first. That makes physical sense and gives a 25-minute early
+    warning.
+  </Step>
+  <Step title="It is labelled a lasting link and consistent">
+    So it holds across the whole week, not just during one upset. Worth acting on.
+  </Step>
+  <Step title="The second result has high raw but low whitened correlation">
+    Both signals drift up across the week. Shared trend, not a real influence. Set aside.
+  </Step>
+  <Step title="Peak shared period is 24 hours on a third result">
+    That one is following the daily ambient cycle. Explains part of the pattern, and is not
+    something the plant controls.
+  </Step>
+</Steps>
+
+Conclusion in one session: suction temperature is the actionable lever, with 25 minutes of
+warning. Without this, the same conclusion is weeks of exporting and correlating by hand.
+
+## Limits worth knowing
+
+- **Related is not caused.** Two signals moving together can share a cause rather than
+  influencing each other. The analysis narrows the field; a person with process knowledge
+  decides what it means.
+- **Sparse series are unreliable.** Series with too few points in the window are skipped
+  rather than analysed badly.
+- **The range shapes the answer.** A relationship visible over an hour can disappear over a
+  year and vice versa. Analyse over the timescale your question is about.
+
+<References>
+
+- [Cross-correlation](https://en.wikipedia.org/wiki/Cross-correlation)
+- [Coherence in signal processing](https://en.wikipedia.org/wiki/Coherence_(signal_processing))
+- [Cointegration, the 'lasting link' test](https://en.wikipedia.org/wiki/Cointegration)
+- [ARIMA, used to whiten a signal before comparing](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average)
+- [Correlation does not imply causation](https://en.wikipedia.org/wiki/Correlation_does_not_imply_causation)
+- [Spurious relationships](https://en.wikipedia.org/wiki/Spurious_relationship)
+- [Granger causality](https://en.wikipedia.org/wiki/Granger_causality)
+
+</References>
+
+<Deeper>
+- [Insights](/using/insights): charting and comparing the series you find
+- [Functions](/using/functions): turning a confirmed relationship into a computation that keeps running
+- [Knowledge graphs](/concepts/knowledge-graph): recording the relationships you confirm
+- [Events](/using/events): the operational context behind a [correlation](https://en.wikipedia.org/wiki/Cross-correlation)
+- [Value paths](/value/value-paths#condition-monitoring): turning a leading indicator into an alert
+</Deeper>

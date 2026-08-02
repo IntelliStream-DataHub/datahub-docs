@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 500" class="fig-live-chart" role="img" aria-label="A chart panel over the quick range Last 30 minutes, with two series plotted on one axis. Motor current, labelled by a blue chip, and throughput, labelled by an orange chip, run parallel across the left two thirds of the chart, rising and falling together. An orange marker labelled Divergence sits about two thirds of the way along: from that moment motor current climbs while throughput falls, and the gap between the two traces widens. The right-hand portion of the plot is a shaded Live region where new readings arrive one after another as staggered datapoints on both traces, and an arrow past the now label shows the axis extending as time passes. Three notes below the chart read: two series, one axis, motor current and throughput move together minute by minute; then they diverge, current climbs while throughput falls, which is the finding; and Live extends the axis with a 2-minute, 15-minute, or growing window.">
+<text class="fig-title" x="20" y="24">Two series on one axis, still arriving</text>
+<text class="fig-sub" x="20" y="44">The pairing is the analysis — and Live keeps the right-hand edge moving.</text>
+
+<rect class="fig-box" x="20" y="64" width="720" height="294" rx="14"/>
+<text class="fig-exit-note" x="32" y="84">Quick range · Last 30 minutes</text>
+
+<rect class="fig-exit-box" x="512" y="96" width="204" height="224" rx="10"/>
+
+<path class="fig-track" d="M92 160 L716 160"/>
+<path class="fig-track" d="M92 216 L716 216"/>
+<path class="fig-track" d="M92 272 L716 272"/>
+<path class="fig-track" d="M92 96 L92 320"/>
+<path class="fig-track" d="M92 320 L716 320"/>
+
+<text class="fig-box-sub" x="84" y="164" text-anchor="end">75</text>
+<text class="fig-box-sub" x="84" y="220" text-anchor="end">50</text>
+<text class="fig-box-sub" x="84" y="276" text-anchor="end">25</text>
+<text class="fig-box-sub" x="84" y="323" text-anchor="end">0</text>
+<text class="fig-box-sub" x="104" y="338" text-anchor="middle">30 min ago</text>
+<text class="fig-box-sub" x="308" y="338" text-anchor="middle">20 min ago</text>
+<text class="fig-box-sub" x="512" y="338" text-anchor="middle">10 min ago</text>
+<text class="fig-box-sub" x="716" y="338" text-anchor="end">now</text>
+
+<path class="fig-exit-path fig-flow" d="M716 320 L734 320"/>
+<path class="fig-exit-path fig-draw" d="M727 313 L734 320 L727 327"/>
+
+<path class="fig-exit-path fig-flow" d="M104 266 C122 266 122 248 140 248 C158 248 158 260 176 260 C194 260 194 234 212 234 C230 234 230 244 248 244 C266 244 266 222 284 222 C302 222 302 230 320 230 C338 230 338 212 356 212 C374 212 374 220 392 220 C410 220 410 236 428 236 C446 236 446 250 464 250 C482 250 482 262 500 262 C518 262 518 272 536 272 C554 272 554 280 572 280 C590 280 590 286 608 286 C626 286 626 292 644 292 C662 292 662 296 680 296 C698 296 698 300 716 300"/>
+<path class="fig-exit-path fig-draw" d="M104 236 C122 236 122 218 140 218 C158 218 158 230 176 230 C194 230 194 204 212 204 C230 204 230 214 248 214 C266 214 266 192 284 192 C302 192 302 200 320 200 C338 200 338 182 356 182 C374 182 374 190 392 190 C410 190 410 176 428 176 C446 176 446 166 464 166 C482 166 482 152 500 152 C518 152 518 146 536 146 C554 146 554 138 572 138 C590 138 590 132 608 132 C626 132 626 126 644 126 C662 126 662 122 680 122 C698 122 698 118 716 118"/>
+
+<g><rect class="fig-lit-box c-blue" x="110" y="150" width="118" height="26" rx="8"/><text class="fig-lit-title" x="169" y="168" text-anchor="middle">Motor current</text></g>
+<g><rect class="fig-lit-box c-orange" x="110" y="280" width="104" height="26" rx="8"/><text class="fig-lit-title" x="162" y="298" text-anchor="middle">Throughput</text></g>
+
+<g class="fig-seq fig-d4"><rect class="fig-lit-box c-orange" x="391" y="134" width="2" height="184"/><rect class="fig-lit-box c-orange" x="332" y="104" width="120" height="30" rx="9"/><text class="fig-lit-title" x="392" y="124" text-anchor="middle">Divergence</text></g>
+
+<circle class="fig-token fig-pulse" cx="526" cy="110" r="5"/>
+<text class="fig-exit-title" x="538" y="115">Live</text>
+<text class="fig-exit-note" x="614" y="205" text-anchor="middle">new readings arriving</text>
+
+<g class="fig-seq fig-d1"><circle class="fig-token" cx="536" cy="146" r="5"/><circle class="fig-token" cx="536" cy="272" r="5"/></g>
+<g class="fig-seq fig-d2"><circle class="fig-token" cx="572" cy="138" r="5"/><circle class="fig-token" cx="572" cy="280" r="5"/></g>
+<g class="fig-seq fig-d3"><circle class="fig-token" cx="608" cy="132" r="5"/><circle class="fig-token" cx="608" cy="286" r="5"/></g>
+<g class="fig-seq fig-d4"><circle class="fig-token" cx="644" cy="126" r="5"/><circle class="fig-token" cx="644" cy="292" r="5"/></g>
+<g class="fig-seq fig-d5"><circle class="fig-token" cx="680" cy="122" r="5"/><circle class="fig-token" cx="680" cy="296" r="5"/></g>
+<g class="fig-seq fig-d6"><circle class="fig-token" cx="716" cy="118" r="5"/><circle class="fig-token" cx="716" cy="300" r="5"/></g>
+
+<g><rect class="fig-box" x="20" y="380" width="230" height="72" rx="12"/><text class="fig-box-title" x="135" y="402" text-anchor="middle">Two series, one axis</text><text class="fig-box-sub" x="135" y="420" text-anchor="middle">Motor current and throughput</text><text class="fig-box-sub" x="135" y="435" text-anchor="middle">move together minute by minute</text></g>
+<g><rect class="fig-box" x="266" y="380" width="230" height="72" rx="12"/><text class="fig-box-title" x="381" y="402" text-anchor="middle">Then they diverge</text><text class="fig-box-sub" x="381" y="420" text-anchor="middle">Current climbs while throughput</text><text class="fig-box-sub" x="381" y="435" text-anchor="middle">falls — that is the finding</text></g>
+<g><rect class="fig-exit-box" x="512" y="380" width="228" height="72" rx="12"/><text class="fig-exit-title" x="626" y="402" text-anchor="middle">Live extends the axis</text><text class="fig-exit-sub" x="626" y="420" text-anchor="middle">2-minute, 15-minute, or</text><text class="fig-exit-sub" x="626" y="435" text-anchor="middle">growing window</text></g>
+
+<text class="fig-exit-note" x="380" y="478" text-anchor="middle">One trace says what happened; two say whether it happened because of something else.</text>
+</svg>

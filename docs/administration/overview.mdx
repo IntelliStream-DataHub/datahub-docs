@@ -1,0 +1,131 @@
+---
+sidebar_position: 1
+title: Administration overview
+description: What running DataHub involves, the recurring responsibilities, the decisions that are hard to reverse, and where to find each one.
+---
+
+# Administration overview
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT and OT operations</Persona>
+  <Persona>Project sponsors</Persona>
+</Personas>
+
+<KeyIdea>
+Running DataHub is mostly four recurring jobs: **keeping it available**, **managing who can
+see what**, **controlling how much data is kept**, and **onboarding new sources**.
+
+Three decisions are hard to reverse and worth getting right early: tenant boundaries, data
+set boundaries, and external id conventions. Everything else can be changed later.
+</KeyIdea>
+
+## The three decisions to get right early
+
+<Cards>
+  <Card title="Tenant boundaries" to="/administration/organizations" icon="🏢" eyebrow="Hardest to change">
+    Each tenant is a fully separate set of databases. Splitting or merging tenants later
+    means moving data between databases, so decide the boundary before onboarding.
+  </Card>
+  <Card title="Data set boundaries" to="/using/datasets#designing-good-boundaries" icon="📦" eyebrow="Awkward to change">
+    Data sets are the unit of access control. Moving entities between them changes who can
+    see them and requires write access to both sides.
+  </Card>
+  <Card title="External id conventions" to="/concepts/naming-and-standards#external-ids-are-promises" icon="🏷️" eyebrow="Effectively permanent">
+    External ids can never change or be reused. A convention agreed after 40,000 items are
+    created is a convention you cannot apply.
+  </Card>
+</Cards>
+
+## The recurring work
+
+### Keeping it available
+
+DataHub runs as four services, all of which run as multiple instances behind a load balancer.
+Three of them scale by simply adding instances; one is deliberately single-active with a
+standby. The backing stores are standard, well-understood systems your infrastructure team
+likely already runs.
+
+[Architecture, without the jargon →](/administration/architecture)
+
+### Managing access
+
+**Data set permissions** govern the stored data, resources, time series, events and files.
+They are granted through roles in your identity provider, and read and write are independent
+of each other. [→ Data set permissions](/administration/dataset-permissions)
+
+Users themselves live in your existing identity provider, not in DataHub.
+[→ Users and access](/administration/users-and-access)
+
+### Controlling retention and cost
+
+Storage is the dominant infrastructure cost, and it grows with ingestion whether or not
+anyone reads the data. Value types, retention and housekeeping are what keep it
+proportionate.
+
+[→ Data lifecycle](/administration/data-lifecycle)
+
+### Onboarding new sources
+
+Each new source system means: deciding which data set it lands in, configuring the
+integration that feeds it, giving its service account the narrowest permissions that work,
+and making sure what arrives connects to the model rather than sitting orphaned.
+
+[→ Change data capture](/using/cdc-integrations) · [→ Data sets](/using/datasets)
+
+## What you do not have to do
+
+Worth knowing, because these are often assumed:
+
+- **You do not manage user accounts in DataHub.** Identity lives in your OAuth2/OIDC
+  provider. [Identity providers →](/administration/identity-providers) DataHub reads roles
+  from the token on every request, so revoking access is a
+  matter of removing a role, there is no cached permission state to clear.
+- **You do not run database migrations by hand.** They run automatically at startup, across
+  every tenant, with locking that makes concurrent instance startup safe.
+- **You do not need session affinity on the load balancer.** All services, including the
+  [live streaming endpoints](/using/subscriptions), are stateless in the way that matters. The load balancer needs
+  WebSocket-upgrade support and nothing else.
+
+## Sizing and scaling, in one paragraph
+
+Each of the four services scales differently and independently. The API scales with user and
+integration traffic. The consumer that lands datapoints and events scales with ingest
+volume. The console is a thin UI layer. The consumer that applies changes to the graph is
+order-sensitive and runs one-active-plus-standby rather than scaling out, which is fine,
+because graph changes are low volume compared with measurement ingest.
+
+The practical consequence: <span className="t-brand">you can scale ingestion without adding API
+capacity</span>, and restart the UI without interrupting ingestion.
+
+## Where to go next
+
+<Cards>
+  <Card title="Installing" to="/administration/installing" icon="💿">
+    Standing up an evaluation stack, and what changes for production.
+  </Card>
+  <Card title="Organisations and tenants" to="/administration/organizations" icon="🏢">
+    How multi-tenancy works, and how to decide tenant boundaries.
+  </Card>
+  <Card title="Users and access" to="/administration/users-and-access" icon="👤">
+    Identity, roles, tokens and service accounts.
+  </Card>
+  <Card title="Identity providers" to="/administration/identity-providers" icon="🔑">
+    Keycloak as the trusted issuer, and bringing Entra ID in behind it.
+  </Card>
+  <Card title="Data set permissions" to="/administration/dataset-permissions" icon="🔐">
+    The role grammar that controls read and write on stored data.
+  </Card>
+  <Card title="Data lifecycle" to="/administration/data-lifecycle" icon="♻️">
+    Retention, backups, housekeeping and storage cost.
+  </Card>
+  <Card title="Security and compliance" to="/administration/security" icon="🛡️">
+    The posture, the isolation guarantees, and what to tell a risk committee.
+  </Card>
+</Cards>
+
+<Deeper>
+- [Architecture, without the jargon](/administration/architecture): what the moving parts are
+- [Change data capture](/using/cdc-integrations): connecting source databases directly
+- [Frequently asked questions](/reference/faq): including the architecture decisions
+</Deeper>

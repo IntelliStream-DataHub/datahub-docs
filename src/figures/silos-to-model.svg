@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 358" class="fig-silos-to-model" role="img" aria-label="Two halves. Left, today: four operational systems — Historian, Maintenance, Work permits and ERP — sit in separate boxes with no connections between them and question marks in every gap, while one person joins them by hand for each project. Right, with a shared model: the same four sources all flow into a single shared model, where the historian tag, the maintenance equipment number and the ERP asset are joined up as one pump.">
+
+<text class="fig-title" x="20" y="24">From four systems to one picture</text>
+<text class="fig-sub" x="20" y="44">The same four sources, before and after there is a model to join them to.</text>
+
+<path class="fig-track" d="M 380 64 L 380 342"/>
+
+<text class="fig-box-title" x="32" y="78">Today</text>
+<text class="fig-box-sub" x="32" y="96">four systems, four ideas of a pump</text>
+
+<text class="fig-box-title" x="396" y="78">With a shared model</text>
+<text class="fig-box-sub" x="396" y="96">every source joins to one description</text>
+
+<g>
+  <rect class="fig-box" x="32" y="112" width="152" height="54" rx="12"/>
+  <text class="fig-box-title" x="108" y="134" text-anchor="middle">Historian</text>
+  <text class="fig-box-sub" x="108" y="151" text-anchor="middle">tag 47-PT-1023</text>
+</g>
+<g>
+  <rect class="fig-box" x="202" y="112" width="152" height="54" rx="12"/>
+  <text class="fig-box-title" x="278" y="134" text-anchor="middle">Maintenance</text>
+  <text class="fig-box-sub" x="278" y="151" text-anchor="middle">equipment no. 4711</text>
+</g>
+<g>
+  <rect class="fig-box" x="32" y="186" width="152" height="54" rx="12"/>
+  <text class="fig-box-title" x="108" y="208" text-anchor="middle">Work permits</text>
+  <text class="fig-box-sub" x="108" y="225" text-anchor="middle">permit on the pump</text>
+</g>
+<g>
+  <rect class="fig-box" x="202" y="186" width="152" height="54" rx="12"/>
+  <text class="fig-box-title" x="278" y="208" text-anchor="middle">ERP</text>
+  <text class="fig-box-sub" x="278" y="225" text-anchor="middle">cost-centre asset</text>
+</g>
+
+<g>
+  <text class="fig-title" x="193" y="144" text-anchor="middle">?</text>
+  <text class="fig-title" x="193" y="218" text-anchor="middle">?</text>
+  <text class="fig-title" x="108" y="181" text-anchor="middle">?</text>
+  <text class="fig-title" x="278" y="181" text-anchor="middle">?</text>
+</g>
+
+<g>
+  <circle class="fig-centre" cx="112" cy="277" r="10"/>
+  <path class="fig-centre" d="M 90 312 a 22 22 0 0 1 44 0"/>
+  <text class="fig-box-title" x="152" y="282">Joined by hand</text>
+  <text class="fig-box-sub" x="152" y="299">joins live in people's heads</text>
+  <text class="fig-box-sub" x="152" y="312">and are rebuilt each project</text>
+  <text class="fig-exit-note" x="193" y="338" text-anchor="middle">Nobody holds the whole picture.</text>
+</g>
+
+<g>
+  <rect class="fig-box" x="396" y="112" width="124" height="40" rx="12"/>
+  <text class="fig-box-title" x="458" y="137" text-anchor="middle">Historian</text>
+</g>
+<g>
+  <rect class="fig-box" x="396" y="166" width="124" height="40" rx="12"/>
+  <text class="fig-box-title" x="458" y="191" text-anchor="middle">Maintenance</text>
+</g>
+<g>
+  <rect class="fig-box" x="396" y="220" width="124" height="40" rx="12"/>
+  <text class="fig-box-title" x="458" y="245" text-anchor="middle">Work permits</text>
+</g>
+<g>
+  <rect class="fig-box" x="396" y="274" width="124" height="40" rx="12"/>
+  <text class="fig-box-title" x="458" y="299" text-anchor="middle">ERP</text>
+</g>
+
+<g>
+  <rect class="fig-centre" x="562" y="143" width="176" height="140" rx="14"/>
+  <text class="fig-centre-title" x="650" y="170" text-anchor="middle">One shared model</text>
+  <text class="fig-centre-sub" x="650" y="188" text-anchor="middle">one pump, one identity</text>
+</g>
+
+<g>
+  <path class="fig-exit-path fig-flow" d="M 520 132 C 541 132 541 213 562 213"/>
+  <path class="fig-exit-path fig-flow" d="M 520 186 C 541 186 541 213 562 213"/>
+  <path class="fig-exit-path fig-flow" d="M 520 240 C 541 240 541 213 562 213"/>
+  <path class="fig-exit-path fig-flow" d="M 520 294 C 541 294 541 213 562 213"/>
+</g>
+
+<g>
+  <path class="fig-exit-path" d="M 594 232 L 706 232"/>
+  <path class="fig-exit-path" d="M 594 232 Q 650 204 706 232"/>
+  <circle class="fig-token" cx="594" cy="232" r="8"/>
+  <circle class="fig-token" cx="650" cy="232" r="8"/>
+  <circle class="fig-token" cx="706" cy="232" r="8"/>
+  <text class="fig-box-sub" x="594" y="256" text-anchor="middle">tag</text>
+  <text class="fig-box-sub" x="650" y="256" text-anchor="middle">equip.</text>
+  <text class="fig-box-sub" x="706" y="256" text-anchor="middle">asset</text>
+  <text class="fig-exit-note" x="567" y="338" text-anchor="middle">Built once. Every project starts here.</text>
+</g>
+
+</svg>

@@ -1,0 +1,346 @@
+---
+sidebar_position: 2
+title: Frequently asked questions
+description: The questions people ask before and during a DataHub adoption, about the product, the model, the economics and the architecture.
+---
+
+# Frequently asked questions
+
+<Lead>
+Short answers, each linking to the page that explains it properly.
+</Lead>
+
+## About the platform
+
+### What is DataHub, in one sentence?
+
+A data platform that stores your measurements and events next to a model of your operation,
+so any number can be traced to the physical thing it describes and the business decision it
+affects. [→ What is DataHub?](/start/what-is-datahub)
+
+### Why was it built?
+
+Because a measurement should never be just a number, and getting there should not require an
+enterprise procurement process. Platforms delivering this kind of contextual model exist, but
+they typically arrive with a very large quote, a multi-quarter implementation and a
+proprietary data model you cannot leave.
+
+The alternative most engineering-led teams reach for is building it themselves from open
+components, and most of them ship the ingestion and storage parts, then leave lineage, data
+quality and the model's usability as a "phase two" that never comes. Those are the hard
+parts. DataHub is that build-it-yourself project done properly and then open-sourced, so the
+category has an open answer.
+
+### What is the value proposition?
+
+A single contextual model of your operation, designed from the start for lineage and data
+quality (the full trace is on the roadmap), at open-source economics. Concretely: one simple model over every silo, audit-ready reporting,
+faster investigations, and cheap onboarding of new data.
+[→ The business case](/value/business-case)
+
+### Is it a replacement for our historian / ERP / maintenance system?
+
+No. DataHub reads from operational systems and sits alongside them. Framing it as a
+replacement invites resistance from every system owner and is not what it does.
+[→ What DataHub is not](/start/what-is-datahub#what-datahub-is-not)
+
+### Is there a version for our industry?
+
+No, and deliberately. There are no vertical editions, the same platform and the same four
+building blocks serve every industry. What differs between deployments is the model you load
+into it. [→ Industry examples](/value/industry-examples)
+
+### Is DataHub a digital twin?
+
+It is what a digital twin is made of. The knowledge graph is the twin's structure, time
+series its senses, events its memory, and the live connection keeps the mirror in step with
+the plant. What we avoid is selling "a twin" as a deliverable: twins that work are grown
+around questions, not built as monuments.
+[→ What is a digital twin?](/concepts/digital-twin)
+
+### Can AI agents work with it?
+
+Yes, and they are unusually good with it, because an agent reasoning over a knowledge graph
+gets context instead of raw tables: it can follow *sensor → pump → line → KPI* the same way
+an engineer would, and answer with the traversal as its evidence. Agents can also write and
+operate integrations against the API. Once several run, a
+[coordinator](/value/ai-agents#coordination) sequences them into an organisation, and the
+same structure holds when the workers grow bodies, inspection robots and
+[unmanned installations](/value/ai-agents#the-workforce-will-not-stay-virtual).
+[→ AI agents](/value/ai-agents)
+
+### Can we build our own applications on it?
+
+Yes, and you should: the console itself is just a client of the same API. An application
+you build inherits the model, millisecond push delivery and access control instead of
+rebuilding them. Start with the equipment 360, one screen showing everything about a piece
+of equipment for the person holding the tools; it is read-only, exercises every building
+block, and pays back daily.
+[→ Building applications](/using/building-applications)
+
+### What is the licence?
+
+GNU AGPL-3.0. It places no restriction on using DataHub for your own organisation's data,
+self-hosted, in your cloud, or air-gapped.
+
+### Why open source?
+
+Partly conviction, partly because it is the honest answer to the biggest objection in this
+category: vendor risk. An operational data platform sits under your reporting, your
+investigations and eventually your automation, so adopting one is a decade-scale decision.
+Closed platforms answer "what if the vendor disappears, triples the price, or deprecates
+what we depend on" with a contract. Open source answers it structurally, you can read the
+code before adopting, audit what it does with your data, run it air-gapped, and fork it if
+we ever vanish.
+
+The AGPL specifically guarantees improvements stay open even when the platform is offered as
+a hosted service.
+
+## About the model
+
+### Do we have to adopt someone else's taxonomy?
+
+No. You describe your operation using the concepts your own people already use. Where your
+facility follows a tagging standard, ISA-5.1, IEC/ISO 81346, NORSOK, CFIHOS, mirror it,
+because it already encodes much of your model.
+[→ Naming and standards](/concepts/naming-and-standards)
+
+### How big should our first model be?
+
+Fifteen to twenty-five classes, covering the area your first question touches. If you are
+past sixty, you are probably modelling your source systems rather than your operation.
+[→ Building your model](/concepts/building-your-model)
+
+### Who should build the model?
+
+Your own domain experts, the people who operate and maintain the thing. Not a supplier, and
+not IT alone. This is the single most common cause of failure in this category.
+[→ Who does what](/start/who-does-what#the-mistake-worth-avoiding)
+
+### Can we change the model later?
+
+Yes, and you will. Classes and relationships are meant to evolve as questions expand. The one
+thing that cannot change is an [external id](/concepts/naming-and-standards#external-ids-are-promises),
+because integrations match on it.
+
+### What is contextualization?
+
+Linking each record to the real-world thing it describes, this signal to that pump, this
+datasheet to that transformer. It sounds mundane and it is the activity that turns a pile
+of records into a model you can reason over.
+[→ Contextualization](/concepts/contextualization)
+
+### Do we get data governance out of this?
+
+You get the pieces it is assembled from: the knowledge graph as the living inventory, data
+sets as the access boundary, policies as the recorded rules, and functions as sanctioned
+computation. Enforcement of policies and execution of functions are on the roadmap; the
+recording works today, and writing good rules is the slow part anyway.
+[→ Data governance](/concepts/data-governance)
+
+### What does "git branches, but for data lineage" mean?
+
+It is the mental model behind the **planned** lineage capability. In git, no commit
+overwrites history: every commit points at its parents, so any line of code can be traced
+back to its origin. DataHub is being built to treat data the same way: raw data handled as
+append-only, and every derived value recording the transformations and inputs it came from,
+like a commit pointing at its parents.
+
+Once complete, that gives you *blame* for data (walk a figure's ancestry back to raw samples,
+with quality flags at each step) and *branching* (alternative derivations fanning out from
+the same source without touching it or each other).
+[→ What exists today, and what is planned](/concepts/lineage-and-quality)
+
+## About adoption
+
+### How long does a first project take?
+
+About 90 days for one question, answered end to end, scoped to one site or process area. The
+biggest variable is how accessible your source systems are.
+[→ Where to start](/value/where-to-start)
+
+### What does it cost?
+
+**There is no licence cost.** The costs are infrastructure (modest, and scaling with data
+volume), integration effort (variable, per source system), and people, the domain expert and
+steward time to build the model, which dominates.
+[→ Measuring the return](/value/measuring-return)
+
+### What should we not promise?
+
+That it pays for itself through predictive maintenance in year one, that it replaces an
+existing system, or that it is finished in a quarter. A first *question* can finish in a
+quarter; a model of your operation grows with the questions asked of it.
+[→ What not to promise](/value/business-case#what-not-to-promise)
+
+### How do we know at 90 days whether it is working?
+
+The cost of answering the second question should be lower than the first. That is the whole
+compounding thesis, and it is testable early.
+[→ Measuring the return](/value/measuring-return)
+
+### We tried a data platform before and it did not deliver. Why is this different?
+
+Usually those failed for one of three reasons: the project started with technology rather
+than a question; the model was built by people who did not know the operation; or the
+commitment was too large to reverse. DataHub is shaped against all three, start with one
+question, keep the model with your own experts, and adopt on open-source terms where the exit
+cost is near zero. [→ The objection worth taking seriously](/start/the-data-problem#the-objection-worth-taking-seriously)
+
+## About architecture and operations
+
+### What do we actually need to run?
+
+Four core services, the API, the console and two consumers, plus the backing stores: a
+relational database, a streaming platform, a columnar store, a graph database, two
+key-value stores, a secret store and an OAuth2/OIDC identity provider. Three more pieces
+round out a full deployment: the analysis service behind the Analyze tab, a scheduled
+housekeeping service, and a broker plugin that supports live data delivery.
+[→ Architecture](/administration/architecture)
+
+### Why is the platform split into several services?
+
+Each has a different scaling profile and failure mode. The API is request/response and scales
+with user traffic; the consumers are throughput-bound and scale with ingest volume; the
+console is a thin UI layer. Splitting them means you can scale ingest without adding API
+instances, and restart the UI without dropping ingestion.
+
+### Why are there two consumers?
+
+Different jobs with different consistency needs. One lands high-volume immutable data
+(measurements and events) in batches and scales horizontally. The other applies changes to
+the knowledge graph, which is order-sensitive, so it runs one-active-plus-standby rather than
+fanning out.
+
+### Why both a relational database and a graph database?
+
+The relational database is the system of record for entities. The graph serves relationship
+traversal, the questions users ask of the model are multi-hop traversals, which get painful
+in SQL and are natural in a graph query language.
+
+### Why a columnar store for measurements?
+
+Telemetry is high-cardinality, append-heavy and queried in large analytical sweeps, exactly
+the columnar workload. The relational database holds the model; the columnar store holds the
+measurements.
+
+### Why is the console server-rendered rather than a single-page application?
+
+Deliberate simplicity: no frontend framework churn, no separate token handling in the browser
+(the console is a regular OAuth2 client with server-held tokens), fast first paint, and
+templates that live next to the code that serves them. It is an operational UI, not an app
+platform, so the trade-off favours longevity and a low contribution barrier.
+
+### Do we need session affinity on the load balancer?
+
+No. All services are stateless in the way that matters, including the live-streaming
+endpoints, the subscription position lives on the streaming platform and the browser's live
+tail is a non-durable read, so a reconnect can resume on any instance. The load balancer
+needs WebSocket-upgrade support and nothing else.
+[→ Load balancing](/administration/architecture#load-balancing)
+
+### Do I need a connection pooler? {#do-i-need-a-connection-pooler}
+
+For development or a small single-tenant install, no, direct connections work, they are just
+not pooled. For production, yes: each database backend is a process, and without a pooler
+every transaction pays connection-setup cost. A transaction-mode pooler also enforces
+per-tenant pool limits in one place.
+
+### How does multi-tenancy work?
+
+Each tenant gets its own relational and columnar databases plus its own file storage root,
+and the platform supports per-tenant credentials for each. Be aware the reference
+deployment configures less than the platform supports: one shared database credential, and
+one shared graph database. The tenant is resolved from the organisation claim in the
+caller's token, and the context is cleared at the end of every request.
+[→ What the reference deployment actually does](/administration/organizations#what-the-reference-deployment-actually-does)
+
+### Can different tenants live on different servers?
+
+Yes. Each tenant carries its own connection details, so tenants can be placed independently,
+useful for isolating heavy tenants or meeting data-residency requirements.
+
+### How do we back up a tenant?
+
+Per database, because every store is database-per-tenant: a dump of the relational database,
+the columnar store's native backup, your standard graph backup, and the tenant's file storage
+root. Restore is similarly scoped, one tenant without touching the others.
+[→ Backups](/administration/data-lifecycle#backups)
+
+### Can we sign in with our existing Entra ID?
+
+Yes: federate Entra ID through Keycloak, which is the recommended path. Making Entra ID the
+*only* provider is possible in principle but is the harder road, it needs platform changes
+as well as more configuration and administration. Multiple Entra ID tenants will be
+connectable, each to its own organisation, once Keycloak organisations land.
+[→ Identity providers](/administration/identity-providers)
+
+### Are you ISO 27001 certified?
+
+Not yet. Certification is in progress, and we are not certified today, so if your
+procurement requires a certified supplier now, we do not meet that bar.
+[Ask us where the process stands](https://intellistream.ai/contact-us).
+[→ Certification status](/administration/security)
+
+### Can it run air-gapped?
+
+Yes. Nothing in the platform requires an outbound connection at runtime, no licence check,
+no telemetry, no hosted dependency. [→ Security](/administration/security)
+
+## About using it
+
+### Can we get data out the moment it changes?
+
+Yes. Subscriptions push new datapoints and events to you over a live connection with
+millisecond latency, so consumers react to changes instead of polling for them. A dropped
+connection resumes where it left off.
+[→ Subscriptions](/using/subscriptions)
+
+### Can the platform run computations on our data?
+
+Recording them, yes; executing them is on the roadmap. Functions, the blocks that will do
+cleaning, transformation, feature extraction and windowing, and policies, the rules on data
+sets, are modelled in the graph today and are the two roadmap building blocks the platform
+is being built toward. You can compute externally now, against the same APIs.
+[→ Functions](/using/functions) · [Policies](/using/policies)
+
+### Why can I see less data than my colleague?
+
+Almost certainly a data set permission. Reads are filtered rather than erroring, so
+inaccessible data is silently omitted from lists.
+[→ Data set permissions](/administration/dataset-permissions#how-denial-behaves)
+
+### Why can't I change a value type or an external id?
+
+The **value type** genuinely cannot change: it defines the physical storage of every
+datapoint already written. If it is wrong, create a new series with the right type and
+migrate. The **external id** is different: the platform will actually let you change it, but
+you should treat it as immutable anyway, because integrations match on it and a change breaks
+them silently rather than loudly.
+[→ Time series](/using/timeseries#editing-a-series)
+
+### Why was I told I cannot delete this relationship?
+
+Because deleting it would leave a resource with no path back to the graph root, and DataHub
+refuses rather than stranding it. The error names the resources that would be cut off:
+include them in the deletion, or keep a connecting path.
+[→ The resource graph](/using/resources)
+
+### Storage is growing faster than expected. Where do I look?
+
+Three places, in order: the [value types](/using/timeseries#value-types) chosen on your
+highest-rate series, the retention set on your highest-volume data domains, and any recently
+connected source ingesting faster than expected.
+[→ Data lifecycle](/administration/data-lifecycle)
+
+### Sign-in loops or errors after installing. What is wrong?
+
+Almost always the identity provider issuer address. The browser and the in-network containers
+must agree on one issuer URL. [→ If login redirects fail](/administration/installing#if-login-redirects-fail)
+
+<Deeper>
+- [Glossary](/reference/glossary): every term, defined in one line
+- [What is DataHub?](/start/what-is-datahub): the plain-language explanation
+- [The business case](/value/business-case): for the commercial questions
+- [Administration overview](/administration/overview): for the operational ones
+</Deeper>

@@ -1,0 +1,116 @@
+---
+sidebar_position: 5
+title: Insights, charting and live data
+description: Plotting time series in the DataHub console, comparing several at once, choosing time ranges, and streaming live readings.
+---
+import LiveChart from '@site/src/figures/live-chart.svg';
+
+# Insights, charting and live data
+
+<Personas>
+  <Persona primary>Operations</Persona>
+  <Persona primary>Engineers</Persona>
+  <Persona>Analysts</Persona>
+</Personas>
+
+<KeyIdea>
+**Insights** is where you look at data. Select one or more time series, choose a time range,
+and read the chart.
+
+Two things make it more than a chart viewer: you can put several series on the same axis to
+see how they move together, and you can switch to **Live** to watch readings arrive in real
+time.
+</KeyIdea>
+
+## Picking a time range
+
+Set a **Start** and **End** directly, or use a quick range:
+
+| | |
+| --- | --- |
+| **Short** | Last 2 minutes · Last 5 minutes · Last 15 minutes · Last 30 minutes · Last hour · Last 3 hours |
+| **Operational** | Last 12 hours · Last day · Last 2 days |
+| **Analytical** | Last week · Last month · Last 3 months · Last year |
+| **Custom** | Any start and end you choose |
+
+There is also a week picker, useful when an investigation is framed around a specific
+production week rather than a rolling window.
+
+:::tip Range affects resolution
+Longer ranges are drawn from wider aggregation buckets. That is what keeps a year of
+one-second data readable, but it means fine detail is not visible at long ranges, and it
+matters for [relationship analysis](/using/relationship-analysis), where the bucket width
+sets how precisely a lead or lag can be measured. When you need detail, narrow the range.
+:::
+
+## Comparing several series
+
+Select more than one series and they are plotted together, up to **six** at a time; the
+console warns and asks you to deselect one before adding a seventh. The default range on
+opening is the last day.
+
+Comparison is where most operational insight actually comes from.
+<span className="hl">A single trace tells you what happened; two traces tell you whether it
+happened *because of* something else.</span> Suction
+pressure against discharge pressure, motor current against throughput, ambient temperature
+against energy consumption, the pairing is the analysis.
+
+When you want suggestions for what to compare against, the **Analyze** tab is being built
+to rank other series by how strongly they move with the one you have selected, so you do
+not have to guess. It needs the analysis service, which is not part of the standard
+deployment yet.
+[Relationship analysis, and its status →](/using/relationship-analysis)
+
+<Figure caption="The divergence is the finding, not the shape of either trace on its own: motor current climbing while throughput falls is the signature of something obstructing the process. Because both series were already on screen when Live started streaming, the widening gap was visible as it opened rather than reconstructed afterwards." wide>
+  <LiveChart />
+</Figure>
+
+## Live mode
+
+Click **Live** to stream new datapoints onto the chart as they arrive, rather than
+requesting a fixed window.
+
+- Select at least one series first, Live has nothing to stream otherwise.
+- Any preset up to one hour works while live, plus **growing**, which keeps everything
+  since you started and extends the axis as time passes. A longer selection snaps to 15
+  minutes when you go live.
+- The button shows **Connecting…** while the connection is established, then streams. Click
+  **Stop** to return to a static view.
+
+Live mode is genuinely live, readings appear as the platform receives them,
+<span className="t-success">not on a refresh timer</span>. It is the right view for
+commissioning, for watching a machine through a start-up sequence, or for following an
+incident as it develops.
+
+Under the hood this is a [data subscription](/using/subscriptions), the same push-not-poll
+machinery your systems and agents can consume directly, with millisecond delivery and a
+position that survives reconnects.
+
+## The Analyze view
+
+Alongside Insights there is an **Analyze** view, which goes past plotting into
+characterising how two signals relate: correlation, lead and lag, shared periodicity, and
+whether the relationship holds up over the whole range or only part of it. The service
+behind it is on the roadmap for the standard deployment.
+
+That has its own page, because the ideas need explaining rather than just listing.
+[Relationship analysis →](/using/relationship-analysis)
+
+## Reading a chart honestly
+
+Three habits that prevent most misreadings:
+
+- **Check the range before concluding anything.** A dramatic-looking excursion over a
+  15-minute window is often ordinary noise over a day.
+- **Check whether the series is a step series.** A step series holds its value between
+  readings; a non-step series is interpolated. The same underlying data looks different
+  under the two, and the difference is meaningful for anything with discrete states.
+- **Look for gaps, not just shapes.** A flat line can mean a stable process **or a dead
+  instrument**. Overlaying [events](/using/events) usually tells you which.
+
+<Deeper>
+- [Time series](/using/timeseries): creating the series you are charting
+- [Relationship analysis](/using/relationship-analysis): finding which signals move together
+- [Events](/using/events): the context that explains what a chart shows
+- [The resource graph](/using/resources): navigating from equipment to its measurements
+</Deeper>

@@ -1,0 +1,140 @@
+---
+sidebar_position: 8
+title: Data subscriptions
+description: Subscribing to data so it is pushed to you the moment it arrives, millisecond-scale delivery, and the use cases that only exist once latency stops being a schedule.
+---
+import SubscriptionFlow from '@site/src/figures/subscription-flow.svg';
+
+# Data subscriptions
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Integrators</Persona>
+</Personas>
+
+<KeyIdea>
+Everything else in this section is about **looking at** data. A subscription reverses the
+direction: <span className="hl">data comes to you, the moment it arrives</span>, pushed over a
+standing connection rather than fetched on a schedule.
+
+Delivery is millisecond-scale inside the platform, and that is not a performance brag, it is
+a category change: a whole set of use cases only exists below the latency of a polling loop.
+</KeyIdea>
+
+## Push, not poll
+
+Most integrations ask on a schedule: every minute, every five, every fifteen. That puts a
+floor under how fresh anything downstream can be, on average half the polling interval,
+<span className="hl">no matter how fast the data itself moves</span>. It also scales badly, because every consumer asks
+again whether anything happened, mostly to hear that nothing did.
+
+A subscription is a standing request. You say once what you want to hear about, and the
+platform delivers each new datapoint as it lands.
+
+<Figure
+  caption="The polling lane's latency has nothing to do with the data and everything to do with the schedule. The subscription lane has no schedule to wait for, which is the entire difference."
+  wide
+>
+  <SubscriptionFlow />
+</Figure>
+
+## The two kinds
+
+| | Live tail | Durable subscription |
+| --- | --- | --- |
+| **For** | Watching, a person or a chart | Delivering, a system that must not miss data |
+| **Starts from** | Now | Where you left off |
+| **If you disconnect** | You miss what happened while away | Nothing is lost: your position is held on the platform, and delivery resumes from it |
+| **Acknowledgement** | None, it is a view | Each delivery is acknowledged, so unconfirmed data is redelivered |
+| **You meet it in** | [Insights Live mode](/using/insights#live-mode) | Integrations built by your team |
+
+The distinction matters more than it looks. A wall display can use a live tail, because a
+missed minute during a reconnect is harmless. A downstream system mirroring data, or an
+agent acting on it, needs the durable kind, where a dropped connection is an inconvenience
+rather than a gap in the record.
+
+Two properties of durable subscriptions are worth knowing even if you never build one:
+
+- **Reconnects resume anywhere.** Your position is **held by the platform, not by the
+  server** you happened to be talking to, so a reconnect lands on any instance and carries on. No
+  data loss, no special infrastructure.
+- **Filtering happens platform-side.** You subscribe to the series you care about, and only
+  those are delivered. A subscriber is not flooded with everything and left to discard.
+
+## What millisecond delivery opens up
+
+The honest way to see the value: list what is impossible at five-minute latency and routine
+below one second.
+
+<Cards wide>
+  <Card title="Operators told, not discovering" to="/using/events" icon="🚨">
+    A threshold crossing reaches the person on shift while the excursion is still starting,
+    not on the next dashboard refresh. The difference between reacting and reviewing.
+  </Card>
+  <Card title="Agents that watch continuously" to="/value/ai-agents#perception-turning-signals-into-meaning" icon="🤖">
+    A perception agent is only as fast as its data. Fed by subscription, it evaluates every
+    reading as it lands, which is what makes early-warning agents early.
+  </Card>
+  <Card title="Downstream systems without batch ETL" to="/using/cdc-integrations" icon="🔁">
+    A system that needs your operational data can subscribe to it instead of receiving
+    nightly exports, always current, no batch window, no reconciliation morning.
+  </Card>
+  <Card title="Commissioning and live diagnosis" to="/using/insights#live-mode" icon="🔧">
+    Watching a machine through a start-up sequence, or an incident as it develops, with the
+    chart moving as the plant moves. This one you can use today with no code at all.
+  </Card>
+</Cards>
+
+And the one worth flagging for later: closed-loop reactions, where a detected condition
+triggers an adjustment, are only responsible at subscription latency. That road runs through
+the guardrails on the [agents page](/value/ai-agents#guardrails-on-a-loop), but it starts
+here, with delivery fast enough to react to. The chain drawn end to end, a detection
+function firing, the event waking an agent, the agent's draft reaching a person, is on the
+[functions page](/using/functions#and-then-an-agent-picks-it-up). Push delivery is also
+what moves a model from knowing what exists to knowing what is happening, level two of the
+[twin maturity ladder](/concepts/digital-twin#the-maturity-ladder).
+
+## Being honest about the milliseconds
+
+"Millisecond latency" means delivery inside the platform: from a datapoint landing to it
+being on the wire to subscribers. Your own network path adds whatever it adds, and a
+subscriber that processes slowly adds more. The claim to design against is <span className="t-accent">no schedule in the way</span>,
+not a specific number on your WAN. Acknowledged redelivery also means a consumer can see
+the same datapoint twice after a reconnect, so build handlers
+[idempotent](https://en.wikipedia.org/wiki/Idempotence).
+
+The other side of the deal: a durable subscriber that stops consuming leaves the platform
+holding its undelivered data. Build consumers that keep up, and treat a subscription's
+credentials like any other integration's, a
+[service account](/administration/users-and-access#service-accounts) with the narrowest
+access that works.
+
+## Where to start
+
+- **See it without writing code**: open a series in [Insights](/using/insights#live-mode)
+  and go Live. That is a live tail over exactly this machinery.
+- **Build against it**: subscriptions are consumed through the API and SDKs, which is
+  developer territory, and they are the live feed behind most
+  [applications built on the platform](/using/building-applications).
+  [Developer and SDK documentation →](https://docs.intellistream.ai)
+- **Managing subscriptions in the console** sits in the Streams area, whose documentation
+  is being reworked alongside the streaming feature itself.
+
+<References>
+
+- [Publish–subscribe pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern)
+- [Push technology, versus polling](https://en.wikipedia.org/wiki/Push_technology)
+- [WebSocket, the standing connection this rides on](https://en.wikipedia.org/wiki/WebSocket)
+- [Event-driven architecture](https://en.wikipedia.org/wiki/Event-driven_architecture)
+
+</References>
+
+<Deeper>
+- [Insights Live mode](/using/insights#live-mode): the no-code way to watch a subscription
+- [Events](/using/events): the discrete occurrences worth subscribing to
+- [AI agents](/value/ai-agents): what continuous watching makes possible
+- [Digital twins](/concepts/digital-twin): the live connection that separates a twin from a picture
+- [Users and access](/administration/users-and-access#service-accounts): credentials for a subscribing system
+- [Architecture](/administration/architecture#load-balancing): why reconnects resume on any instance
+</Deeper>

@@ -1,0 +1,177 @@
+---
+sidebar_position: 2
+title: Taxonomy, ontology, knowledge graph
+description: The three terms distinguished clearly, with examples, what each one adds, and which one you are building at any given moment.
+---
+import ThreeLayersBuild from '@site/src/figures/three-layers-build.svg';
+
+# Taxonomy, ontology, knowledge graph
+
+<Personas>
+  <Persona primary>Everyone</Persona>
+</Personas>
+
+<KeyIdea>
+Three words, often used interchangeably, that build on each other:
+
+- **Taxonomy**, *what kinds of things exist*, arranged in a tree. A Pump is a kind of
+  Rotating Equipment.
+- **Ontology**, taxonomy **plus relationships and rules**. A Pump can be part of a Line,
+  and is monitored by Instruments.
+- **Knowledge graph**, the ontology **filled with your actual assets**. Pump P-101 is part
+  of Line 3 and monitored by 21-PT-1234.
+
+You need all three, and in that order. Add live data on top and the result gains a fourth
+name: a [digital twin](/concepts/digital-twin).
+</KeyIdea>
+
+## The library analogy, continued
+
+Return to the library from [What is DataHub?](/start/what-is-datahub#an-analogy-the-warehouse-and-the-library).
+
+The **taxonomy** is the [subject classification scheme](https://en.wikipedia.org/wiki/Library_classification), the rule that says works are sorted
+into Science, and within Science into Physics, and within Physics into Optics. It is a tree.
+Every subject has exactly one parent. It tells you what *kinds* of things a library can
+hold.
+
+The **ontology** is everything the catalogue knows beyond classification: that a work has
+an author, that an author can have written several works, that a work can cite another
+work, that a translation is derived from an original. These are relationships, and they are
+not tree-shaped, a single work connects outward in many directions.
+
+The **knowledge graph** is the catalogue once every actual book is in it. Not "a work has an
+author" but "*Kristin Lavransdatter* was written by Sigrid Undset". Real things, real
+connections, queryable.
+
+## Side by side
+
+| | Taxonomy | Ontology | Knowledge graph |
+| --- | --- | --- | --- |
+| **Answers** | What kinds of things exist? | How can things relate? | What is actually out there? |
+| **Shape** | A tree, one parent each | A network of typed relations | A network filled with real instances |
+| **Contains** | Classes | Classes + relationship types + rules | Instances + their real relationships |
+| **Example** | `Pump` is a kind of `RotatingEquipment` | A `Pump` may be `partOf` a `Line` | `P-101` is `partOf` `Line3` |
+| **In DataHub** | Your **labels** | Labels + **relationship types** | Your **resources and their relationships** |
+| **Changes** | Rarely | Occasionally | Constantly |
+
+<Figure
+  caption="Only the third panel contains anything real. The first two are definitions, the classes, then the named links allowed between them, and both are settled by a few people and revisited rarely. The knowledge graph is the populated result, and it is the layer that grows every day."
+  wide
+>
+  <ThreeLayersBuild />
+</Figure>
+
+## What each layer buys you
+
+### Taxonomy: asking about many things at once
+
+Without classification, every question is about one named item. With it, you can ask about
+whole populations:
+
+- *"Show me every **Pump** on this site."*
+- *"Which **Instruments** have not reported in 24 hours?"*
+- *"Compare energy per tonne across all **Compressors** of this class."*
+
+That leap, **from "tell me about P-101" to "tell me about every pump"**, is what a taxonomy
+delivers, and it is why <span className="t-accent">every resource in DataHub must have at least
+one label</span>. In the console, labels also [colour the nodes in the graph](/using/resources),
+which is what keeps a model with thousands of nodes visually readable.
+
+**In DataHub:** labels are your taxonomy. Create them deliberately, in the singular, with
+spaces between words: `Pump`, `Separator`, `Site`, `Pressure Transmitter`. Names are stored
+upper-cased with underscores, so that last one becomes `PRESSURE_TRANSMITTER`.
+
+:::tip Keep the tree shallow
+Three or four levels is almost always enough. Deep hierarchies feel rigorous and turn out
+to be unusable, because nobody can remember which of the four near-identical leaf classes a
+given item belongs to.
+:::
+
+### Ontology: making the relationships legal and meaningful
+
+A taxonomy tells you a Pump exists as a kind. It does not tell you a Pump can be part of a
+Line, or that an Instrument monitors equipment rather than the other way round. Those are
+**relationship types**, and naming them is the step that turns a classification scheme into
+a model of how your operation is put together.
+
+This is also where **rules** live. In DataHub, one rule is enforced structurally: a resource
+carries at most one type label, chosen at creation, encoding what it fundamentally *is*,
+while other labels can
+be added and changed freely. That keeps the classification unambiguous, an item cannot
+quietly be both a Pump and a Vessel, while still letting you tag things for other purposes.
+
+**In DataHub:** relationship types are the names you choose when you connect two resources.
+Choose a small vocabulary and use it consistently. Five well-used relationships beat forty
+used once each. [Naming relationships →](/concepts/naming-and-standards#relationships)
+
+### Knowledge graph: answering questions by walking
+
+The first two layers are definitions. The knowledge graph is the populated result, and it
+is what you actually query. Its distinguishing feature is that questions are answered by
+**following relationships** rather than by joining tables.
+
+[Knowledge graphs in detail →](/concepts/knowledge-graph) ·
+[And what it becomes with live data →](/concepts/digital-twin)
+
+## Which one am I building right now?
+
+A quick way to locate yourself:
+
+| If you are... | You are working on... |
+| --- | --- |
+| Deciding whether "Valve" and "ControlValve" should be separate classes | **Taxonomy** |
+| Deciding whether the link is called *feeds* or *supplies* | **Ontology** |
+| Adding P-101, P-102 and P-103 and connecting them to Line 3 | **Knowledge graph** |
+| Importing 4,000 tags from a historian | **Knowledge graph** (and finding out whether your taxonomy holds up) |
+
+The first two are decisions made by a handful of people in a room, once, and revisited
+rarely. The third is continuous, mostly automated, and often high volume.
+<span className="hl">Getting the first two roughly right is what keeps the third from
+becoming a mess.</span>
+
+## A common mistake
+
+Teams frequently try to build a complete taxonomy before touching real data. It feels
+responsible, and it produces a model that is **beautifully organised and subtly wrong**,
+because the flaws in a classification scheme only become visible when real items refuse to
+fit.
+
+The better order:
+
+<Steps>
+  <Step title="Sketch a rough taxonomy, 15 to 25 classes">
+    Enough to cover the area your first question touches. Do not try to cover the whole
+    company.
+  </Step>
+  <Step title="Load real assets into it">
+    A few hundred, from a source you trust. This is where you find out that "Valve" needed
+    splitting, or that two classes were really the same one.
+  </Step>
+  <Step title="Fix the taxonomy based on what broke">
+    Expect to change it. Changing it now is cheap; changing it after 40,000 items are
+    classified is not.
+  </Step>
+  <Step title="Then scale up">
+    Import at volume once the classes have survived contact with real data.
+  </Step>
+</Steps>
+
+[The full workshop recipe →](/concepts/building-your-model)
+
+<References>
+
+- [Taxonomy](https://en.wikipedia.org/wiki/Taxonomy)
+- [Knowledge graph](https://en.wikipedia.org/wiki/Knowledge_graph)
+- [Controlled vocabulary](https://en.wikipedia.org/wiki/Controlled_vocabulary)
+- [Is-a relationships](https://en.wikipedia.org/wiki/Is-a)
+- [SKOS, for publishing classification schemes](https://www.w3.org/TR/skos-reference/)
+
+</References>
+
+<Deeper>
+- [What is an ontology?](/concepts/ontology): the model layer explained from scratch
+- [Knowledge graphs](/concepts/knowledge-graph): traversal, and the questions it makes cheap
+- [The three layers](/concepts/three-layers): assets, functions, business knowledge
+- [Naming and standards](/concepts/naming-and-standards): conventions for labels and relationships
+- [Working with the resource graph](/using/resources): where all of this lives in the console
+</Deeper>

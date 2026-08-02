@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 404" class="fig-function-branching" role="img" aria-label="A pipeline forking like a git branch: tank level and air temperature feed both the production cleaning function v1 and its cloned, modified copy v2. Each writes its own corrected series, and both outputs feed a comparison against lab measurements, which decides promotion.">
+<text class="fig-title" x="20" y="24">Branching a pipeline, like branching code</text>
+<text class="fig-sub" x="20" y="44">Clone the cleaning function, improve the algorithm in the copy, and race both against the same inputs.</text>
+<rect class="fig-lit-box c-green" x="20" y="99" width="190" height="42" rx="12"/><text class="fig-lit-sub" x="115" y="124" text-anchor="middle">21-LT-4012 · tank level</text>
+<rect class="fig-lit-box c-green" x="20" y="155" width="190" height="42" rx="12"/><text class="fig-lit-sub" x="115" y="180" text-anchor="middle">21-TT-4013 · air temp</text>
+<path class="fig-exit-path fig-flow" d="M210 120 L260 110" fill="none"/>
+<path class="fig-centre" d="M260 105 L270 110 L260 115 z"/>
+<path class="fig-exit-path fig-flow" d="M210 176 L260 122" fill="none"/>
+<path class="fig-centre" d="M260 117 L270 122 L260 127 z"/>
+<path class="fig-exit-path fig-flow" d="M210 120 L260 226" fill="none"/>
+<path class="fig-centre" d="M260 221 L270 226 L260 231 z"/>
+<path class="fig-exit-path fig-flow" d="M210 176 L260 238" fill="none"/>
+<path class="fig-centre" d="M260 233 L270 238 L260 243 z"/>
+<text class="fig-box-sub" x="233" y="196" text-anchor="middle">clone</text>
+<rect class="fig-lit-box c-blue" x="270" y="88" width="180" height="56" rx="12"/><text class="fig-lit-title" x="360" y="111" text-anchor="middle">Clean · v1</text><text class="fig-lit-sub" x="360" y="129" text-anchor="middle">in production</text>
+<rect class="fig-box" x="270" y="204" width="180" height="56" rx="12"/><text class="fig-box-title" x="360" y="227" text-anchor="middle">Clean · v2</text><text class="fig-box-sub" x="360" y="245" text-anchor="middle">cloned, new algorithm</text>
+<path class="fig-exit-path fig-flow" d="M450 116 L500 116" fill="none"/>
+<path class="fig-centre" d="M500 111 L510 116 L500 121 z"/>
+<path class="fig-exit-path fig-flow" d="M450 232 L500 232" fill="none"/>
+<path class="fig-centre" d="M500 227 L510 232 L500 237 z"/>
+<rect class="fig-lit-box c-green" x="510" y="88" width="180" height="56" rx="12"/><text class="fig-lit-title" x="600" y="111" text-anchor="middle">level · corrected v1</text><text class="fig-lit-sub" x="600" y="129" text-anchor="middle">what reports use today</text>
+<rect class="fig-box" x="510" y="204" width="180" height="56" rx="12"/><text class="fig-box-title" x="600" y="227" text-anchor="middle">level · corrected v2</text><text class="fig-box-sub" x="600" y="245" text-anchor="middle">the challenger</text>
+<line class="fig-track" x1="690" y1="116" x2="724" y2="116"/>
+<line class="fig-track" x1="690" y1="232" x2="724" y2="232"/>
+<line class="fig-track" x1="724" y1="116" x2="724" y2="318"/>
+<line class="fig-track" x1="724" y1="318" x2="694" y2="318"/>
+<path class="fig-centre" d="M694 313 L682 318 L694 323 z"/>
+<rect class="fig-centre" x="502" y="290" width="180" height="56" rx="12"/><text class="fig-centre-title" x="592" y="313" text-anchor="middle">compare accuracy</text><text class="fig-centre-sub" x="592" y="331" text-anchor="middle">against the lab dips</text>
+<text class="fig-box-sub" x="20" y="372">Both branches read the same inputs and write parallel series, so the race is fair and cheap to judge.</text>
+<text class="fig-box-sub" x="20" y="390">Promote the winner. The loser and the comparison stay in the graph, so the pipeline improves without losing its history.</text>
+</svg>

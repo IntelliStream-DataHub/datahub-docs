@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 392" class="fig-windowing" role="img" aria-label="Three sensor streams as horizontal lanes of events. Vertical slices divide time into four equal tumbling windows; every event falls in exactly one window. A bracket marks the window size and an arrow marks time.">
+<text class="fig-title" x="20" y="24">Tumbling windows: every event lands in exactly one slice</text>
+<text class="fig-sub" x="20" y="44">Three sensors streaming, time cut into equal windows.</text><text class="fig-sub" x="20" y="60">When a window closes, its aggregate is emitted seconds later.</text>
+<text class="fig-box-sub" x="188" y="88" text-anchor="middle">window 1</text>
+<text class="fig-box-sub" x="338" y="88" text-anchor="middle">window 2</text>
+<text class="fig-box-sub" x="490" y="88" text-anchor="middle">window 3</text>
+<text class="fig-box-sub" x="640" y="88" text-anchor="middle">window 4</text>
+<line class="fig-track" x1="112" y1="96" x2="112" y2="272"/>
+<line class="fig-track" x1="263" y1="96" x2="263" y2="272"/>
+<line class="fig-track" x1="414" y1="96" x2="414" y2="272"/>
+<line class="fig-track" x1="565" y1="96" x2="565" y2="272"/>
+<line class="fig-track" x1="716" y1="96" x2="716" y2="272"/>
+<text class="fig-box-sub" x="100" y="130" text-anchor="end">21-PT-1034</text>
+<path class="fig-exit-path fig-flow" d="M112 126 L716 126" fill="none"/>
+<circle class="fig-token" cx="124" cy="126" r="5"/>
+<circle class="fig-token" cx="166" cy="126" r="5"/>
+<circle class="fig-token" cx="231" cy="126" r="5"/>
+<circle class="fig-token" cx="287" cy="126" r="5"/>
+<circle class="fig-token" cx="352" cy="126" r="5"/>
+<circle class="fig-token" cx="376" cy="126" r="5"/>
+<circle class="fig-token" cx="447" cy="126" r="5"/>
+<circle class="fig-token" cx="522" cy="126" r="5"/>
+<circle class="fig-token" cx="608" cy="126" r="5"/>
+<circle class="fig-token" cx="671" cy="126" r="5"/>
+<text class="fig-box-sub" x="100" y="192" text-anchor="end">21-PT-1035</text>
+<path class="fig-exit-path fig-flow" d="M112 188 L716 188" fill="none"/>
+<circle class="fig-token" cx="139" cy="188" r="5"/>
+<circle class="fig-token" cx="201" cy="188" r="5"/>
+<circle class="fig-token" cx="246" cy="188" r="5"/>
+<circle class="fig-token" cx="318" cy="188" r="5"/>
+<circle class="fig-token" cx="401" cy="188" r="5"/>
+<circle class="fig-token" cx="438" cy="188" r="5"/>
+<circle class="fig-token" cx="491" cy="188" r="5"/>
+<circle class="fig-token" cx="580" cy="188" r="5"/>
+<circle class="fig-token" cx="645" cy="188" r="5"/>
+<circle class="fig-token fig-pulse" cx="702" cy="188" r="5"/>
+<text class="fig-box-sub" x="100" y="254" text-anchor="end">21-TT-2001</text>
+<path class="fig-exit-path fig-flow" d="M112 250 L716 250" fill="none"/>
+<circle class="fig-token" cx="151" cy="250" r="5"/>
+<circle class="fig-token" cx="183" cy="250" r="5"/>
+<circle class="fig-token" cx="272" cy="250" r="5"/>
+<circle class="fig-token" cx="335" cy="250" r="5"/>
+<circle class="fig-token" cx="391" cy="250" r="5"/>
+<circle class="fig-token" cx="467" cy="250" r="5"/>
+<circle class="fig-token" cx="529" cy="250" r="5"/>
+<circle class="fig-token" cx="553" cy="250" r="5"/>
+<circle class="fig-token" cx="624" cy="250" r="5"/>
+<circle class="fig-token" cx="688" cy="250" r="5"/>
+<line class="fig-track" x1="112" y1="290" x2="263" y2="290"/>
+<line class="fig-track" x1="112" y1="284" x2="112" y2="296"/>
+<line class="fig-track" x1="263" y1="284" x2="263" y2="296"/>
+<text class="fig-box-sub" x="187" y="310" text-anchor="middle">window size</text>
+<line class="fig-track" x1="300" y1="290" x2="700" y2="290"/>
+<path class="fig-centre" d="M700 284 L712 290 L700 296 z"/>
+<text class="fig-box-sub" x="720" y="294">time</text>
+<text class="fig-box-sub" x="20" y="344">Every event belongs to exactly one window, no overlaps, no gaps. One aggregate per sensor per window,</text>
+<text class="fig-box-sub" x="20" y="362">emitted while the stream keeps flowing. Sliding windows overlap instead; the slicing idea is identical.</text>
+</svg>

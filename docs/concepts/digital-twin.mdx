@@ -1,0 +1,142 @@
+---
+sidebar_position: 5
+title: What is a digital twin?
+description: A digital twin explained honestly, a live, connected digital counterpart of a physical operation, why you grow one rather than build one, and how the knowledge graph, time series and events are its anatomy.
+---
+import DigitalTwinMirror from '@site/src/figures/digital-twin-mirror.svg';
+
+# What is a digital twin?
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Engineers</Persona>
+  <Persona>Domain experts</Persona>
+</Personas>
+
+<KeyIdea>
+A [digital twin](https://en.wikipedia.org/wiki/Digital_twin) is <span className="hl">a live
+digital counterpart of a physical operation</span>: a representation that stays in sync with
+reality and carries enough context to answer questions about it.
+
+If you have read the rest of this section, you have already met every part of one. The
+[knowledge graph](/concepts/knowledge-graph) is the twin's structure, time series are its
+senses, events are its memory. **You do not buy a digital twin. You grow one.**
+</KeyIdea>
+
+## Start with the word
+
+The idea is older than the buzzword. NASA kept ground-based copies of spacecraft so
+engineers could diagnose problems in machines they could not physically reach, most famously
+during [Apollo 13](https://en.wikipedia.org/wiki/Apollo_13). The term itself came out of
+manufacturing lifecycle work in the early 2000s, and
+[Industry 4.0](/start/industry-4) turned it into boardroom vocabulary.
+
+Strip the marketing and the definition is small:
+
+> A digital twin is a model of a physical thing or process, **connected to live data from
+> that thing**, so the model and reality stay in step.
+
+The second clause is the one that matters. <span className="hl">A
+[3D drawing](https://en.wikipedia.org/wiki/Building_information_modeling) of your plant is
+not a twin, it is a picture. A spreadsheet of your equipment is not a twin, it is a
+list.</span> What makes a twin is the live connection: when the pump's bearing temperature
+rises, the twin knows.
+
+<Figure
+  caption="Row for row: each physical thing has exactly one digital counterpart, live data keeps the two columns in step, and the return path along the bottom, decisions and actions, is what the whole exercise is for."
+  wide
+>
+  <DigitalTwinMirror />
+</Figure>
+
+## What a twin is made of
+
+In DataHub the twin is not a separate product bolted on top. It is what the
+[four building blocks](/start/core-ideas) add up to once they are connected:
+
+| The twin's anatomy | What carries it | Live today |
+| --- | --- | --- |
+| **Structure**, what exists and how it connects | [Resources and relationships](/using/resources), the knowledge graph | ✅ |
+| **Senses**, what the operation is doing right now | [Time series](/using/timeseries), sampled [often enough to be faithful](/using/timeseries#how-often-should-you-sample), plus [subscriptions](/using/subscriptions) for millisecond delivery | ✅ |
+| **Memory**, what has happened to it | [Events](/using/events): alarms, work orders, permits, batches | ✅ |
+| **Records**, what documents describe it | [Files](/using/files), linked to the things they describe | ✅ |
+| **Rules**, what governs it | [Policies](/using/policies): retention, access intent, requirements | 🚧 recorded today, enforcement on the roadmap |
+| **Behaviour**, what it computes and predicts | [Functions](/using/functions): cleaning, features, windows, detections | 🚧 on the roadmap |
+
+This is why the earlier pages kept insisting on [contextualization](/concepts/contextualization):
+an unlinked record cannot be part of a twin, because the twin *is* the links.
+
+## The maturity ladder
+
+"Digital twin" covers four quite different levels of ambition, and it pays to name which one
+you are talking about:
+
+1. **Descriptive.** The twin knows what exists and how it connects. This is the
+   [knowledge graph](/concepts/knowledge-graph), and it is where every twin starts.
+2. **Informative.** The twin knows what is happening now and what has happened. Live
+   series, events, and [subscriptions](/using/subscriptions) pushing changes as they occur.
+3. **Predictive.** The twin computes: cleaned signals, derived features, detections that
+   fire *before* the failure. This is what [functions](/using/functions) are for.
+4. **Autonomous.** The twin, or an [agent](/value/ai-agents) reading it, acts on what it
+   sees, and the loop closes without a person in the middle of every cycle.
+
+<Roadmap>
+Levels one and two work end to end today. Level three is what the functions capability on
+the [roadmap](/using/functions) exists to serve, and level four is the
+[agent story](/value/ai-agents): agents already reason over the twin through the API, and
+function execution is what will let detections trigger them in-platform.
+</Roadmap>
+
+The honest sequencing matters, because the value does not wait for level four. Most of the
+[documented returns](/value/measuring-return), faster investigations, audit-ready reporting,
+fewer specialists per question, **arrive at levels one and two**.
+
+## Grown, not built {#grown-not-built}
+
+Here is the trap in the phrase "let's build a digital twin": it describes a *deliverable*
+with no owner, no end state and no decision it changes, which is exactly why it appears on
+our list of [bad first questions](/value/where-to-start#questions-that-go-wrong).
+
+Twins that work are grown, and the growth loop is the same one as the
+[model itself](/concepts/building-your-model):
+
+- Pick **one question** somebody is paid to answer.
+- Twin only the slice of the operation that question touches, the pump, its sensors, its
+  work orders.
+- Answer the question, then let the next question pull the twin wider.
+
+A twin grown this way is accurate where it matters, because every part of it exists to
+serve a question somebody actually asked. **A twin built as a monument is out of date the
+month the project team disbands.**
+
+## The loop is the point
+
+Notice what separates a twin from a dashboard: the return path. Data flows from the plant
+into the twin; decisions and actions flow back. That closed loop is the defining move of the
+[fourth industrial revolution](/start/industry-4), and it is also why twins and
+[AI agents](/value/ai-agents) belong in the same conversation: an agent is the thing that
+can walk that return path continuously, at machine speed, for every asset at once, if, and
+only if, the twin gives it [trustworthy context](/concepts/lineage-and-quality) to reason
+over. And the workforce walking it will not stay virtual: inspection robots and unmanned
+facilities are operated through exactly this mirror.
+[When the workforce stops being virtual →](/value/ai-agents#the-workforce-will-not-stay-virtual)
+
+<References>
+
+- [Digital twin](https://en.wikipedia.org/wiki/Digital_twin)
+- [Apollo 13, the original remote diagnosis](https://en.wikipedia.org/wiki/Apollo_13)
+- [Cyber-physical system](https://en.wikipedia.org/wiki/Cyber-physical_system)
+- [Industry 4.0](https://en.wikipedia.org/wiki/Fourth_Industrial_Revolution)
+- [Predictive maintenance](https://en.wikipedia.org/wiki/Predictive_maintenance)
+
+</References>
+
+<Deeper>
+- [Knowledge graphs](/concepts/knowledge-graph): the twin's structure
+- [The three layers](/concepts/three-layers): the same anatomy seen as assets, functions and business knowledge
+- [Subscriptions](/using/subscriptions): the live feed that keeps the twin in step
+- [Functions](/using/functions): the twin's behaviour, on the roadmap
+- [AI agents](/value/ai-agents): what walks the return path
+- [Where to start](/value/where-to-start): scoping by question, not by monument
+- [Industry 4.0](/start/industry-4): the revolution the twin belongs to
+</Deeper>

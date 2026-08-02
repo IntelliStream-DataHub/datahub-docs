@@ -1,0 +1,207 @@
+---
+sidebar_position: 4
+title: Time series
+description: Creating and managing time series in DataHub, units, value types, step series, and connecting a measurement to the thing it measures.
+---
+import AliasingIllusion from '@site/src/figures/aliasing-illusion.svg';
+
+# Time series
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Analysts</Persona>
+</Personas>
+
+<KeyIdea>
+A time series is **one signal, measured repeatedly**, a stream of timestamped values from a
+single instrument, or from a [function](/using/functions) that computes one. Connected
+series are the [senses of a digital twin](/concepts/digital-twin#what-a-twin-is-made-of),
+the layer that keeps the model in step with the plant.
+
+Two decisions matter when you create one: the **unit** and the **value type**. The value
+type is <span className="t-accent">fixed forever at creation</span>, so it is worth thirty
+seconds of thought.
+</KeyIdea>
+
+## Creating a series
+
+<Steps>
+  <Step title="Name it after the measurement">
+    One series per measurement. Name it after the instrument loop where one exists:
+    `21-PT-1234 Separator inlet pressure`. The external id fills in automatically.
+
+    Leave the unit, the value type and any time range out of the name, they all have their
+    own fields.
+  </Step>
+  <Step title="Pick a unit">
+    Click **+** to choose: bar, °C, kWh. The unit is what makes a number readable and
+    comparable across series, and picking one lets DataHub suggest the most storage-efficient
+    value type for it.
+  </Step>
+  <Step title="Pick a value type">
+    How each reading is stored. See the table below, this is the one that cannot be changed
+    later.
+  </Step>
+  <Step title="Say whether it is a step series">
+    A [step series](https://en.wikipedia.org/wiki/Step_function) holds its value until the next reading (a set-point, a mode, a state). A
+    non-step series is interpolated between readings (a continuous physical measurement).
+    This affects how charts and aggregates read the gaps between samples.
+  </Step>
+  <Step title="Connect it to a resource">
+    Click **+** on the relation field, pick the resource this series measures and a
+    relationship. <strong>Do not skip this.</strong> An unconnected series is a column of
+    numbers; a connected one is a property of a real thing. The linking step is
+    [contextualization](/concepts/contextualization), and it is what makes the series part
+    of the model rather than beside it.
+  </Step>
+  <Step title="Assign a data set">
+    Which [container](/using/datasets) it belongs to, and therefore who can read and write it.
+  </Step>
+</Steps>
+
+## Value types {#value-types}
+
+The value type sets how each datapoint is stored, its size, precision and compression. It
+is fixed when the series is created and cannot be changed later, so pick the most compact
+type that still represents your data honestly.
+
+| Value type | Use it for | Notes |
+| --- | --- | --- |
+| **Big Integer** | Counters and tallies, whole numbers, no decimals | Most compact for integer values |
+| **Float** | Analog measurements | 64-bit [floating point](https://en.wikipedia.org/wiki/Floating-point_arithmetic). Fast to aggregate, with tiny rounding |
+| **Float (32-bit)** | Analog values where about 7 significant digits is enough | Half the storage of Float |
+| **Decimal (compact)** | Small-range readings like temperature or percent | Exact to 4 decimal places, very compact |
+| **Numeric** | Values that must be exact, billing, finance | Exact to 6 decimal places, large range |
+| **Text** | States, labels, modes, non-numeric readings | Arbitrary text |
+| **Mixed (number or text)** | Sensors that publish text statuses alongside numeric readings | Handles a `FAULT` string in a float series |
+
+Two practical notes:
+
+- **Mixed exists for a real reason.** Many industrial sensors publish `FAULT`, `NODATA` or
+  similar strings in the same stream as their measurements. Without Mixed, those readings
+  either break ingestion or get silently dropped, both worse than storing them.
+- **Storage matters at scale.** Choosing Float (32-bit) over Float across a million-series
+  estate **halves the storage bill** for that data with no practical loss for most analog
+  measurements. Choosing Numeric where Float would do costs several times as much.
+
+The console shows this guidance behind the help icon next to the value-type field, so nobody
+has to remember it.
+
+## How often should you sample?
+
+A question every new series raises, and one with a real answer from signal theory rather
+than a matter of taste.
+
+The rule is the **Nyquist–Shannon sampling theorem**: to capture a signal faithfully, you
+must sample at **more than twice the highest frequency you care about**. Sample slower than
+that and fast behaviour does not just blur, it <span className="t-accent">disguises itself as
+slow behaviour</span>, an effect called
+[aliasing](https://en.wikipedia.org/wiki/Aliasing). It is the same illusion that makes wheels
+appear to spin backwards on film: the camera samples too slowly for the rotation, so the
+motion reads as something it is not. <span className="hl">An aliased sensor reading looks
+perfectly plausible on a chart</span>, which is exactly what makes it dangerous.
+
+<Figure
+  caption="Both panels sample the same fast signal, and every dot in both is a genuine measurement. On the left the rate clears the Nyquist limit and the shape survives. On the right the dots land exactly on a smooth slow wave that does not exist in the plant, and nothing downstream can detect the substitution, because the data is internally consistent."
+  wide
+>
+  <AliasingIllusion />
+</Figure>
+
+Putting it to work:
+
+<Steps>
+  <Step title="Decide the fastest behaviour you actually care about">
+    Not the fastest the instrument can measure, the fastest *dynamics that matter to the
+    question*. A tank level drifts over minutes; a pressure surge lives in seconds; pump
+    vibration lives in milliseconds.
+  </Step>
+  <Step title="Sample at least twice that fast, in practice more">
+    Twice is the theoretical floor. Engineers normally use five to ten times the frequency
+    of interest, so the shape of the behaviour survives, not just its existence.
+  </Step>
+  <Step title="Do not solve it by sampling everything at maximum rate">
+    Storage grows with datapoint rate, and today measurement history is kept indefinitely,
+    so an over-sampled series costs money forever.
+    [Why rate dominates the bill →](/administration/data-lifecycle#planning-capacity)
+  </Step>
+</Steps>
+
+The practical rule of thumb per signal: **fast enough that the behaviour you care about
+cannot hide, and no faster.** A slow drift sampled every second is money wasted; a surge
+sampled every minute is **a surge you will never see**, or worse, will misread as a trend.
+
+## Finding series
+
+The time series section has a dedicated search, and a filter panel to narrow by name,
+external id, unit, data set or the resource a series is attached to. Above a few thousand
+series, filtering by the resource is usually the fastest route, you know which equipment
+you care about, so start there and see what it emits.
+
+## Getting data in
+
+A series is empty until data flows in. Datapoints arrive three ways:
+
+- **From your systems, through the API.** The normal production path. Your integration team
+  writes to the API, or uses the SDK for Java, Python or Rust.
+  [Developer documentation →](https://docs.intellistream.ai)
+- **From a change-data-capture integration.** For source systems whose database can be
+  tailed directly. [Change data capture →](/using/cdc-integrations)
+- **By hand**, for testing. Copy your access token from the user menu at the top right and
+  post a few readings.
+
+Whichever route, the token is a credential, treat it like a password, and prefer a
+dedicated service account for production ingestion rather than a person's token.
+[Users and access →](/administration/users-and-access)
+
+## Editing a series
+
+Name, unit, metadata, relationships and data set can all be changed after creation. The
+**value type** cannot: it defines the physical storage of every datapoint already written.
+The **external id** should be treated the same way, although the platform does not enforce
+it: integrations match on it, and a change breaks them silently.
+[Why →](/concepts/naming-and-standards#external-ids-are-promises)
+
+If a value type turns out to be wrong, the fix is to create a new series with the right type
+and migrate. That is deliberately a little painful, which is the point of choosing carefully
+at creation.
+
+## What to do with a series once it exists
+
+<Cards>
+  <Card title="Chart and compare it" to="/using/insights" icon="📈">
+    The Insights view: quick time ranges, several series on one axis, and a live mode that
+    streams new readings as they arrive.
+  </Card>
+  <Card title="Find related signals" to="/using/relationship-analysis" icon="🔗">
+    Rank other series by how strongly they move with this one, including which leads which.
+    On the roadmap.
+  </Card>
+  <Card title="Overlay events" to="/using/events" icon="⚡">
+    See what was happening to the equipment when the signal did something interesting.
+  </Card>
+  <Card title="Subscribe to it" to="/using/subscriptions" icon="📡">
+    Have new datapoints pushed to a person, a system or an agent the moment they arrive.
+  </Card>
+</Cards>
+
+<References>
+
+- [Time series](https://en.wikipedia.org/wiki/Time_series)
+- [Nyquist–Shannon sampling theorem](https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem)
+- [Aliasing, what undersampling does to a signal](https://en.wikipedia.org/wiki/Aliasing)
+- [Floating-point arithmetic](https://en.wikipedia.org/wiki/Floating-point_arithmetic)
+- [IEEE 754](https://en.wikipedia.org/wiki/IEEE_754)
+- [Unit of measurement](https://en.wikipedia.org/wiki/Unit_of_measurement)
+- [Step function](https://en.wikipedia.org/wiki/Step_function)
+
+</References>
+
+<Deeper>
+- [The four building blocks](/start/core-ideas): where time series sit among the concepts
+- [Functions](/using/functions): the computations that consume and produce series, on the roadmap
+- [Insights](/using/insights): charting, comparison and live streaming
+- [Relationship analysis](/using/relationship-analysis): discovering which signals move together
+- [Data lifecycle](/administration/data-lifecycle): retention and what it costs to keep data
+</Deeper>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 372" class="fig-subscription-flow" role="img" aria-label="Two lanes comparing polling with a subscription. In the polling lane a new datapoint sits waiting on the platform until the next scheduled ask. In the subscription lane data flows continuously to the consumer the moment it arrives.">
+<text class="fig-title" x="20" y="24">Polling asks. A subscription is told.</text>
+<text class="fig-sub" x="20" y="44">Same data, same consumer. The difference is who initiates, and therefore how long new data waits.</text>
+<text class="fig-box-title" x="20" y="78">Polling</text><rect class="fig-box" x="20" y="92" width="150" height="44" rx="12"/><text class="fig-box-title" x="95" y="119" text-anchor="middle">DataHub</text><rect class="fig-box" x="590" y="92" width="150" height="44" rx="12"/><text class="fig-box-title" x="665" y="119" text-anchor="middle">Your system</text>
+<line class="fig-track" x1="170" y1="114" x2="590" y2="114"/>
+<line class="fig-track" x1="300" y1="105" x2="300" y2="123"/>
+<text class="fig-box-sub" x="300" y="98" text-anchor="middle">ask</text>
+<line class="fig-track" x1="420" y1="105" x2="420" y2="123"/>
+<text class="fig-box-sub" x="420" y="98" text-anchor="middle">ask</text>
+<line class="fig-track" x1="540" y1="105" x2="540" y2="123"/>
+<text class="fig-box-sub" x="540" y="98" text-anchor="middle">ask</text>
+<circle class="fig-token fig-pulse" cx="318" cy="114" r="7"/>
+<text class="fig-box-sub" x="318" y="142" text-anchor="middle">arrives here</text><text class="fig-box-sub" x="420" y="158" text-anchor="middle">and waits for the next ask</text>
+<text class="fig-box-sub" x="20" y="188">Latency is set by the schedule: on average half the polling interval, however fresh the data is.</text>
+<text class="fig-box-title" x="20" y="234">Subscription</text><rect class="fig-box" x="20" y="248" width="150" height="44" rx="12"/><text class="fig-box-title" x="95" y="275" text-anchor="middle">DataHub</text><rect class="fig-box" x="590" y="248" width="150" height="44" rx="12"/><text class="fig-box-title" x="665" y="275" text-anchor="middle">Your system</text>
+<path class="fig-exit-path fig-flow" d="M170 270 L590 270" fill="none"/>
+<circle class="fig-token" cx="380" cy="270" r="7"/>
+<text class="fig-box-sub" x="380" y="298" text-anchor="middle">pushed the moment it arrives</text>
+<text class="fig-box-sub" x="20" y="344">Latency is set by delivery: milliseconds inside the platform, plus whatever your network adds.</text>
+</svg>

@@ -1,0 +1,145 @@
+---
+sidebar_position: 7
+title: Events
+description: What events are in DataHub, how the event log works, and why anchoring events to resources is what makes an investigation fast.
+---
+
+# Events
+
+<Personas>
+  <Persona primary>Operations</Persona>
+  <Persona primary>Engineers</Persona>
+  <Persona>Analysts</Persona>
+</Personas>
+
+<KeyIdea>
+An event is a record that <span className="hl">something happened, at a point in time, to
+something specific</span>.
+
+Measurements are the steady signal. Events are the moments that matter, an alarm fires, a
+threshold is crossed, a maintenance job runs, a permit is closed. Because each event is
+anchored to the resources it concerns, it points straight at the affected equipment rather
+than at a tag string. Together they are the
+[memory of a digital twin](/concepts/digital-twin#what-a-twin-is-made-of), the record of
+what has happened to each thing in it.
+</KeyIdea>
+
+## What counts as an event
+
+Anything discrete and timestamped, from any source system:
+
+| From | Examples |
+| --- | --- |
+| **Control and monitoring** | Alarms, threshold crossings, state changes, trips, mode switches |
+| **Maintenance** | Work orders opened and closed, inspections, calibrations, overhauls |
+| **Safety and compliance** | Permits raised and closed, isolations, incident reports |
+| **Commercial** | Purchase orders, deliveries, contract milestones |
+| **IT and OT infrastructure** | Deployments, alerts, incidents, configuration changes |
+
+That breadth is the point. A work permit being closed, a purchase order being raised and a
+sensor alarm are **structurally the same thing**, so they land in the same log and are queried
+the same way, <span className="t-brand">without anyone learning three source-system schemas</span>.
+This is usually where the [data liberation](/value/value-paths#data-liberation) value shows
+up first.
+
+## The event log
+
+The **Events** section lists everything that has happened across your operation. Each entry
+carries an event time (stored in UTC, shown in your local time), a type, and the resources it
+concerns.
+
+The filter panel narrows by:
+
+- **External id prefix**, the fastest route when you know roughly what you are looking for
+- **Time**, start and end
+- **Source**, which system the event came from
+- **Type**, **sub type** and **status**, the classification your ingestion applied
+- **Metadata**, one key/value pair
+
+There is no filter by resource on this list yet: to see the events concerning a specific
+asset, open the event's details from the list, or start from the resource side. To empty the
+filters, clear the fields.
+
+## Event details
+
+Click an event to open it. The detail view shows the event time, its type and sub type, its
+metadata, and the important part: <span className="t-accent">the resources it concerns</span>.
+
+That list is what makes an investigation fast. An alarm does not just say "high vibration";
+it points at the pump, from which you can reach the line it is part of, the process that
+line serves, the other equipment on it, and every measurement any of them emits. **One
+click from "something happened" to "here is everything around it".**
+
+## Events and time series together
+
+This is the pairing that does the real work.
+
+A pressure trace that dips is ambiguous. The same trace with a maintenance event open on the
+upstream valve during the dip is an explanation. Because both the series and the event are
+anchored to resources in the same [graph](/concepts/knowledge-graph), laying one over the
+other is a query rather than a research project.
+
+A practical investigation pattern:
+
+<Steps>
+  <Step title="Start where the anomaly is">
+    Open the misbehaving series in [Insights](/using/insights) and narrow to the window
+    where it went wrong.
+  </Step>
+  <Step title="Look at events in the same window">
+    Filter the event log by the time range, and by external id prefix or type where you can.
+    Open a candidate event's details to see which resources it concerns. Most of the time
+    the explanation is right there.
+  </Step>
+  <Step title="If not, widen to neighbours">
+    Use the [resource graph](/using/resources) to find what the asset connects to, and check
+    events on those. Upstream equipment is usually the second place to look.
+  </Step>
+  <Step title="If still not, look for correlated signals">
+    [Relationship analysis](/using/relationship-analysis) ranks other series by how strongly
+    they moved with yours, including which one moved first.
+  </Step>
+</Steps>
+
+Each step is minutes rather than days, and each is reproducible by the next person.
+
+## Alarms
+
+Alarms are events, and the home dashboard counts them separately because they are the
+subset people most want at a glance. Everything on this page applies to them: they carry a
+time, a type, metadata and the resources they concern, and they can be overlaid on charts
+like any other event. If alarm volume itself is a problem, the discipline is
+[alarm management](https://en.wikipedia.org/wiki/Alarm_management), and an anchored event
+log is the raw material for it. New events, alarms included, can also be
+[pushed to a person, a system or an agent](/using/subscriptions) the moment they land.
+
+## Where events come from
+
+Events arrive from whatever integration feeds them, a control system's alarm handler, a
+maintenance system's change feed, a [change-data-capture
+integration](/using/cdc-integrations) tailing a source database, or a script posting to the
+API. Two more producers are worth knowing about: a
+[detection function](/using/functions#event-detection-drawn) turning a pattern in a
+continuous signal into a typed event, on the roadmap, and an
+[agent](/value/ai-agents) raising one when it sees something operationally significant.
+
+Events are the platform's historical record. They *can* be corrected or deleted by a
+caller with write access, so treat that as an administrative tool rather than a routine
+operation: <span className="t-accent">an event log that gets edited loses its value as
+evidence</span>. In normal use they are append-only, an
+[audit trail](https://en.wikipedia.org/wiki/Audit_trail), and they form the record that
+[lineage](/concepts/lineage-and-quality) leans on. An hourly figure that excluded a window
+because a maintenance event was open can show exactly which event, permanently.
+
+The same property is what makes the log the accountability layer for agents: because
+actions and outcomes are recorded against the same resources, an agent's work is reviewable
+after the fact, and the incentive loop that steers a fleet of agents is computed from it.
+[How agents are steered by the event log →](/value/ai-agents#where-this-is-heading-dynamic-incentives)
+
+<Deeper>
+- [The four building blocks](/start/core-ideas): where events sit among the concepts
+- [Insights](/using/insights): charting the signals events explain
+- [The resource graph](/using/resources): navigating from an event to everything around it
+- [Change data capture](/using/cdc-integrations): one way events arrive
+- [Data liberation](/value/value-paths#data-liberation): the value case for normalising events
+</Deeper>

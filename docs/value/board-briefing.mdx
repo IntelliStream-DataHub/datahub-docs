@@ -1,0 +1,350 @@
+---
+sidebar_position: 7
+title: Board briefing
+description: "A board-level paper on an operational data platform: what is being proposed, the options considered, what it returns, what could go wrong, what is being asked, and how the board will know it is working."
+---
+import BoardGates from '@site/src/figures/board-gates.svg';
+
+# Board briefing
+
+<Personas>
+  <Persona primary>Board members</Persona>
+  <Persona primary>Executive leadership</Persona>
+  <Persona>Risk and audit committee</Persona>
+  <Persona>Project sponsors</Persona>
+</Personas>
+
+<KeyIdea>
+This page is written to be read on its own, by someone with no background in data platforms,
+before a decision. It follows the shape of a board paper: what is proposed, what else was
+considered, what it returns, what could go wrong, what is being asked, and how you will know
+whether it worked.
+</KeyIdea>
+
+## The decision in one page
+
+| | |
+| --- | --- |
+| **The proposal** | Build a machine-readable model of how the operation is put together, and put the operational data on top of it. |
+| **Why now** | Every capability above it, reporting, prediction, AI agents, depends on it, and it is the one input that cannot be bought at short notice. |
+| **The ask** | People's time, mostly. There is no licence cost. See [what is being asked](#what-the-board-is-being-asked-to-approve). |
+| **First commitment** | One question, roughly 90 days, scoped to one site or process area. |
+| **If it fails** | Stop. Open source, open formats, your infrastructure. The exit is unremarkable. |
+| **The single number to watch** | Whether the **second** question costs less than the first. That is the whole investment thesis, and it is testable by month six. |
+| **What not to expect** | Predictive maintenance in year one. Anyone promising it is overselling. |
+
+## What is being proposed
+
+A platform that stores the organisation's operational data together with <span className="hl">a
+machine-readable description of what that data is about</span>, the equipment, what it
+does, and how it all connects.
+
+The organisation almost certainly already has the data. What it does not have is the
+connective knowledge in a durable form: which sensor belongs to which machine, which machine
+serves which process, which process feeds which reported figure. Today that knowledge lives
+in people, drawings and spreadsheets. This platform is where it goes instead.
+
+[The longer explanation →](/start/what-is-datahub)
+
+## Why this comes up now
+
+Industry 4.0, operations that sense, predict and adjust themselves, is usually presented
+as a technology question. It is not. Sensors are cheap, connectivity is solved, and the
+algorithms are open and well understood.
+
+What blocks it is that none of those technologies can reason about an operation they have no
+description of. An AI agent given a raw signal and no context can only observe that the
+signal looks unusual. Given the same signal plus knowledge of which bearing, which pump,
+which duty cycle and which last overhaul, it can say what is failing and what it will affect
+faster, and with far fewer wrong answers.
+
+That description is the asset being proposed. Everything else, dashboards, alarms,
+predictive maintenance, AI, depends on it and is comparatively straightforward once it
+exists.
+
+[The full argument →](/start/the-data-problem)
+
+## The options considered
+
+A board should expect to see the alternatives, and they are genuinely different in shape
+rather than in degree.
+
+| Option | What it costs | Why it is or is not chosen |
+| --- | --- | --- |
+| **Do nothing** | Nothing visible. Recurring and compounding in operations, compliance and lost output | The default, and the only option never costed. [What it actually costs →](/value/cost-of-doing-nothing) |
+| **Buy an established enterprise platform** | Large licence, multi-quarter implementation, a proprietary model | A legitimate choice with real strengths: mature vertical tooling and an accountable vendor. The commitment is large enough that being wrong is expensive, and the model is hard to leave |
+| **Build it ourselves from open components** | Substantial engineering, indefinitely | Most attempts ship ingestion and storage, then leave lineage, data quality and the modelling experience as a phase two that never arrives. Those are the hard parts |
+| **This proposal** | Infrastructure plus people's time. No licence | Same capability class, adopted incrementally, on open source terms. The trade is less vendor hand-holding in exchange for a small, reversible commitment |
+
+The honest comparison is not "invest against save". Organisations that defer still spend, on
+dashboards that rebuild context locally and discard it, on point solutions, and on pilots
+that never reach production. That spending produces no durable asset.
+
+## What it returns
+
+Four things, in decreasing order of certainty. The ordering matters more than the list.
+
+| | |
+| --- | --- |
+| <span className="t-success">**Highly reliable**</span> | **Questions get cheaper.** One interface over every source system. Less training, less hunting, fewer specialists in the loop, fewer errors from misread schemas. Recurring, every week, forever. |
+| <span className="t-success">**Reliable**</span> | **Investigations get faster.** Days to minutes for the covered area, and reproducible rather than dependent on who is on shift. |
+| <span className="t-brand">**Likely, once the model reaches the reporting path**</span> | **Reporting effort falls.** Figures come from one queryable model rather than from exports assembled by hand each cycle. |
+| <span className="t-accent">**Later, and less certain**</span> | **Predictive capability.** Real, but a year-two-or-three outcome requiring both the model and the data history to exist first. The first [agent use cases](/value/ai-agents#use-cases-that-work-today), triage, reporting drafts, integration building, arrive earlier, with the first modelled area. |
+
+:::caution One claim to be careful with
+Full end-to-end traceability, where every reported figure carries its lineage and
+data-quality flags back to raw measurements, is **on the roadmap and not yet shipped**. It is
+a strong argument and it should not be presented to an audit committee as available today.
+[What exists and what is planned →](/concepts/lineage-and-quality)
+:::
+
+The category has public evidence behind it: published case studies from large industrial
+deployments report double-digit percentage production-rate improvements at aerospace scale
+and multi-million-dollar annual value at mid-sized manufacturers. Those came from
+deployments with substantial budgets and multi-quarter timelines, they establish what the
+capability is worth, not what this specific project will deliver.
+
+## What it costs
+
+<Stats>
+  <Stat value="None" label="Software licence" note="Open source under the GNU AGPL-3.0" />
+  <Stat value="Modest" label="Infrastructure" note="Standard servers and storage; scales with data volume" />
+  <Stat value="Dominant" label="People" note="Domain expert and steward time. This is where the real cost sits" />
+  <Stat value="Variable" label="Integration" note="Per source system. The biggest driver of timeline" />
+</Stats>
+
+The important point for governance: <span className="t-brand">this is a people investment, not a
+software purchase.</span> The proposal should be scrutinised for whether the right people are
+committed, not for whether the technology is adequate.
+
+That has a practical consequence. The scarce resource is the attention of process engineers,
+maintenance leads and senior operators, the same people every other initiative also wants. If
+the board approves the money but not the diary time,
+<span className="hl">the project fails quietly and looks like a technology failure</span>.
+[Who does what →](/start/who-does-what)
+
+## What could go wrong
+
+The failure modes in this category are well known, which makes them governable.
+
+| Risk | Likelihood | Early warning sign | Mitigation |
+| --- | --- | --- | --- |
+| **Scope creeps from one question to a programme** | High | The plan starts naming sites rather than a question | Fixed 90-day gate on one question. Refuse extensions before the first answer |
+| **The model is built by the wrong people** | High | A supplier or IT is drafting the model, engineers review it | Name the domain experts in the approval. [Why this fails →](/start/who-does-what#the-mistake-worth-avoiding) |
+| **A source system cannot actually be read** | Medium | "We assume we can access it" | Confirm read access in the first ten days, before modelling |
+| **No baseline was taken** | Medium | Nobody can say what the question costs today | Require baseline numbers as a condition of approval |
+| **Key-person dependency recreated** | Medium | Conventions live in one person's head | A named steward and written conventions as a deliverable |
+| **Overclaiming to the board** | Medium | Predictive maintenance appears in year-one benefits | Hold the proposal to what it excludes as well as what it promises |
+| **Storage cost grows unnoticed** | Low | No retention policy discussed | Retention decided per data domain at the outset. [Data lifecycle →](/administration/data-lifecycle) |
+| **An agent acts without a human gate** | Low today, rising | Automation proposals with no stated limits | Explicit limits, actions logged as events, a person approving anything irreversible. [Guardrails →](/value/ai-agents#guardrails-on-a-loop) |
+
+**None of these are technology risks.** That is the pattern worth noticing: in this category the
+project risk is organisational almost without exception.
+
+## What makes the risk profile different
+
+- **Reversible.** Open source, standard components, open data formats, your infrastructure.
+  If it does not work you stop, and take the model and data with you. There is no
+  proprietary model to migrate off.
+- **Small first commitment.** A first project is weeks, not quarters. Short enough that
+  being wrong is cheap.
+- **Auditable before adoption.** The source code is public. Security review reads the code
+  rather than a vendor questionnaire, and the platform can run entirely disconnected from
+  the internet. Certification to
+  [ISO/IEC 27001](https://en.wikipedia.org/wiki/ISO/IEC_27001) is **in progress, not yet
+  held**, state it that way. [Security posture →](/administration/security)
+- **No vendor dependency.** The usual objection in this category, what if the supplier
+  disappears, triples the price, or discontinues what we depend on, is answered
+  structurally rather than contractually.
+
+## The strategic risk of waiting
+
+Most of this page argues on cost and return. There is one argument that belongs to
+governance rather than to a project business case, and it is about **lead time**.
+
+AI agents are becoming useful in industrial operations. What decides how much value an
+organisation gets from them is not which tools it buys, because competitors buy the same
+ones. It is whether there is a machine-readable model of the operation for those tools to
+reason over. With one, an agent can follow a fault through the plant and show its evidence.
+Without one, it produces plausible answers that somebody has to verify from scratch.
+
+The governance point follows from three facts together:
+
+| | |
+| --- | --- |
+| **Tooling is fast to adopt** | Weeks. Which is precisely why it confers no lasting advantage by itself. |
+| **The model is slow to build** | It needs calendar time and the attention of people who know the operation. There is no way to compress it with money. |
+| **The benefit compounds** | Each answered question makes the next cheaper. Two organisations on different rates of learning diverge rather than converge. |
+
+<span className="t-accent">That combination removes the usual option of waiting and following
+fast.</span> In most technology decisions, a late adopter can skip the early mistakes and
+catch up quickly. Here, arriving late does not shorten the work, it only begins it later,
+against a competitor whose compounding has already been running.
+
+**So the decision in front of the board is about sequencing, not about AI.** If agents are
+likely to matter in your sector within a few years, the action that matters now is building
+the model they will need, because it is the input with the long lead time and the only one no
+supplier can deliver on your behalf.
+
+:::caution Be precise about what is certain
+That agent value depends on context is a property of how agents work, not a prediction. *When*
+agents become significant in a given sector is genuinely uncertain, and anyone claiming
+otherwise is guessing. The defensible position is the ordering: whoever is ready will be
+whoever already had a model.
+:::
+
+[The full argument →](/value/cost-of-doing-nothing#why-this-becomes-a-competitive-requirement-rather-than-an-advantage)
+
+## What the board is being asked to approve
+
+Four things, and the second is the one that is usually granted in words and withheld in
+practice.
+
+<Steps>
+  <Step title="A first question, not a programme">
+    One named question, with a named owner, scoped to one site or process area, to be
+    answered within roughly 90 days. [Choosing it →](/value/where-to-start)
+  </Step>
+  <Step title="Committed time from named domain experts">
+    Roughly one to two days each of modelling time, spread over several sessions, plus a
+    steward for a few hours a month afterwards. This is the real ask. Approving budget
+    without protecting this time is the most common way the project fails.
+  </Step>
+  <Step title="Infrastructure and an administrator">
+    Standard servers and storage, and someone to run the platform.
+    [What that involves →](/administration/overview)
+  </Step>
+  <Step title="Authority to unblock source-system access">
+    Usually the fastest thing a board can do that nobody else can. Access negotiations across
+    system owners are the biggest schedule risk.
+  </Step>
+</Steps>
+
+## How the board will know it is working
+
+Approve the gates at the same time as the project, so that continuing is a decision rather
+than a default.
+
+<Figure
+  caption="Each gate is a pre-agreed test with a specific piece of evidence attached, not a progress report. The 90-day gate is the real one: if the question was not answered, stopping there has cost a quarter and no licence."
+  wide
+>
+  <BoardGates />
+</Figure>
+
+| Gate | The question to ask | What good looks like |
+| --- | --- | --- |
+| **90 days** | Was the question answered, and can we see how? | An answer, a written method, and a comparison against the baseline |
+| **6 months** | Did the second question cost less than the first? | Yes, with the model reuse visible. If no, find out whether the model was too narrow or built by the wrong people |
+| **12 months** | What is recurring, and what is one-off? | Hours saved per reporting cycle and per incident, observed rather than modelled |
+| **2 to 3 years** | Is capability compounding? | Most new questions answerable against what already exists, and agent work becoming practical |
+
+**The single leading indicator is the cost per question over time.** If it is falling, the
+platform is doing what it was bought to do. If it is flat after several questions, that is a
+signal to investigate the model rather than the technology.
+[How to measure it →](/value/measuring-return)
+
+Two things a board should insist on hearing, and rarely does: **what was not achieved**, and
+**what the project got wrong about the model and had to change**. The second always happens
+and is a sign of health, not failure. A programme reporting only successes is not reporting
+accurately.
+
+## Questions to ask the proposers
+
+Ten questions that separate a proposal likely to succeed from one likely to stall.
+
+<Steps>
+  <Step title="What is the one question we are trying to answer first?">
+    If the answer is a topic ("energy management", "digital transformation") rather than a
+    question with an owner, the project has no finish line.
+    [Why this matters →](/value/where-to-start)
+  </Step>
+  <Step title="Who specifically wants that answer, and what will they do differently?">
+    A named person and a changed decision. Otherwise it is a demonstration.
+  </Step>
+  <Step title="Which of our own people will build the model?">
+    The correct answer names our own process engineers and operators. If a supplier or IT
+    is building it, expect a model our people will not recognise or maintain.
+    [Why →](/start/who-does-what#the-mistake-worth-avoiding)
+  </Step>
+  <Step title="What baseline are we recording before we start?">
+    Without a "before", success cannot be demonstrated. There should be specific numbers.
+    [What to baseline →](/value/measuring-return)
+  </Step>
+  <Step title="Which source systems, and have we confirmed we can read them?">
+    Integration is the biggest schedule risk. "We assume we can" is not confirmation.
+  </Step>
+  <Step title="What is the second question, and how much of the model will it reuse?">
+    The compounding effect is the entire investment thesis. It should be testable by month
+    six.
+  </Step>
+  <Step title="What are we NOT promising?">
+    A credible proposal explicitly excludes predictive maintenance in year one and does not
+    claim to replace an existing system. [What not to promise →](/value/business-case#what-not-to-promise)
+  </Step>
+  <Step title="What happens to this if the project lead leaves?">
+    Model conventions written down, a named steward, and knowledge in the platform rather
+    than in a person.
+  </Step>
+  <Step title="What is our exit if it does not work?">
+    Should be short and unremarkable: stop, export, keep the data. If the answer is
+    complicated, the risk profile is not what has been described.
+  </Step>
+  <Step title="How will we know at 90 days whether to continue?">
+    There should be a specific, pre-agreed test, not a status update.
+  </Step>
+</Steps>
+
+## Terms a director needs
+
+Eight words carry most of this paper. None of them require a technical background.
+
+| Term | In one line |
+| --- | --- |
+| **Ontology** | A written-down, machine-readable agreement about what things are and how they relate. Your operation, described so software can follow it. [→](/concepts/ontology) |
+| **Knowledge graph** | That description filled with your real assets, so questions are answered by following connections rather than joining systems by hand. [→](/concepts/knowledge-graph) |
+| **[Digital twin](https://en.wikipedia.org/wiki/Digital_twin)** | A live digital counterpart of the operation: the model plus the data flowing into it. Grown one question at a time, not bought. [→](/concepts/digital-twin) |
+| **Data governance** | Who owns each body of data, who may use it, how far it can be trusted, and how long it lives. [→](/concepts/data-governance) |
+| **Data liberation** | Getting your own data out from behind each vendor's data model, so it can be read without a specialist per system. [→](/start/data-liberation) |
+| **Lineage** | The record of what a reported number was calculated from, all the way back to raw measurements. On the roadmap. [→](/concepts/lineage-and-quality) |
+| **AI agent** | Software given a goal rather than instructions, which works out the steps itself. Its accuracy depends on the context available to it. [→](/value/ai-agents) |
+| **Tenant** | A separate, isolated world within the platform, typically one per legal entity. [→](/administration/organizations) |
+
+## The honest summary
+
+This is a foundation investment with a modest, well-evidenced near-term return
+(cheaper answers, faster investigations, less reporting effort) and a large, less certain
+long-term one (predictive and eventually autonomous operations, the top of the
+[maturity ladder](/concepts/digital-twin#the-maturity-ladder), which are not reachable
+without it). The far end of that path is an operation that runs with few people on site,
+or none: a facility with no permanent crew is operated entirely through its model.
+[Where this is heading →](/value/ai-agents#the-workforce-will-not-stay-virtual)
+
+Its unusual property is that the downside is small and reversible while the upside is
+strategic. That combination is rare enough in industrial technology to be worth taking
+seriously, provided the proposal is scoped as one question rather than a transformation
+programme, and the modelling is done by people who actually know the operation.
+
+The failure modes are organisational rather than technical, which means they are within the
+board's control: insist on one question, on named people with protected time, on a recorded
+baseline, and on gates where stopping is a permitted outcome.
+
+<References>
+
+- [Fourth Industrial Revolution](https://en.wikipedia.org/wiki/Fourth_Industrial_Revolution)
+- [Knowledge graph](https://en.wikipedia.org/wiki/Knowledge_graph)
+- [Opportunity cost](https://en.wikipedia.org/wiki/Opportunity_cost)
+- [Technical debt](https://en.wikipedia.org/wiki/Technical_debt)
+- [Bus factor, the key-person risk above](https://en.wikipedia.org/wiki/Bus_factor)
+- [GNU Affero General Public License](https://en.wikipedia.org/wiki/GNU_Affero_General_Public_License)
+- [ISO/IEC 27001](https://en.wikipedia.org/wiki/ISO/IEC_27001)
+
+</References>
+
+<Deeper>
+- [The cost of doing nothing](/value/cost-of-doing-nothing): the counterfactual, in full
+- [The business case](/value/business-case): the value levers in detail
+- [Where to start](/value/where-to-start): what a well-scoped first project looks like
+- [Measuring the return](/value/measuring-return): baselines and 90-day tests
+- [Security and compliance](/administration/security): for the risk committee's questions
+</Deeper>

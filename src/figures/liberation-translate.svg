@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 376" class="fig-liberation-translate" role="img" aria-label="Four differently shaped vendor records, an equipment master record, a historian tag, a hot work permit and a purchase order, flow into three primitives: resources, time series and events. The permit and the purchase order land in the same events chip.">
+<text class="fig-title" x="20" y="24">Liberation simplifies, it does not copy</text>
+<text class="fig-sub" x="20" y="44">Whatever a silo sends becomes one of a few primitives, without copying its schema.</text>
+<text class="fig-box-sub" x="148" y="68" text-anchor="middle">What the silos send</text>
+<text class="fig-box-sub" x="616" y="68" text-anchor="middle">What you read, one interface</text>
+<path class="fig-exit-path fig-flow" d="M268 102 C 340 102 420 114 492 114" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M268 162 C 340 162 420 194 492 194" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M268 222 C 340 222 420 266 492 266" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M268 282 C 340 282 420 282 492 282" fill="none"/>
+<rect class="fig-box" x="28" y="78" width="240" height="48" rx="12"/><text class="fig-box-title" x="148" y="98" text-anchor="middle">Maintenance system</text><text class="fig-box-sub" x="148" y="116" text-anchor="middle">equipment master record</text>
+<rect class="fig-box" x="28" y="138" width="240" height="48" rx="12"/><text class="fig-box-title" x="148" y="158" text-anchor="middle">Historian</text><text class="fig-box-sub" x="148" y="176" text-anchor="middle">tag 21-PT-1034.PV</text>
+<rect class="fig-box" x="28" y="198" width="240" height="48" rx="12"/><text class="fig-box-title" x="148" y="218" text-anchor="middle">Work-permit system</text><text class="fig-box-sub" x="148" y="236" text-anchor="middle">permit 4471, hot work</text>
+<rect class="fig-box" x="28" y="258" width="240" height="48" rx="12"/><text class="fig-box-title" x="148" y="278" text-anchor="middle">ERP</text><text class="fig-box-sub" x="148" y="296" text-anchor="middle">purchase order 4500171</text>
+<rect class="fig-lit-box c-blue" x="492" y="86" width="248" height="56" rx="12"/><text class="fig-lit-title" x="616" y="109" text-anchor="middle">Resources</text><text class="fig-lit-sub" x="616" y="127" text-anchor="middle">the things it all concerns</text>
+<rect class="fig-lit-box c-green" x="492" y="166" width="248" height="56" rx="12"/><text class="fig-lit-title" x="616" y="189" text-anchor="middle">Time series</text><text class="fig-lit-sub" x="616" y="207" text-anchor="middle">measurements over time</text>
+<rect class="fig-lit-box c-orange" x="492" y="246" width="248" height="56" rx="12"/><text class="fig-lit-title" x="616" y="269" text-anchor="middle">Events</text><text class="fig-lit-sub" x="616" y="287" text-anchor="middle">things that happened, at a time</text>
+<text class="fig-sub" x="20" y="344">One interface reads all of it, and nobody has to learn a vendor schema again.</text><text class="fig-sub" x="20" y="362">No new cage: the model is tiny and documented, and data leaves in open formats.</text>
+</svg>

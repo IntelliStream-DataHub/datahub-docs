@@ -1,0 +1,133 @@
+---
+sidebar_position: 13
+title: Building applications on DataHub
+description: Using the platform as a foundation for your own applications, what an app inherits for free, the first application worth building, and the design rules that make apps compound the model instead of siloing it.
+---
+
+# Building applications on DataHub
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Integrators</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+Everything the console does, it does through the same
+[API](https://en.wikipedia.org/wiki/API) your own software can call. That makes DataHub a
+foundation to build on: <span className="hl">an application written against it inherits the
+model, live delivery and access control</span>, instead of rebuilding all three the way
+every stand-alone dashboard does.
+
+The best-known platforms in this category earned their reputations less through their own
+screens than through **the applications customers built on top**. The same is true here,
+and it is why the API surface is small and stable: four primitives, learned once.
+</KeyIdea>
+
+## What your application inherits
+
+| The hard part of most industrial apps | What the platform hands you instead |
+| --- | --- |
+| **Context**, knowing which signal belongs to which machine | The [knowledge graph](/concepts/knowledge-graph): your app traverses relationships instead of shipping its own mapping tables |
+| **Freshness**, polling loops and refresh timers | [Subscriptions](/using/subscriptions): data pushed at millisecond latency, position held across reconnects |
+| **Access control**, per-app user lists and permission code | [Data set permissions](/administration/dataset-permissions) ride the user's token; your app cannot show what the user may not see |
+| **History**, a store for what happened | [Events](/using/events) and [time series](/using/timeseries), queryable back through time |
+| **Documents** | [Files](/using/files), reachable from the equipment they describe |
+
+The economic consequence is the one the
+[cost-of-doing-nothing argument](/value/cost-of-doing-nothing) makes in reverse: a
+conventional dashboard rebuilds context locally and throws it away, so its cost repeats per
+app. An application on the model reuses the context, so
+<span className="t-brand">each new application gets cheaper than the last</span>, the same
+compounding as the questions.
+
+## The first application worth building {#the-first-application}
+
+Build the **equipment 360**: one screen per piece of equipment, showing everything the
+model knows about it, live signals, open events and work orders, documents, and its
+neighbours in the graph, aimed at **the person holding the tools**, on whatever device they
+carry.
+
+This is the application pattern behind the most celebrated success stories in this
+category, at aerospace manufacturers and offshore operators alike, and the reason is
+consistent everywhere it has been built: preparing a job used to mean an hour or more
+collecting information from four or five systems, and with the app it is minutes, for
+every job, every day. The published case studies report double-digit efficiency gains in
+field-work preparation from exactly this pattern.
+
+Four properties make it the right first app:
+
+- **It is read-only.** No control-system risk, no writeback approvals, no guardrail
+  debates. The riskiest thing it can do is show the truth.
+- **It exercises every primitive.** Resources, series, events, files and a live tail on
+  one screen: if the equipment 360 works, your model works, which makes it the honest
+  end-to-end test of everything on this site.
+- **The value recurs daily and is measurable.** Baseline how long job preparation takes
+  today, the same discipline as [measuring return](/value/measuring-return), and measure
+  it again with the app in the field.
+- **It makes the model visible.** An operator who has seen their plant as one connected
+  screen understands the platform faster than any presentation. The first app is also the
+  internal argument for the second.
+
+The shape is deliberately simple: resolve the equipment from a search, a scan or a tag
+prefix, then one traversal outward for context, one query per attached series, the event
+log filtered to the same resources, and a [live tail](/using/subscriptions) for the
+signals on screen.
+
+## What people build next
+
+- **An alert router.** A durable subscription watching for typed events and delivering
+  them to the channel each team actually reads. The first taste of
+  [push-instead-of-poll](/using/subscriptions) operations.
+- **A morning report generator.** Yesterday's events, excursions and KPIs, compiled into
+  the document the 07:00 meeting already uses, the reporting half of the
+  [agent story](/value/ai-agents#reporting-and-compliance), buildable without an agent.
+- **Field capture.** The equipment 360's writeback sibling: findings, readings and photos
+  recorded *as events and files against the resource*, so field knowledge lands in the
+  model instead of in a notebook.
+- **A soft-sensor host.** External computation reading by subscription and writing derived
+  series back, the pattern [functions](/using/functions) will eventually absorb
+  in-platform.
+- **Agents.** An agent is an application in this sense too, the same API, the same
+  permissions, the same event log recording what it did.
+  [AI agents →](/value/ai-agents)
+
+## Design rules that keep apps honest
+
+- **Write results back into the model.** An app that computes something useful and keeps
+  it in its own database has built a new silo on top of the platform that exists to remove
+  them. Derived numbers belong in [series](/using/timeseries), findings in
+  [events](/using/events), connected to the resources they concern.
+- **Match on [external ids](/concepts/naming-and-standards#external-ids-are-promises),
+  never on names.** Names change freely; your app should not care.
+- **Use a [service account](/administration/users-and-access#service-accounts)** with the
+  narrowest grants that work, and remember write does not imply read.
+- **Build consumers [idempotent](https://en.wikipedia.org/wiki/Idempotence).** A durable
+  subscription redelivers unacknowledged data after a reconnect; seeing a datapoint twice
+  must be harmless.
+- **Do not cache permissions.** The platform re-reads roles from the token on every
+  request; an app that caches visibility decisions reintroduces exactly the stale-access
+  problem the platform avoids.
+
+## Where the developer detail lives
+
+This page is the map, not the reference. The API, SDKs, authentication flows and code
+examples are documented for developers at
+[docs.intellistream.ai](https://docs.intellistream.ai).
+
+<References>
+
+- [API, application programming interface](https://en.wikipedia.org/wiki/API)
+- [OAuth 2.0](https://en.wikipedia.org/wiki/OAuth)
+- [Publish–subscribe pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern)
+- [Idempotence](https://en.wikipedia.org/wiki/Idempotence)
+
+</References>
+
+<Deeper>
+- [Data subscriptions](/using/subscriptions): the live feed applications ride on
+- [Users and access](/administration/users-and-access): service accounts and tokens
+- [AI agents](/value/ai-agents): applications that reason
+- [Measuring the return](/value/measuring-return): baselining the first app's value
+- [The cost of doing nothing](/value/cost-of-doing-nothing): why per-app context rebuilding is the expensive path
+</Deeper>

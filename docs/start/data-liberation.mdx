@@ -1,0 +1,160 @@
+---
+sidebar_position: 5
+title: What is data liberation?
+description: Getting your own operational data out from behind vendor data models, what it means, why it is usually the first thing worth doing, and what it is not.
+---
+
+import LiberationTranslate from '@site/src/figures/liberation-translate.svg';
+
+# What is data liberation?
+
+<Personas>
+  <Persona primary>Everyone</Persona>
+  <Persona>Leadership</Persona>
+  <Persona>Engineers</Persona>
+</Personas>
+
+<KeyIdea>
+Data liberation means <span className="hl">getting your own data out from behind the systems
+that happen to hold it</span>, and, crucially, out from behind their data models.
+
+The data is already yours. What you do not have is the ability to read it without knowing
+each vendor's schema, and without a specialist for each system. Liberation is fixing that.
+</KeyIdea>
+
+## The situation it addresses
+
+Your operational data sits in a [historian](https://en.wikipedia.org/wiki/Operational_historian), a maintenance system, a work-permit system and an
+ERP. Each one holds a genuine piece of the truth. Each one also guards it behind a data model
+that takes vendor training to query, hundreds of tables, proprietary identifiers,
+conventions that made sense to whoever designed the product.
+
+So a simple question, *"what happened on this equipment last Tuesday?"*, needs someone
+fluent in four different systems, or four different people and a spreadsheet to reconcile
+them.
+
+Nobody chose this. It is what accumulates when each system is bought separately to solve one
+real problem. [How it happens →](/start/the-data-problem)
+
+## What liberation actually does
+
+Here is the part people find counter-intuitive: **liberation works by simplifying, not by
+copying.**
+
+Whatever arrives from a silo becomes one of a few primitives:
+
+| Whatever the source calls it | Becomes |
+| --- | --- |
+| A work permit opened or closed · a purchase order raised · a sensor alarm · a state change · a deploy | An **event** |
+| A sensor reading · a meter total · a calculated rate | A **time series** |
+| The pump, the tank, the line, the site it all concerns | A **resource** |
+
+That is the whole translation. A work permit and a purchase order are structurally the same
+kind of thing, something that happened, at a time, to something, so they land in the same
+log and are queried the same way.
+
+<Figure
+  caption="The translation, drawn: four vendor record shapes arrive, three primitives come out. Notice the work permit and the purchase order landing in the same place, because structurally they were always the same kind of thing."
+  wide
+>
+  <LiberationTranslate />
+</Figure>
+
+The consequence: <span className="t-brand">you never need to understand a source system's
+schema to use its data.</span> There is one interface, the same API and console, for reading
+all of it, and once data is reachable it can also be
+[pushed to you the moment it lands](/using/subscriptions) rather than polled for on a
+schedule. [The four building blocks →](/start/core-ideas)
+
+## Why this is usually the first thing worth doing
+
+Liberation asks almost nothing of you up front. You do not need an
+[ontology](/concepts/ontology), a modelling workshop, or agreement across departments. You
+need read access to some source systems.
+
+That makes it the fastest way to a visible result, and the result is immediately useful:
+
+- **Fewer specialists in the loop.** The person with the question can often answer it.
+- **Less training before anyone is productive.** One interface instead of five.
+- **Fewer errors.** Nobody misreads a source schema they never had to read.
+- **Cross-system questions become possible at all**, rather than being scoped as projects.
+
+Everything else, the knowledge graph, lineage as it lands, agents, can be layered on
+afterwards, and each one is easier once the data is already reachable.
+[The data liberation play →](/value/value-paths#data-liberation) ·
+[The rungs above liberation →](/concepts/digital-twin#the-maturity-ladder)
+
+## What it unlocks for engineers and agents
+
+This is the part that matters most in the long run.
+
+When data is trapped, an experiment costs weeks of preparation before it even begins, so only
+ideas important enough to be funded ever get tested. When data is liberated,
+<span className="t-brand">an engineer with a hunch can check it the same afternoon</span>,
+and the number of things you get to try rises several times over.
+[Why that changes the rate of innovation →](/value/cost-of-doing-nothing#5--innovation-runs-at-the-speed-of-its-slowest-experiment)
+
+The same applies, more sharply, to [AI agents](/value/ai-agents). An agent is not limited by
+how many hypotheses it can consider: it is limited by how fast it can reach trustworthy
+data. Liberated data is what makes an agent useful rather than an expensive way to generate
+plausible guesses.
+
+## What data liberation is not
+
+Worth being precise, because the phrase gets used loosely.
+
+| It is not | Why not |
+| --- | --- |
+| **A copy of everything** | Copying a vendor schema into another database liberates nothing, you still need to know the schema. The simplification is the point. |
+| **A data lake** | A lake stores files and hopes somebody makes sense of them later. Liberation insists data arrives as a small set of well-defined primitives. |
+| **Turning off your source systems** | They keep running and keep being the system of record for what they do. DataHub reads from them. |
+| **A full ontology** | That is the next step, not this one. Liberation gets the data reachable; [contextualization](/concepts/contextualization) links it to the things it describes, and the [model](/concepts/ontology) makes it meaningful. |
+
+## The part that makes it durable
+
+There is an obvious objection: *"if we move our data out of one vendor's model and into
+yours, have we actually gained anything, or just changed cage?"*
+
+It is the right question, and the answer is what makes this worth doing:
+
+- **The model you land in is tiny and open.** Four primitives, documented, not a proprietary
+  schema you need training to read.
+- **The platform is open source.** You can read exactly what it does with your data, run it
+  air-gapped, and keep running it independently.
+- **The data leaves in [open formats](https://en.wikipedia.org/wiki/Open_format)** whenever you want it to.
+
+<span className="hl">Liberated data that has simply moved into a newer cage is not
+liberated.</span> That is why the licence and the source availability are part of this
+argument rather than a footnote to it.
+[Why open source →](/reference/faq#why-open-source)
+
+## Where to go next
+
+<Cards>
+  <Card title="Try it" to="/start/first-hour" icon="▶️">
+    Build a small model in the console and see the primitives for yourself.
+  </Card>
+  <Card title="Run it as a project" to="/value/value-paths#data-liberation" icon="🎯">
+    The liberation play: what it takes, how long, and what it returns.
+  </Card>
+  <Card title="Then add meaning" to="/concepts/ontology" icon="🕸️">
+    Once data is reachable, the model is what makes it answer questions.
+  </Card>
+</Cards>
+
+<References>
+
+- [Information silo](https://en.wikipedia.org/wiki/Information_silo)
+- [Vendor lock-in](https://en.wikipedia.org/wiki/Vendor_lock-in)
+- [Data portability](https://en.wikipedia.org/wiki/Data_portability)
+- [Open format](https://en.wikipedia.org/wiki/Open_format)
+- [GNU Affero General Public License](https://en.wikipedia.org/wiki/GNU_Affero_General_Public_License)
+
+</References>
+
+<Deeper>
+- [The four building blocks](/start/core-ideas): the primitives everything reduces to
+- [The operational data problem](/start/the-data-problem): how the fragmentation arises
+- [Change data capture](/using/cdc-integrations): one common way data actually arrives
+- [The cost of doing nothing](/value/cost-of-doing-nothing): what the delay costs meanwhile
+</Deeper>

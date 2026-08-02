@@ -1,0 +1,40 @@
+import MDXComponents from '@theme-original/MDXComponents';
+import {
+  Card,
+  Cards,
+  Deeper,
+  Figure,
+  IconItem,
+  IconRow,
+  KeyIdea,
+  Lead,
+  Persona,
+  Personas,
+  References,
+  Roadmap,
+  Stat,
+  Stats,
+  Step,
+  Steps,
+} from '@site/src/components/DocsUI';
+
+// Registered globally so .mdx pages can use these without an import line.
+export default {
+  ...MDXComponents,
+  Card,
+  Cards,
+  Deeper,
+  Figure,
+  IconItem,
+  IconRow,
+  KeyIdea,
+  Lead,
+  Persona,
+  Personas,
+  References,
+  Roadmap,
+  Stat,
+  Stats,
+  Step,
+  Steps,
+};

@@ -1,0 +1,140 @@
+---
+sidebar_position: 2
+title: Data sets
+description: What a data set is in DataHub, how to design good data set boundaries, and why they double as the access-control boundary.
+---
+
+# Data sets
+
+<Personas>
+  <Persona primary>Everyone</Persona>
+  <Persona>Administrators</Persona>
+</Personas>
+
+<KeyIdea>
+A data set is a container that groups related data into one project or domain, and it is
+also <span className="hl">the unit of access control</span>.
+
+Deciding what goes in which data set is therefore also deciding who can see what. That makes
+data set boundaries worth ten minutes of thought before you create the first one.
+</KeyIdea>
+
+## What lives in a data set
+
+Resources, time series, events and files all belong to a data set. A data set is the home
+for everything relating to one project, one source system, one site, or one team's area,
+whichever division fits how your organisation actually works.
+
+Good examples, the same scenarios the console's guided tutorial uses:
+
+- *Valve pressure sensors*, pressure measurements from valve actuators, subsea and
+  topside, used for condition monitoring and maintenance planning
+- *Grid asset monitoring*, monitoring data for transformers and breakers, used for
+  reliability and predictive maintenance
+- *Production line quality signals*, signals from a production line, used for traceability
+  and defect reduction
+- *Smart building telemetry*, IoT telemetry for temperature, CO₂ and occupancy
+
+Note what these have in common: each names <span className="t-brand">a coherent body of data
+with an identifiable owner and purpose</span>. That is the test.
+
+## Creating one
+
+<Steps>
+  <Step title="Name it for what it contains, not who created it">
+    *"Grid asset monitoring"*, not *"Erik's project"*. The name outlives the project.
+  </Step>
+  <Step title="Set a stable external id">
+    Derived from the name by default, `grid_asset_monitoring`. Integrations refer to it, so
+    it must never change. [Why →](/concepts/naming-and-standards#external-ids-are-promises)
+  </Step>
+  <Step title="Write a real description">
+    Say what belongs in here and what does not. In six months this is what stops somebody
+    putting unrelated data in it.
+  </Step>
+  <Step title="Optionally connect it under others">
+    The **Part of data set** field links it under one or more existing data sets, useful for
+    grouping related sets into a programme. Choose deliberately: this connection is set at
+    creation and cannot be changed afterwards.
+  </Step>
+</Steps>
+
+## Designing good boundaries
+
+Because permissions are granted per data set, the boundary decision is really an access
+decision, and it is the piece of [data governance](/concepts/data-governance) that data
+sets carry. Three practical rules:
+
+### Split by who should see it, not by what it is
+
+If two bodies of data have the same audience, they can share a data set. If one contains
+commercially sensitive figures and the other does not, they must not, no matter how
+related the subject matter.
+
+### Aim for a handful, not hundreds
+
+Every data set is a permission to grant and maintain. A site with eight data sets is
+manageable; one with 200 becomes an administrative burden that leads to over-broad grants,
+which defeats the purpose.
+
+### Keep a series with the thing it measures
+
+Splitting an asset into one data set and its measurements into another means anybody who
+can see the asset cannot see its data, or vice versa. This is occasionally deliberate;
+usually it is an accident that produces confusing half-visible results.
+
+:::tip Boundaries are easier to set than to move
+Moving an entity to another data set requires write access to *both* the source and the
+destination, and **it changes who can see it**. Getting the split roughly right at the start is
+much cheaper than rearranging later.
+:::
+
+## Policies
+
+<Roadmap>
+**Policies are declarative records today, not enforcement.** A data set can carry policies
+describing lifecycle or access intent, and they document what *should* happen, but nothing in
+the platform currently acts on them.
+
+Read and write access comes entirely from the roles in your identity provider.
+[Data set permissions](/administration/dataset-permissions) ·
+[Policies as a building block →](/start/core-ideas#policies-the-rules)
+</Roadmap>
+
+Each data set has a **Policies** tab, where the rules governing that data set, lifecycle,
+access, requirements, are recorded and read. They document intent today and will be enforced
+later. [Policies in full →](/using/policies)
+
+The underlying grants are read and write, and they are independent:
+<span className="t-accent">write does not imply read</span>. That is deliberate, an ingestion service account can be allowed
+to write data without being able to read anything back.
+
+[Full permission model →](/administration/dataset-permissions)
+
+## Data sets and files
+
+Files and folders also carry a data set. Setting the data set on a folder **also applies it
+to everything inside that does not already have one**, automatically rather than as an
+option, which is the quickest way to bring an uploaded document tree under the right access
+boundary, and worth knowing before you do it.
+[Working with files →](/using/files)
+
+## What happens if data has no data set
+
+Entities can exist without a data set, typically early in a project, or from an import that
+did not specify one. Resources, series and events without a data set are handled
+conservatively by the permission system, so in practice unassigned data of those kinds
+tends to be invisible until it is assigned. **Files are the exception**: a file or folder
+with no data set is readable by every authenticated user.
+[Entities without a data set →](/administration/dataset-permissions#entities-without-a-data-set)
+
+If data seems to be missing after an import, checking whether it landed without a data set
+is a good first diagnostic.
+
+<Deeper>
+- [Data governance](/concepts/data-governance): data sets as the access piece of governance
+- [Data set permissions](/administration/dataset-permissions): the roles behind read and write
+- [The four building blocks](/start/core-ideas): where data sets sit among the concepts
+- [Working with files](/using/files): data sets on folders and documents
+- [Data lifecycle](/administration/data-lifecycle): retention, which is also set per data domain
+</Deeper>

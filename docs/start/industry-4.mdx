@@ -1,0 +1,196 @@
+---
+sidebar_position: 2
+title: What is Industry 4.0?
+description: The fourth industrial revolution explained through the three that came before it, what each one changed, and what this one actually requires.
+---
+import IndustrialRevolutions from '@site/src/figures/industrial-revolutions.svg';
+import RevolutionContrast from '@site/src/figures/revolution-contrast.svg';
+import FamousFoundation from '@site/src/figures/famous-vs-foundation.svg';
+
+# What is Industry 4.0?
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Board members</Persona>
+  <Persona>Engineers</Persona>
+</Personas>
+
+<KeyIdea>
+Industry 4.0 is the idea that an operation can **sense, decide and adjust itself**, rather
+than being run entirely by people reading instruments and turning things.
+
+The useful way to understand it is through the three revolutions before it. Each arrived when
+a new foundation made a new kind of operation possible: <span className="hl">power, then
+standardisation, then computation, and now context.</span>
+</KeyIdea>
+
+<Figure
+  caption="The pattern to notice is that each revolution is named after its technology but was actually enabled by a foundation underneath it. Steam engines were useless without coal and iron; assembly lines were useless without interchangeable parts. The fourth needs a machine-readable model of the operation, and that is the part most organisations have not built."
+  wide
+>
+  <IndustrialRevolutions />
+</Figure>
+
+## The first: machines replace muscle
+
+**From around 1760.** Water power and then steam took work that had been done by human and
+animal muscle and gave it to machines. Textile mills, ironworks, railways.
+
+The change was not only that things got faster. It was that <span className="t-brand">output
+stopped being limited by how many people you could put in a building</span>. Production could
+scale in a way it never had.
+
+What made it possible was a new source of power that could be put wherever it was needed.
+
+## The second: scale and standardisation
+
+**From around 1870.** Electricity, the assembly line, and the underrated part:
+**[interchangeable parts](https://en.wikipedia.org/wiki/Interchangeable_parts)**.
+
+Electricity meant power could be distributed to each machine rather than transmitted by belts
+from one central engine, so factories could be laid out around the work instead of around the
+driveshaft. The assembly line meant work moved to the worker.
+
+But the foundation was standardisation. [Interchangeable parts](https://en.wikipedia.org/wiki/Interchangeable_parts) are what make an assembly line
+possible at all: if every component has to be hand-fitted, there is no line. Mass production
+is a consequence of agreeing on specifications, not of conveyor belts.
+
+That is the first appearance of a pattern worth holding on to: **the enabling change was
+agreeing on a shared description of things**, and the visible change came afterwards.
+
+## The third: each machine gets a controller
+
+**From around 1970.** Electronics, computers, [programmable logic controllers](https://en.wikipedia.org/wiki/Programmable_logic_controller), [robotics](https://en.wikipedia.org/wiki/Robotics), and
+the first industrial IT.
+
+Individual processes became automated. A control loop could hold a temperature without a
+person watching a gauge. A robot could weld the same seam ten thousand times. Historians
+began recording what happened, so operations could be reviewed rather than only remembered.
+
+This is the revolution most industrial facilities are still living in, and it works well. But
+it has a specific shape worth naming: <span className="t-accent">it automated machines one at a
+time.</span> Each controller knows its own loop extremely well and knows nothing whatsoever
+about the machine next to it, the process they jointly serve, or the business objective
+either of them affects.
+
+That limitation is exactly what the fourth revolution is about.
+
+## The fourth: the operation becomes something you can reason about
+
+**Now.** The term comes from *Industrie 4.0*, a project in the German government's high-tech
+strategy, introduced publicly at the [Hannover Fair](https://en.wikipedia.org/wiki/Hannover_Messe) in 2011. It has since been applied to
+almost everything, which has not helped anyone understand it.
+
+Stripped of the marketing, the claim is specific: an operation that can be **reasoned about as
+a whole system** can sense what is happening, predict what is about to happen, and adjust
+itself, rather than depending on a person to notice, interpret and intervene.
+
+The difference from the third revolution is not more automation. It is
+<span className="t-brand">connection and context</span>:
+
+| | Third revolution | Fourth revolution |
+| --- | --- | --- |
+| **Scope** | One machine, one loop | The operation as a system |
+| **Knows about** | Its own setpoint | What it feeds, what feeds it, what depends on it |
+| **Reacts to** | Its own measurement | Conditions elsewhere, and what they imply |
+| **Decides** | Within a fixed rule | From context, within stated limits |
+| **Needs** | A controller | A model of the operation |
+
+<Figure
+  caption="Nothing on the left is removed on the right, the loops stay, and they still do their jobs perfectly. What changes is that the machines become facts in one model, so a question like 'what happens downstream if the pump slows?' has somewhere to be asked."
+  wide
+>
+  <RevolutionContrast />
+</Figure>
+
+## What it actually requires
+
+This is where most Industry 4.0 programmes go wrong, so it is worth being blunt.
+
+The requirement is **not** sensors: they are cheap and you already have many. It is not
+connectivity, which is solved. It is not algorithms, which are open, well understood and
+mostly free.
+
+The requirement is a <span className="hl">machine-readable description of your operation</span>:
+what exists, how it connects, and what it is a kind of. Without that, every clever technology
+above it is reasoning about numbers with no idea what they refer to. Kept in step with live
+data, that description has a familiar name: a [digital twin](/concepts/digital-twin).
+
+Follow the historical pattern and this is unsurprising. Each revolution needed a foundation
+that looked boring next to the technology it enabled:
+
+- The first needed **power that could be placed where it was needed**
+- The second needed **agreed specifications** so parts were interchangeable
+- The third needed **computation cheap enough to put on every machine**
+- The fourth needs **[context](/concepts/contextualization)**, a shared, machine-readable model of the operation
+
+<Figure
+  caption="Read the bottom row, not the top one. Nobody remembers interchangeable parts, and they are why the assembly line worked. The fourth column's foundation is the only one on this chart your organisation still has to build, which is precisely why it is where the competition actually is."
+  wide
+>
+  <FamousFoundation />
+</Figure>
+
+Interchangeable parts were not the exciting part of the second revolution, and they were the
+part that made it work. **The model plays the same role now.**
+
+Follow the trend line one step further and the operator stops being a person in a control
+room at all. Offshore,
+[normally unmanned installations](https://en.wikipedia.org/wiki/Normally_unmanned_installation)
+already run with no permanent crew, and a facility with nobody on board is operated
+**through its [digital twin](/concepts/digital-twin)**, because the model is the only place
+the operation is visible. The foundation this page argues for is also that one.
+[Where this is heading →](/value/ai-agents#the-workforce-will-not-stay-virtual)
+
+[The operational data problem →](/start/the-data-problem)
+
+## What this means practically
+
+Three things follow, and they set the shape of a sensible programme.
+
+<Steps>
+  <Step title="The model comes first, not last">
+    Analytics, dashboards, predictive maintenance and AI agents all sit on top of it. Built
+    afterwards, they each hand-assemble their own context and throw it away.
+    [Building your model →](/concepts/building-your-model)
+  </Step>
+  <Step title="It is not a technology purchase">
+    The dominant cost is the time of people who know the operation, describing it.
+    <span className="hl">No vendor can supply that, because it is knowledge about your
+    plant.</span> [Who does what →](/start/who-does-what)
+  </Step>
+  <Step title="It arrives incrementally, not as a transformation">
+    Nobody becomes an Industry 4.0 operation in a quarter. You answer one question, model the
+    slice it needs, and widen. [Where to start →](/value/where-to-start) ·
+    [Grown, not built →](/concepts/digital-twin#grown-not-built)
+  </Step>
+</Steps>
+
+:::tip A note on the term itself
+"Industry 4.0" is a label, and a heavily marketed one. If it is unhelpful in your
+organisation, drop it: nothing on this site depends on the phrase. The capability underneath
+is real and specific: an operation with a written-down model of itself can be reasoned about
+by software. That is worth pursuing whatever it is called.
+:::
+
+<References>
+
+- [Fourth Industrial Revolution](https://en.wikipedia.org/wiki/Fourth_Industrial_Revolution)
+- [Industrial Revolution (the first)](https://en.wikipedia.org/wiki/Industrial_Revolution)
+- [Second Industrial Revolution](https://en.wikipedia.org/wiki/Second_Industrial_Revolution)
+- [Digital Revolution (the third)](https://en.wikipedia.org/wiki/Digital_Revolution)
+- [Interchangeable parts](https://en.wikipedia.org/wiki/Interchangeable_parts)
+- [Programmable logic controller](https://en.wikipedia.org/wiki/Programmable_logic_controller)
+- [Cyber-physical system](https://en.wikipedia.org/wiki/Cyber-physical_system)
+- [Digital twin](https://en.wikipedia.org/wiki/Digital_twin)
+
+</References>
+
+<Deeper>
+- [The operational data problem](/start/the-data-problem): why the model is the missing piece
+- [What is a digital twin?](/concepts/digital-twin): the name for the model the fourth revolution needs
+- [What is DataHub?](/start/what-is-datahub): the plain-language explanation
+- [What is data liberation?](/start/data-liberation): the first practical step
+- [AI agents](/value/ai-agents): what becomes possible once the model exists
+- [Board briefing](/value/board-briefing): this argument, condensed for governance
+</Deeper>

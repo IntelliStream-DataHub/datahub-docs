@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 55 1140 905" font-family="Manrope, 'Open Sans', Arial, Helvetica, sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7fa8bd"/></marker><marker id="arrbiz" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f0a06c"/></marker></defs>
+<rect width="1160" height="990" fill="#ffffff"/>
+<path d="M215 148 Q257 173 305 182" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="258" y="163" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">produce to</text>
+<path d="M380 238 Q370 295 380 352" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="375" y="289" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">flows to</text>
+<path d="M631 138 Q505 229 409 352" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="512" y="231" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">hosts</text>
+<path d="M432 408 Q502 464 588 492" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="506" y="451" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">gas to</text>
+<path d="M875 426 Q787 444 710 492" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="790" y="446" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">powers</text>
+<path d="M256 614 Q406 600 547 543" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="404" y="583" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">cools</text>
+<path d="M336 408 Q244 446 171 514" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="249" y="448" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">drained by</text>
+<path d="M648 548 Q657 624 692 692" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="664" y="616" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">exports via</text>
+<path d="M440 705 Q531 727 624 716" fill="none" stroke="#9db8c8" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="532" y="712" text-anchor="middle" font-size="13" font-style="italic" fill="#5e7d8f" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">measures</text>
+<path d="M710 125 Q828 183 958 199" fill="none" stroke="#f0a06c" stroke-width="1.6" stroke-dasharray="5 6" marker-end="url(#arrbiz)"/>
+<text x="831" y="166" text-anchor="middle" font-size="13" font-style="italic" fill="#b3651c" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">governed by</text>
+<path d="M705 748 Q704 813 726 874" fill="none" stroke="#f0a06c" stroke-width="1.6" stroke-dasharray="5 6" marker-end="url(#arrbiz)"/>
+<text x="709" y="806" text-anchor="middle" font-size="13" font-style="italic" fill="#b3651c" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">fulfils</text>
+<path d="M335 726 Q252 787 195 874" fill="none" stroke="#f0a06c" stroke-width="1.6" stroke-dasharray="5 6" marker-end="url(#arrbiz)"/>
+<text x="258" y="788" text-anchor="middle" font-size="13" font-style="italic" fill="#b3651c" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">settles</text>
+<path d="M626 548 Q525 701 463 874" fill="none" stroke="#f0a06c" stroke-width="1.6" stroke-dasharray="5 6" marker-end="url(#arrbiz)"/>
+<text x="507" y="759" text-anchor="middle" font-size="13" font-style="italic" fill="#b3651c" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">maintained by</text>
+<path d="M943 426 Q948 653 997 874" fill="none" stroke="#f0a06c" stroke-width="1.6" stroke-dasharray="5 6" marker-end="url(#arrbiz)"/>
+<text x="959" y="645" text-anchor="middle" font-size="13" font-style="italic" fill="#b3651c" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">reports to</text>
+<rect x="58" y="99" width="163" height="42" rx="21" fill="#005984"/>
+<text x="140" y="125" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Wells W-12/W-14</text>
+<rect x="298" y="189" width="163" height="42" rx="21" fill="#005984"/>
+<text x="380" y="215" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Subsea manifold</text>
+<rect x="617" y="89" width="86" height="42" rx="21" fill="#005984"/>
+<text x="660" y="115" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Plant A</text>
+<rect x="290" y="359" width="180" height="42" rx="21" fill="#005984"/>
+<text x="380" y="385" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Separator train A</text>
+<rect x="554" y="499" width="172" height="42" rx="21" fill="#005984"/>
+<text x="640" y="525" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Compressor K-201</text>
+<rect x="850" y="381" width="180" height="38" rx="19" fill="#ffffff" stroke="#7fa8bd" stroke-width="1.8"/>
+<text x="940" y="405" text-anchor="middle" font-size="15" font-weight="600" fill="#0b4a6e">Gas turbine G-301</text>
+<rect x="52" y="621" width="197" height="38" rx="19" fill="#ffffff" stroke="#7fa8bd" stroke-width="1.8"/>
+<text x="150" y="645" text-anchor="middle" font-size="15" font-weight="600" fill="#0b4a6e">Seawater lift pumps</text>
+<rect x="32" y="521" width="197" height="38" rx="19" fill="#ffffff" stroke="#7fa8bd" stroke-width="1.8"/>
+<text x="130" y="545" text-anchor="middle" font-size="15" font-weight="600" fill="#0b4a6e">Produced-water pump</text>
+<rect x="287" y="681" width="146" height="38" rx="19" fill="#ffffff" stroke="#7fa8bd" stroke-width="1.8"/>
+<text x="360" y="705" text-anchor="middle" font-size="15" font-weight="600" fill="#0b4a6e">Metering skid</text>
+<rect x="632" y="699" width="137" height="42" rx="21" fill="#005984"/>
+<text x="700" y="725" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Export riser</text>
+<rect x="352" y="881" width="197" height="38" rx="19" fill="#fdeee3" stroke="#f6783c" stroke-width="1.8"/>
+<text x="450" y="905" text-anchor="middle" font-size="15" font-weight="700" fill="#b34a1c">Maintenance program</text>
+<rect x="76" y="881" width="189" height="38" rx="19" fill="#fdeee3" stroke="#f6783c" stroke-width="1.8"/>
+<text x="170" y="905" text-anchor="middle" font-size="15" font-weight="700" fill="#b34a1c">Production revenue</text>
+<rect x="632" y="881" width="197" height="38" rx="19" fill="#fdeee3" stroke="#f6783c" stroke-width="1.8"/>
+<text x="730" y="905" text-anchor="middle" font-size="15" font-weight="700" fill="#b34a1c">Gas export contract</text>
+<rect x="897" y="881" width="206" height="38" rx="19" fill="#fdeee3" stroke="#f6783c" stroke-width="1.8"/>
+<text x="1000" y="905" text-anchor="middle" font-size="15" font-weight="700" fill="#b34a1c">Emissions compliance</text>
+<rect x="966" y="201" width="129" height="38" rx="19" fill="#fdeee3" stroke="#f6783c" stroke-width="1.8"/>
+<text x="1030" y="225" text-anchor="middle" font-size="15" font-weight="700" fill="#b34a1c">Safety case</text>
+</svg>

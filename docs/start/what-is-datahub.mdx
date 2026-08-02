@@ -1,0 +1,144 @@
+---
+sidebar_position: 1
+title: What is DataHub?
+description: The plain-language explanation of what the IntelliStream DataHub platform does and why operational data needs context.
+---
+
+# What is DataHub?
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona>Board members</Persona>
+  <Persona>Engineers</Persona>
+  <Persona>Operations</Persona>
+</Personas>
+
+<KeyIdea>
+DataHub is a place to keep your operational data **together with a description of what
+that data is about**.
+
+Without that description, a measurement is just a number in a list. With it, the same
+measurement knows which pump it came from, which process that pump serves, which site the
+process runs on, and which business target the site is accountable for.
+</KeyIdea>
+
+## The one-sentence version
+
+<p className="lead">
+DataHub is a data platform that stores your measurements and your events next to a
+<span className="t-brand"> model of your operation</span>, so that any number can be
+traced to the physical thing it describes and the business decision it affects.
+</p>
+
+## An analogy: the warehouse and the library
+
+Imagine two buildings.
+
+The first is a **warehouse**. Millions of items, all in unlabelled boxes, stacked by
+whoever delivered them. Everything you own is in there. Finding anything specific requires
+someone who remembers where it was put, and when that person leaves, the knowledge leaves
+too.
+
+The second is a **library**. Same volume of material, but every item is catalogued: what it
+is, what subject it belongs to, which other works it relates to. You don't need to know
+where anything physically sits. You describe what you want, and the catalogue takes you
+there.
+
+Most organisations run their operational data like a warehouse. <span className="hl">DataHub is
+the catalogue.</span> The data does not change; what changes is that the data now carries a
+description of itself, the work called [contextualization](/concepts/contextualization),
+and that description is written down somewhere everyone can use
+rather than living in the heads of a handful of long-serving engineers.
+
+## What that looks like in practice
+
+Suppose a plant engineer asks a simple question:
+
+> *"Why did our energy consumption jump last Tuesday?"*
+
+**Without a model of the operation**, answering this means: find which meters cover the
+site, in whichever historian holds them; work out which production lines were running, from
+the MES or a shift log; check whether any maintenance happened, in the CMMS; check whether
+a set-point changed, in the control system; then reconcile four exports in a spreadsheet.
+Days of work, and the answer is only as good as the person assembling it.
+
+**With a model of the operation**, the same question is a traversal. Start at the site,
+walk down to the lines it contains, to the equipment on those lines, to the meters attached
+to that equipment; overlay the events raised against any of them in the same window. The
+answer arrives in minutes, and it is <span className="t-success">reproducible</span>, the
+next person asking gets the same answer.
+
+The difference is not the data. Both organisations had the same data.
+<span className="hl">The difference is whether the relationships between things were
+written down in a form a computer can follow.</span>
+
+## What DataHub actually stores
+
+Four things today, and only four. This is deliberate, a small vocabulary is what makes it
+possible for people who are not data engineers to use the platform. Two more blocks,
+[policies and functions](/start/core-ideas#two-more-building-blocks-on-the-roadmap), are on
+the roadmap.
+
+| Building block | What it is | Example |
+| --- | --- | --- |
+| **Resources** | The things in your operation, and how they relate | A pump, a tank, a production line, a site, a KPI |
+| **Time series** | Continuous measurements, arriving over and over | Pressure, temperature, throughput, power draw |
+| **Events** | Things that happened, at a point in time | An alarm fired, a permit closed, a work order completed |
+| **Data sets** | Containers that group related data and control who sees it | "Valve pressure sensors", "Grid asset monitoring" |
+
+**Whatever your source systems call things, they arrive in DataHub as one of these four.**
+A work permit being opened, a purchase order being raised, and a sensor alarm are all
+**events**. A vibration signal and a financial index are both **time series**. That
+reduction is what lets one person query across systems that were never designed to talk to
+each other.
+
+Kept in step with live data, those four together are what people mean by a
+[digital twin](/concepts/digital-twin).
+
+[Read more about the four building blocks →](/start/core-ideas)
+
+## What DataHub is not
+
+Being clear about the boundaries saves disappointment later.
+
+- **It is not a replacement for your control system.** DataHub reads from operational
+  systems; it does not run your plant or hold safety functions.
+- **It is not a dashboard product.** It has charting and exploration built in, but its job
+  is to be the trustworthy layer *underneath* whatever reporting you already use.
+- **It is not a data lake.** A lake stores files and hopes someone can make sense of them
+  later. **DataHub insists that data arrives connected to a model.**
+- **It is not magic.** The model has to be built. The platform makes that cheap and keeps
+  it maintainable, but somebody who understands your operation still has to say what the
+  things are. [How to build the model →](/concepts/building-your-model)
+
+## Who uses it, and for what
+
+| Who | What they do with it |
+| --- | --- |
+| <span className="t-brand">Operations and engineering</span> | Investigate incidents by following relationships; [monitor live signals](/using/subscriptions); see what a change would affect |
+| <span className="t-brand">Subject-matter experts</span> | Curate the model, the description of what the operation *is* stays with the people who understand it |
+| <span className="t-brand">Analysts and data scientists</span> | Query data that already carries its context, and publish results back into the same model |
+| <span className="t-brand">Leadership</span> | Get reported figures that can be traced end to end, rather than assembled and asserted |
+| <span className="t-brand">Administrators</span> | Run the platform, manage access, control retention and cost |
+
+## Why it is open source
+
+An operational data platform sits underneath your reporting, your investigations and
+eventually your automation. Adopting one is a decade-scale decision, so the honest question
+is: what happens if the supplier disappears, triples the price, or discontinues the thing
+you depend on?
+
+Closed platforms answer that with a contract. DataHub answers it <span className="t-accent">structurally</span>:
+the source is public, you can audit exactly what it does with your data, run it entirely
+disconnected from the internet, and continue running it yourself if we ever vanish. The
+licence is the [GNU AGPL-3.0](https://en.wikipedia.org/wiki/GNU_Affero_General_Public_License),
+which places no restriction on using DataHub for your own organisation's data.
+
+<Deeper>
+- [The operational data problem](/start/the-data-problem): why this keeps happening, and what Industry 4.0 actually requires
+- [What is a digital twin?](/concepts/digital-twin): the same idea, under the name your board already uses
+- [The four building blocks](/start/core-ideas): resources, time series, events and data sets in detail
+- [What is an ontology?](/concepts/ontology): the model layer, explained without jargon
+- [Your first hour](/start/first-hour): build a small working model yourself
+- [The business case](/value/business-case): where the return comes from
+</Deeper>

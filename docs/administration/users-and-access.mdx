@@ -1,0 +1,135 @@
+---
+sidebar_position: 4
+title: Users and access
+description: Where DataHub users come from, how roles reach the platform, and how to manage tokens and service accounts.
+---
+
+# Users and access
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT security</Persona>
+</Personas>
+
+<KeyIdea>
+DataHub does not hold user accounts. Identity lives in
+[your existing OAuth2/OIDC identity provider](/administration/identity-providers), and
+DataHub reads roles from the access token on every request.
+
+The practical consequence: joiners, movers and leavers are handled by the process you
+already have, and revoking access takes effect as soon as the user's token is reissued,
+<span className="hl">there is no cached permission state anywhere in the platform to
+clear</span>.
+</KeyIdea>
+
+## How a user reaches the platform
+
+<Steps>
+  <Step title="The user signs in to your identity provider">
+    Through whatever the organisation already uses, single sign-on, MFA, conditional access.
+    DataHub is not involved.
+  </Step>
+  <Step title="The provider issues an access token">
+    The token carries the user's identity, their organisation, and their roles.
+  </Step>
+  <Step title="DataHub reads the organisation claim">
+    This resolves which [tenant](/administration/organizations) the request belongs to, and
+    therefore which databases it touches.
+  </Step>
+  <Step title="DataHub reads the roles">
+    Roles determine what the user may read and write.
+    [Data set permissions →](/administration/dataset-permissions)
+  </Step>
+</Steps>
+
+Because this happens per request, changes take effect at the next token issue rather than
+after a cache expiry or a restart.
+
+## The baseline role
+
+Access to the platform at all requires the `DATAHUB_ACCESS` role. Without it, a user
+authenticates successfully and can do nothing, which is the correct default for anyone
+whose access has not been deliberately granted.
+
+Beyond that, permissions are granular: **data set permissions** grant read and write on the
+stored data, independently of each other.
+[→ Full role grammar](/administration/dataset-permissions)
+
+## Access tokens
+
+Every user can copy their access token from the user menu at the top right of the console.
+It is used for sending data in from a script or an integration.
+
+Three rules worth stating to users explicitly:
+
+- **It is a credential.** It carries the holder's full permissions. Treat it exactly like a
+  password.
+- **It expires.** Tokens are short-lived by design. A script that stores one and runs for
+  months will fail, which is the intended behaviour, not a bug to work around.
+- **It is not for production integrations.** A person's token **ties a production data feed
+  to an individual's employment**. Use a service account.
+
+## Service accounts
+
+Production ingestion and machine-to-machine integrations should use dedicated service
+accounts in your identity provider, with their own credentials and their own roles. A
+durable [data subscription](/using/subscriptions#the-two-kinds) is an integration like any
+other and should hold its own service account.
+
+The permission model supports a pattern worth using deliberately:
+<span className="t-brand">write does not imply read.</span> An ingestion service account can be
+granted write on the data sets it feeds without being able to read anything back. If those
+credentials are ever compromised, the blast radius is limited to writing rather than to
+exfiltration.
+
+Recommended shape for an ingestion account:
+
+| | |
+| --- | --- |
+| **Identity** | A dedicated service account, named for the source system it represents |
+| **Data set roles** | Write on the specific data sets it feeds. No read, unless it genuinely needs it |
+| **Source-side access** | Read-only on the source system it reads from |
+| **Credential rotation** | Through your identity provider's normal process |
+
+## Sessions
+
+The console holds sessions server-side, externalised to a shared store so that any instance
+can serve any request. Sessions end automatically after a period of inactivity, and the
+console tells the user why when it happens.
+
+Because sessions are externalised, the console can be restarted or scaled without signing
+everybody out, and the load balancer needs no session affinity.
+
+## Reviewing access
+
+Two practical habits:
+
+- **Review data set roles quarterly.** The role names encode which data sets they grant, so
+  a role list in your identity provider is a readable access report, no export from DataHub
+  required. When access moves to
+  [organisation groups](/administration/identity-providers#organization-groups-will-carry-data-set-access),
+  the same review reads the group list instead; the habit carries over, the grammar changes.
+- **Watch for over-broad grants.** Roles granting read or write across *all* data sets exist
+  as an operator escape hatch. They should be held by very few accounts, and their holders
+  should be reviewed by name.
+
+[The full role grammar →](/administration/dataset-permissions)
+
+## What administrators cannot do from the console
+
+By design, a few things live outside the platform:
+
+- **Creating users**, in your identity provider
+- **Assigning roles**, in your identity provider
+- **Provisioning tenants**, infrastructure work
+  [→ Organisations and tenants](/administration/organizations)
+
+This is deliberate. Identity and infrastructure belong to systems built for them, with their
+own audit trails and approval processes, rather than being duplicated inside an application.
+
+<Deeper>
+- [Data set permissions](/administration/dataset-permissions): the role grammar in detail
+- [Organisations and tenants](/administration/organizations): how the organisation claim resolves
+- [Security and compliance](/administration/security): the wider posture
+- [Change data capture](/using/cdc-integrations): service accounts for source-system integrations
+</Deeper>

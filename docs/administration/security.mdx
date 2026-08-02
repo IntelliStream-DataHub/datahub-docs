@@ -1,0 +1,221 @@
+---
+sidebar_position: 9
+title: Security and compliance
+description: DataHub's security posture, the isolation guarantees, and answers to the questions a risk committee will ask.
+---
+
+# Security and compliance
+
+<Personas>
+  <Persona primary>IT security</Persona>
+  <Persona primary>Risk and compliance</Persona>
+  <Persona>Administrators</Persona>
+  <Persona>Board members</Persona>
+</Personas>
+
+<KeyIdea>
+Three properties define the posture: **identity stays in your provider**, **tenant isolation
+is designed at the database level rather than in application logic**, and **the entire source
+is auditable before adoption**.
+
+Read the isolation section carefully: what the platform supports and what the reference
+deployment configures are not the same thing.
+
+The platform can run fully disconnected from the internet, with no licence check, telemetry
+callback or hosted dependency.
+</KeyIdea>
+
+## Certification status
+
+<span className="t-brand">IntelliStream is working toward [ISO/IEC 27001](https://en.wikipedia.org/wiki/ISO/IEC_27001) certification.</span>
+That process is **in progress and not yet complete**, we are not certified today, and this
+page should not be read as a claim that we are.
+
+What that means practically for an evaluation:
+
+- The information security management system is being built out against the standard, so the
+  controls and documentation a certified supplier would be expected to hold are being put in
+  place rather than assembled reactively.
+- If your procurement process requires a certified supplier **today**,
+  <span className="hl">we do not meet that bar yet</span>. [Ask us where the process currently stands](https://intellistream.ai/contact-us) rather
+  than relying on this page, which is updated less often than the programme moves.
+- [ISO/IEC 27001](https://en.wikipedia.org/wiki/ISO/IEC_27001) certification covers the
+  organisation's management system, **not the software itself**. The properties below, external
+  identity, credential-level tenant isolation, and a fully auditable source tree, are what a
+  technical review should actually examine, and they hold independently of certification
+  status.
+
+## Authentication and authorisation
+
+**Identity is external.** DataHub holds no user accounts and no passwords. Authentication is
+OAuth2/OIDC against your identity provider, so your existing single sign-on, multi-factor
+requirements, conditional access and joiner-mover-leaver process all apply unchanged.
+[Identity providers, including Entra ID →](/administration/identity-providers)
+
+**Authorisation is per request.** Roles are read from the access token on every request.
+There is no cached permission state in the platform, so revoking a role takes effect as soon
+as the user's token is reissued rather than after a cache expiry.
+
+**The API holds no sessions.** It is a stateless resource server. The console does hold
+sessions, externalised to a shared store, which is what lets it scale without affinity.
+
+**Live delivery is authorised the same way.** A [data subscription](/using/subscriptions)
+is an authenticated, permission-scoped standing connection, not a bypass: what it delivers
+is filtered by the same data set read boundary as any other read.
+
+[Users and access →](/administration/users-and-access) ·
+[Data set permissions →](/administration/dataset-permissions)
+
+## Tenant isolation
+
+This is usually the question a risk committee cares most about, and the answer is stronger
+than in most multi-tenant platforms.
+
+Each tenant has its own relational and columnar databases and its own file storage root.
+The platform supports giving each of those its own credentials, so that cross-tenant access
+requires a credential compromise rather than an application bug.
+
+<span className="t-accent">The reference deployment does not configure it that way.</span> As
+shipped, tenants share one PostgreSQL/ClickHouse credential, and because Neo4j Community
+Edition supports only a single database, all tenants share one graph database. Those are
+deployment choices you can change, and you must change them before the isolation argument
+above holds. [Detail →](/administration/organizations#what-the-reference-deployment-actually-does)
+
+Two caveats *inside* a tenant belong in the same review, both documented in detail on the
+permissions page: [graph traversal is gated on the starting node only](/administration/dataset-permissions#graph-traversal-is-gated-on-the-starting-node-only),
+so data sets are not barriers within a connected graph, and
+[files with no data set are readable by every authenticated user](/administration/dataset-permissions#entities-without-a-data-set).
+
+That is a meaningfully different guarantee from schema-based or row-based separation, where
+a single mistake in query construction can cross the boundary.
+
+Additional defence in depth on the shared-capable stores:
+
+- Key-mapping store keys are 128-bit cryptographic hashes of the external id **combined with
+  the tenant id**, so a key is infeasible to guess and cannot collide across tenants.
+- Cached query cursors are held under unguessable time-ordered keys with a short expiry that
+  refreshes while a result set is still being paged through.
+
+The tenant is resolved from the organisation claim in the caller's token, and the tenant
+context is explicitly cleared at the end of every request so it cannot leak between users
+sharing a server thread.
+
+[How multi-tenancy works →](/administration/organizations)
+
+## Secrets
+
+Credentials and the tenant registry live in a dedicated secret store with access control and
+audit, not in application configuration files or database tables. Services authenticate to
+it at startup and load only what they need.
+
+The tenant registry is in the secret store for a structural reason as well as a security
+one: it decides *which database to connect to*, so it cannot live in one of those databases.
+
+## Auditability of the platform itself
+
+The source code is public, under the GNU AGPL-3.0. That changes what a security review can
+actually do:
+
+- **Read the code** rather than relying on a vendor questionnaire
+- **Verify what the platform does with your data**, rather than being told
+- **Run it fully [air-gapped](https://en.wikipedia.org/wiki/Air_gap_(networking))**, with no outbound connection required at runtime
+- **Continue running it independently** if the supplier ceases to exist
+
+For organisations in regulated or critical-infrastructure sectors, the air-gap capability and
+the source availability are often the deciding factors rather than nice-to-haves.
+
+## Data protection questions
+
+### Where does our data go?
+
+Wherever you run the platform. There is no hosted component in a self-managed installation,
+no telemetry, and no callback. Data residency is determined entirely by where you place the
+databases, and because each tenant carries its own connection details, different tenants can
+sit in different jurisdictions.
+
+### Can we delete a tenant's data completely?
+
+Yes, and cleanly. Because every store is database-per-tenant, offboarding is dropping the
+tenant's databases and removing its storage root, there is no residue in shared tables to
+hunt for, because there are no shared tables. Removed tenants' folders are quarantined for
+30 days and then purged automatically.
+[Offboarding →](/administration/data-lifecycle#offboarding-a-tenant)
+
+### Can we prove a document has not been altered?
+
+Every uploaded file records a [checksum](https://en.wikipedia.org/wiki/Checksum), so a document filed in DataHub can be verified
+against it. [Files →](/using/files)
+
+### Can we prove where a reported figure came from?
+
+**Not end to end today.** Full [lineage](/concepts/lineage-and-quality), where every derived
+value records the transformations and inputs behind it with data-quality flags at each step,
+is on the roadmap. Do not offer it to an auditor as an existing control.
+
+What you can show today is that a figure was produced from one queryable model rather than
+from an assembled spreadsheet, and that it reproduces. That is a real improvement on the
+usual position, and it is a smaller claim than traceability.
+
+One caveat worth planning for now, because it is a retention decision rather than a software
+one: lineage will only ever trace to inputs that still exist. If retention removes
+measurements before an audit occurs, the ancestry records what a figure was computed from but
+the inputs themselves are gone. Align retention with your audit horizon deliberately.
+[Retention versus traceability →](/administration/data-lifecycle#retention-versus-traceability)
+
+## Production hardening checklist
+
+The evaluation stack is deliberately convenient and deliberately insecure. Before production:
+
+<Steps>
+  <Step title="TLS everywhere">
+    Console, API, streaming platform, and every database connection.
+  </Step>
+  <Step title="No default credentials">
+    Demo tenants, demo users and default administrator passwords must not survive.
+  </Step>
+  <Step title="Your real identity provider">
+    With your groups, your MFA policy and your leaver process.
+  </Step>
+  <Step title="Hardened database authentication and network restrictions">
+    Per-tenant database roles, proper credentials, and network policy limiting who can reach
+    the stores at all.
+  </Step>
+  <Step title="Least privilege on service accounts">
+    Ingestion accounts get write and not read, and read-only credentials on the source
+    system they read from.
+    [Why →](/administration/users-and-access#service-accounts)
+  </Step>
+  <Step title="Named holders for the escape-hatch roles">
+    Roles granting access to all data sets should have a short, reviewed list of holders.
+  </Step>
+  <Step title="Backups, tested">
+    Per tenant, with a restore actually exercised rather than assumed.
+    [Backups →](/administration/data-lifecycle#backups)
+  </Step>
+  <Step title="Retention aligned with policy">
+    Both directions: long enough for audit, short enough for data minimisation.
+  </Step>
+</Steps>
+
+## Reporting a vulnerability
+
+Security issues should be reported through the process published in the platform
+repository's security policy, rather than through public issue tracking.
+
+<References>
+
+- [ISO/IEC 27001](https://en.wikipedia.org/wiki/ISO/IEC_27001)
+- [Multitenancy](https://en.wikipedia.org/wiki/Multitenancy)
+- [Air-gapped networks](https://en.wikipedia.org/wiki/Air_gap_(networking))
+- [Principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
+- [Checksums](https://en.wikipedia.org/wiki/Checksum)
+
+</References>
+
+<Deeper>
+- [Organisations and tenants](/administration/organizations): the isolation model in detail
+- [Identity providers](/administration/identity-providers): Keycloak, and bringing in Entra ID
+- [Data set permissions](/administration/dataset-permissions): the authorisation grammar
+- [Data lifecycle](/administration/data-lifecycle): retention, backups and deletion
+- [Board briefing](/value/board-briefing): the governance-level summary
+</Deeper>

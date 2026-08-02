@@ -1,0 +1,203 @@
+---
+sidebar_position: 3
+title: Where to start
+description: Choosing a first DataHub project narrow enough to finish and valuable enough to fund the next one, with a 90-day plan.
+---
+
+# Where to start
+
+<Personas>
+  <Persona primary>Project sponsors</Persona>
+  <Persona primary>Leadership</Persona>
+  <Persona>Domain experts</Persona>
+</Personas>
+
+<KeyIdea>
+Start with <span className="hl">one question</span>, not a topic and not a platform rollout.
+
+**A question has an owner, an answer, and a moment when it is answered.** A topic does not, which
+is why "energy management" and "digital transformation" projects run indefinitely and get
+cancelled rather than finished.
+</KeyIdea>
+
+## Choosing the question
+
+A good first question passes five tests:
+
+| Test | Why |
+| --- | --- |
+| **Somebody named wants the answer** | Without an owner it has no urgency and no one to judge success |
+| **It is genuinely unanswered today** | If a spreadsheet already answers it, you are automating, not learning |
+| **The data exists somewhere** | You are building a model, not commissioning instrumentation |
+| **It touches 2–4 source systems** | Fewer proves nothing about integration; more takes too long |
+| **The answer changes a decision** | Otherwise it is a demonstration, and demonstrations do not get funded twice |
+
+### Questions that work well
+
+- *"Why does energy per tonne differ between our two grinding lines?"*
+- *"Which assets contributed to last month's availability shortfall, and what was raised
+  against them?"*
+- *"Can we produce the quarterly emissions submission from data rather than from
+  spreadsheets, reproducibly?"*, with the full audit trail arriving once
+  [lineage](/concepts/lineage-and-quality) ships
+- *"When a pump trips, what else is at risk in the next thirty minutes?"*
+- *"How much of our unplanned downtime last year has a recorded precursor we could have
+  seen?"*
+
+### Questions that go wrong
+
+- *"Build a digital twin of the plant."*, No owner, no end, no decision changed.
+  [Why twins are grown, not built →](/concepts/digital-twin#grown-not-built)
+- *"Migrate the historian."*, A migration project, not a value project. The model never
+  gets built because migrating is enough work on its own.
+- *"Apply AI to our operational data."*, A technology looking for a problem. Also depends
+  on the model you have not built yet.
+- *"Give everyone a dashboard."*, Produces a dashboard nobody opens, because it answers no
+  particular question.
+
+## A worked example of a good first question
+
+Abstract advice about questions is easy to agree with and hard to apply, so here is one
+carried through.
+
+> *"Why does energy per tonne differ between our two grinding lines?"*
+
+| Test | How it passes |
+| --- | --- |
+| **Somebody named wants it** | The production manager, who is accountable for the energy cost per tonne target |
+| **Genuinely unanswered** | Both lines are assumed identical. Nobody has compared them with the maintenance history overlaid |
+| **The data exists** | Energy meters on both lines, throughput in the MES, maintenance events in the CMMS. All three already recorded |
+| **Touches 2 to 4 systems** | Three |
+| **Changes a decision** | If one line is worse, the answer determines whether it is a maintenance, a settings or a design problem, and each leads somewhere different |
+
+**What gets modelled:** two lines, the equipment on each, the meters attached, the maintenance
+events raised. Perhaps twenty resources. Not the site, not the other areas, not the future.
+
+**What "answered" looks like:** a comparison over a defined period, with the difference
+attributed to specific equipment, and the method written down so the next person reproduces
+it.
+
+**What it sets up:** the second question is likely to be about one of those two lines, and
+most of the model is already there. That is the compounding effect becoming visible, which is
+the real deliverable of a first project.
+
+## The 90-day plan
+
+Scope it to one site, one process area, or one asset class. Not the whole company.
+
+<Steps>
+  <Step title="Days 1–10 · Frame and stand up">
+    The sponsor writes the question down, in one sentence, with a named owner.
+    The administrator installs the platform and creates accounts.
+    The integrator confirms which source systems can actually be read, and how, this
+    is the single biggest schedule risk, so establish it first.
+
+    [Installation →](/administration/installing) · [Who does what →](/start/who-does-what)
+  </Step>
+  <Step title="Days 10–30 · Model the slice">
+    Two or three workshops with the people who know the operation. Work
+    [top-down](/concepts/three-layers#where-to-start-if-the-model-is-empty): from the business
+    concern in the question, to the functions that serve it, to the assets that perform them.
+    Agree naming conventions before creating anything at volume.
+
+    [Building your model →](/concepts/building-your-model) ·
+    [Naming and standards →](/concepts/naming-and-standards)
+  </Step>
+  <Step title="Days 20–50 · Land the data">
+    Two or three sources, as [time series](/using/timeseries) and [events](/using/events),
+    connected to the resources they belong to. Decide each series' sample rate here,
+    [it has a real answer](/using/timeseries#how-often-should-you-sample).
+    Overlaps with modelling deliberately, **loading real data is what reveals the model's
+    flaws while they are still cheap to fix**.
+  </Step>
+  <Step title="Days 50–75 · Answer the question">
+    The domain experts answer it, in the console, and write down how. If the answer requires
+    a step outside the platform, note it, that gap is your next piece of work.
+  </Step>
+  <Step title="Days 75–90 · Review and choose the next question">
+    Compare against the baseline you took at the start. Present the answer and the method.
+    Pick question two, and notice how much of the model it can reuse. That reuse is the
+    whole thesis, and the review is when it becomes visible.
+
+    [Measuring the return →](/value/measuring-return)
+  </Step>
+</Steps>
+
+## Before you begin: take the baseline
+
+You cannot demonstrate improvement without a "before". It takes an afternoon and it is the
+most commonly skipped step.
+
+Record, honestly:
+
+- **How long the question takes to answer today**, and how many people it involves
+- **How many systems** somebody must access to answer it
+- **How often** the question is asked, and how often it goes unasked because it is too
+  expensive
+- **How long the relevant reporting cycle takes**, in person-days
+- **Whether the current answer is reproducible**, would two people get the same number?
+
+[What to measure and how →](/value/measuring-return)
+
+## Are you ready to start?
+
+Six checks. If three or more are no, fix those first rather than starting and stalling.
+
+| | |
+| --- | --- |
+| ☐ | A specific question is written down, in one sentence, with a named owner |
+| ☐ | Two or three domain experts have **agreed diary time**, not just been mentioned |
+| ☐ | Read access to the source systems is **confirmed**, not assumed |
+| ☐ | The baseline numbers have been recorded |
+| ☐ | Somebody is named as data steward for naming conventions |
+| ☐ | A 90-day review is in a calendar, with stopping as a permitted outcome |
+
+The second and third are the ones that sink projects. Both look like formalities and both are
+where the time actually goes.
+
+## If you cannot get source-system access
+
+This is the most common early blocker, and it is rarely technical.
+
+- **Start with the source you already control.** A partial answer from two systems beats a
+  stalled project waiting for a third.
+- **Ask for a read-only export first**, then automate later. A weekly file is not elegant and
+  it unblocks the modelling work, which is the part with the long lead time.
+- **Escalate it as a decision, not a task.** Access negotiations between system owners are
+  exactly what a [sponsor is for](/start/who-does-what), and they move in days once someone
+  with authority asks.
+- **If access is genuinely refused**, change the question rather than the platform. There is
+  almost always a useful question answerable from the systems you can read.
+
+## Common first-project mistakes
+
+| Mistake | What happens |
+| --- | --- |
+| **Scope is a site, then a region, then the company** | Nothing is finished, so nothing proves anything |
+| **Modelling everything before loading data** | The model is subtly wrong and nobody finds out for months |
+| **Assigning the model to a supplier or IT** | A model your own people do not recognise. [Why this fails →](/start/who-does-what#the-mistake-worth-avoiding) |
+| **No baseline taken** | The project succeeds and cannot prove it |
+| **Choosing the hardest source system first** | Three months of integration work before anyone sees value |
+| **Starting from the tag list** | You model your instrumentation instead of your operation |
+
+## Picking the second question
+
+The second question is where the thesis is tested. Choose one that:
+
+- **Reuses most of the first model**, proving the compounding effect, or revealing that
+  the model was too narrow
+- **Serves a different audience**, if question one served engineering, let question two
+  serve reporting or leadership. A model that only ever serves one department will be funded
+  like a departmental tool.
+
+By the fourth or fifth question, most of what people ask can be answered against what
+already exists. That is the point at which the platform stops being a project and becomes
+infrastructure.
+
+<Deeper>
+- [The business case](/value/business-case): where the return comes from
+- [Value paths](/value/value-paths): six proven plays to choose a first question from
+- [Building your model](/concepts/building-your-model): how to run the modelling workshops
+- [Who does what](/start/who-does-what): the roles a first project needs
+- [Measuring the return](/value/measuring-return): baselines and metrics
+</Deeper>

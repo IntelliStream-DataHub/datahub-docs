@@ -1,0 +1,190 @@
+---
+sidebar_position: 7
+title: Naming and standards
+description: How to name resources, labels, external ids and relationships, and the industrial tagging standards that already encode most of your model.
+---
+import TagAnatomy from '@site/src/figures/tag-anatomy.svg';
+
+
+# Naming and standards
+
+<Personas>
+  <Persona primary>Domain experts</Persona>
+  <Persona primary>Data stewards</Persona>
+  <Persona>Engineers</Persona>
+</Personas>
+
+<KeyIdea>
+Three fields carry the model on every resource: the **name** (what a person reads), the
+**label** (what kind of thing it is), and the **external id** (the permanent handle systems
+use).
+
+Naming is not cosmetic. <span className="hl">A model with inconsistent names is a model nobody
+trusts</span>, and the cost of fixing it rises with every item added. Set the conventions
+before you import at volume.
+</KeyIdea>
+
+## What each field carries
+
+| Field | What it is | Can it change? |
+| --- | --- | --- |
+| **Name** | The readable label, written for a person scanning a list. In RDF terms, `rdfs:label`. | Yes, any time |
+| **Label** | The class the resource belongs to, `Pump`, `Separator`. In RDF terms, `rdf:type`. | Rarely, and deliberately |
+| **External id** | The stable identifier that follows the namespace in an IRI. Imports, integrations and the SDK match on it. | <span className="t-accent">Never</span> |
+
+The console derives the external id from the name, lowercase, underscores, and lets you
+override it. Take the override seriously when the derived value would encode something
+unstable.
+
+<Figure
+  caption="A tag is a compressed sentence. Reading it left to right tells you the facility, the process system, the kind of instrument and which one, and every part of that is already agreed across the organisation. Mirroring it in DataHub means you inherit that agreement instead of negotiating a new one."
+  wide
+>
+  <TagAnatomy />
+</Figure>
+
+## Rules of thumb
+
+<Steps>
+  <Step title="Lead with the plant tag, then a short description">
+    When the facility has a tagging standard, use it: `21-PT-1234 Separator inlet pressure`.
+    The tag makes it findable by anyone who works with the plant; the description makes it
+    readable by anyone who does not.
+  </Step>
+  <Step title="Name the thing itself, not the document or the system it came from">
+    One resource is one physical or logical thing. Not "the pump row in SAP", the pump.
+  </Step>
+  <Step title="Use the abbreviations your operators already read">
+    If it says PT on the [P&ID](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram), it is PT here. Do not invent a new vocabulary; you will be
+    the only person who speaks it.
+  </Step>
+  <Step title="Leave units, value types and time ranges out of names">
+    They have their own fields. `Discharge pressure`, not `Discharge pressure (bar, 1min avg)`.
+  </Step>
+  <Step title="Write classes in the singular, multi-word names with spaces">
+    `Pump`, `Control Valve`, `Pressure Transmitter`. Not `pumps`. DataHub normalises label
+    names on save, upper-cased, spaces becoming underscores, so `Control Valve` is stored as
+    `CONTROL_VALVE`. Write `ControlValve` and it stores as the unreadable `CONTROLVALVE`,
+    because run-together words are not split.
+  </Step>
+</Steps>
+
+## External ids are promises {#external-ids-are-promises}
+
+An external id is a commitment that this identifier will refer to this thing, permanently.
+Everything that integrates with DataHub, imports, streaming ingestion,
+[subscriptions](/using/subscriptions), the SDK, other systems' cross-references, matches on
+it. One stable id per physical thing is also what guarantees one
+[twin](/concepts/digital-twin) per thing, rather than four half-twins that disagree.
+
+Two rules follow, and they are worth being strict about:
+
+- **Never change it.** Changing an external id silently breaks every integration that
+  refers to it, and the breakage shows up as missing data rather than as an error.
+- **Never reuse it.** If equipment is decommissioned, its external id retires with it.
+  **Reusing it makes historical data refer to the wrong thing, which is worse than losing
+  it.**
+
+That means: <span className="t-accent">never encode anything that changes</span> in an external
+id. No owner, no vendor, no physical location, no project phase, no cost centre. Those all
+belong in metadata, where they can be updated.
+
+Make it unique across the whole facility, not just inside one source system. Two systems
+that each have an `asset_47` will collide the moment both are ingested.
+
+:::tip A good test
+Ask: *"If this equipment is refurbished, moved to another area, and reassigned to a
+different owner and cost centre, is the external id still correct?"* If not, it encodes
+something it should not.
+:::
+
+## Labels, building the taxonomy {#labels}
+
+Labels are your [taxonomy](/concepts/taxonomy). Every resource needs at least one, and the
+type label is singular: a resource carries at most one type, chosen at creation and fixed
+afterwards, encoding what it fundamentally *is*. Other labels can be added and changed freely, which makes them useful for
+cross-cutting tags, `SafetyCritical`, `PilotScope`, without disturbing the classification.
+
+Guidelines:
+
+- **Aim for 15–25 classes in a first model.** If you are past 60, you are probably modelling
+  source systems rather than the operation.
+- **Shallow beats deep.** Three or four levels of specialisation is plenty.
+- **Split when the split changes an answer.** `Valve` and `ControlValve` should be separate
+  classes only if some question needs to distinguish them. Otherwise it is one class with a
+  metadata field.
+
+## Relationships {#relationships}
+
+Relationship names are the verbs of your model. A few conventions that keep traversal
+sensible:
+
+- **Names are stored upper-cased**, so prefer single words (`feeds`, `monitors`, `powers`)
+  or spaced phrases (`part of`) over run-together ones: `contributesTo` stores as the
+  unreadable `CONTRIBUTESTO`.
+- **Name what is actually asserted.** `part of`, `feeds`, `monitors`, `powers`, not
+  `relatedTo`, which carries no information and makes traversal useless.
+- **Fix the direction and hold it.** Decide once whether you write *instrument monitors
+  equipment* or *equipment monitoredBy instrument*, and keep every instance consistent.
+  Mixed direction is the most common cause of a query returning half its expected results.
+- **Keep the vocabulary small.** Five to ten relationship types, used consistently, model
+  almost any operation. <span className="hl">Forty types used once each model
+  nothing.</span>
+- **Read it aloud as a sentence.** *"Line 3 contains Pump P-101."* If the sentence is true
+  and useful, the relationship name is right.
+
+## Standards this follows
+
+Naming in industrial operations is already standardised. Follow whichever standard your
+facility uses and mirror it in DataHub, rather than inventing a parallel scheme.
+
+| Standard | What it fixes |
+| --- | --- |
+| **[ISA-5.1](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram)** | Instrument tags. The first letter is the measured variable, the letters after it the function: `PT` is a pressure transmitter, `TI` a temperature indicator, `FIC` a flow indicating controller. |
+| **[IEC/ISO 81346](https://en.wikipedia.org/wiki/IEC_81346)** | Reference designations, separating the aspects of an item with prefix signs: `=` for function, `-` for product, `+` for location. |
+| **[ISO 15926](https://en.wikipedia.org/wiki/ISO_15926)** | The life-cycle data model for process plants. Part 8 maps it onto RDF and OWL, which turns the reference data library into an [ontology](/concepts/ontology) you can query. |
+| **[NORSOK](https://en.wikipedia.org/wiki/NORSOK_standard) Z-DP-002** | The coding system used on the Norwegian shelf, breaking an installation down into systems, subsystems and item tags. |
+| **[CFIHOS](https://www.jip36-cfihos.org/) (IOGP JIP36)** | Fixes the equipment classes and attribute names handed over from project to operations. |
+
+Two of these map onto DataHub especially directly:
+
+- **[ISA-5.1](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram) tags** already encode the class. A tag beginning `PT` tells you the resource is
+  a `PressureTransmitter`, so the tag prefix can drive label assignment during import,
+  rather than someone classifying 4,000 instruments by hand.
+- **[IEC/ISO 81346](https://en.wikipedia.org/wiki/IEC_81346)'s aspects** are exactly the [three layers](/concepts/three-layers):
+  function (`=`), product (`-`) and location (`+`) are three different relationships from
+  the same item, which is precisely what a graph represents naturally and a hierarchy
+  cannot.
+
+:::tip If you are receiving a capital project handover
+**CFIHOS-conformant handover data is close to a ready-made layer-1 model.** Landing it into
+DataHub at handover, rather than into a folder of spreadsheets, is one of the highest-return
+moments available, because the information is complete and verified exactly once in an
+asset's life. [The handover play →](/value/value-paths#capital-project-handover)
+:::
+
+## Where the help lives in the console
+
+Every resource, time series and data set form has a naming help icon next to the fields.
+It opens the same conventions summarised here, including the RDF view of an example asset
+and the standards list, so the guidance is available at the moment somebody is naming
+something, which is when it actually gets read.
+
+<References>
+
+- [ISA standards, including ISA-5.1 instrumentation symbols](https://www.isa.org/standards-and-publications/isa-standards)
+- [Piping and instrumentation diagram (P&ID)](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram)
+- [IEC 81346 reference designations](https://en.wikipedia.org/wiki/IEC_81346)
+- [ISO 15926, life-cycle data for process plants](https://en.wikipedia.org/wiki/ISO_15926)
+- [NORSOK standards](https://en.wikipedia.org/wiki/NORSOK_standard)
+- [CFIHOS (IOGP JIP36)](https://www.jip36-cfihos.org/)
+- [Identifiers, and why stability matters](https://en.wikipedia.org/wiki/Identifier)
+
+</References>
+
+<Deeper>
+- [Taxonomy, ontology, knowledge graph](/concepts/taxonomy): what labels and relationships are doing
+- [What is an ontology?](/concepts/ontology): the model layer, and the RDF alignment
+- [Building your model](/concepts/building-your-model): agreeing conventions before you scale
+- [Working with resources](/using/resources): the forms these fields appear on
+</Deeper>

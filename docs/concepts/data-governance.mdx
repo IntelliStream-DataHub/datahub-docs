@@ -1,0 +1,158 @@
+---
+sidebar_position: 9
+title: What is data governance?
+description: The rules and accountabilities for how an organisation's data is managed, and how data sets, policies, functions and the knowledge graph each carry a piece of it.
+---
+import DataGovernance from '@site/src/figures/data-governance.svg';
+
+
+# What is data governance?
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Compliance</Persona>
+  <Persona>Data stewards</Persona>
+  <Persona>Administrators</Persona>
+</Personas>
+
+<KeyIdea>
+[Data governance](https://en.wikipedia.org/wiki/Data_governance) is the set of rules and
+accountabilities for how an organisation's data is managed: what exists, who owns it, who
+may use it, how much it can be trusted, and how long it lives.
+
+In DataHub it is not a separate module with its own login. It is
+<span className="hl">assembled from pieces you already know</span>: the knowledge graph, data
+sets, policies and functions each carry one part of the job.
+</KeyIdea>
+
+## The five questions governance answers
+
+Strip away the committee language and governance is five questions, asked of every piece of
+data an organisation holds:
+
+| Question | What it is really asking |
+| --- | --- |
+| **What do we have?** | An inventory: the data, what it means, and what it relates to |
+| **Who is accountable for it?** | A named owner per body of data, not a shared inbox |
+| **Who may use it?** | Access, granted deliberately and reviewable |
+| **Can we trust it?** | Where a figure came from, and in what condition |
+| **How long does it live?** | [Retention, expiry](/administration/data-lifecycle), and a defensible answer to "why do we still have this?" |
+
+Most organisations can answer all five, in the sense that the answers exist *somewhere*: a
+register spreadsheet, a policy manual, an access matrix, a retention schedule in a PDF. The
+governance failure is rarely missing answers. It is that
+<span className="t-accent">the answers live apart from the data they govern</span>, so they are
+invisible at the moment someone actually touches the data, and they drift out of date
+without anyone noticing.
+
+The whole DataHub approach to governance follows from one move: **put each answer on the
+thing it governs.**
+
+## How the pieces carry it
+
+<Figure
+  caption="The filled pieces work end to end today; the outlined two record faithfully now and start acting when enforcement and execution ship. Governance can begin on that basis, because writing good rules is the slow part anyway."
+  wide
+>
+  <DataGovernance />
+</Figure>
+
+### The knowledge graph: what we have, and who is accountable
+
+You cannot govern what you cannot find. The [knowledge graph](/concepts/knowledge-graph) is
+the inventory question answered continuously: every resource, series, event and document,
+named, classified and connected, instead of a register spreadsheet that was accurate the
+month it was written.
+
+It also carries **ownership**, because accountability is a relationship like any other. The
+[business knowledge layer](/concepts/three-layers) connects data to the unit, role or person
+answerable for it, so "who owns this?" is a traversal, not an email thread.
+
+### Data sets: who may use it
+
+[Data sets](/using/datasets) are the unit of access. Deciding what goes in which data set
+*is* the access decision, and the [permission model](/administration/dataset-permissions)
+enforces it, with read and write granted independently. Reviews become tractable because the
+boundary is explicit: a quarterly pass over data set grants is a real control, a quarterly
+pass over "who can see what, across eleven systems" is not.
+
+The same boundary governs what leaves continuously: a [subscription](/using/subscriptions)
+is a standing delivery from a data set, so a grant is also a decision about what streams
+out, and a durable subscriber deserves its own narrowly-scoped
+[service account](/administration/users-and-access).
+
+### Policies: the rules, recorded where the data lives
+
+[Policies](/using/policies) put the retention rule, the access intent and the requirements
+on the data set they govern, findable by whoever opens it, instead of in a manual nobody
+consults. Recorded today; enforcement, rules the platform acts on automatically, is on the
+roadmap, which is exactly the right order: writing the rules down well is the slow,
+human part, and it can start now.
+
+### Functions: trust in derived numbers
+
+Most governance frameworks obsess over stored data and ignore the computations, which is
+backwards: the numbers people act on are nearly all *derived*. [Functions](/using/functions)
+are where computation comes under governance: one sanctioned definition recorded in the
+model instead of four private spreadsheet variants drifting apart, and once execution
+ships, also the definition that runs. They are where
+[lineage](/concepts/lineage-and-quality) will accrue automatically, turning "can we trust
+it?" from an opinion into a walkable trail.
+
+### And underneath all four
+
+Two disciplines make the pieces work, and both are governance even though neither looks
+like it:
+
+- **[Naming and identifiers](/concepts/naming-and-standards).** Stable external ids and
+  agreed conventions are what let the same thing be governed as one thing across systems.
+- **[Contextualization](/concepts/contextualization).** An ungoverned record is usually just
+  an unlinked one; connecting data to what it describes is what brings it under governance
+  at all.
+
+## What this changes in practice
+
+| The usual version | The version where rules live with the data |
+| --- | --- |
+| A data register, updated annually, stale by March | The graph *is* the register, current because it is used |
+| Access reviewed by interviewing system owners | Access read off data set grants in one pass |
+| Retention schedule in a PDF, applied by memory | Retention recorded per data set, enforced when expiry ships |
+| "Where did this figure come from?" answered by whoever built it | Answered by the model, and eventually by the lineage trail |
+| Governance as a committee that meets quarterly | Governance as properties of the data, reviewed quarterly |
+
+The committee does not disappear, someone still decides the rules.
+<span className="hl">What disappears is the gap between deciding a rule and the rule being
+visible where the data is touched.</span>
+
+## Who does the work
+
+**Governance fails most often by being everyone's job, which makes it no one's.** The
+[data steward](/start/who-does-what) role carries it here: naming conventions, data set
+boundaries, policy quality, and the quarterly reviews. A few hours a month once the
+conventions are set, and the single strongest predictor of whether the model stays coherent.
+
+:::tip Starting governance without a programme
+Do not launch a governance initiative. Pick the one data set behind your most regulated
+report, name its owner, record its policies, and review its access. That is governance,
+running, on the data where it matters most, and it took an afternoon. Widen from there,
+data set by data set, the same way the [model itself grows](/value/where-to-start).
+:::
+
+<References>
+
+- [Data governance](https://en.wikipedia.org/wiki/Data_governance)
+- [Data steward](https://en.wikipedia.org/wiki/Data_steward)
+- [Data catalog, the inventory idea](https://en.wikipedia.org/wiki/Data_catalog)
+- [Information governance, the wider discipline](https://en.wikipedia.org/wiki/Information_governance)
+- [Master data management](https://en.wikipedia.org/wiki/Master_data_management)
+
+</References>
+
+<Deeper>
+- [Data sets](/using/datasets): the access boundary
+- [Policies](/using/policies): recording the rules today
+- [Functions](/using/functions): governing computation, not just storage
+- [Lineage and data quality](/concepts/lineage-and-quality): the trust question, and what is planned
+- [Who does what](/start/who-does-what): the steward role that carries this
+- [Data lifecycle](/administration/data-lifecycle): retention and expiry, the "how long" question
+</Deeper>

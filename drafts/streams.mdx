@@ -1,0 +1,142 @@
+---
+sidebar_position: 9
+title: Streams
+description: Namespaces, topics, subscriptions and change-data-capture integrations — the live pipes data arrives on, explained for non-developers.
+---
+
+# Streams
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>Integrators</Persona>
+  <Persona>Engineers</Persona>
+</Personas>
+
+<KeyIdea>
+Streams are the **pipes data arrives on**, and the taps other systems use to drink from them
+in real time.
+
+Most people never need this section. It matters when you are connecting a new source system,
+when a live subscription stops delivering, or when you are deciding how much unread data the
+platform should hold before it starts pushing back.
+</KeyIdea>
+
+## The vocabulary, in plain language
+
+| Term | What it actually is |
+| --- | --- |
+| **Topic** | A named pipe. Data of one kind flows along it — for example, datapoints from one source. |
+| **Namespace** | A folder of topics, with shared settings. Usually one per source system or per domain. |
+| **Subscription** | A tap on a topic. A system that wants the data opens a subscription and reads from where it left off. |
+| **Retention** | How long data stays on the pipe after it has been delivered. |
+| **Backlog quota** | How much *undelivered* data may pile up before the platform intervenes. |
+| **CDC integration** | Change data capture — tailing a source database directly so its changes flow in automatically. |
+
+The important distinction is **retention** versus **backlog quota**. Retention is about
+data that has been consumed and is being kept around. Backlog is about data nobody has read
+yet. A subscriber that stops reading builds a backlog, and the quota is what stops one
+broken consumer filling the disk.
+
+## Namespaces and topics
+
+Create a **namespace** per source system or domain, then topics within it. Namespace-level
+settings — retention, backlog quota, permissions — apply to the topics inside, which is why
+the namespace boundary is worth thinking about the same way as the
+[data set boundary](/using/datasets#designing-good-boundaries).
+
+Topic settings include:
+
+- **Partitioned** — whether the topic is split across partitions for throughput. Partition
+  a topic when one consumer cannot keep up with it.
+- **Persistent** — whether messages are written to disk. Almost always yes for operational
+  data.
+- **Number of partitions** — how many, if partitioned.
+
+The topic detail view shows live health: messages per second, bytes throughput per second,
+average message size, total messages and total megabytes. Those five numbers answer "is
+data actually flowing" faster than anything else in the console.
+
+## Retention and backlog quota
+
+Both are set per namespace, and both are set by **size** or by **time**.
+
+**Retention** — how long consumed data is kept. Longer retention means a consumer can be
+offline longer and still catch up without losing anything; it also costs storage. A common
+starting point is a few days.
+
+**Backlog quota** — how much unconsumed data can accumulate. When the quota is hit, the
+platform acts rather than filling the disk indefinitely. Set this deliberately: too small
+and a brief consumer outage loses data, too large and one broken integration becomes an
+infrastructure incident.
+
+:::tip A stuck subscription is the usual culprit
+When storage grows unexpectedly, the cause is almost always a subscription nobody is reading
+any more — a decommissioned integration, or a test consumer left behind. The platform sweeps
+orphaned subscriptions automatically as housekeeping, but it is worth checking the
+subscription list when investigating.
+[Data lifecycle →](/administration/data-lifecycle)
+:::
+
+## Subscriptions
+
+A subscription is a named position in a topic. Create one for each system that needs to
+consume the data, rather than sharing one across several — separate subscriptions means one
+slow consumer does not hold up another.
+
+Live subscriptions are what power real-time delivery to other systems and to the console's
+[live charting](/using/insights#live-mode). They survive reconnects: the position is held on
+the platform side, so a consumer that drops off resumes where it stopped.
+
+## Permissions on streams
+
+Stream access is granted per role, with two independent permissions:
+
+- **Produce** — may write to the topic
+- **Consume** — may read from the topic
+
+These are separate on purpose. An ingestion service account normally has produce and not
+consume; an analytics consumer has consume and not produce.
+
+The console warns you when saving a role whose permissions include neither produce nor
+consume — such an entry grants nothing and is removed on save.
+
+Note that stream permissions are separate from [data set
+permissions](/administration/dataset-permissions), which govern the stored data. Both matter:
+one controls the pipe, the other controls the warehouse.
+
+## Change data capture
+
+**CDC integrations** connect a source database directly, so its changes flow into DataHub
+without anybody writing an export. Creating one asks for the database details — hostname,
+port, username, password, the publication name, which tables to include, and how often data
+is flushed.
+
+There is a **test connection** action; use it before saving, because a CDC integration that
+cannot reach its source fails quietly rather than loudly.
+
+CDC is the right tool when a source system's database is accessible and its schema is
+stable. It is the wrong tool when the source is a vendor system whose schema changes on
+upgrade — in that case an API-based integration that you control is more robust.
+
+:::tip Landing CDC data well
+CDC gets data *in*; it does not decide what the data *means*. Plan how incoming rows map onto
+[resources, time series and events](/start/core-ideas) before switching an integration on,
+or you end up with a faithful copy of somebody else's schema — which is the problem you
+adopted DataHub to escape.
+:::
+
+## When to involve a developer
+
+This section is the boundary between administration and integration work. Configuring
+namespaces, topics, retention and permissions is administrator work and is done entirely in
+the console. Writing the code that produces to a topic, or consumes from a subscription, is
+developer work.
+
+[Developer and SDK documentation →](https://docs.intellistream.ai)
+
+<Deeper>
+- [Data lifecycle](/administration/data-lifecycle) — retention across all the stores
+- [Data set permissions](/administration/dataset-permissions) — access to the stored data
+- [Events](/using/events) — what arrives on the event topics
+- [Architecture, without the jargon](/administration/architecture) — how the pieces fit together
+</Deeper>

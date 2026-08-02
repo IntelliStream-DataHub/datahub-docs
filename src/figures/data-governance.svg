@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 348" class="fig-data-governance" role="img" aria-label="Data governance at the centre, carried by four platform pieces: the knowledge graph holds the inventory and ownership, data sets hold access, policies hold the recorded rules with enforcement coming, and functions hold trusted computation with execution coming.">
+<text class="fig-title" x="20" y="24">Governance, assembled from pieces you already know</text>
+<text class="fig-sub" x="20" y="44">Each answer lives on the thing it governs, instead of in a document beside it.</text>
+<rect class="fig-centre" x="285" y="66" width="190" height="56" rx="14"/>
+<text class="fig-centre-title" x="380" y="90" text-anchor="middle">Data governance</text>
+<text class="fig-centre-sub" x="380" y="108" text-anchor="middle">five questions, one place</text>
+<line class="fig-track" x1="380" y1="122" x2="104" y2="170"/>
+<rect class="fig-lit-box c-blue" x="20" y="170" width="168" height="100" rx="12"/><text class="fig-lit-title" x="104" y="196" text-anchor="middle">Knowledge graph</text><text class="fig-lit-sub" x="104" y="218" text-anchor="middle">what we have,</text><text class="fig-lit-sub" x="104" y="234" text-anchor="middle">who is accountable,</text><text class="fig-lit-sub" x="104" y="250" text-anchor="middle">the living register</text>
+<line class="fig-track" x1="380" y1="122" x2="288" y2="170"/>
+<rect class="fig-lit-box c-blue" x="204" y="170" width="168" height="100" rx="12"/><text class="fig-lit-title" x="288" y="196" text-anchor="middle">Data sets</text><text class="fig-lit-sub" x="288" y="218" text-anchor="middle">who may use it,</text><text class="fig-lit-sub" x="288" y="234" text-anchor="middle">access granted per set,</text><text class="fig-lit-sub" x="288" y="250" text-anchor="middle">reviewed in one pass</text>
+<line class="fig-track" x1="380" y1="122" x2="472" y2="170"/>
+<rect class="fig-box" x="388" y="170" width="168" height="100" rx="12"/><text class="fig-box-title" x="472" y="196" text-anchor="middle">Policies</text><text class="fig-box-sub" x="472" y="218" text-anchor="middle">the rules, recorded</text><text class="fig-box-sub" x="472" y="234" text-anchor="middle">on the data itself;</text><text class="fig-box-sub" x="472" y="250" text-anchor="middle">enforcement coming</text>
+<line class="fig-track" x1="380" y1="122" x2="656" y2="170"/>
+<rect class="fig-box" x="572" y="170" width="168" height="100" rx="12"/><text class="fig-box-title" x="656" y="196" text-anchor="middle">Functions</text><text class="fig-box-sub" x="656" y="218" text-anchor="middle">trusted computation,</text><text class="fig-box-sub" x="656" y="234" text-anchor="middle">one shared definition;</text><text class="fig-box-sub" x="656" y="250" text-anchor="middle">execution coming</text>
+<rect class="fig-lit-box c-blue" x="20" y="304" width="14" height="14" rx="4"/><text class="fig-box-sub" x="42" y="315">working end to end today</text><rect class="fig-box" x="220" y="304" width="14" height="14" rx="4"/><text class="fig-box-sub" x="242" y="315">recording works today; acting on it is on the roadmap</text>
+</svg>

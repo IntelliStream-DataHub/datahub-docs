@@ -1,0 +1,187 @@
+---
+sidebar_position: 8
+title: Lineage and data quality
+description: The planned lineage capability, why every derived number will be traceable back to the raw measurements it came from, and what that changes about reporting.
+---
+import LineageTrace from '@site/src/figures/lineage-trace.svg';
+
+# Lineage and data quality
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Compliance</Persona>
+  <Persona>Engineers</Persona>
+  <Persona>Analysts</Persona>
+</Personas>
+
+<KeyIdea>
+The goal: every derived value records what it was computed from, so you can start at a figure
+in a report and walk backwards through every transformation to the raw measurements and events
+behind it, with data-quality flags visible at each step.
+
+That is what turns a reported number from <span className="t-accent">a claim</span> into
+<span className="t-success"> an auditable artefact</span>. This page describes that model.
+See the note below for what exists today.
+</KeyIdea>
+
+<Roadmap>
+**Lineage and data-quality signals are a planned capability, not a shipped one.** They are
+among the most important features on the roadmap, and this page describes the model the
+platform is being built toward.
+
+What exists today is the foundation: derived values can record a `derivedFrom` relationship
+in the graph, so the *structure* lineage needs is already there. What is not yet built is the
+end-to-end trace through transformations, the data-quality flags, and the console view that
+walks a figure back to its inputs. Plan reporting work on that basis.
+</Roadmap>
+
+## The problem it solves
+
+A number appears in a monthly report. Somebody asks where it came from.
+
+In most organisations the honest answer is a chain of recollection: it comes from a
+spreadsheet, which pulls an export, which came from a query somebody wrote, which reads a
+historian, which may or may not have had gaps that month, which were filled by a method
+nobody documented. Every link is plausible. None is verifiable.
+
+The number is not necessarily wrong. It is <span className="t-accent">unfalsifiable</span>, which
+in a regulated context is the same problem.
+
+## Version control, but for data
+
+The mental model that fits best is [git](https://en.wikipedia.org/wiki/Git).
+
+In git, no commit overwrites history. Every commit points at its parents, so any line of
+code can be traced back through every change to its origin. DataHub treats data the same
+way:
+
+- **Raw measurements and events are treated as append-only.** They are the initial commits.
+- **Every derived value records the transformations and inputs it came from**, a cleaned
+  signal, a filtered window, an hourly aggregate, a reported KPI, like a commit pointing at
+  its parents.
+
+That gives you the two things git gives you.
+
+### Blame, for data
+
+Start from a figure and walk its ancestry back through every transformation to the raw
+samples and events behind it. At each step you can see the data-quality signals that
+applied: which inputs were complete, which were [interpolated](https://en.wikipedia.org/wiki/Interpolation), which were gap-filled, which
+were flagged, which were missing.
+
+<Figure
+  caption="The trace runs the opposite way to the calculation: each step names the inputs it consumed, so you arrive at the raw samples rather than guessing at them. Here it ends on a gap-filled sensor, a fact that stays attached to the reported figure instead of being lost between the two."
+  wide
+>
+  <LineageTrace />
+</Figure>
+
+### Branching, for data
+
+Multiple derivations can fan out from the same source data without touching the source or
+each other. An alternative cleaning method, a different aggregation window, an experimental
+model running alongside the production one, each carries its own complete history.
+
+This matters more than it sounds. It is what makes it safe to improve a calculation: you
+can run the new method beside the old one, compare them over real history, and switch when
+you are convinced, rather than changing the calculation in place and losing the ability to
+explain why last quarter's numbers moved. The mechanism planned for this is cloning a
+[function](/using/functions#branch-it-like-code): the copy is a branch in the graph, racing
+the original against the same inputs.
+
+## What a data-quality signal actually tells you
+
+A figure arriving with lineage also arrives with an account of its inputs' condition:
+
+| Signal | Means |
+| --- | --- |
+| **Complete** | Every expected sample was present in the window |
+| **Gap-filled** | Samples were missing and were substituted by a stated method |
+| **[Interpolated](https://en.wikipedia.org/wiki/Interpolation)** | Values between samples were estimated |
+| **Flagged** | An input was marked suspect, out of range, frozen, or contradicted by an event |
+| **Missing** | Data was absent and not substituted |
+
+The value of this is not that it makes numbers perfect. It is that it makes their
+imperfections <span className="t-brand">explicit and proportionate</span>. A monthly figure
+computed from 98% complete data is usable and you can say so. The same figure computed from
+40% complete data <span className="hl">is a different object</span>, and today most
+organisations cannot tell the two apart.
+
+### The dimensions quality is judged on
+
+<IconRow>
+  <IconItem src="/img/figures/accuracy.svg" label="Accuracy" note="Does the value reflect what was actually happening?" />
+  <IconItem src="/img/figures/completeness.svg" label="Completeness" note="Was every expected sample present?" />
+  <IconItem src="/img/figures/consitency.svg" label="Consistency" note="Do related sources agree with each other?" />
+  <IconItem src="/img/figures/timeless.svg" label="Timeliness" note="Did it arrive while it was still useful?" />
+  <IconItem src="/img/figures/uniqueness.svg" label="Uniqueness" note="Is the same reading counted only once?" />
+  <IconItem src="/img/figures/validity.svg" label="Validity" note="Is it inside the range the instrument can produce?" />
+</IconRow>
+
+**A figure can be complete and still inaccurate, or accurate and too late to act on.**
+Naming the dimensions separately is what stops "data quality" becoming a single vague
+verdict that nobody can act on.
+
+One accuracy failure deserves its own mention because no flag above will ever show it: a
+series sampled too slowly is inaccurate before any transformation touches it, fast
+behaviour [aliasing](https://en.wikipedia.org/wiki/Aliasing) into a plausible-looking slow
+curve. That defence is chosen at the instrument, not repaired downstream.
+[How often should you sample? →](/using/timeseries#how-often-should-you-sample)
+
+## What it changes in practice
+
+All four of these describe the working state once lineage ships:
+
+<Cards>
+  <Card title="Regulatory submissions" to="/value/value-paths#audit-ready-reporting" icon="🧾">
+    A submitted figure comes with its own evidence trail. Audit questions are answered by
+    following the lineage rather than by reconstructing a spreadsheet from memory.
+  </Card>
+  <Card title="Incident investigation" to="/using/events" icon="🔍">
+    When a number looks wrong, you find out whether the number is wrong or the instrument
+    was, usually in minutes, and without involving the person who built the report.
+  </Card>
+  <Card title="Trust in analytics" to="/using/relationship-analysis" icon="📊">
+    Models built on data that carries its quality signals can weight or exclude poor inputs
+    rather than silently learning from them.
+  </Card>
+  <Card title="Handover and staff turnover" to="/start/who-does-what" icon="🔁">
+    A calculation's definition lives with the data, not with whoever wrote it. Nobody has
+    to be available for a figure to be explained.
+  </Card>
+</Cards>
+
+## What it asks of you
+
+Lineage is only complete if derived values are actually produced *through* the platform.
+**A figure computed in a spreadsheet outside DataHub and pasted back in has no ancestry,
+and DataHub cannot invent one.**
+
+In practice this means the derivation steps that matter, cleaning, filtering, aggregation,
+the calculation that produces the reported figure, should be modelled as
+[functions](/concepts/three-layers#layer-2--functions-what-things-do) in the platform. Once
+they are, lineage accrues automatically and permanently.
+
+That is a real change in working practice, and it is the main thing organisations
+underestimate when adopting a platform like this. The upside is that it only has to be done
+once per calculation, and the calculation becomes reusable and explainable in the process.
+
+<References>
+
+- [Data lineage](https://en.wikipedia.org/wiki/Data_lineage)
+- [Data quality, and its dimensions](https://en.wikipedia.org/wiki/Data_quality)
+- [Provenance](https://en.wikipedia.org/wiki/Provenance)
+- [PROV-O, the W3C provenance ontology](https://www.w3.org/TR/prov-o/)
+- [Audit trail](https://en.wikipedia.org/wiki/Audit_trail)
+- [Imputation, the statistics behind gap-filling](https://en.wikipedia.org/wiki/Imputation_(statistics))
+
+</References>
+
+<Deeper>
+- [The three layers](/concepts/three-layers): where derivations live in the model
+- [Audit-ready reporting](/value/value-paths#audit-ready-reporting): the value case for regulated reporting
+- [Knowledge graphs](/concepts/knowledge-graph): lineage is itself a graph
+- [AI agents](/value/ai-agents): why checkable output is what makes agent answers usable
+- [Digital twins](/concepts/digital-twin): a twin's figures are only as defensible as their lineage
+- [Data lifecycle](/administration/data-lifecycle): retention, and what it means for traceability
+</Deeper>

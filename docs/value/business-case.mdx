@@ -1,0 +1,229 @@
+---
+sidebar_position: 1
+title: The business case
+description: Where the return on an operational data platform actually comes from, four value levers, the cost of doing nothing, and what not to promise.
+---
+
+# The business case
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Board members</Persona>
+  <Persona>Project sponsors</Persona>
+</Personas>
+
+<KeyIdea>
+The return comes from four things, in roughly this order of reliability:
+
+1. **Questions get cheaper to answer**, the everyday saving, and the largest one.
+2. **Reporting stops being an assembly exercise**, time back every cycle, and figures that
+   reproduce.
+3. **Investigations get faster**, shorter downtime, better decisions under pressure.
+4. **New data costs less to onboard**, every future project starts from a lower base.
+
+[Predictive maintenance](https://en.wikipedia.org/wiki/Predictive_maintenance) and AI are
+further out and less certain, the upper rungs of the
+[twin maturity ladder](/concepts/digital-twin#the-maturity-ladder). They are the *reason*
+to build the foundation, not the justification for it.
+</KeyIdea>
+
+## Lever 1 · One simple model over every silo
+
+Data arriving from a historian, an ERP, a work-permit system or a monitoring stack is
+reduced to a few primitives: things become [resources](/start/core-ideas), signals become
+[time series](/using/timeseries), and occurrences become [events](/using/events). You query
+all of it through one interface, without ever learning the source systems' data models,
+and where a schedule would be too slow, the same interface
+[pushes data to you as it lands](/using/subscriptions).
+
+<span className="hl">This is where most of the everyday saving lives</span>, and it is the least
+glamorous item on the list:
+
+- **Less training** before someone can answer a question, one interface instead of five
+- **Less time hunting** for where data is and how to read it
+- **Fewer errors** from misreading a source schema
+- **Fewer specialists in the loop**, the person with the question can often answer it
+
+None of this makes a press release. **All of it recurs every week, for every person who
+touches operational data, forever.**
+
+## Lever 2 · Reporting stops being an assembly exercise
+
+Today: figures come from one queryable model rather than from several exports reconciled by
+hand each cycle. Planned: every reported figure traceable back through every transformation
+to the raw signals it came from, with data-quality flags intact.
+[What exists and what is coming →](/concepts/lineage-and-quality)
+
+Two distinct benefits:
+
+- **Time.** Reporting cycles that involve assembling numbers by hand from several exports
+  become queries. The saving is measurable in person-days per cycle and it repeats monthly
+  or quarterly.
+- **Risk.** A figure that can be defended with evidence is a different object from one that
+  is asserted. In regulated reporting, emissions, effluent, safety, financial, that
+  distinction is the difference between an audit finding and a routine review. Note that the
+  full evidence trail arrives with lineage, which is on the roadmap; what you get first is
+  reproducibility, which is already most of the way there.
+
+The risk side is hard to put a number on until something goes wrong, which is precisely why
+it belongs in a board conversation rather than a project business case.
+
+## Lever 3 · Faster investigations
+
+Incidents get explored by following relationships, asset to function to KPI, signal to
+event, instead of a person joining five systems by hand.
+[Why traversal is different →](/concepts/knowledge-graph)
+
+The value shows up as:
+
+- **Shorter time to diagnosis**, which for anything that stops production converts directly
+  into recovered output
+- **Better decisions during the incident**, because the blast radius of an intervention can
+  be checked rather than guessed
+- **Fewer repeat incidents**, because a fast investigation actually reaches root cause
+  rather than stopping at the first plausible explanation when everyone runs out of time
+
+## Lever 4 · Cheap onboarding of new data
+
+A new source is dropped into the model once, and every downstream model and report inherits
+its context.
+
+This is the compounding one. In a conventional landscape, the marginal cost of the next data
+initiative never falls, each project rebuilds the same mappings. With a model in place, the
+tenth question costs a fraction of the first.
+<span className="hl">That compounding is the business case</span>; everything else on this
+page is a special case of it.
+
+<Stats>
+  <Stat value="1st" label="Question" note="Costs the most, the model does not exist yet" />
+  <Stat value="3rd" label="Question" note="Reuses most of the model; extends it a little" />
+  <Stat value="10th" label="Question" note="Usually answerable against what already exists" />
+</Stats>
+
+Boards should ask for this number specifically: *is the cost per question falling?* It is
+the cleanest single indicator that the platform is working as intended.
+[Measuring the return →](/value/measuring-return)
+
+## When the value actually arrives
+
+A common way this goes wrong is expecting the four levers to arrive together. They do not,
+and setting the expectation correctly is most of what keeps a programme funded.
+
+| | What is real by then | What is not yet |
+| --- | --- | --- |
+| **Weeks** | Questions that span two source systems become answerable. People stop asking specialists for exports | Nothing is automated. The model covers one area |
+| **One quarter** | The first question is answered, repeatably. Investigation time in the covered area drops noticeably | No measurable financial return. Say so |
+| **Two quarters** | The second question reuses most of the first model. This is the moment the thesis is proved or disproved | Still mostly time saved rather than money |
+| **One year** | Recurring hours saved per reporting cycle and per incident, observed rather than modelled | Predictive work is only beginning |
+| **Two to three years** | Most new questions answerable against what exists. Agent work becomes practical across the whole operation, though the first [agent use cases](/value/ai-agents#use-cases-that-work-today) arrive with the first modelled area | |
+
+<span className="t-brand">The single most useful thing to promise is the two-quarter
+checkpoint</span>, because it is early, it is cheap to test, and it is the one that actually
+predicts everything after it. [How to measure it →](/value/measuring-return)
+
+Further out still, the same description is what lets an operation run with fewer people on
+site, or none: an unmanned facility is operated through its
+[digital twin](/concepts/digital-twin), so the model built for reporting becomes the
+operating surface. [Where this is heading →](/value/ai-agents#the-workforce-will-not-stay-virtual)
+
+## Who benefits, and who pays
+
+Worth surfacing early, because it is the most common reason a sound business case stalls.
+
+The cost lands in one place: an infrastructure line and, mostly, the diary time of a handful
+of engineers. The benefits land somewhere else entirely, spread thinly across operations,
+maintenance, compliance and whoever assembles reports.
+
+| Who pays | Who benefits |
+| --- | --- |
+| The sponsoring budget holder, for infrastructure | Operations, in shorter investigations |
+| Engineering and maintenance, in expert time | Compliance and finance, in reporting effort |
+| IT or OT, in an administrator | Leadership, in figures that reproduce |
+| | Every future project, in mappings it does not rebuild |
+
+Two consequences follow. First, **no single beneficiary feels enough pain to fund it**, which is
+why this usually needs a sponsor above the departments rather than inside one. Second, the
+first project should be chosen so that <span className="t-accent">the department giving up the
+expert time is also the one that gets the answer</span>. That alignment is worth more than
+picking the theoretically largest prize.
+
+## What this class of platform has delivered elsewhere
+
+The value of contextualised operational data is not speculative, this category has public
+evidence behind it. Published case studies from large industrial deployments report
+outcomes including **double-digit percentage increases in production rate** at aerospace
+manufacturing scale, and **multi-million-dollar annual value** from digital programmes at
+mid-sized manufacturers, with at least one such programme going well enough that the
+manufacturer spun its digital capability out as a separate software business.
+
+Those results came from deployments with substantial budgets and multi-quarter timelines.
+They establish what the *capability* is worth when it is properly implemented. What DataHub
+changes is the cost of entry to that capability: running in days rather than quarters, on
+standard components, open source, with no proprietary model to migrate off if you change
+your mind.
+
+## The cost of doing nothing
+
+Worth stating plainly, because "do nothing" is always the default option and rarely gets
+costed.
+
+| | |
+| --- | --- |
+| **The questions nobody asks** | When answering takes three weeks, people stop asking. The analysis that would have found the recurring failure, the tariff optimisation or the compliance drift is never started. This is usually the largest cost and it never appears on a budget line. |
+| **Knowledge walking out the door** | The mapping between the historian tag, the equipment number and the physical pump lives in individuals. Every retirement is an uncosted write-down. |
+| **The integration tax, repeatedly** | Each new initiative rebuilds the same connections. Ten years in, the tenth project costs what the first did. |
+| **Industry 4.0 permanently out of reach** | Predictive and agent capability needs context to reason over. Without a model, every pilot stays a pilot. [Why →](/start/the-data-problem#why-industry-40-stalls-without-this) |
+
+Every one of these is recurring, and the last one compounds. Because none of them appears in
+the budget line that would fund the alternative, "do nothing" wins arguments it should lose,
+which is why it is worth costing explicitly.
+
+[The cost of doing nothing, in full →](/value/cost-of-doing-nothing)
+
+## What not to promise
+
+Business cases in this category fail for predictable reasons. Three promises to avoid:
+
+- **"It will pay for itself through predictive maintenance in year one."** Predictive
+  maintenance is real and it is a year-two-or-three outcome, after the model and the data
+  history exist. Promising it in year one is how a successful foundation gets judged a
+  failure.
+- **"It will replace system X."** It will not, at least not soon. DataHub sits alongside
+  operational systems and reads from them. Framing it as a replacement invites resistance
+  from every system owner.
+- **"It will be finished in Q3."** A model of your operation is not a project with an end
+  date; it grows with the questions you ask of it. What *can* finish in a quarter is the
+  first question, answered end to end. Promise that.
+  [Where to start →](/value/where-to-start)
+
+## What makes the economics different here
+
+<Cards>
+  <Card title="No licence floor" to="/reference/faq" icon="🔓">
+    Open source under the AGPL-3.0. The cost is infrastructure and the people who build the
+    model, there is no seven-figure entry ticket that forces the first project to be huge
+    to justify it.
+  </Card>
+  <Card title="Weeks, not quarters" to="/value/where-to-start" icon="⏱️">
+    A first project scoped to one question is a matter of weeks. Short enough that being
+    wrong is cheap, which is what makes it safe to start.
+  </Card>
+  <Card title="Reversible" to="/administration/overview" icon="↩️">
+    Standard components, open formats, your infrastructure. If it does not work, you stop,
+    and take your model and data with you.
+  </Card>
+  <Card title="Auditable before adoption" to="/administration/security" icon="🔍">
+    The source is public. Security review reads the code rather than a vendor questionnaire,
+    and it can run entirely disconnected from the internet.
+  </Card>
+</Cards>
+
+<Deeper>
+- [The cost of doing nothing](/value/cost-of-doing-nothing): the other side of the comparison
+- [Where to start](/value/where-to-start): choosing a first project that finishes
+- [Value paths](/value/value-paths): six named plays, with what each requires and returns
+- [AI agents](/value/ai-agents): what becomes possible once the model exists
+- [Measuring the return](/value/measuring-return): the metrics to baseline before you begin
+- [Board briefing](/value/board-briefing): a one-page summary and the questions to ask
+- [The operational data problem](/start/the-data-problem): the situation this addresses
+</Deeper>

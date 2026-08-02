@@ -1,0 +1,361 @@
+---
+sidebar_position: 2
+title: The cost of doing nothing
+description: What it costs to leave operational data uncontextualised, the recurring losses, the compounding ones, and how to put a number on both.
+---
+import ExperimentRate from '@site/src/figures/experiment-rate.svg';
+
+
+# The cost of doing nothing
+
+<Personas>
+  <Persona primary>Board members</Persona>
+  <Persona primary>Leadership</Persona>
+  <Persona>Project sponsors</Persona>
+</Personas>
+
+<KeyIdea>
+"Do nothing" is always an option, and it is the only one that never gets costed. It arrives
+with no business case to scrutinise, no implementation risk, and no line in the budget, so
+it looks free.
+
+It is not free. It has a price that is <span className="hl">recurring, largely invisible, and
+compounding</span>. This page tries to make it visible enough to compare against the
+alternative.
+</KeyIdea>
+
+## Why this cost stays hidden
+
+Three reasons, and they are worth naming because they are the whole reason the decision keeps
+getting deferred.
+
+- **It produces no artefact.** A failed project leaves a post-mortem. An analysis nobody
+  started leaves nothing at all, no document, no invoice, no meeting.
+- **It is distributed.** Two days here, a delayed decision there, one investigation that took
+  a week too long. No single instance is large enough to escalate, and nobody sums them.
+- **It is charged to a different budget.** The cost lands in operations, maintenance,
+  compliance and lost output, never in the IT line where the alternative would be funded.
+
+<span className="t-accent">A cost that is real, large and unattributed will lose every budget
+argument it is not explicitly entered into.</span> That is the situation to correct.
+
+## What it actually costs
+
+### 1 · The questions nobody asks
+
+This is almost always the largest item and the hardest to see.
+
+When answering a cross-system question takes three weeks, people stop asking. Not
+consciously, they simply develop an accurate instinct for what is worth requesting, and
+that instinct suppresses demand long before anyone writes a request down.
+
+The analysis that would have found the recurring failure mode, the tariff optimisation, the
+yield difference between two lines, or the compliance drift is never started. There is no
+record of it, because it never existed.
+
+:::tip How to surface it in one meeting
+Ask the people who would do the work: *"What would you look at if it took an hour instead of
+three weeks?"* You will get a list in about ten minutes. That list, with rough values against
+each item, is your best estimate of this cost, and it is usually the most persuasive slide
+in the business case.
+:::
+
+### 2 · Knowledge concentrated in people
+
+The mapping between the historian tag, the equipment number and the physical pump lives in a
+handful of experienced heads. It is genuine expertise, it works, and it is
+<span className="t-accent">an unrecorded asset with no backup</span>.
+
+The cost shows up in three ways:
+
+- **Permanently, on retirement.** Every departure is an uncosted write-down. Handover rarely
+  recovers it, because the knowledge is relational and tacit, it is not a document somebody
+  forgot to write.
+- **Temporarily, at the worst moment.** Incidents do not wait for the right person to be on
+  shift. An investigation that needs one specific individual takes longer precisely when
+  duration is most expensive.
+- **Structurally, in what can be attempted.** Work that depends on a scarce person gets
+  scheduled around that person's availability, which quietly caps how much the organisation
+  can do at once.
+
+A useful question for a risk committee: *how many people would have to leave before we could
+no longer reconstruct which sensor belongs to which asset?* If the answer is a small number,
+that is a live operational risk that currently has no owner.
+
+### 3 · The integration tax, paid again every time
+
+Each new initiative, a reporting project, a condition-monitoring pilot, an AI
+proof-of-concept, rebuilds the same mappings, because the previous project's mapping was
+embedded in the previous project's code.
+
+The consequence is that **the marginal cost of the next question never falls.** Ten years in,
+the tenth project costs roughly what the first did. Worse, it drifts upward: each additional
+source system adds connections to every existing one, so the integration surface grows faster
+than the number of systems.
+
+<Figure
+  src="/img/figures/compounding-gap.svg"
+  alt="A chart of effort per question answered. Without a model the cost stays flat and drifts slightly upward. With a model the first question costs more, then cost falls steeply and keeps falling. The widening shaded gap between the two lines is the cost of doing nothing."
+  caption="Note the honest part: the first question costs MORE with a model, because the model does not exist yet. Break-even usually arrives around the second or third question. Everything after that is the gap, and the gap is what doing nothing costs, compounding for as long as the decision is deferred."
+  wide
+/>
+
+### 4 · Decisions that arrive too late to matter
+
+Analysis cost is only half of it. The other half is the value of decisions delayed.
+
+In operations, a great many answers have an expiry date. The batch has shipped, the
+reporting period has closed, the maintenance window has passed, the equipment has already
+failed. An answer delivered three weeks late is frequently worth nothing at all, not less,
+<span className="t-accent">nothing</span>, and that distinction never shows up in a
+cost-of-analysis calculation. The latency floor is not fixed, either: once data is
+[pushed rather than polled for](/using/subscriptions), the schedule itself stops being the
+reason an answer arrived late.
+
+### 5 · Innovation runs at the speed of its slowest experiment
+
+This is the cost that most deserves a board's attention, and the one least often named.
+
+Innovation is a numbers game. Most experiments fail, that is not a defect, it is how the
+process works. Which means <span className="hl">the rate at which you find things is set by the
+rate at which you can try things</span>, and the rate at which you can try things is set by
+what one trial costs to start.
+
+In a fragmented landscape, most of a trial is not the trial. It is finding the data,
+working out which tag corresponds to which equipment, reconciling two systems that disagree,
+and rebuilding a mapping that three previous projects already built. The experiment itself
+might be two days of work sitting behind weeks of preparation.
+
+<Figure
+  caption="Both rows are the same team over the same month. Nothing about the ideas changed, only the cost of starting one. When preparation collapses you get four times the attempts from the same effort, and roughly four times the findings with them."
+  wide
+>
+  <ExperimentRate />
+</Figure>
+
+Four consequences follow, and they compound.
+
+**Only fundable ideas get tested.** When a trial costs weeks of preparation, it needs a business case,
+a sponsor and a slot in a plan. That filter is applied *before* anyone knows whether the idea
+works, so ideas are selected on how good they sound rather than on what the data says. The
+best operational insights routinely come from an engineer with a hunch, and a hunch never
+survives a funding round. The endpoint of cheap experiments is
+[branching a computation like code](/using/functions#branch-it-like-code), on the roadmap:
+racing an improved algorithm against the production one, on live data, for the cost of a
+clone.
+
+**Failure gets expensive, so it gets hidden.** An experiment that cost weeks of setup creates
+pressure to find something in it. A trial that cost an afternoon can be abandoned honestly at
+lunchtime. Cheap experiments produce truthful results; expensive ones produce
+<span className="t-accent">justified</span> ones.
+
+**Proofs of concept do not become products.** A pilot built on a hand-assembled dataset works
+in the pilot and then has to be rebuilt to reach production, because the data path underneath
+it was scaffolding. That is the mechanism behind the pilot graveyard most industrial
+organisations have. When a trial runs against the same model production uses, a successful
+proof of concept is already production-shaped.
+
+**Learning does not accumulate.** Each project's understanding of the data leaves with the
+project. The eleventh trial starts roughly where the first did, which is the same
+[integration tax](#3--the-integration-tax-paid-again-every-time) seen from the research side
+rather than the delivery side.
+
+#### What changes when data is liberated
+
+The point of [data liberation](/value/value-paths#data-liberation) is not tidiness. It is
+that an engineer with a question can get to an answer the same day, without a project, a
+specialist or a procurement cycle.
+
+| | Fragmented | With a shared model |
+| --- | --- | --- |
+| **Time to first look at the data** | Weeks | Minutes |
+| **Who can run a trial** | Funded projects, via specialists | Anyone with a question |
+| **Cost of an experiment failing** | High enough to distort the result | Low enough to be honest |
+| **Path from proof of concept to production** | Rebuild the data path | Already built |
+| **Where learning ends up** | In the project | In the model |
+
+#### And this is where agents change the slope
+
+Everything above assumes a human runs each experiment. AI agents lift the ceiling again,
+because they are not limited by how many hypotheses a person can chase in a week, they are
+limited by **how quickly they can get to trustworthy context**.
+
+An agent with a knowledge graph can work through a list of candidate explanations overnight,
+follow each one to the signals and events that would confirm or kill it, and come back with
+the two that survived and the evidence for each. An agent without one spends its effort
+rediscovering which tag belongs to which pump, and produces plausible answers that a human
+then has to check from scratch, which is slower than not using it.
+
+So the gap does not stay constant. <span className="t-brand">The same AI tools, given to two
+organisations, deliver very different value depending on whether there is a model underneath
+them</span>, and the organisation running twelve trials a month instead of three is learning
+about its own operation several times faster.
+
+#### Why this becomes a competitive requirement rather than an advantage
+
+An advantage is something you can choose to forgo. This looks more like a requirement, for a
+reason worth stating precisely, because it is a claim about competitive dynamics rather than
+about technology.
+
+**Agent capability is multiplied by context, not added to it.** Two competitors buying the
+same tools do not get the same result. One gets an assistant that can follow a fault through
+the plant and cite its evidence; the other gets confident prose that an engineer has to check
+line by line. The tools were identical. The multiplier was the model.
+
+**The advantage compounds, because learning feeds learning.** Every answered question makes
+the next one cheaper and suggests the one after it. An organisation learning about its own
+operation ten times faster is not ten times better this quarter, it is on a different curve,
+and curves separate rather than converge.
+
+**And the input cannot be bought quickly.** This is the part that makes it strategic. AI
+tooling can be adopted in a week, which is exactly why it confers no lasting advantage on its
+own. A model of *your* operation cannot: it takes calendar time, and it takes the attention of
+people who know the plant and who are not available in unlimited quantity.
+
+That combination defeats the usual fast follower defence. Normally, waiting is rational,
+because you can adopt later and skip the mistakes. Here,
+<span className="hl">waiting does not shorten the work, it only starts it later, while a
+competitor's compounding continues</span>.
+<span className="t-accent">The lead time is the barrier, and lead time cannot be purchased.</span>
+
+**The practical conclusion is unglamorous but firm:** if you expect agents to matter in your
+industry within a few years, the useful action today is not to buy agents. It is to build the
+model they will need, because that is the part with the long lead time and the part no vendor
+can deliver for you.
+
+:::caution An honest boundary
+The mechanism above is not a forecast, it follows from how agents work. The *timeline* is a
+forecast, and reasonable people disagree on it. Treat the sequencing as the durable claim:
+whenever agents become significant in your sector, the organisations positioned to use them
+will be the ones that already had a model, because that is the input that could not be
+acquired at short notice.
+:::
+
+[What agents make possible →](/value/ai-agents)
+
+:::tip A question worth asking your engineers
+*"What would you investigate this month if getting the data took an hour instead of six
+weeks?"* The list will be immediate and specific, because they have been carrying it around.
+That list is both your innovation backlog and your best estimate of what the delay is
+costing.
+:::
+
+### 6 · Reporting risk, accumulating quietly
+
+Figures assembled by hand from several exports are probably correct and cannot be proven
+correct. That is a tolerable position right up until the moment it is tested, and
+<span className="t-brand">you do not choose that moment</span>, an auditor, a regulator or an
+incident does.
+
+Two things make this worse over time rather than stable: reporting obligations in most
+industrial sectors are tightening, not loosening; and the further back the period under
+scrutiny, the less likely the person who assembled it is still available to explain it.
+[How lineage addresses this →](/concepts/lineage-and-quality)
+
+### 7 · The strategic gap, widening
+
+This is the one that belongs in a board discussion rather than a project business case.
+
+Every capability above the model, predictive maintenance, autonomous adjustment, AI agents,
+is downstream of having a machine-readable description of the operation, the
+[maturity ladder](/concepts/digital-twin#the-maturity-ladder) puts names to those steps.
+Organisations that build the model get capability that
+<span className="t-success">compounds</span>: each new question reuses what the last one
+built, and each new agent inherits the same context. Organisations that do not get
+capability that resets to zero every time. A competitor with a knowledge graph is not
+slightly ahead of you on AI; they are on a different curve, the argument
+[section 6 already made](/value/ai-agents).
+
+And the reasoning runs one step further. Facilities designed to run with no permanent crew
+are operated entirely through their model, so an organisation without one is not only
+slower at AI, <span className="hl">it is excluded from that operating mode altogether</span>.
+[The workforce will not stay virtual →](/value/ai-agents#the-workforce-will-not-stay-virtual)
+
+### 8 · Doing nothing is rarely the same as spending nothing
+
+Worth stating plainly, because "do nothing" is usually misdescribed.
+
+Organisations that defer building a model do not stop spending. They spend on dashboards that
+each rebuild context locally and throw it away, on point solutions that solve one question in
+one silo, on pilots that never reach production, and on consultants who assemble the same
+mappings **a fourth time**. That spending is real, recurring, and produces
+<span className="t-accent">no durable asset</span>.
+
+The honest comparison is therefore not "invest versus save". It is **"invest in something
+cumulative versus keep paying for the symptom"**.
+
+## Putting a number on it
+
+A defensible estimate can be assembled in an afternoon. Every input is something your own
+people already know.
+
+| Line | How to get it |
+| --- | --- |
+| **Recurring reporting effort** | Person-days per cycle × cycles per year × loaded cost |
+| **Investigation time** | Incidents per year in scope × average hours to diagnose × people involved |
+| **Rebuilt integration work** | Data-related projects in the last three years × the share of each that was re-establishing known mappings |
+| **Decision latency** | The two or three decisions per year that arrived too late to act on, and what each was worth |
+| **Questions declined** | The list from the exercise above, with a rough value against each |
+| **Key-person exposure** | Number of people whose departure would materially degrade the ability to interpret operational data |
+
+Two rules keep the number credible:
+
+- **Use observed figures, not modelled ones.** Person-days you can point at beat a percentage
+  applied to revenue. A smaller number that survives scrutiny is worth more than a large one
+  that does not.
+- **State the invisible items qualitatively.** Questions declined and key-person exposure are
+  real and hard to quantify honestly. Name them, size them roughly, and keep them out of the
+  headline total. [The same discipline applies to claiming returns →](/value/measuring-return#what-not-to-claim)
+
+## When doing nothing is genuinely the right answer
+
+The argument above is not universal, and pretending otherwise would undermine it.
+
+Doing nothing is defensible when:
+
+- **The operation is small and the data landscape is simple.** Two systems and one person who
+  understands both may be a perfectly efficient arrangement. The context problem is real at
+  the point where no single person can hold the whole picture.
+- **Nobody is asking cross-system questions.** If the questions the business actually asks
+  are answered inside one system, the model has nothing to earn back yet.
+- **There is no capacity to own it.** A model with no
+  [steward](/start/who-does-what) degrades into inconsistency and becomes a second problem.
+  Better to wait until someone can own it than to build one nobody maintains.
+- **Something else is genuinely more urgent.** A platform that competes with a safety
+  programme or a solvency issue for attention should lose.
+
+What is *not* a good reason to defer: **waiting until the data is cleaner**. Data does not get
+cleaner while it is uncontextualised, the model is what makes cleaning tractable, so
+"later" tends to mean "never".
+
+## The asymmetry
+
+The point to leave a board with:
+
+<Stats>
+  <Stat value="Recurring" label="Cost of doing nothing" note="Paid every cycle, forever, and compounding as the strategic gap widens" />
+  <Stat value="Bounded" label="Cost of a first project" note="One question, weeks not quarters, no licence" />
+  <Stat value="Invisible" label="Where it lands today" note="Distributed across operations, compliance and lost output" />
+  <Stat value="Reversible" label="If it does not work" note="Open source, open formats, your infrastructure. Stop and keep the data" />
+</Stats>
+
+One side of that comparison is a permanent, growing, unbudgeted liability. The other is a
+small, bounded, reversible experiment. That asymmetry, not any single projected saving, is
+the actual argument for starting.
+
+<References>
+
+- [Opportunity cost](https://en.wikipedia.org/wiki/Opportunity_cost)
+- [Technical debt](https://en.wikipedia.org/wiki/Technical_debt)
+- [Sunk cost](https://en.wikipedia.org/wiki/Sunk_cost)
+- [Bus factor](https://en.wikipedia.org/wiki/Bus_factor)
+
+</References>
+
+<Deeper>
+- [The business case](/value/business-case): the four value levers on the other side of the comparison
+- [Where to start](/value/where-to-start): what a bounded first project looks like
+- [Measuring the return](/value/measuring-return): baselining before you begin, so the comparison is real
+- [Board briefing](/value/board-briefing): the one-page governance summary
+- [The operational data problem](/start/the-data-problem): how the situation arises in the first place
+</Deeper>

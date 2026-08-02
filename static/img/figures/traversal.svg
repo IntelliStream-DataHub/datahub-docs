@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 350" role="img" aria-label="A query expanding outward from a switch through the hosts it serves, the services on those hosts, and the business measure that depends on them.">
+<style>@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }text { font-family: Manrope, 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; }.lit { opacity: 0; }.flow { stroke-dasharray: 6 6; }@keyframes lit0 { 0%,6% {opacity:0} 10%,72% {opacity:1} 80%,100% {opacity:0} }.hop0 { animation: lit0 7s steps(1, end) infinite; }@keyframes dim0 { 0%,6% {opacity:1} 10%,72% {opacity:0} 80%,100% {opacity:1} }.base0 { animation: dim0 7s steps(1, end) infinite; }@keyframes lit1 { 0%,16% {opacity:0} 20%,72% {opacity:1} 80%,100% {opacity:0} }.hop1 { animation: lit1 7s steps(1, end) infinite; }@keyframes dim1 { 0%,16% {opacity:1} 20%,72% {opacity:0} 80%,100% {opacity:1} }.base1 { animation: dim1 7s steps(1, end) infinite; }@keyframes lit2 { 0%,26% {opacity:0} 30%,72% {opacity:1} 80%,100% {opacity:0} }.hop2 { animation: lit2 7s steps(1, end) infinite; }@keyframes dim2 { 0%,26% {opacity:1} 30%,72% {opacity:0} 80%,100% {opacity:1} }.base2 { animation: dim2 7s steps(1, end) infinite; }@keyframes lit3 { 0%,36% {opacity:0} 40%,72% {opacity:1} 80%,100% {opacity:0} }.hop3 { animation: lit3 7s steps(1, end) infinite; }@keyframes dim3 { 0%,36% {opacity:1} 40%,72% {opacity:0} 80%,100% {opacity:1} }.base3 { animation: dim3 7s steps(1, end) infinite; }@keyframes march { to { stroke-dashoffset: -24 } }.flow { animation: march 1.2s linear infinite; }@media (prefers-reduced-motion: reduce) { .lit { opacity: 1; animation: none } .flow { animation: none } }</style>
+<text x="20" y="26" font-weight="800" font-size="15" fill="#005984">&quot;What is the blast radius of taking down SW-04?&quot;</text>
+<path d="M88 170 L268 92" stroke="#c2d5dd" stroke-width="2" fill="none"/>
+<path d="M88 170 L268 248" stroke="#c2d5dd" stroke-width="2" fill="none"/>
+<path d="M268 92 L470 56" stroke="#c2d5dd" stroke-width="2" fill="none"/>
+<path d="M268 248 L470 170" stroke="#c2d5dd" stroke-width="2" fill="none"/>
+<path d="M268 248 L470 284" stroke="#c2d5dd" stroke-width="2" fill="none"/>
+<path d="M470 56 L656 170" stroke="#c2d5dd" stroke-width="2" fill="none"/>
+<path d="M470 170 L656 170" stroke="#c2d5dd" stroke-width="2" fill="none"/>
+<g class="base0"><g class=""><rect x="20" y="153" width="136" height="34" rx="17" fill="#ffffff" stroke="#5c6b75" stroke-width="2"/><text x="88" y="175" text-anchor="middle" fill="#1d2b36" font-weight="600">Switch SW-04</text></g></g>
+<g class="base1"><g class=""><rect x="186" y="75" width="164" height="34" rx="17" fill="#ffffff" stroke="#5c6b75" stroke-width="2"/><text x="268" y="97" text-anchor="middle" fill="#1d2b36" font-weight="600">Host db-primary</text></g></g>
+<g class="base1"><g class=""><rect x="204" y="231" width="127" height="34" rx="17" fill="#ffffff" stroke="#5c6b75" stroke-width="2"/><text x="268" y="253" text-anchor="middle" fill="#1d2b36" font-weight="600">Host app-07</text></g></g>
+<g class="base2"><g class=""><rect x="425" y="39" width="90" height="34" rx="17" fill="#ffffff" stroke="#5c6b75" stroke-width="2"/><text x="470" y="61" text-anchor="middle" fill="#1d2b36" font-weight="600">Billing</text></g></g>
+<g class="base2"><g class=""><rect x="420" y="153" width="100" height="34" rx="17" fill="#ffffff" stroke="#5c6b75" stroke-width="2"/><text x="470" y="175" text-anchor="middle" fill="#1d2b36" font-weight="600">Checkout</text></g></g>
+<g class="base2"><g class=""><rect x="429" y="267" width="81" height="34" rx="17" fill="#ffffff" stroke="#5c6b75" stroke-width="2"/><text x="470" y="289" text-anchor="middle" fill="#1d2b36" font-weight="600">Search</text></g></g>
+<g class="base3"><g class=""><rect x="569" y="153" width="173" height="34" rx="17" fill="#ffffff" stroke="#5c6b75" stroke-width="2"/><text x="656" y="175" text-anchor="middle" fill="#1d2b36" font-weight="600">Invoice accuracy</text></g></g>
+<path class="lit flow hop1" d="M88 170 L268 92" stroke="#005984" stroke-width="2.5" fill="none"/>
+<path class="lit flow hop1" d="M88 170 L268 248" stroke="#005984" stroke-width="2.5" fill="none"/>
+<path class="lit flow hop2" d="M268 92 L470 56" stroke="#005984" stroke-width="2.5" fill="none"/>
+<path class="lit flow hop2" d="M268 248 L470 170" stroke="#005984" stroke-width="2.5" fill="none"/>
+<path class="lit flow hop2" d="M268 248 L470 284" stroke="#005984" stroke-width="2.5" fill="none"/>
+<path class="lit flow hop3" d="M470 56 L656 170" stroke="#005984" stroke-width="2.5" fill="none"/>
+<path class="lit flow hop3" d="M470 170 L656 170" stroke="#005984" stroke-width="2.5" fill="none"/>
+<g class="lit hop0"><rect x="20" y="153" width="136" height="34" rx="17" fill="#005984" stroke="#005984" stroke-width="2"/><text x="88" y="175" text-anchor="middle" fill="#ffffff" font-weight="600">Switch SW-04</text></g>
+<g class="lit hop1"><rect x="186" y="75" width="164" height="34" rx="17" fill="#005984" stroke="#005984" stroke-width="2"/><text x="268" y="97" text-anchor="middle" fill="#ffffff" font-weight="600">Host db-primary</text></g>
+<g class="lit hop1"><rect x="204" y="231" width="127" height="34" rx="17" fill="#005984" stroke="#005984" stroke-width="2"/><text x="268" y="253" text-anchor="middle" fill="#ffffff" font-weight="600">Host app-07</text></g>
+<g class="lit hop2"><rect x="425" y="39" width="90" height="34" rx="17" fill="#0f7a3d" stroke="#0f7a3d" stroke-width="2"/><text x="470" y="61" text-anchor="middle" fill="#ffffff" font-weight="600">Billing</text></g>
+<g class="lit hop2"><rect x="420" y="153" width="100" height="34" rx="17" fill="#0f7a3d" stroke="#0f7a3d" stroke-width="2"/><text x="470" y="175" text-anchor="middle" fill="#ffffff" font-weight="600">Checkout</text></g>
+<g class="lit hop2"><rect x="429" y="267" width="81" height="34" rx="17" fill="#0f7a3d" stroke="#0f7a3d" stroke-width="2"/><text x="470" y="289" text-anchor="middle" fill="#ffffff" font-weight="600">Search</text></g>
+<g class="lit hop3"><rect x="569" y="153" width="173" height="34" rx="17" fill="#c2551a" stroke="#c2551a" stroke-width="2"/><text x="656" y="175" text-anchor="middle" fill="#ffffff" font-weight="600">Invoice accuracy</text></g>
+<text class="lit hop0" x="88" y="330" text-anchor="middle" font-size="12" font-weight="700" fill="#5c6b75">start here</text>
+<text class="lit hop1" x="268" y="330" text-anchor="middle" font-size="12" font-weight="700" fill="#5c6b75">1 hop</text>
+<text class="lit hop2" x="470" y="330" text-anchor="middle" font-size="12" font-weight="700" fill="#5c6b75">2 hops</text>
+<text class="lit hop3" x="656" y="330" text-anchor="middle" font-size="12" font-weight="700" fill="#5c6b75">3 hops</text>
+</svg>

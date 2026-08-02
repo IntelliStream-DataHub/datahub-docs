@@ -1,0 +1,9 @@
+{
+  "label": "Using the platform",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "title": "Using the platform",
+    "description": "A tour of the DataHub console, section by section: where things live, what each screen is for, and the decisions worth getting right the first time. Written for people who will use the platform daily without writing any code."
+  }
+}

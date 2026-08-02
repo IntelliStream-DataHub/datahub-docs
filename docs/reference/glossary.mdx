@@ -1,0 +1,128 @@
+---
+sidebar_position: 1
+title: Glossary
+description: Every term used on this site, defined in one line, with a link to where it is explained properly.
+---
+
+# Glossary
+
+<Lead>
+One line each. Follow the link where you want the full explanation.
+</Lead>
+
+## The core vocabulary
+
+| Term | In one line |
+| --- | --- |
+| **Resource** | Anything your operation refers to by name: equipment, a site, a procedure, a risk, a mitigation, a KPI. [→](/using/resources#what-can-be-a-resource) |
+| **Time series** | One signal, measured repeatedly: a stream of timestamped values. [→](/using/timeseries) |
+| **Event** | A record that something happened, at a point in time, to something specific. [→](/using/events) |
+| **Data set** | A container grouping related data, and the unit of access control. [→](/using/datasets) |
+| **Relationship** | A named, directional link between two resources, *contains*, *feeds*, *monitors*. [→](/concepts/knowledge-graph) |
+| **Label** | The class a resource belongs to, `Pump`, `Site`. Your taxonomy. [→](/concepts/taxonomy) |
+| **Metadata** | Free key/value context on a resource, series or event. No schema change needed. [→](/using/console-tour) |
+| **External id** | A resource's permanent, unique handle. Never changes, never reused. [→](/concepts/naming-and-standards#external-ids-are-promises) |
+| **Name** | The readable label a person scans in a list. Changeable at any time. [→](/concepts/naming-and-standards) |
+
+## Model concepts
+
+| Term | In one line |
+| --- | --- |
+| **Ontology** | A written-down, machine-readable agreement about what things are and how they relate. [→](/concepts/ontology) |
+| **Taxonomy** | A classification of what kinds of things exist, arranged as a tree. [→](/concepts/taxonomy) |
+| **Knowledge graph** | The ontology filled with your real assets and their real connections. [→](/concepts/knowledge-graph) |
+| **Digital twin** | A live digital counterpart of the operation: the knowledge graph plus the data feeds that keep it in step with reality. [→](/concepts/digital-twin) |
+| **Contextualization** | The activity of linking each record to the real-world thing it describes. [→](/concepts/contextualization) |
+| **Data governance** | The rules and accountabilities for data: what exists, who owns it, who may use it, whether to trust it, how long it lives. [→](/concepts/data-governance) |
+| **Traversal** | Answering a question by following relationships from one thing to the next. [→](/concepts/knowledge-graph) |
+| **Asset** | Layer 1 of the model, a physical or logical thing your operation is made of. [→](/concepts/three-layers) |
+| **Function** | Layer 2, what assets *do*: processes, activities, computations. As an executable block (cleaning, transformation, windowing) it is on the roadmap. [→](/using/functions) |
+| **Business knowledge** | Layer 3, KPIs, policies, obligations, commercial context. [→](/concepts/three-layers) |
+| **Lineage** | The planned record of what a derived value was computed from, back to raw data. On the roadmap. [→](/concepts/lineage-and-quality) |
+| **Data quality signal** | A planned flag saying whether an input was complete, gap-filled, interpolated, flagged or missing. Arrives with lineage. [→](/concepts/lineage-and-quality) |
+| **RDF** | A standard way of describing things as subject–predicate–object statements; DataHub's model aligns with it. [→](/concepts/ontology#seeing-it-written-out) |
+| **`rdf:type`** | The formal name for what DataHub calls a label. [→](/concepts/ontology) |
+| **`rdfs:label`** | The formal name for what DataHub calls a name. [→](/concepts/ontology) |
+| **IRI** | A globally unique identifier for a thing; the external id is its local part. [→](/concepts/naming-and-standards) |
+
+## Working with data
+
+| Term | In one line |
+| --- | --- |
+| **Value type** | How each datapoint is stored, fixed at series creation, drives precision and cost. [→](/using/timeseries#value-types) |
+| **Unit** | What a measurement is in, bar, °C, kWh. [→](/using/timeseries) |
+| **Step series** | A series that holds its value until the next reading, rather than being interpolated. [→](/using/timeseries) |
+| **Datapoint** | One timestamped value in a time series. [→](/using/timeseries) |
+| **Nyquist rate** | Sample faster than twice the fastest behaviour you care about, or it disguises itself as slower behaviour. [→](/using/timeseries#how-often-should-you-sample) |
+| **Insights** | The console view for charting, comparing and live-streaming time series. [→](/using/insights) |
+| **Live mode** | Streaming new datapoints onto a chart as they arrive. [→](/using/insights#live-mode) |
+| **Data subscription** | A standing request: new datapoints are pushed to you on arrival, with your position held so a reconnect resumes without loss. [→](/using/subscriptions) |
+| **Durable subscription** | The kind whose position is held by the platform, so nothing is missed across a disconnect. A live tail, by contrast, just watches. [→](/using/subscriptions#the-two-kinds) |
+| **Raw correlation** | How closely two traces move together as they are, easily fooled by shared trends. [→](/using/relationship-analysis) |
+| **Whitened correlation** | The same comparison after removing each signal's own trend and rhythm. More honest. [→](/using/relationship-analysis) |
+| **Lead / lag** | Whether one signal moves before or after another, and by how much. [→](/using/relationship-analysis) |
+| **Coherence** | The timescale at which two signals move together most strongly. [→](/using/relationship-analysis) |
+| **Lasting link** | Label meaning two signals stay tied together over the long run rather than drifting apart. [→](/using/relationship-analysis) |
+| **Consistent / inconsistent** | Whether a relationship holds across the whole range analysed, or only part of it. [→](/using/relationship-analysis) |
+
+## AI agents
+
+| Term | In one line |
+| --- | --- |
+| **AI agent** | Software that reasons over your data and acts or recommends, far more accurately when it can use the knowledge graph. [→](/value/ai-agents) |
+| **Perception agent** | Watches continuous signals and emits typed events when something significant happens. [→](/value/ai-agents#perception-turning-signals-into-meaning) |
+| **Triage agent** | Collapses an alarm flood into the causal chain and one clear action. [→](/value/ai-agents#triage-turning-noise-into-one-clear-action) |
+| **Coordinator** | Sequences several agents' output so their actions do not collide. [→](/value/ai-agents#coordination) |
+| **Sourced answer** | An agent answer where every claim points at the resource, event or value behind it. [→](/value/ai-agents#search-and-briefing) |
+| **Dynamic incentives** | Steering agents by scoring observed outcomes and feeding the score back. [→](/value/ai-agents#where-this-is-heading-dynamic-incentives) |
+
+## Integration
+
+| Term | In one line |
+| --- | --- |
+| **CDC** | Change data capture, tailing a source database directly so its changes flow in. [→](/using/cdc-integrations) |
+| **Publication** | The name a source database exposes its change log under, needed to configure CDC. [→](/using/cdc-integrations) |
+| **Flush interval** | How often a CDC integration writes captured data down. Shorter is fresher; longer is cheaper. [→](/using/cdc-integrations) |
+| **Retention** | How long measurement history is kept. Automatic expiry is on the roadmap, so today nothing ages out and volume is cumulative. [→](/administration/data-lifecycle) |
+| **Access token** | A short-lived credential carrying your identity and permissions. Treat it like a password. [→](/administration/users-and-access#access-tokens) |
+| **Service account** | A non-human identity used by an integration, with its own narrow permissions. [→](/administration/users-and-access#service-accounts) |
+
+## Administration
+
+| Term | In one line |
+| --- | --- |
+| **Tenant** | A separate world with its own databases and file storage, and its own credentials where the deployment configures them. [→](/administration/organizations#what-the-reference-deployment-actually-does) |
+| **Organisation claim** | The field in a user's token that resolves which tenant a request belongs to. [→](/administration/users-and-access) |
+| **Organisation (Keycloak)** | A container in the identity provider holding one tenant's members, identity providers and groups. An organisation may have several identity providers; a provider belongs to exactly one organisation. [→](/administration/identity-providers#organizations-each-customers-own-identity-providers) |
+| **Policy** | A declarative rule on a data set, lifecycle, access, requirements. Recorded today; enforcement is on the roadmap. [→](/using/policies) |
+| **`DATAHUB_ACCESS`** | The baseline role required to use the platform at all. [→](/administration/users-and-access) |
+| **`DATAHUB_ADMIN`** | The escape-hatch role granting read and write on every data set. [→](/administration/dataset-permissions) |
+| **Identity provider** | The external system holding user accounts and issuing tokens. [→](/administration/users-and-access) |
+| **Air-gapped** | Running with no internet connection at all, fully supported. [→](/administration/security) |
+
+## Industrial standards
+
+| Term | In one line |
+| --- | --- |
+| **ISA-5.1** | Instrument tagging: `PT` is a pressure transmitter, `FIC` a flow indicating controller. [→](/concepts/naming-and-standards#standards-this-follows) |
+| **IEC/ISO 81346** | Reference designations separating aspects with prefix signs: `=` function, `-` product, `+` location. [→](/concepts/naming-and-standards#standards-this-follows) |
+| **ISO 15926** | The life-cycle data model for process plants; Part 8 maps it onto RDF and OWL. [→](/concepts/naming-and-standards#standards-this-follows) |
+| **NORSOK Z-DP-002** | The Norwegian shelf coding system, breaking an installation into systems, subsystems and item tags. [→](/concepts/naming-and-standards#standards-this-follows) |
+| **CFIHOS** | Fixes the equipment classes and attribute names handed over from project to operations. [→](/concepts/naming-and-standards#standards-this-follows) |
+
+## Roles in a rollout
+
+| Term | In one line |
+| --- | --- |
+| **Sponsor** | Chooses the first question and unblocks access to source systems. [→](/start/who-does-what) |
+| **Domain expert** | Says what the things in your operation are and how they relate. The critical role. [→](/start/who-does-what) |
+| **Data steward** | Owns naming conventions, data set boundaries and model quality over time. [→](/start/who-does-what) |
+| **Administrator** | Runs the platform: users, permissions, retention, availability. [→](/administration/overview) |
+| **Integrator** | Gets data out of source systems and into DataHub. [→](/start/who-does-what) |
+
+<Deeper>
+- [The four building blocks](/start/core-ideas): the vocabulary in context
+- [What is a digital twin?](/concepts/digital-twin): what these pieces add up to
+- [What is an ontology?](/concepts/ontology): the model concepts explained properly
+- [Frequently asked questions](/reference/faq)
+</Deeper>

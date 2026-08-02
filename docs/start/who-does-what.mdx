@@ -1,0 +1,120 @@
+---
+sidebar_position: 7
+title: Who does what
+description: The roles a DataHub rollout needs, what each one is accountable for, and the mistake of assigning the model to the wrong people.
+---
+
+# Who does what
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Project sponsors</Persona>
+  <Persona>Administrators</Persona>
+</Personas>
+
+<KeyIdea>
+A DataHub rollout needs five roles. Only one of them is technical.
+
+The role that matters most, and is most often assigned wrongly, is the **domain expert**
+who says what the things in your operation actually are. That cannot be outsourced to a
+supplier or a data team, because it is the part only your own people know.
+</KeyIdea>
+
+## The five roles
+
+| Role | Accountable for | Typically |
+| --- | --- | --- |
+| <span className="t-brand">Sponsor</span> | Choosing the first question; unblocking access to source systems | Operations director, plant manager, COO |
+| <span className="t-brand">Domain expert</span> | What the things *are* and how they relate, the model itself | Process engineer, maintenance lead, senior operator |
+| <span className="t-brand">Data steward</span> | Naming conventions, data set boundaries, model quality over time | Engineering or asset-information lead |
+| <span className="t-brand">Administrator</span> | Users, permissions, retention, cost, uptime | IT / OT operations |
+| <span className="t-brand">Integrator</span> | Getting data out of source systems and into DataHub | Automation engineer, systems integrator, or a developer |
+
+Small organisations routinely combine these, one person can be steward and administrator,
+and the sponsor is often also the domain expert. What does not work is having *none* of
+them, particularly the domain expert.
+
+## The mistake worth avoiding
+
+The most common failure pattern in this category is this: the platform is bought by IT,
+the model is built by a supplier or an internal data team, and the engineers who actually
+know the plant are consulted at the review meeting.
+
+The result is a model that is **technically correct and operationally useless**. It uses the
+categories a data modeller would choose rather than the ones the plant uses, so the people
+who were supposed to benefit look at it and do not recognise their own operation.
+
+<span className="hl">The model must be built by people who know the operation, using words the
+operation already uses.</span> The platform's job, and DataHub's specific design goal, is
+to make that possible without those people needing to write code.
+
+## What each role does, week by week
+
+### Weeks 1–2 · Frame it
+
+- **Sponsor** picks one question the organisation genuinely wants answered, and names the
+  people who will answer it. [Choosing a first question →](/value/where-to-start)
+- **Administrator** stands up the platform (or gets it stood up) and creates accounts.
+  [Installation →](/administration/installing) ·
+  [Identity providers →](/administration/identity-providers)
+- **Integrator** confirms which source systems can be read, and how.
+
+### Weeks 3–6 · Model and land data
+
+- **Domain expert** runs the modelling sessions: what exists, what it is a kind of, how it
+  connects. [Building your model →](/concepts/building-your-model)
+- **Data steward** sets the naming conventions before anything is created at volume, and
+  decides the data set boundaries. [Naming and standards →](/concepts/naming-and-standards) ·
+  [What governance asks of a steward →](/concepts/data-governance)
+- **Integrator** lands the first two or three sources as time series and events.
+- **Administrator** grants read and write on the right data sets.
+  [Permissions →](/administration/dataset-permissions)
+
+### Weeks 7–12 · Answer the question, then widen
+
+- **Domain expert** and analysts answer the original question against the model, and
+  document how.
+- **Sponsor** reviews the answer, and decides the second question.
+- **Data steward** captures what the first pass got wrong about the model and fixes it,
+  this always happens and is a sign of a healthy project, not a failed one.
+  [Grown, not built →](/concepts/digital-twin#grown-not-built)
+- **Administrator** sets retention and reviews cost.
+  [Data lifecycle →](/administration/data-lifecycle)
+
+## How much time this actually takes
+
+Realistic expectations, for a first project scoped to one site or one process area:
+
+<Stats>
+  <Stat value="1–2 days" label="Domain expert, modelling" note="Spread over two or three sessions, not one marathon" />
+  <Stat value="~1 day" label="Administrator, setup" note="More if identity provider integration is new" />
+  <Stat value="Days" label="Integrator, per source" note="Depends entirely on how open the source system is" />
+  <Stat value="Ongoing" label="Data steward" note="A few hours a month once conventions are set" />
+</Stats>
+
+The integration work is the variable that dominates. A source system with an open API is a
+day; one that only exports CSV on request is a project of its own. Establish this early,
+it is the single biggest driver of how long a first project takes. Increasingly, some of
+this work is done by agents rather than people.
+[Agents that build and run integrations →](/value/ai-agents#agents-that-build-and-run-your-integrations)
+
+## When you need outside help
+
+You do not need a supplier to run DataHub, and you should not need one to build your model.
+Outside help is genuinely useful for two things:
+
+- **Connecting difficult source systems**, particularly legacy control and historian
+  systems with proprietary interfaces.
+- **Facilitating the first modelling sessions**, if your organisation has never done
+  structured modelling before. <span className="t-brand">The facilitator should be teaching
+  your experts to do it, not doing it for them.</span>
+
+If a proposal has a supplier building your model and handing it over, that is the pattern
+described above, and it tends to end the same way.
+
+<Deeper>
+- [Where to start](/value/where-to-start): choosing a first project that finishes
+- [Building your model](/concepts/building-your-model): how to run the modelling sessions
+- [The business case](/value/business-case): what to promise, and what not to
+- [Administration overview](/administration/overview): what the administrator role involves
+</Deeper>

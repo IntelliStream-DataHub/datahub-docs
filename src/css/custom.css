@@ -1,0 +1,690 @@
+/* ============================================================================
+   IntelliStream DataHub — user documentation skin.
+
+   Same GitBook-calm Docusaurus (Infima) foundation and brand palette as the
+   SDK docs site, extended with the components this site needs: card grids,
+   "in one minute" callouts, go-deeper link lists, stat blocks and inline
+   colour emphasis.
+
+   Brand foundation (verbatim from intellistream.ai app.css):
+     font      Manrope
+     primary   --is-blue   #005984
+     accent    --is-orange #f6783c  /  --is-orange-bright #ff9e63
+     support   --is-green  #169A4F  /  --is-teal #c2d5dd
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono&display=swap');
+
+:root {
+  /* ---- IntelliStream brand palette (verbatim from the site's app.css) ---- */
+  --is-text: #333333;
+  --is-blue: #005984;
+  --is-blue-h: #39728e;
+  --is-blue-l: #63c5f4;
+  --is-grey-bg: #f5f6f6;
+  --is-grey-text: #535554;
+  --is-green-text: #169a4f;
+  --is-green-l: #54d98c;
+  --is-darkgrey-bg: #7e878e;
+  --is-orange: #f6783c;
+  --is-orange-bright: #ff9e63;
+  --is-teal: #c2d5dd;
+  --is-dark-teal: #6b8995;
+  --is-purple: #5c3546;
+
+  /* ---- Readable text variants of the accent colours ----
+     The raw brand orange/green are display colours: on white they sit near
+     3:1, which is fine for a border or an icon but too weak for words. These
+     darkened variants clear 4.5:1 so inline emphasis stays legible. */
+  --doc-accent-text: #b8480f;   /* orange, darkened for text */
+  --doc-success-text: #0f7a3d;  /* green, darkened for text */
+  --doc-brand-text: var(--is-blue);
+  --doc-purple-text: var(--is-purple);
+  --doc-muted-text: #5c6b75;
+
+  /* ---- Surfaces used by the doc components ---- */
+  --doc-surface: #ffffff;
+  --doc-surface-soft: #f7fafb;
+  --doc-border: #e7edf0;
+  --doc-border-strong: #d3e0e7;
+  --doc-mark-bg: #fdefe7;
+
+  /* ---- Brand blue mapped onto Infima's primary ramp ---- */
+  --ifm-color-primary: var(--is-blue);
+  --ifm-color-primary-dark: #004f75;
+  --ifm-color-primary-darker: #004b70;
+  --ifm-color-primary-darkest: #003e5c;
+  --ifm-color-primary-light: #006394;
+  --ifm-color-primary-lighter: #006699;
+  --ifm-color-primary-lightest: #0073ad;
+
+  /* ---- Typography: Manrope, matching the site ---- */
+  --ifm-font-family-base: 'Manrope', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', ui-monospace, monospace;
+  --ifm-heading-font-weight: 800;
+  --ifm-heading-color: var(--is-blue);
+  --ifm-font-color-base: var(--is-text);
+  --ifm-line-height-base: 1.72;
+
+  --ifm-navbar-background-color: #ffffff;
+  --ifm-navbar-shadow: none;
+  --ifm-background-color: #ffffff;
+
+  --ifm-global-radius: 10px;
+  --ifm-code-border-radius: 6px;
+  --ifm-code-background: var(--is-grey-bg);
+  --ifm-code-font-size: 88%;
+
+  --ifm-menu-color: #5c6b75;
+  --ifm-menu-color-active: var(--is-blue);
+  --ifm-menu-color-background-active: #eaf2f6;
+  --ifm-toc-border-color: #e7edf0;
+  --ifm-hr-border-color: #e7edf0;
+  --ifm-link-color: var(--is-blue);
+}
+
+/* Hairline navbar, no shadow (GitBook calm); roomy logo */
+.navbar { border-bottom: 1px solid var(--doc-border); box-shadow: none; }
+.navbar__title { font-weight: 700; color: var(--is-blue); letter-spacing: -.01em; }
+.navbar__logo { height: 1.7rem; }
+
+/* Quiet sidebar tree */
+.menu { font-size: .84rem; padding: .8rem; }
+.menu__link { font-weight: 500; border-radius: 8px; }
+.menu__link--active { font-weight: 600; }
+
+/* Headings — heavy & tight, the way the site sets them */
+.markdown h1 { font-weight: 800; letter-spacing: -.02em; }
+.markdown h2 {
+  font-weight: 800; letter-spacing: -.015em;
+  margin-top: 2.2rem; padding-bottom: .3rem;
+  border-bottom: 1px solid var(--doc-border);
+}
+.markdown h3 { font-weight: 700; letter-spacing: -.01em; }
+
+/* Rounded, bordered, shadowless code blocks */
+.theme-code-block,
+div[class^='codeBlockContainer'] {
+  border: 1px solid var(--doc-border);
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* Understated tabs, brand-coloured when active */
+.tabs__item { font-weight: 600; color: #5c6b75; padding: .35rem .85rem; }
+.tabs__item--active { color: var(--is-blue); border-bottom-color: var(--is-blue); }
+
+/* Links + reading measure */
+.theme-doc-markdown { font-size: .95rem; }
+.markdown a { color: var(--is-blue); text-decoration: none; }
+.markdown a:hover { text-decoration: underline; }
+
+/* Brand accent: the site's orange on "tip" admonitions */
+.theme-admonition-tip { border-left-color: var(--is-orange); }
+
+/* Tables read a lot better with a soft header band and no heavy grid */
+.markdown table { display: table; width: 100%; border-collapse: collapse; }
+.markdown table thead tr { background: var(--doc-surface-soft); border-bottom: 2px solid var(--doc-border-strong); }
+.markdown table th { font-weight: 700; color: var(--is-blue); text-align: left; }
+.markdown table td, .markdown table th { border: none; border-bottom: 1px solid var(--doc-border); padding: .55rem .8rem; }
+
+/* Mermaid diagrams: give them room and a quiet frame.
+   Mermaid stamps an inline `max-width` equal to the diagram's natural size,
+   which leaves small graphs rendered tiny in a wide column. Override it so a
+   diagram always fills the available width and stays legible on a laptop. */
+.docusaurus-mermaid-container {
+  border: 1px solid var(--doc-border);
+  border-radius: 12px;
+  background: var(--doc-surface-soft);
+  padding: 1.4rem 1rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+/* Render at natural size (mermaid emits explicit width/height because
+   useMaxWidth is false), and only scale DOWN when it would overflow. Forcing
+   `width: 100%` here instead makes every small diagram stretch to the full
+   column and become enormous — legibility comes from the font size below, not
+   from stretching. */
+.docusaurus-mermaid-container svg {
+  max-width: 100% !important;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+/* Mermaid's own label sizing is set for smaller canvases; nudge it up. */
+.docusaurus-mermaid-container .nodeLabel,
+.docusaurus-mermaid-container .edgeLabel,
+.docusaurus-mermaid-container .cluster-label { font-size: 15px !important; }
+
+/* ==========================================================================
+   Figure — a bordered frame for the brand SVG diagrams reused from the
+   marketing site. Those SVGs are drawn for a light background with dark
+   text, so the frame keeps a light surface in BOTH themes rather than
+   letting a dark page show through and destroy their contrast.
+   ========================================================================== */
+.figure {
+  border: 1px solid var(--doc-border);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 1.1rem;
+  margin: 1.6rem 0;
+  overflow-x: auto;
+}
+.figure img, .figure svg { display: block; width: 100%; height: auto; }
+.figure--wide img, .figure--wide svg { min-width: 34rem; }
+.figure__caption {
+  font-size: .83rem;
+  line-height: 1.5;
+  color: var(--doc-muted-text);
+  margin-top: .8rem;
+  padding-top: .7rem;
+  border-top: 1px solid var(--doc-border);
+}
+[data-theme='dark'] .figure { border-color: var(--doc-border-strong); }
+[data-theme='dark'] .figure__caption { color: #7d8894; }
+
+/* --------------------------------------------------------------------------
+   Themed inline diagrams.
+
+   Figures under src/figures/ are inlined by SVGR, so page CSS reaches them.
+   They carry class names and no colours of their own, and everything —
+   palette AND animation — is defined here. That is what lets them follow the
+   site's theme toggle rather than the operating system's colour preference,
+   which is all an <img>-loaded SVG can see.
+
+   Accent FILLS are darkened so white label text on them clears 4.5:1; the raw
+   brand orange would sit near 2.6:1 behind white text.
+   -------------------------------------------------------------------------- */
+:root {
+  --fig-ink: #1d2b36;
+  --fig-muted: #5c6b75;
+  --fig-surface: #ffffff;
+  --fig-line: #c2d5dd;
+  --fig-accent: #005984;
+  --fig-centre-bg: #eaf2f6;
+  --fig-exit-bg: #eaf6ee;
+  --fig-fill-blue: #005984;
+  --fig-fill-orange: #c2551a;
+  --fig-fill-green: #0f7a3d;
+  --fig-on-fill: #ffffff;
+  --fig-token: #f6783c;
+  --fig-stroke-green: #0f7a3d;   /* thin strokes: same as fill in light */
+  --fig-stroke-orange: #c2551a;
+}
+[data-theme='dark'] {
+  --fig-ink: #d6dee6;
+  --fig-muted: #9aa7b3;
+  --fig-surface: #16222e;
+  --fig-line: #33414e;
+  --fig-accent: #79b2d4;
+  --fig-centre-bg: #10242f;
+  --fig-exit-bg: #12291d;
+  --fig-fill-blue: #2f7ba6;
+  --fig-fill-orange: #c2551a;
+  --fig-fill-green: #12844a;
+  --fig-on-fill: #ffffff;
+  --fig-token: #ff9e63;
+  --fig-stroke-green: #3fcb7e;   /* brighter: a 2.5px line needs more than a filled box */
+  --fig-stroke-orange: #f6783c;  /* the raw brand orange earns its keep on dark */
+}
+
+.figure--themed { background: var(--doc-surface-soft); }
+.figure--themed svg { width: 100%; height: auto; display: block; }
+.figure--themed.figure--wide svg { min-width: 30rem; }
+
+/* shared diagram primitives */
+[class^='fig-'] text, [class*=' fig-'] text { font-family: var(--ifm-font-family-base); }
+.fig-title { font-size: 15px; font-weight: 800; fill: var(--fig-accent); }
+.fig-sub { font-size: 12.5px; fill: var(--fig-muted); }
+.fig-track { fill: none; stroke: var(--fig-line); stroke-width: 2.5; stroke-dasharray: 7 7; }
+.fig-centre { fill: var(--fig-centre-bg); stroke: var(--fig-accent); stroke-width: 2; }
+.fig-centre-title { font-size: 13px; font-weight: 800; fill: var(--fig-accent); }
+.fig-centre-sub { font-size: 11.5px; fill: var(--fig-muted); }
+.fig-box { fill: var(--fig-surface); stroke: var(--fig-line); stroke-width: 2; }
+.fig-box-title { font-size: 13.5px; font-weight: 800; fill: var(--fig-ink); }
+.fig-box-sub { font-size: 10.5px; fill: var(--fig-muted); }
+.fig-lit-box.c-blue { fill: var(--fig-fill-blue); stroke: var(--fig-fill-blue); stroke-width: 2; }
+.fig-lit-box.c-orange { fill: var(--fig-fill-orange); stroke: var(--fig-fill-orange); stroke-width: 2; }
+.fig-lit-box.c-green { fill: var(--fig-fill-green); stroke: var(--fig-fill-green); stroke-width: 2; }
+.fig-lit-title { font-size: 13.5px; font-weight: 800; fill: var(--fig-on-fill); }
+.fig-lit-sub { font-size: 10.5px; fill: var(--fig-on-fill); opacity: .92; }
+.fig-token { fill: var(--fig-token); stroke: var(--fig-surface); stroke-width: 2.5; }
+/* the "run by an AI agent" badge on org-chart nodes; ink chip, surface glyphs,
+   so it inverts cleanly with the theme and stands off every box colour */
+.fig-badge { fill: var(--fig-ink); stroke: var(--fig-surface); stroke-width: 2; }
+.fig-badge-line { fill: none; stroke: var(--fig-surface); stroke-width: 1.4; }
+.fig-badge-dot { fill: var(--fig-surface); }
+.fig-badge-text { font-size: 9.5px; font-weight: 800; letter-spacing: .04em; fill: var(--fig-surface); }
+/* Large tag lettering for the tag-anatomy figure */
+.fig-tag {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 26px; font-weight: 800; letter-spacing: .02em;
+  fill: var(--fig-on-fill);
+}
+.fig-tag--dark { fill: var(--fig-accent); }
+/* headline counters inside a figure */
+.fig-stat { font-size: 30px; font-weight: 800; fill: var(--fig-accent); }
+.fig-stat--on-fill { fill: var(--fig-on-fill); }
+.fig-stat-label { font-size: 10.5px; fill: var(--fig-muted); }
+.fig-stat-label--on-fill { fill: var(--fig-on-fill); opacity: .92; }
+.fig-sep {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 26px; font-weight: 800; fill: var(--fig-muted);
+}
+/* the lineage trace draws itself backwards, once per loop */
+.fig-lineage-trace .fig-trace {
+  stroke-dasharray: 1600; stroke-dashoffset: 1600;
+  animation: figTraceBack 9s ease-in-out infinite;
+}
+@keyframes figTraceBack {
+  0%, 6% { stroke-dashoffset: 1600 }
+  55%, 88% { stroke-dashoffset: 0 }
+  100% { stroke-dashoffset: 0 }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fig-lineage-trace .fig-trace { stroke-dashoffset: 0; animation: none; }
+}
+.fig-exit-path { fill: none; stroke: var(--fig-fill-green); stroke-width: 2.5; stroke-dasharray: 6 5; }
+/* chart traces for themed figures; three distinguishable series colours */
+.fig-line-a { fill: none; stroke: var(--fig-fill-blue); stroke-width: 2.5; stroke-linecap: round; }
+.fig-line-b { fill: none; stroke: var(--fig-fill-orange); stroke-width: 2.5; stroke-linecap: round; }
+.fig-line-c { fill: none; stroke: var(--fig-stroke-green); stroke-width: 2.5; stroke-linecap: round; }
+.fig-line--ghost { opacity: .4; stroke-dasharray: 4 5; }
+.fig-loop-arc { fill: none; stroke: var(--fig-stroke-orange); stroke-width: 2.5; stroke-linecap: round; }
+.fig-loop-head { fill: var(--fig-stroke-orange); }
+.fig-dot-a { fill: var(--fig-fill-blue); }
+.fig-dot-b { fill: var(--fig-stroke-orange); }
+.fig-exit-box { fill: var(--fig-exit-bg); stroke: var(--fig-fill-green); stroke-width: 2; }
+.fig-exit-title { font-size: 12.5px; font-weight: 800; fill: var(--fig-fill-green); }
+[data-theme='dark'] .fig-exit-title { fill: #54d98c; }
+.fig-exit-sub { font-size: 10.5px; fill: var(--fig-muted); }
+.fig-exit-note { font-size: 11px; font-weight: 700; fill: var(--fig-muted); }
+
+/* agent loop — the token orbits, each station lights as it passes */
+.fig-agent-loop .fig-lit { opacity: 0; animation: figLit 9s linear infinite; }
+.fig-agent-loop .fig-orbit {
+  transform-origin: 380px 290px;
+  transform-box: view-box;
+  animation: figSpin 9s linear infinite;
+}
+.fig-agent-loop .fig-unlit { animation: figUnlit 9s linear infinite; }
+@keyframes figSpin { to { transform: rotate(360deg); } }
+@keyframes figLit { 0%, 2% { opacity: 0 } 6%, 18% { opacity: 1 } 24%, 100% { opacity: 0 } }
+@keyframes figUnlit { 0%, 2% { opacity: 1 } 6%, 18% { opacity: 0 } 24%, 100% { opacity: 1 } }
+.fig-agent-loop .s0  { animation-delay: 0s; }
+.fig-agent-loop .s25 { animation-delay: 2.25s; }
+.fig-agent-loop .s50 { animation-delay: 4.5s; }
+.fig-agent-loop .s75 { animation-delay: 6.75s; }
+@media (prefers-reduced-motion: reduce) {
+  .fig-agent-loop .fig-orbit { animation: none; }
+  .fig-agent-loop .fig-lit { animation: none; opacity: 1; }
+  .fig-agent-loop .fig-unlit { animation: none; opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   Shared animation utilities for themed inline figures.
+
+   A figure only ever needs geometry plus these class names — no per-figure CSS
+   and no colours in the SVG file. All loops share an 8s cycle so several
+   figures on one page stay in sympathy rather than fighting each other.
+   -------------------------------------------------------------------------- */
+.fig-seq { opacity: 0; animation: figSeq 8s ease-in-out infinite; }
+@keyframes figSeq { 0%, 3% { opacity: 0 } 9%, 88% { opacity: 1 } 96%, 100% { opacity: 0 } }
+.fig-d1 { animation-delay: 0s; }
+.fig-d2 { animation-delay: .65s; }
+.fig-d3 { animation-delay: 1.3s; }
+.fig-d4 { animation-delay: 1.95s; }
+.fig-d5 { animation-delay: 2.6s; }
+.fig-d6 { animation-delay: 3.25s; }
+
+/* The unlit twin of a `fig-seq` element. A figure that draws a plain box and
+   then fades a coloured box in on top of it leaves BOTH visible mid-fade —
+   dark base text showing through a dark fill, unreadable for ~0.5s. Pair every
+   such base group with `fig-base` and the same `fig-dN`, so it fades out on
+   exactly the timing its lit twin fades in. */
+/* steps(1, end) rather than a cross-fade: while a base box and its lit twin are
+   both partly transparent, dark base text and white lit text blend over a
+   half-tinted fill and neither is readable. Swap instantly instead. */
+.fig-base { animation: figBaseOut 8s steps(1, end) infinite; }
+.fig-lineage-trace .fig-seq { animation-timing-function: steps(1, end); }
+.fig-agent-loop .fig-lit,
+.fig-agent-loop .fig-unlit { animation-timing-function: steps(1, end); }
+@keyframes figBaseOut { 0%, 3% { opacity: 1 } 9%, 88% { opacity: 0 } 96%, 100% { opacity: 1 } }
+
+/* a dashed line with data marching along it */
+.fig-flow { stroke-dasharray: 6 6; animation: figMarch 1.2s linear infinite; }
+@keyframes figMarch { to { stroke-dashoffset: -24; } }
+
+/* a gentle attention pulse */
+.fig-pulse { animation: figPulse 2.4s ease-in-out infinite; }
+@keyframes figPulse { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
+
+/* a stroke that draws itself in */
+.fig-draw { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: figDraw 8s ease-out infinite; }
+@keyframes figDraw { 0% { stroke-dashoffset: 1200 } 35%, 88% { stroke-dashoffset: 0 } 100% { stroke-dashoffset: 0 } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fig-seq { opacity: 1; animation: none; }
+  .fig-base { opacity: 0; animation: none; }   /* lit twin wins when motion is off */
+  .fig-flow, .fig-pulse { animation: none; }
+  .fig-draw { stroke-dashoffset: 0; animation: none; }
+}
+
+/* Icon row — the small brand glyphs used for the data-quality dimensions */
+.icon-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: .9rem;
+  margin: 1.4rem 0 2rem;
+}
+.icon-item {
+  border: 1px solid var(--doc-border);
+  border-radius: 12px;
+  background: var(--doc-surface-soft);
+  padding: 1rem .8rem;
+  text-align: center;
+}
+.icon-item img {
+  width: 3rem; height: 3rem;
+  margin: 0 auto .6rem;
+  display: block;
+}
+[data-theme='dark'] .icon-item img { filter: brightness(1.7) saturate(.85); }
+.icon-item__label { font-weight: 800; font-size: .88rem; color: var(--is-blue); }
+.icon-item__note { font-size: .78rem; line-height: 1.45; color: var(--doc-muted-text); margin-top: .25rem; }
+[data-theme='dark'] .icon-item__label { color: #9cc4da; }
+
+/* ==========================================================================
+   Inline colour emphasis
+   Use sparingly — one or two per paragraph, on the word that carries the
+   point. `<strong>` already does most of the work; colour is for the terms a
+   reader should be able to find by scanning.
+   ========================================================================== */
+.t-brand   { color: var(--doc-brand-text); font-weight: 700; }
+.t-accent  { color: var(--doc-accent-text); font-weight: 700; }
+.t-success { color: var(--doc-success-text); font-weight: 700; }
+.t-purple  { color: var(--doc-purple-text); font-weight: 700; }
+.t-muted   { color: var(--doc-muted-text); }
+
+/* Highlighted term — a soft brand-orange wash behind the words */
+.hl {
+  background: var(--doc-mark-bg);
+  color: var(--doc-accent-text);
+  font-weight: 700;
+  border-radius: 5px;
+  padding: .06em .34em;
+}
+
+/* Lead paragraph — the one-sentence answer under a page title */
+.lead {
+  font-size: 1.12rem;
+  line-height: 1.62;
+  font-weight: 500;
+  color: var(--doc-muted-text);
+  margin: 0 0 1.6rem;
+}
+
+/* ==========================================================================
+   KeyIdea — the "in one minute" box at the top of a page
+   ========================================================================== */
+.key-idea {
+  border: 1px solid var(--doc-border-strong);
+  border-left: 4px solid var(--is-orange);
+  border-radius: 12px;
+  background: var(--doc-surface-soft);
+  padding: 1.1rem 1.3rem;
+  margin: 0 0 1.8rem;
+}
+.key-idea__title {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--doc-accent-text);
+  margin-bottom: .5rem;
+}
+.key-idea__body > :last-child { margin-bottom: 0; }
+.key-idea__body p { font-size: 1rem; line-height: 1.65; }
+
+/* ==========================================================================
+   Roadmap: a capability that is planned rather than shipped.
+   Visually distinct from KeyIdea on purpose, so a reader skimming cannot
+   mistake a planned feature for one they can use today.
+   ========================================================================== */
+.roadmap {
+  border: 1px solid #d8c3b2;
+  border-left: 4px solid var(--is-orange);
+  border-radius: 12px;
+  background: var(--doc-mark-bg);
+  padding: 1rem 1.25rem;
+  margin: 0 0 1.8rem;
+}
+.roadmap__title {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--doc-accent-text);
+  margin-bottom: .45rem;
+}
+.roadmap__title::before { content: '\1F6A7  '; }
+.roadmap__body { font-size: .93rem; line-height: 1.6; }
+.roadmap__body > :last-child { margin-bottom: 0; }
+[data-theme='dark'] .roadmap { border-color: #6b4326; }
+
+/* External references, so a reader can check the docs against neutral sources */
+.references {
+  border-top: 1px solid var(--doc-border);
+  margin-top: 1.6rem;
+  padding-top: .9rem;
+}
+.references__title {
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--doc-muted-text);
+  margin-bottom: .5rem;
+}
+.references ul { margin: 0; padding-left: 1.1rem; }
+.references li { font-size: .86rem; margin: .28rem 0; color: var(--doc-muted-text); }
+
+/* ==========================================================================
+   Cards — the click-through grid used for "go deeper" navigation
+   ========================================================================== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+  gap: .9rem;
+  margin: 1.4rem 0 2rem;
+}
+.card-grid--two { grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+
+.doc-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--doc-border);
+  border-radius: 12px;
+  background: var(--doc-surface);
+  padding: 1rem 1.1rem;
+  text-decoration: none !important;
+  color: inherit !important;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.doc-card:hover {
+  border-color: var(--is-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 89, 132, .09);
+}
+.doc-card__icon { font-size: 1.35rem; line-height: 1; margin-bottom: .55rem; }
+.doc-card__eyebrow {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--doc-accent-text);
+  margin-bottom: .3rem;
+}
+.doc-card__title {
+  font-weight: 800;
+  font-size: .98rem;
+  color: var(--is-blue);
+  letter-spacing: -.01em;
+  margin-bottom: .3rem;
+}
+.doc-card__body { font-size: .87rem; line-height: 1.55; color: var(--doc-muted-text); }
+.doc-card__body > :last-child { margin-bottom: 0; }
+
+/* ==========================================================================
+   Deeper — a compact "go deeper" list at the foot of a simple page
+   ========================================================================== */
+.deeper {
+  border-top: 2px solid var(--doc-border-strong);
+  margin-top: 2.4rem;
+  padding-top: 1.1rem;
+}
+.deeper__title {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--doc-muted-text);
+  margin-bottom: .7rem;
+}
+.deeper ul { list-style: none; padding-left: 0; margin: 0; }
+.deeper li { margin: .38rem 0; padding-left: 1.15rem; position: relative; font-size: .92rem; }
+.deeper li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--is-orange);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Personas — "who this page is for" chips
+   ========================================================================== */
+.persona-row { display: flex; flex-wrap: wrap; gap: .4rem; margin: -0.6rem 0 1.5rem; }
+.persona {
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+  border: 1px solid var(--doc-border-strong);
+  border-radius: 999px;
+  padding: .18rem .7rem;
+  color: var(--doc-muted-text);
+  background: var(--doc-surface-soft);
+}
+.persona--lead { border-color: #f3c8b3; background: var(--doc-mark-bg); color: var(--doc-accent-text); }
+
+/* ==========================================================================
+   Stats — big numbers for the value pages
+   ========================================================================== */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: .9rem;
+  margin: 1.4rem 0 2rem;
+}
+.stat {
+  border: 1px solid var(--doc-border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  background: var(--doc-surface-soft);
+}
+.stat__value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: var(--is-blue);
+}
+.stat__label { font-size: .84rem; font-weight: 700; margin-top: .3rem; }
+.stat__note { font-size: .78rem; color: var(--doc-muted-text); margin-top: .2rem; line-height: 1.45; }
+
+/* ==========================================================================
+   Steps — a numbered walkthrough that survives long step bodies
+   ========================================================================== */
+.steps { counter-reset: step; margin: 1.4rem 0 2rem; }
+.step {
+  position: relative;
+  padding-left: 2.6rem;
+  padding-bottom: 1.3rem;
+  border-left: 2px solid var(--doc-border);
+  margin-left: .85rem;
+}
+.step:last-child { border-left-color: transparent; padding-bottom: 0; }
+.step::before {
+  counter-increment: step;
+  content: counter(step);
+  position: absolute;
+  left: -.86rem;
+  top: -.1rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  background: var(--is-blue);
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step__title { font-weight: 800; color: var(--is-blue); margin-bottom: .25rem; font-size: 1rem; }
+.step__body > :last-child { margin-bottom: 0; }
+
+/* ==========================================================================
+   Dark mode
+   ========================================================================== */
+[data-theme='dark'] {
+  --ifm-color-primary: #6aa9cd;
+  --ifm-color-primary-dark: #4f99c4;
+  --ifm-color-primary-darker: #4291bf;
+  --ifm-color-primary-darkest: #34789f;
+  --ifm-color-primary-light: #85b9d6;
+  --ifm-color-primary-lighter: #92c1da;
+  --ifm-color-primary-lightest: #b6d6e7;
+  --ifm-background-color: #0e1620;
+  --ifm-navbar-background-color: #0e1620;
+  --ifm-code-background: #15202b;
+  --ifm-heading-color: #e6eef4;
+  --ifm-font-color-base: #c2ccd6;
+  --ifm-menu-color: #aeb9c3;
+  --ifm-menu-color-active: #79b2d4;
+  --ifm-menu-color-background-active: #16242f;
+  --ifm-toc-border-color: #25313c;
+  --ifm-hr-border-color: #25313c;
+  --ifm-link-color: #79b2d4;
+
+  --doc-accent-text: var(--is-orange-bright);
+  --doc-success-text: var(--is-green-l);
+  --doc-brand-text: #79b2d4;
+  --doc-purple-text: #c39ab0;
+  --doc-muted-text: #9aa7b3;
+
+  --doc-surface: #131d28;
+  --doc-surface-soft: #131d28;
+  --doc-border: #25313c;
+  --doc-border-strong: #33414e;
+  --doc-mark-bg: #3a2416;
+}
+[data-theme='dark'] .navbar { border-bottom-color: var(--doc-border); }
+[data-theme='dark'] .navbar__title { color: #98bbc8; }
+[data-theme='dark'] .markdown a { color: #79b2d4; }
+[data-theme='dark'] .markdown h2 { border-bottom-color: var(--doc-border); }
+[data-theme='dark'] .theme-code-block,
+[data-theme='dark'] div[class^='codeBlockContainer'] { border-color: var(--doc-border); }
+[data-theme='dark'] .tabs__item { color: #aeb9c3; }
+[data-theme='dark'] .tabs__item--active { color: var(--ifm-color-primary); border-bottom-color: var(--ifm-color-primary); }
+[data-theme='dark'] .theme-admonition-tip { border-left-color: var(--is-orange-bright); }
+[data-theme='dark'] .markdown table th { color: #9cc4da; }
+[data-theme='dark'] .doc-card:hover { border-color: #6aa9cd; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+[data-theme='dark'] .doc-card__title { color: #9cc4da; }
+[data-theme='dark'] .key-idea__title { color: var(--is-orange-bright); }
+[data-theme='dark'] .stat__value { color: #9cc4da; }
+[data-theme='dark'] .step::before { background: #2f6c8e; }
+[data-theme='dark'] .step__title { color: #9cc4da; }
+[data-theme='dark'] .persona--lead { border-color: #6b4326; }
+
+/* Version badge in the navbar (kept from the SDK docs skin) */
+.navbar__version-badge { align-self: center; margin-right: 0.5rem; font-weight: 600; }

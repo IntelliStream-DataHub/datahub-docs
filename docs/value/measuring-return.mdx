@@ -1,0 +1,179 @@
+---
+sidebar_position: 6
+title: Measuring the return
+description: The metrics to baseline before you start, what to measure at 90 days and at a year, and the leading indicator that matters most.
+---
+
+# Measuring the return
+
+<Personas>
+  <Persona primary>Project sponsors</Persona>
+  <Persona primary>Leadership</Persona>
+  <Persona>Board members</Persona>
+</Personas>
+
+<KeyIdea>
+The single most important number is <span className="hl">the cost of answering the next
+question</span>. If it is falling, the platform is working. If it is flat, something is
+wrong with the model, not with the technology.
+
+Everything else on this page supports that one measure.
+</KeyIdea>
+
+## Take the baseline first
+
+It takes an afternoon, it is the most commonly skipped step, and without it a successful
+project cannot prove it succeeded.
+
+Before anything is installed, record honestly:
+
+| Baseline metric | How to capture it |
+| --- | --- |
+| **Time to answer the chosen question** | Ask the person who would answer it today. Include waiting time, not just working time |
+| **People involved** | How many distinct people must be available |
+| **Systems touched** | How many separate systems someone must access |
+| **Reporting cycle effort** | Person-days per cycle for the relevant report |
+| **Reproducibility** | Would two competent people get the same number? Yes / roughly / no |
+| **Timeliness** | Time from a condition occurring to the person who can act knowing about it. [Push delivery](/using/subscriptions) is measured against exactly this number |
+| **Questions declined** | How often something goes unasked because it is too expensive. Ask the team; they will know |
+| **Mean time to diagnosis** | For incidents in the area you are covering |
+
+The last two are the ones people are surprised by. "Questions declined" is often the largest
+hidden cost in the organisation, and it is only ever visible by asking.
+
+## At 90 days
+
+The first project should produce evidence on four axes.
+
+<Stats>
+  <Stat value="Time" label="To answer the question" note="Compare directly against the baseline. Days to minutes is common for investigation-type questions" />
+  <Stat value="People" label="Needed to answer it" note="Often the more striking number, from four specialists to one engineer" />
+  <Stat value="Repeat" label="Can it be re-run?" note="A yes here is worth more than a faster first answer" />
+  <Stat value="Reuse" label="Model reused for question two" note="The leading indicator of compounding value" />
+</Stats>
+
+That last one deserves emphasis. At 90 days you cannot yet show a large financial return,
+be honest about that. <span className="hl">What you *can* show is whether the second
+question was cheaper than the first.</span> If it was, the compounding thesis holds and the investment case for continuing is
+sound. If it was not, find out why before scaling: usually the model was built too narrowly
+around question one, or it was built by people who do not know the operation.
+
+## At one year
+
+By a year in, the measures become financial and operational.
+
+### Recurring time saved
+
+- Reporting cycle preparation, in person-days per cycle × cycles per year
+- Investigation time, in hours per incident × incidents in the covered area
+- Ad-hoc question turnaround, across everyone who asks them
+
+This is the most defensible number because it is directly observed and it recurs.
+
+### Operational outcomes
+
+Only claim these where the platform is genuinely in the causal path. The same
+observed-not-asserted discipline is how agent work gets measured too, a warning acted on
+against one dismissed, a draft accepted against one rewritten.
+[The signals that steer agents →](/value/ai-agents#where-this-is-heading-dynamic-incentives)
+
+- **Downtime avoided**, where a monitored condition produced a warning that was acted on.
+  Count the specific instances; do not extrapolate.
+- **Output recovered**, where faster diagnosis shortened a stoppage.
+- **Maintenance effort redirected**, work no longer done on a calendar because condition
+  data said it was not needed.
+
+### Risk reduction
+
+Harder to quantify, appropriate to state qualitatively for a board:
+
+- Reported figures now reproducible: two people get the same number. Full traceability with
+  data-quality flags arrives with [lineage](/concepts/lineage-and-quality), which is planned
+- Reduced dependence on individuals for critical knowledge
+- Audit responses answerable from evidence rather than reconstruction
+
+### The compounding measure
+
+Plot the effort for each question answered, in order. The shape of that line is the whole
+argument.
+
+<Stats>
+  <Stat value="Falling" label="Healthy" note="Each question reuses more model than it adds" />
+  <Stat value="Flat" label="Investigate" note="Model too narrow, or built around one department's view" />
+  <Stat value="Rising" label="Stop and review" note="Usually means source integration, not modelling, is the bottleneck" />
+</Stats>
+
+## A worked example
+
+Numbers invented for shape, not for accuracy. The point is which lines are defensible.
+
+An engineering team baselines one recurring question, "which assets contributed to last
+month's availability shortfall", before starting.
+
+| Line | Before | After | Basis |
+| --- | --- | --- | --- |
+| Time to answer | 3 weeks elapsed, ~5 person-days | Under a day, ~0.5 person-days | Observed, both times |
+| People needed | 4, across 3 departments | 1 | Observed |
+| Times asked per year | 12 | 12 | Unchanged |
+| **Recurring saving** | | **~54 person-days a year** | 4.5 days saved × 12 |
+| Questions previously declined | ~6 a year, by the team's own estimate | Now attempted | Stated qualitatively, not totalled |
+| Incidents in scope | 20 a year, ~6 hours to diagnose | ~2 hours | Observed on 5 incidents so far, extrapolated to 20 with that caveat stated |
+
+What makes this credible is not the size of the number. It is that every line says where it
+came from, one line is deliberately excluded from the total, and one is marked as
+extrapolated from a small sample. A board that sees that will believe the rest.
+
+<span className="t-accent">A single unmarked extrapolation discredits an entire analysis.</span>
+Mark them.
+
+## Leading and lagging indicators
+
+Most of what is easy to measure arrives too late to steer by. Watch both.
+
+| Leading, watch monthly | Lagging, review at 6 and 12 months |
+| --- | --- |
+| Effort to answer question N versus N-1 | Person-days saved per reporting cycle |
+| How many people can answer without a specialist | Mean time to diagnosis |
+| Number of trials or investigations attempted | Downtime avoided, counted by instance |
+| Model reuse: what the last question added versus reused | Maintenance work not done because condition data said so |
+
+**If a leading indicator goes flat, you have roughly a quarter to act** before it shows up in the
+lagging ones. That is the whole reason to track them separately.
+
+## What not to claim
+
+Credibility is the scarce resource in a data programme. Three claims that destroy it:
+
+- **Attributing broad improvements to the platform.** If site availability rose 2% and
+  DataHub was one of six things that changed, say so. Overclaiming once makes every
+  subsequent number suspect.
+- **Extrapolating from one avoided failure.** One caught bearing failure is worth reporting
+  as one caught bearing failure. Multiplying it by the fleet is how a real result becomes an
+  unbelievable one.
+- **Counting theoretical savings from questions nobody asked.** Real, and unprovable. Mention
+  it qualitatively; do not put it in the total.
+
+## Costs to track against
+
+For a complete picture, track:
+
+- **Infrastructure**, the servers and storage the platform runs on. Predictable, and it
+  scales with data volume, which above all means with sampling rate, the one dial worth
+  setting deliberately. [Choosing a sample rate →](/using/timeseries#how-often-should-you-sample) ·
+  [Data lifecycle →](/administration/data-lifecycle)
+- **People**, the domain expert and steward time modelling, and the administrator time
+  running it. This is the dominant cost.
+- **Integration**, per source system, and highly variable. The single biggest driver of
+  first-project duration.
+- **Licence**, none. The platform is open source under the AGPL-3.0.
+
+Note what dominates: <span className="t-brand">this is a people cost, not a software cost</span>.
+That is worth being explicit about with a board, because it sets the right expectation about
+where attention should go.
+
+<Deeper>
+- [The business case](/value/business-case): the value levers being measured
+- [Where to start](/value/where-to-start): taking the baseline before you begin
+- [Board briefing](/value/board-briefing): presenting this to governance
+- [Value paths](/value/value-paths): what each play should be measured on
+</Deeper>

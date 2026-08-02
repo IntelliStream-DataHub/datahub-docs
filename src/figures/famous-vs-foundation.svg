@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 328" class="fig-famous-foundation" role="img" aria-label="Four columns, one per industrial revolution. The top row holds the celebrated technology: steam engine, assembly line, computers and PLCs, AI and agents. The bottom row holds the foundation each stood on: placed power, interchangeable parts, cheap computation, and a machine-readable model of the operation, the last one highlighted because it is the one still being built.">
+<text class="fig-title" x="20" y="24">The famous part, and the part that made it work</text>
+<text class="fig-sub" x="20" y="44">Every revolution is named after its technology and enabled by its foundation.</text>
+<text class="fig-box-sub" x="20" y="90">the celebrated part</text>
+<text class="fig-box-sub" x="20" y="186">the foundation it stood on</text>
+<rect class="fig-box" x="20" y="98" width="170" height="52" rx="12"/><text class="fig-box-title" x="105" y="129" text-anchor="middle">Steam engine</text>
+<line class="fig-track" x1="105" y1="194" x2="105" y2="162"/>
+<path class="fig-centre" d="M100 162 L105 150 L110 162 z"/>
+<rect class="fig-centre" x="20" y="194" width="170" height="60" rx="12"/><text class="fig-centre-sub" x="105" y="219" text-anchor="middle">power, placed</text><text class="fig-centre-sub" x="105" y="237" text-anchor="middle">where needed</text>
+<text class="fig-box-sub" x="105" y="278" text-anchor="middle">c. 1780</text>
+<rect class="fig-box" x="206" y="98" width="170" height="52" rx="12"/><text class="fig-box-title" x="291" y="129" text-anchor="middle">Assembly line</text>
+<line class="fig-track" x1="291" y1="194" x2="291" y2="162"/>
+<path class="fig-centre" d="M286 162 L291 150 L296 162 z"/>
+<rect class="fig-centre" x="206" y="194" width="170" height="60" rx="12"/><text class="fig-centre-sub" x="291" y="219" text-anchor="middle">interchangeable</text><text class="fig-centre-sub" x="291" y="237" text-anchor="middle">parts</text>
+<text class="fig-box-sub" x="291" y="278" text-anchor="middle">c. 1870</text>
+<rect class="fig-box" x="392" y="98" width="170" height="52" rx="12"/><text class="fig-box-title" x="477" y="129" text-anchor="middle">Computers + PLCs</text>
+<line class="fig-track" x1="477" y1="194" x2="477" y2="162"/>
+<path class="fig-centre" d="M472 162 L477 150 L482 162 z"/>
+<rect class="fig-centre" x="392" y="194" width="170" height="60" rx="12"/><text class="fig-centre-sub" x="477" y="219" text-anchor="middle">computation cheap</text><text class="fig-centre-sub" x="477" y="237" text-anchor="middle">enough for everything</text>
+<text class="fig-box-sub" x="477" y="278" text-anchor="middle">c. 1970</text>
+<rect class="fig-box" x="578" y="98" width="170" height="52" rx="12"/><text class="fig-box-title" x="663" y="129" text-anchor="middle">AI and agents</text>
+<line class="fig-track" x1="663" y1="194" x2="663" y2="162"/>
+<path class="fig-centre" d="M658 162 L663 150 L668 162 z"/>
+<rect class="fig-lit-box c-blue" x="578" y="194" width="170" height="60" rx="12"/><text class="fig-lit-sub" x="663" y="219" text-anchor="middle">a machine-readable</text><text class="fig-lit-sub" x="663" y="237" text-anchor="middle">model of the operation</text>
+<text class="fig-box-sub" x="663" y="278" text-anchor="middle">now</text>
+<text class="fig-box-sub" x="20" y="312">The foundation is always less glamorous than the technology, and always the part that decides who wins.</text>
+</svg>

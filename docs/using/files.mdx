@@ -1,0 +1,115 @@
+---
+sidebar_position: 9
+title: Files
+description: Attaching documents and images to your model, P&IDs, datasheets, inspection photos and certificates, with folders, data sets and a recoverable trash.
+---
+
+# Files
+
+<Personas>
+  <Persona primary>Operations</Persona>
+  <Persona primary>Engineers</Persona>
+  <Persona>Document controllers</Persona>
+</Personas>
+
+<KeyIdea>
+Files attach documentation to the things it documents. A
+[P&ID](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram) hangs off the line
+it describes; a datasheet off the pump; an inspection photo off the vessel it was taken in.
+Attached this way, documents are the
+[records layer of a digital twin](/concepts/digital-twin#what-a-twin-is-made-of).
+
+The point is not storage, you already have somewhere to put files. The point is that
+<span className="hl">documentation becomes reachable from the asset</span>, instead of requiring
+somebody to know which folder it was filed in.
+</KeyIdea>
+
+## What files are for here
+
+Typical material:
+
+- **P&IDs and network diagrams**, attached to the line, area or network segment
+- **Datasheets and manuals**, attached to the equipment
+- **Inspection reports and photos**, attached to the asset inspected, and datable against
+  the [event](/using/events) that recorded the inspection
+- **Certificates and compliance documents**, attached to the asset or the obligation
+- **Calibration records**, attached to the instrument
+
+The value is in the last word of each line. Somebody investigating a pump can reach its
+datasheet from the pump. Somebody preparing a compliance submission can reach the
+certificates from the obligation. Attaching a document to the thing it describes is
+[contextualization](/concepts/contextualization), the same activity that links a signal to
+its instrument.
+
+## Uploading
+
+<Steps>
+  <Step title="Choose or create a folder">
+    Files live in a folder tree. Create folders that mirror how people look for documents,
+    usually by area or by document type, rarely by upload date.
+  </Step>
+  <Step title="Browse for the file and set the upload path">
+    You can type the folder path directly rather than clicking through it.
+  </Step>
+  <Step title="Set the data set">
+    Which [container](/using/datasets) it belongs to, and therefore who can see it. Do set
+    one: **a file or folder left with no data set is readable by every authenticated
+    user**, unlike resources, series and events.
+    [Entities without a data set →](/administration/dataset-permissions#entities-without-a-data-set)
+  </Step>
+  <Step title="Set related resources">
+    The assets this document is about. This is the field that makes the file findable from
+    the model, the one worth not skipping.
+  </Step>
+</Steps>
+
+Each uploaded file records a **checksum**, its **size**, its **type**, when it was created
+and last modified, and the source system's own created and updated dates where those are
+known. The [checksum](https://en.wikipedia.org/wiki/Checksum) is what lets you **prove a
+document has not changed** since it was filed.
+
+## Organising
+
+| Action | What it does |
+| --- | --- |
+| **Rename** | Changes the file or folder name |
+| **Move** | Moves it to another folder. Warns if something already exists at the destination |
+| **Set dataset** | Reassigns the access boundary |
+| **Set related resources** | Changes which assets the file is attached to |
+| **Copy path** | Copies the full path, useful for referring to a document elsewhere |
+| **Download** | Retrieves the file |
+| **Update file** | Edits the entry's details: name, description, metadata, related resources, data set. File contents cannot be replaced; upload a new file |
+
+Setting a data set on a **folder** also applies it to everything inside that does not
+already have one, automatically. That is the fastest way to bring an uploaded document tree
+under the right access boundary in one action, and worth knowing before you do it.
+
+Files can also be browsed **grouped by data set**, which is the view administrators usually
+want when reviewing who can see what.
+
+## Deleting and restoring
+
+Deleting a file moves it to a trash rather than destroying it. The **Deleted files** tab
+lists what has been removed and when, and offers **Restore**.
+
+Deleting a **folder** is different and the console says so plainly:
+<span className="t-accent">it permanently deletes the folder and everything inside
+it</span>, and asks you to type the folder's name to confirm. Treat that confirmation as
+the safety mechanism it is.
+
+## Finding files
+
+The search box covers file names, and the filter panel narrows by folder, data set and type.
+The other route, often the better one, is from the model: open a resource and see the
+files related to it.
+
+That is the difference this makes. In a conventional document store you search for the
+document. Here you can <span className="hl">start from the equipment</span>, which is
+usually what you actually have in front of you.
+
+<Deeper>
+- [Data sets](/using/datasets): the access boundary files inherit
+- [The resource graph](/using/resources): attaching files to the assets they document
+- [Capital project handover](/value/value-paths#capital-project-handover): landing a full documentation package at handover
+- [Data lifecycle](/administration/data-lifecycle): retention and storage housekeeping
+</Deeper>

@@ -1,0 +1,159 @@
+---
+sidebar_position: 3
+title: The operational data problem
+description: Why industrial data stays fragmented, what that costs, and what Industry 4.0 actually requires before it can deliver.
+---
+import SilosToModel from '@site/src/figures/silos-to-model.svg';
+
+# The operational data problem
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Board members</Persona>
+  <Persona>Engineers</Persona>
+</Personas>
+
+<KeyIdea>
+Traditional industries do not have a data *shortage*. They have a
+**[context shortage](/concepts/contextualization)**.
+
+Every system holds a piece of the truth and none of them holds the whole picture. The
+knowledge that ties the pieces together, which sensor belongs to which machine, which
+machine serves which process, mostly lives in people's heads, in drawings, and in
+spreadsheets. That is the gap that makes every digital initiative more expensive than
+budgeted.
+</KeyIdea>
+
+## How the fragmentation happens
+
+Nobody designs a fragmented data landscape. It accumulates, one reasonable decision at a
+time, usually over decades.
+
+<Steps>
+  <Step title="Each system solved one real problem">
+    The [historian](https://en.wikipedia.org/wiki/Operational_historian) was bought to log sensor data. The maintenance system was bought to plan
+    work. The [ERP](https://en.wikipedia.org/wiki/Enterprise_resource_planning) was bought to run finance. Each was the right decision at the time, and
+    each came with its own way of describing the world.
+  </Step>
+  <Step title="Each system has its own idea of what a 'pump' is">
+    The [historian](https://en.wikipedia.org/wiki/Operational_historian) knows a tag. The maintenance system knows an equipment number. The [ERP](https://en.wikipedia.org/wiki/Enterprise_resource_planning)
+    knows a cost-centre asset. Three identifiers, three data models, one physical pump,
+    and no system that holds the fact that they are the same pump.
+  </Step>
+  <Step title="The connective knowledge stayed with people">
+    Somebody knows the mapping. It is genuine expertise and it works, until that person
+    retires, changes role, or is on holiday when the incident happens.
+  </Step>
+  <Step title="Every project pays the integration tax again">
+    A reporting project, a condition-monitoring pilot and an AI proof-of-concept each
+    rebuild the same mappings from scratch, because the previous project's mapping was
+    embedded in the previous project's code.
+  </Step>
+</Steps>
+
+The result is predictable: **the marginal cost of the next data initiative never falls.**
+Ten years in, a new question costs about what it cost the first time. That is the single
+clearest symptom that context is missing.
+
+<Figure caption="Nothing on the left is wrong, each system is doing its job correctly. What is missing is the fact that the historian's tag, the maintenance system's equipment number and the ERP's asset describe the same pump. On the right that fact exists as data, so it is written once instead of reconstructed by hand in every project." wide>
+  <SilosToModel />
+</Figure>
+
+## What it costs, concretely
+
+<Stats>
+  <Stat value="Weeks" label="Time to answer a new cross-system question" note="Because the joins are rebuilt by hand each time" />
+  <Stat value="Repeated" label="Integration effort per project" note="Mappings are rebuilt rather than reused" />
+  <Stat value="Fragile" label="Reported figures" note="Assembled in spreadsheets, hard to audit or reproduce" />
+  <Stat value="Personal" label="Critical knowledge" note="Held by individuals rather than the organisation" />
+</Stats>
+
+There is also a cost that does not show up on any budget line: **the questions nobody
+asks.** When answering takes three weeks, people stop asking. The analysis that would have
+found the recurring failure mode, or the tariff optimisation, or the compliance drift, is
+never started because the effort is obviously not worth it. That opportunity cost is
+usually far larger than the visible one.
+
+## Why Industry 4.0 stalls without this
+
+[The Industry 4.0 promise](/start/industry-4), operations that sense, predict and adjust
+themselves, is usually presented as a technology question: sensors, connectivity, machine
+learning. The
+technology is rarely the blocker. Sensors are cheap, connectivity is solved, and the
+algorithms are open and well understood.
+
+What blocks it is that <span className="hl">none of those technologies can reason about an
+operation they have no description of.</span>
+
+Consider a [predictive maintenance](https://en.wikipedia.org/wiki/Predictive_maintenance) model. Given a raw vibration signal and nothing else, it
+can learn that the signal looks unusual. Given the same signal plus the knowledge that it
+comes from a specific bearing, on a pump of a known type, running a known duty cycle, whose
+last overhaul was recorded as an event four months ago, and which feeds a process with a
+known criticality, it can tell you what is likely failing, how urgent it is, and what it
+will affect. The difference is not the algorithm.
+<span className="t-brand">It is the context.</span>
+
+The same holds, more sharply, for AI agents. An agent with a knowledge graph reasons faster
+because the connections are already facts it can follow, and more accurately because a model
+of the plant makes physically impossible conclusions <span className="t-brand">structurally
+unavailable</span> to it. [What AI agents make possible →](/value/ai-agents)
+
+This is why so many pilots produce a promising demonstration and never reach production.
+The demonstration was built on a hand-curated dataset where an engineer supplied the
+context manually. Production needs that context to exist as data,
+<span className="hl">permanently, for everything</span>, not just for the twelve assets in
+the pilot.
+
+:::tip The order of operations
+Build the model of your operation first. Analytics, dashboards, alarms and machine learning
+all become straightforward afterwards, and all of them get harder, or stay permanently
+manual, if you skip it.
+:::
+
+## What "having a model" actually means
+
+It means three things are written down in a form software can follow:
+
+1. **What things exist**, the equipment, sites, lines, functions and business concepts
+   that make up your operation. These become [resources](/start/core-ideas).
+2. **How they relate**, this pump is *part of* that line; this sensor *monitors* that
+   vessel; this process *contributes to* that KPI. These become relationships, and
+   together they form a [knowledge graph](/concepts/knowledge-graph).
+3. **What each thing is a kind of**, this is a Pump, that is a Separator, that is a Site.
+   This is the classification layer, and it is what makes the model queryable across
+   thousands of items rather than one at a time. See
+   [taxonomy and ontology](/concepts/taxonomy).
+
+Keep that model in step with live data and it has a familiar name, a
+[digital twin](/concepts/digital-twin), and the three things above are exactly the first
+rungs of its [maturity ladder](/concepts/digital-twin#the-maturity-ladder).
+
+None of this requires you to adopt someone else's industrial taxonomy. You describe your
+operation using the concepts your own people already use, very often the tagging standard
+your facility has followed for decades already encodes most of it.
+[Naming and standards →](/concepts/naming-and-standards)
+
+## The objection worth taking seriously
+
+> *"We tried a data platform before and it did not deliver."*
+
+Usually true, and usually for one of three reasons:
+
+- **It started with the technology, not a question.** A platform with no first question to
+  answer becomes a migration project with no finish line.
+  [Where to start →](/value/where-to-start)
+- **The model was built by people who did not know the operation.** Consultants can build
+  the platform; **only your engineers can say what a "Line" is in your plant**.
+- **The commitment was too large to reverse.** A multi-quarter implementation on a
+  proprietary model means the decision cannot be unwound if it goes wrong.
+
+DataHub is deliberately shaped against all three: start with one question, keep the model
+with your own experts, and adopt on open-source terms so the exit cost is near zero.
+
+<Deeper>
+- [What is DataHub?](/start/what-is-datahub): the plain-language explanation
+- [What is data governance?](/concepts/data-governance): who owns the data, who may use it, and how long it lives
+- [Where to start](/value/where-to-start): picking a first project that finishes
+- [The business case](/value/business-case): where the return comes from
+- [Board briefing](/value/board-briefing): a one-page summary for governance discussions
+</Deeper>

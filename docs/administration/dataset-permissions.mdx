@@ -1,0 +1,186 @@
+---
+sidebar_position: 6
+title: Data set permissions
+description: The role grammar that controls read and write access to DataHub data, how grants combine, and what happens when access is denied.
+---
+
+# Data set permissions
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT security</Persona>
+</Personas>
+
+<KeyIdea>
+Read and write access is granted <span className="hl">per data set</span>, through roles in your
+identity provider.
+
+Two properties are worth internalising: **read and write are independent**, a write grant
+does not imply read, and **denied reads are silently filtered out** rather than producing
+an error.
+</KeyIdea>
+
+## What permissions cover
+
+Data set permissions gate the four data-bearing entity types: **resources**, **time
+series**, **events** and **files**.
+
+| Action | Requires |
+| --- | --- |
+| Listing, searching, reading | Read on the entity's data set |
+| Receiving [subscription](/using/subscriptions) deliveries | Read, the same boundary: push delivery is filtered like any other read |
+| Creating, updating, deleting | Write on the entity's data set |
+| Adding datapoints, uploading files | Write on the target data set |
+| Moving an entity to another data set | Write on **both** the source and the destination |
+
+That last row is the one people trip over. Moving something between data sets is
+simultaneously a delete and a create as far as access is concerned, so it **needs both
+sides**.
+
+## The role grammar
+
+<Roadmap>
+**This is changing.** Data set access will move to **organization groups** in Keycloak, so
+access is granted by putting somebody in a group inside their organization rather than by
+composing role names. The grammar below is what works today, and the concepts carry over:
+read and write stay independent, and data sets stay the unit of access.
+[How organizations will work](/administration/identity-providers#organization-groups-will-carry-data-set-access)
+</Roadmap>
+
+Every role in your identity provider becomes a permission in DataHub. These are the roles
+you create and assign.
+
+| Role | Grants |
+| --- | --- |
+| `DATAHUB_ADMIN` | Read **and** write every data set, the operator escape hatch |
+| `DATAHUB_DATASET_ALL` | Read **and** write every data set |
+| `DATAHUB_DATASET_READ_ALL` | Read every data set |
+| `DATAHUB_DATASET_WRITE_ALL` | Write every data set |
+| `DATAHUB_DATASET_READ_<ids>` | Read the listed data sets |
+| `DATAHUB_DATASET_WRITE_<ids>` | Write the listed data sets |
+
+The ids are the numeric, server-assigned data set ids, joined with underscores:
+
+```text
+DATAHUB_DATASET_WRITE_23_57_154    → write data sets 23, 57 and 154
+DATAHUB_DATASET_READ_56_21         → read data sets 56 and 21
+```
+
+### Multiple roles merge
+
+A user may hold several read (or write) roles at once, and the ids from every matching role
+are combined. Holding both `DATAHUB_DATASET_READ_56_21` and `DATAHUB_DATASET_READ_256_221`
+grants read on data sets **56, 21, 256 and 221**.
+
+This means you can compose access from role building blocks, one role per team, one per
+project, rather than maintaining a single sprawling role per person.
+
+### Read and write are independent
+
+<span className="t-accent">A write role grants only write.</span> It does not imply read.
+
+A user who needs both on data set 23 must hold `DATAHUB_DATASET_READ_23` **and**
+`DATAHUB_DATASET_WRITE_23` (or an all-encompassing role).
+
+This is deliberate, and it enables the pattern described in
+[users and access](/administration/users-and-access#service-accounts): an ingestion service
+account that can write measurements without being able to read anything back. If those
+credentials leak, the exposure is limited.
+
+### Malformed ids are skipped
+
+A role with a non-numeric segment, a typo such as `DATAHUB_DATASET_READ_12_xx`, has the
+bad segment logged and skipped. The well-formed ids in the same role still take effect.
+
+Useful to know when debugging: a partially working role is a typo, not a platform fault.
+
+## How denial behaves
+
+Reads and writes are denied differently, and the difference is intentional.
+
+**Reads are filtered.** List and search results simply omit entities in data sets the caller
+cannot read. No error is raised. This matches the platform's general contract that missing
+items are left out, and it avoids leaking the existence of data through error messages.
+
+The practical consequence for support: <span className="t-brand">"I cannot see the series my
+colleague can see" is almost always a permission, not a bug.</span> Check the roles before
+investigating anything else.
+
+**Direct reads of a single item return a clear denial, except for files.** Fetching a
+specific resource by id, or starting a graph traversal at one, returns an explicit forbidden
+response. **Files deliberately return "not found" instead**, so that a denial cannot be used
+to confirm that a particular file exists.
+
+**Writes fail loudly.** Create, update, delete, datapoint insertion and file upload all
+return an explicit forbidden response naming the data set and the permission that was
+missing, so the fix is obvious.
+
+## Graph traversal is gated on the starting node only
+
+Worth knowing before you rely on data sets to separate sensitive equipment.
+
+<span className="hl">Access is checked on the resource a traversal **starts**
+from.</span> The connected network returned
+from there is not itself filtered by data set, so a caller who can read one resource can see
+resources it connects to even where those sit in data sets the caller cannot read directly.
+
+<span className="t-accent">Do not treat a data set boundary as a barrier inside a connected
+graph.</span> If two areas must be genuinely separate, separate them in the model, or put
+them in different [tenants](/administration/organizations).
+
+## Entities without a data set
+
+Entities can exist without a data set, typically from an early import, or a create call that
+did not specify one. What happens then differs by type, and the difference matters:
+
+| Type | With no data set |
+| --- | --- |
+| **Resources, time series, events** | Conservative. Only a caller holding an all-data-sets grant can see them. |
+| <span className="t-accent">**Files and folders**</span> | **Public to every authenticated user.** No data set means no restriction. |
+
+That file exception is the one to plan around. If you are relying on data sets to control who
+can read documents, make sure nothing lands without one, and check for existing files that
+have no data set assigned before you assume the boundary holds.
+
+If data appears to be missing after an import, checking whether it landed without a data set
+is a good early diagnostic for the other three types. Assigning one brings it under the
+normal permission model.
+
+## Designing a permission scheme
+
+<Steps>
+  <Step title="Design the data set boundaries first">
+    Permissions follow data sets, so the boundary decision is the access decision. Split by
+    who should see it, not by what it is.
+    [Designing data set boundaries →](/using/datasets#designing-good-boundaries)
+  </Step>
+  <Step title="Create one role per audience, not per person">
+    A role for the reliability team, one for the reporting team, one per ingestion service
+    account. Assign people to roles in your identity provider.
+  </Step>
+  <Step title="Grant read and write separately, deliberately">
+    Most people need read on many data sets and write on very few. Reflect that.
+  </Step>
+  <Step title="Keep the escape hatches rare and named">
+    `DATAHUB_ADMIN` and the `_ALL` roles should have a small, reviewable list of holders.
+  </Step>
+  <Step title="Review quarterly">
+    The role names encode what they grant, so the role list in your identity provider reads
+    as an access report.
+  </Step>
+</Steps>
+
+## Where policies appear in the console
+
+Each data set has a **Policies** tab, where lifecycle, access and requirement rules are
+recorded. Those are documented intent, not enforcement: access today comes entirely from
+the identity-provider roles above, so "who can see this data set" is answered by the role
+list, and the tab records what *should* govern it. [Policies →](/using/policies)
+
+<Deeper>
+- [Data sets](/using/datasets): designing the boundaries permissions follow
+- [Data governance](/concepts/data-governance#data-sets-who-may-use-it): the wider frame these grants sit in
+- [Users and access](/administration/users-and-access): where roles come from
+- [Change data capture](/using/cdc-integrations): where incoming data lands, and its permissions
+- [Security and compliance](/administration/security): the wider posture
+</Deeper>

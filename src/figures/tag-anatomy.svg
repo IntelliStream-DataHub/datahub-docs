@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" class="fig-tag-anatomy" role="img" aria-label="The plant tag VAL-21-PT-1234 broken into four parts: VAL for the Valhall installation, 21 for the process system, PT for a pressure transmitter under ISA-5.1, and 1234 as the sequence number unique within that system.">
+<text class="fig-title" x="20" y="24">Anatomy of a plant tag</text>
+<text class="fig-sub" x="20" y="44">Every segment answers one question: where, which system, what kind of instrument, which one.</text>
+<rect class="fig-lit-box c-blue" x="121" y="86" width="122" height="54" rx="12"/>
+<text class="fig-tag" x="182" y="122" text-anchor="middle">VAL</text>
+<text class="fig-sep" x="256" y="122" text-anchor="middle">-</text>
+<rect class="fig-lit-box c-green" x="269" y="86" width="92" height="54" rx="12"/>
+<text class="fig-tag" x="315" y="122" text-anchor="middle">21</text>
+<text class="fig-sep" x="374" y="122" text-anchor="middle">-</text>
+<rect class="fig-lit-box c-orange" x="387" y="86" width="92" height="54" rx="12"/>
+<text class="fig-tag" x="433" y="122" text-anchor="middle">PT</text>
+<text class="fig-sep" x="492" y="122" text-anchor="middle">-</text>
+<rect class="fig-centre" x="505" y="86" width="134" height="54" rx="12"/>
+<text class="fig-tag fig-tag--dark" x="572" y="122" text-anchor="middle">1234</text>
+<path class="fig-track" d="M182 140 L101 202" fill="none"/>
+<g><rect class="fig-box" x="17" y="202" width="168" height="96" rx="12"/><text class="fig-box-title" x="101" y="226" text-anchor="middle">Installation</text><text class="fig-box-sub" x="101" y="248" text-anchor="middle">VAL = Valhall</text><text class="fig-box-sub" x="101" y="264" text-anchor="middle">which facility the</text><text class="fig-box-sub" x="101" y="280" text-anchor="middle">equipment sits on</text></g>
+<path class="fig-track" d="M315 140 L287 202" fill="none"/>
+<g><rect class="fig-box" x="203" y="202" width="168" height="96" rx="12"/><text class="fig-box-title" x="287" y="226" text-anchor="middle">System</text><text class="fig-box-sub" x="287" y="248" text-anchor="middle">21 = process system</text><text class="fig-box-sub" x="287" y="264" text-anchor="middle">the functional area</text><text class="fig-box-sub" x="287" y="280" text-anchor="middle">within the facility</text></g>
+<path class="fig-track" d="M433 140 L473 202" fill="none"/>
+<g><rect class="fig-box" x="389" y="202" width="168" height="96" rx="12"/><text class="fig-box-title" x="473" y="226" text-anchor="middle">Instrument type</text><text class="fig-box-sub" x="473" y="248" text-anchor="middle">P = pressure</text><text class="fig-box-sub" x="473" y="264" text-anchor="middle">T = transmitter</text><text class="fig-box-sub" x="473" y="280" text-anchor="middle">read per ISA-5.1</text></g>
+<path class="fig-track" d="M572 140 L659 202" fill="none"/>
+<g><rect class="fig-box" x="575" y="202" width="168" height="96" rx="12"/><text class="fig-box-title" x="659" y="226" text-anchor="middle">Sequence number</text><text class="fig-box-sub" x="659" y="248" text-anchor="middle">1234 = this one</text><text class="fig-box-sub" x="659" y="264" text-anchor="middle">unique inside the</text><text class="fig-box-sub" x="659" y="280" text-anchor="middle">system, not globally</text></g>
+<text class="fig-box-sub" x="20" y="326">Tagging schemes differ between operators. Mirror whichever one your facility already uses rather than inventing another.</text>
+</svg>

@@ -1,0 +1,207 @@
+---
+sidebar_position: 1
+title: What is an ontology?
+description: An ontology explained without jargon, a shared, written-down agreement about what things are and how they relate, and why it is the most valuable asset a data platform holds.
+---
+
+import ResourceAnatomy from '@site/src/figures/resource-anatomy.svg';
+
+# What is an ontology?
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Engineers</Persona>
+  <Persona>Domain experts</Persona>
+</Personas>
+
+<KeyIdea>
+An ontology is <span className="hl">a written-down agreement about what things are and how they
+relate</span>, written in a form software can follow.
+
+Your organisation already has one. It lives in drawings, tagging conventions, spreadsheets
+and the heads of experienced people. An ontology in DataHub is that same knowledge, moved
+somewhere durable and machine-readable.
+</KeyIdea>
+
+## Start with the word
+
+"Ontology" sounds like philosophy because it comes from philosophy, the study of what
+exists. In data work it means something much more practical and much less grand:
+
+> A list of the **kinds of things** that exist in your world, the **kinds of relationships**
+> that can hold between them, and the **rules** about what combinations make sense.
+
+That is it. If you have ever written a document that says *"a Line consists of one or more
+Units; every Unit has exactly one parent Line; instruments are tagged according to ISA-5.1"*
+you have written an ontology. The only thing DataHub adds is that it is now queryable, and
+checkable as [policy enforcement](/using/policies) arrives, instead of being a PDF nobody
+opens.
+
+## Why it is not just a database schema
+
+This is the question engineers ask first, and it is a good one.
+
+A [**database schema**](https://en.wikipedia.org/wiki/Database_schema) says how data is *stored*: which tables exist, which columns they
+have, what type each column is. It is a technical description, written for the software,
+and it changes whenever the software changes.
+
+An **ontology** says what the data *means*: that a Pump is a kind of Rotating Equipment,
+that a Pump can be *part of* a Line, that a Line *serves* a Process, and that a Process
+*contributes to* a KPI. It is a description of the business and the plant, written for
+people, and it changes when the operation changes, which is far less often.
+
+| | Database schema | Ontology |
+| --- | --- | --- |
+| **Describes** | How data is stored | What the data means |
+| **Written for** | Software | People, and software |
+| **Owned by** | Engineering / IT | Domain experts |
+| **Changes when** | The application changes | The operation changes |
+| **Answers** | "Where is this value?" | "What is this value about?" |
+
+The practical consequence: a schema tells you a column called `p_disch` holds a number. An
+ontology tells you it is the discharge pressure of pump P-101, which is part of Line 3,
+which feeds the separation process, which is the one the plant's throughput target depends
+on. <span className="hl">The second one is what lets a person, or a model, reason.</span>
+
+## The three things an ontology records
+
+Every entry in a DataHub ontology carries three pieces of information. You met them on the
+resource form; here is what each one is doing.
+
+<Steps>
+  <Step title="What is this thing called?">
+    The **name**, the readable label a person scans in a list. *"21-PT-1234 Separator inlet
+    pressure"*. It can be changed at any time, because nothing depends on it.
+
+    In formal ontology terms this is the `rdfs:label`.
+  </Step>
+  <Step title="What kind of thing is it?">
+    The **label**, the class the resource belongs to: `Pump`, `Separator`, `Site`,
+    `PressureTransmitter`. This is the single most powerful field in the model, because it
+    is what lets you ask about *all pumps* rather than one pump at a time.
+
+    In formal terms this is `rdf:type`. Write classes in the singular, each word
+    capitalised.
+  </Step>
+  <Step title="How do systems refer to it, permanently?">
+    The **external id**, a stable identifier that must never change and never be reused.
+    Imports, integrations and the SDK all match on it.
+
+    In formal terms it is the part of the [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) that follows the namespace.
+    [Why stability matters →](/concepts/naming-and-standards#external-ids-are-promises)
+  </Step>
+</Steps>
+
+Plus the fourth thing, which lives on the connections rather than the things:
+
+- **Relationships**, the named, directional links between resources: *contains*, *feeds*,
+  *monitors*, *powers*. These are what turn a catalogue into a
+  [knowledge graph](/concepts/knowledge-graph).
+
+<Figure
+  caption="The anatomy of one entry. Each field plays a role that RDF standardised long before this product existed, and the relationship underneath is what turns a catalogue of entries into a graph."
+  wide
+>
+  <ResourceAnatomy />
+</Figure>
+
+## Seeing it written out
+
+DataHub stores your model as a graph, which is the same idea [RDF](https://www.w3.org/RDF/) describes. The same asset,
+written in [RDF](https://www.w3.org/RDF/), looks like this:
+
+```turtle
+@prefix ex:   <https://example.org/plant/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:21-PT-1234
+    a               ex:PressureTransmitter ;      # the label  (rdf:type)
+    rdfs:label      "21-PT-1234 Separator inlet pressure" ;   # the name
+    ex:monitors     ex:V-201 ;                    # a relationship
+    ex:partOf       ex:Line3 .
+```
+
+You never have to write this. It is here to show that the three fields on the console form
+are not an invention: they are the standard way of describing a thing, and that means your
+model is interoperable with the wider world of standards and tools rather than trapped in
+one product.
+
+## Why an ontology is worth building
+
+Four reasons, in the order most organisations come to appreciate them.
+
+<Cards>
+  <Card title="Questions get cheap" to="/concepts/knowledge-graph" icon="⚡" eyebrow="Immediate">
+    Once relationships are recorded, a new cross-system question is a traversal instead of
+    an integration project. The marginal cost of the next question drops toward zero.
+  </Card>
+  <Card title="Knowledge stops walking out the door" to="/concepts/building-your-model" icon="🧠" eyebrow="Within a year">
+    The mapping between the historian tag, the equipment number and the physical pump moves
+    from an individual's memory into the organisation's asset base.
+  </Card>
+  <Card title="Reports become auditable" to="/concepts/lineage-and-quality" icon="🧾" eyebrow="At reporting time">
+    A figure that knows what it is about, and what it was computed from, can be defended to
+    a regulator or an auditor rather than merely asserted.
+  </Card>
+  <Card title="Automation becomes possible" to="/concepts/digital-twin" icon="🤖" eyebrow="The long game">
+    Predictive and autonomous capability, the top rungs of the digital twin ladder, needs
+    context to reason over. The ontology is that context. Nothing above it works properly
+    without it.
+  </Card>
+</Cards>
+
+## What a good ontology looks like
+
+Some hard-won rules of thumb, expanded in [Building your model](/concepts/building-your-model):
+
+- **Small.** A first model with 15–25 classes is healthy. One with 200 is a sign somebody
+  modelled the source systems instead of the operation.
+- **In your own words.** Use the terms your operators and engineers already say out loud.
+  If the plant calls it a "train", the class is `Train`, not `ProcessingUnitAssembly`.
+- **Grown, not designed.** Model the part of the operation your first question touches, get
+  it working, then extend. **A model designed in full before any data lands is almost always
+  wrong in ways nobody can see yet.** The same logic is why a
+  [digital twin is grown, not built](/concepts/digital-twin#grown-not-built).
+- **Owned.** Somebody must be accountable for it. An ontology with no steward drifts into
+  inconsistency within months. [Who does what →](/start/who-does-what)
+
+:::tip You probably do not start from zero
+If your facility follows a tagging standard, [ISA-5.1](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram) instrument tags, [IEC/ISO 81346](https://en.wikipedia.org/wiki/IEC_81346)
+reference designations, NORSOK Z-DP-002, CFIHOS equipment classes, then a large part of
+your ontology is already specified and in use. Mirror it rather than inventing something
+new. [Standards and naming →](/concepts/naming-and-standards)
+:::
+
+## Ontology, taxonomy, knowledge graph
+
+These three get used interchangeably and they are not the same thing. The short version:
+
+- A **taxonomy** classifies: *a Pump is a kind of Rotating Equipment*.
+- An **ontology** adds relationships and rules: *a Pump can be part of a Line, and must have
+  exactly one*.
+- A **knowledge graph** is the result once you fill it with your real assets: *Pump P-101
+  is part of Line 3*. Keep it in step with live data and it becomes a
+  [digital twin](/concepts/digital-twin).
+
+[The full comparison →](/concepts/taxonomy)
+
+<References>
+
+- [Ontology (information science)](https://en.wikipedia.org/wiki/Ontology_(information_science))
+- [RDF, the Resource Description Framework](https://www.w3.org/RDF/)
+- [RDF Schema (rdfs:label, rdf:type)](https://www.w3.org/TR/rdf-schema/)
+- [OWL, the Web Ontology Language](https://www.w3.org/OWL/)
+- [Turtle, the RDF syntax used above](https://www.w3.org/TR/turtle/)
+- [Semantic Web](https://en.wikipedia.org/wiki/Semantic_Web)
+- [Internationalized Resource Identifier (IRI)](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier)
+
+</References>
+
+<Deeper>
+- [Taxonomy vs. ontology vs. knowledge graph](/concepts/taxonomy): the distinctions, with examples
+- [Digital twins](/concepts/digital-twin): what the model becomes once live data keeps it in step
+- [Knowledge graphs](/concepts/knowledge-graph): why traversal answers questions joins cannot
+- [The three layers](/concepts/three-layers): assets, functions and business knowledge
+- [Naming and standards](/concepts/naming-and-standards): the conventions that keep a model usable
+- [Building your model](/concepts/building-your-model): running the workshops that produce one
+</Deeper>

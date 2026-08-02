@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" role="img" aria-label="A token from your corporate identity provider is exchanged at Keycloak for a Keycloak-issued token, which is what the DataHub API accepts. The API checks the issuer, the roles and the organization claim.">
+<style>
+    text { font-family: Manrope, 'Open Sans', Helvetica, Arial, sans-serif; }   /* no fill: a type rule beats every fill="" attribute */
+    /* One token, travelling the whole way and passing BEHIND the boxes.
+       It keeps ONE colour the whole way: a colour change mid-flight reads as
+       a second, different token, which is not what happens. */
+    @keyframes ride {
+      0%, 5%   { transform: translateX(0); opacity: 0 }
+      9%       { opacity: 1 }
+      23%      { transform: translateX(183px) }
+      45%      { transform: translateX(440px); opacity: 1 }
+      50%,100% { transform: translateX(440px); opacity: 0 }
+    }
+    /* visible 49%-89% of 12s = 4.8s, three times the previous 1.6s */
+    @keyframes checks { 0%,43% {opacity:0} 49%,89% {opacity:1} 93%,100% {opacity:0} }
+    .rider { animation: ride 12s ease-in-out infinite; }
+    .checks { opacity:0; animation: checks 12s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .t1,.t2 { animation: none; opacity: 1 } .checks { animation: none; opacity: 1 } }
+    </style>
+<text x="20" y="26" font-weight="800" font-size="15" fill="#005984">Whatever your identity provider, DataHub trusts one issuer</text>
+<text x="20" y="46" font-size="12.5" fill="#5c6b75">An external token is exchanged for a Keycloak token before it reaches the API.</text>
+<line x1="212" y1="154" x2="292" y2="154" stroke="#c2d5dd" stroke-width="2.5"/><path d="M292 149 L300 154 L292 159 z" fill="#c2d5dd"/>
+<line x1="452" y1="154" x2="540" y2="154" stroke="#c2d5dd" stroke-width="2.5"/><path d="M540 149 L548 154 L540 159 z" fill="#c2d5dd"/>
+<g class="rider"><rect x="176" y="141" width="34" height="26" rx="8" fill="#005984"/><text x="193" y="159" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">JWT</text></g>
+<rect x="60" y="116" width="152" height="76" rx="14" fill="#ffffff" stroke="#5c6b75" stroke-width="2.5"/>
+<text x="136" y="144" text-anchor="middle" font-size="13" font-weight="800" fill="#5c6b75">Your corporate</text>
+<text x="136" y="160" text-anchor="middle" font-size="13" font-weight="800" fill="#5c6b75">identity provider</text>
+<text x="136" y="180" text-anchor="middle" font-size="10.5" fill="#5c6b75">e.g. Entra ID</text>
+<rect x="300" y="116" width="152" height="76" rx="14" fill="#ffffff" stroke="#005984" stroke-width="2.5"/>
+<text x="376" y="144" text-anchor="middle" font-size="13" font-weight="800" fill="#005984">Keycloak</text>
+<text x="376" y="164" text-anchor="middle" font-size="10.5" fill="#5c6b75">the issuer DataHub trusts</text>
+<rect x="548" y="116" width="152" height="76" rx="14" fill="#ffffff" stroke="#0f7a3d" stroke-width="2.5"/>
+<text x="624" y="144" text-anchor="middle" font-size="13" font-weight="800" fill="#0f7a3d">DataHub API</text>
+<text x="624" y="164" text-anchor="middle" font-size="10.5" fill="#5c6b75">validates and serves</text>
+<text x="256" y="104" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5c6b75">exchange</text><text x="500" y="104" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5c6b75">bearer</text>
+<g class="checks">
+<circle cx="560" cy="228" r="6" fill="#0f7a3d"/><path d="M557 228 l2.4 2.4 l4.4 -4.8" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round"/><text x="574" y="232" font-size="12" fill="#1d2b36">issuer is Keycloak</text>
+<circle cx="560" cy="252" r="6" fill="#0f7a3d"/><path d="M557 252 l2.4 2.4 l4.4 -4.8" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round"/><text x="574" y="256" font-size="12" fill="#1d2b36">roles in realm_access.roles</text>
+<circle cx="560" cy="276" r="6" fill="#0f7a3d"/><path d="M557 276 l2.4 2.4 l4.4 -4.8" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round"/><text x="574" y="280" font-size="12" fill="#1d2b36">organization claim present</text>
+<text x="548" y="212" font-size="11.5" font-weight="800" fill="#0f7a3d">the API checks all three</text></g>
+</svg>

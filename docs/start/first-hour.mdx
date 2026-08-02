@@ -1,0 +1,220 @@
+---
+sidebar_position: 6
+title: Your first hour
+description: Build a small working model in the DataHub console, a data set, connected resources, a measurement and events.
+---
+
+# Your first hour
+
+<Personas>
+  <Persona primary>New users</Persona>
+  <Persona>Engineers</Persona>
+  <Persona>Operations</Persona>
+</Personas>
+
+<KeyIdea>
+In about an hour you will build a small but complete model: a **data set** to hold it,
+two **resources** connected by a relationship, a **time series** measuring one of them, and
+**events** logged against it.
+
+It is small on purpose. Everything larger is the same four moves repeated.
+</KeyIdea>
+
+:::tip Let the console lead
+The console ships with a **guided tutorial** that walks these exact steps in the interface,
+with the fields highlighted as you go. Open it from the user menu at the top right and pick
+your industry, the examples adapt to oil and gas, energy, manufacturing or tech/IoT. This
+page is the same journey in written form, so you can read ahead or catch up.
+:::
+
+## Before you begin
+
+You need a DataHub account in your organisation and permission to write to at least one
+data set (or permission to create one). If the console shows data sets but every create
+button is disabled, ask your administrator for write access.
+[How permissions work →](/administration/dataset-permissions)
+
+## Step 1, Create a data set
+
+<Steps>
+  <Step title="Open Data Sets and create one">
+    Go to **Data Sets** in the top navigation and click **+**. A data set is the container
+    that groups everything for one project or domain.
+  </Step>
+  <Step title="Give it a name and an external id">
+    The **name** is what people read, *"Valve pressure sensors"*. The **external id** is
+    the stable handle other systems use to refer to it, `valve_pressure_sensors`. The form
+    derives the external id from the name; you can override it.
+
+    Get the external id right now, because it should never change afterwards.
+    [Why →](/concepts/naming-and-standards#external-ids-are-promises)
+  </Step>
+  <Step title="Describe it, and save">
+    Write a description that tells a colleague in six months what belongs in here and what
+    does not. Save.
+  </Step>
+</Steps>
+
+You now have somewhere to put things. [More on data sets →](/using/datasets)
+
+## Step 2, Create your first resources
+
+A **resource** is a thing in your world, a valve, a sensor, a machine, a site.
+
+<Steps>
+  <Step title="Open Resources">
+    Go to **Resources**. This is the network view, where your model is drawn as a graph of
+    connected nodes.
+  </Step>
+  <Step title="Create a root resource">
+    Click create and fill in a **name** (for example *Valve A*) and an **external id**
+    (`valve_a`).
+  </Step>
+  <Step title="Add a label">
+    Every resource needs at least one **label**, the class it belongs to, such as `Valve`,
+    `Pump` or `Asset`. The label classifies the node and colours it in the graph, which is
+    what keeps a large model readable. Click **+** to pick an existing label or create one.
+
+    Labels are the backbone of your [taxonomy](/concepts/taxonomy). Write them in the
+    singular, capitalised: `Pump`, not `pumps`.
+  </Step>
+  <Step title="Add metadata (optional)">
+    Metadata is free key/value context, location, owner, calibration date, criticality.
+    Anything you will later want to search, filter or group by, with no schema change
+    required. Skip it for now if you like.
+  </Step>
+  <Step title="Save, then open it in the graph">
+    Save, then click the resource in the list. It appears as a node in the network view,
+    the heart of the console.
+  </Step>
+</Steps>
+
+## Step 3, Connect a second resource
+
+A single node is a list entry. Two connected nodes are the beginning of a model.
+
+<Steps>
+  <Step title="Add a connected resource">
+    Tap the node in the graph and choose the **+** action to create a connected resource,
+    for example *Valve B*.
+  </Step>
+  <Step title="Name the relationship">
+    Pick a **relationship** that says how the two relate: *contains*, *monitors*, *feeds*,
+    *powers*. **This is the most important field on the form.** A relationship named well is
+    the thing that later lets someone traverse your model and get a sensible answer; a
+    relationship named `related_to` tells nobody anything.
+  </Step>
+  <Step title="Save">
+    The line drawn between the two nodes is the relationship. You have built a network.
+  </Step>
+</Steps>
+
+:::tip Naming relationships
+Read the relationship out loud as a sentence with the two resources: *"Line 3 **contains**
+Pump P-101"*, *"Sensor PT-1234 **monitors** Separator V-201"*. If the sentence is true and
+useful, the name is good.
+:::
+
+## Step 4, Add a measurement
+
+<Steps>
+  <Step title="Open Time Series and create one">
+    Go to **Time Series**, click create, and choose **Create Time Series**.
+  </Step>
+  <Step title="Name it">
+    Name it after what it measures, *Pressure*, or better, after the instrument loop:
+    `21-PT-1234 Separator inlet pressure`. The external id fills in automatically.
+  </Step>
+  <Step title="Pick a unit">
+    Click **+** to pick a unit, bar, °C, kWh. The unit is what makes a number readable and
+    comparable.
+  </Step>
+  <Step title="Pick a value type">
+    This sets how each reading is stored, and it is <strong>fixed once the series exists</strong>.
+    A physical measurement with decimals normally wants **Float**; a counter wants
+    **Big Integer**. [Full value-type guide →](/using/timeseries#value-types)
+  </Step>
+  <Step title="Connect it to a resource">
+    Click **+** on the relation field and pick the resource this series measures, plus a
+    relationship. This is what joins the measurement to your network, **do not skip it**.
+    The join is [contextualization](/concepts/contextualization), and everything downstream
+    depends on it.
+  </Step>
+  <Step title="Save">
+    The series joins the graph as a measurement hanging off your resource.
+  </Step>
+</Steps>
+
+A time series is empty until data flows in. Real data arrives from your sensors and systems
+through the API, copy your access token from the user menu at the top right to start
+sending your own, or have your integration team read the
+[developer documentation](https://docs.intellistream.ai). Before you point real data at the
+series, decide how often to sample, the answer comes from signal theory rather than taste.
+[How often should you sample? →](/using/timeseries#how-often-should-you-sample)
+
+## Step 5, See it on a chart
+
+Go to **Time Series → Insights** and select your series. You get the measurement plotted
+over time, with quick ranges from the last five minutes to the last year, and a **Live**
+mode that streams new readings onto the chart as they arrive, a live tail over
+[data subscriptions](/using/subscriptions).
+
+Select a second series to compare them on the same axis, that is where most operational
+insight actually comes from. [The Insights view →](/using/insights)
+
+## Step 6, Look at events
+
+Measurements are the steady signal. **Events** are the moments that matter: an alarm fires,
+a threshold is crossed, a maintenance job runs.
+
+Open the **Events** tab to see everything that has happened across your assets, filterable
+by type, time or asset. Click any event to open it, the details list the resources it
+concerns, so an alarm points you straight to the affected equipment.
+
+That is the whole loop: <span className="t-brand">things</span>,
+<span className="t-brand"> what they measure</span>,
+<span className="t-brand"> what happened to them</span>, all connected.
+[Working with events →](/using/events)
+
+## Step 7, Grow the network
+
+Two resources make a diagram; twenty make a model you can reason about. Add a few more,
+a pump, a tank, a motor, a sensor, and connect them the way they actually connect in the
+plant. Aim for five to ten nodes on your first attempt.
+
+Then try the thing the graph is for: click a node and trace a path. The rest dims and one
+route stands out. That is how you follow dependencies, which assets a sensor feeds, or
+what a change would ripple into.
+
+:::tip Clean up afterwards
+The guided tutorial offers to remove everything it created when you finish. If you built by
+hand, delete the tutorial data set when you are done experimenting, or keep it as a
+sandbox.
+:::
+
+## What to do next
+
+<Cards>
+  <Card title="Learn the model layer" to="/concepts/ontology" icon="🕸️">
+    What an ontology is, why labels and relationships matter, and how to design a model
+    that survives contact with a real plant.
+  </Card>
+  <Card title="Name things properly" to="/concepts/naming-and-standards" icon="🏷️">
+    Naming conventions and the industrial standards that already encode most of your model.
+  </Card>
+  <Card title="Plan a real project" to="/value/where-to-start" icon="🎯">
+    How to choose a first question narrow enough to finish and valuable enough to fund the
+    next one.
+  </Card>
+  <Card title="See where this is going" to="/concepts/digital-twin" icon="🪞">
+    The small model you just built is the first slice of a digital twin, grown one question
+    at a time.
+  </Card>
+</Cards>
+
+<Deeper>
+- [Console tour](/using/console-tour): every section of the interface
+- [The four building blocks](/start/core-ideas): the concepts behind what you just built
+- [Building your model](/concepts/building-your-model): running the modelling workshops
+- [Who does what](/start/who-does-what): the roles a successful rollout needs
+</Deeper>

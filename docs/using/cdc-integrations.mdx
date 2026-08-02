@@ -1,0 +1,157 @@
+---
+sidebar_position: 10
+title: Change data capture
+description: Connecting a source database directly to DataHub so its changes flow in automatically, what CDC is good for, and when to use something else.
+---
+
+# Change data capture
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>Integrators</Persona>
+  <Persona>Engineers</Persona>
+</Personas>
+
+<KeyIdea>
+**Change data capture** (CDC) connects a source system's database directly, so changes flow
+into DataHub as they happen, <span className="hl">without anybody writing an export</span>.
+
+It is the fastest route in when a source database is reachable and its structure is stable.
+It is the wrong route when the source is a vendor system whose structure changes on upgrade.
+</KeyIdea>
+
+<Roadmap>
+**Change data capture is on the roadmap and the screens are not yet functional.** The
+console has a CDC area and the data model behind it exists, but creating and testing an
+integration is not wired up end to end, so this page describes the intended behaviour rather
+than something you can use today.
+
+To land data from a source system now, use the API or the SDK.
+[Developer documentation](https://docs.intellistream.ai)
+</Roadmap>
+
+## What it does
+
+Most source systems have no useful integration interface, but almost all of them have a
+database underneath. CDC tails that database's [change log](https://en.wikipedia.org/wiki/Write-ahead_logging) and turns each change into
+DataHub data: rows become [resources](/using/resources), signals become
+[time series](/using/timeseries), and occurrences become [events](/using/events).
+
+The value is that it is **continuous and hands-off**. Once configured, there is no scheduled
+export, no file drop, no script anybody has to remember to run, and no window where DataHub
+is out of date because last night's job failed quietly.
+
+## Setting one up
+
+<Steps>
+  <Step title="Gather the connection details">
+    Hostname, port, username and password for the source database, plus the [publication name](https://www.postgresql.org/docs/current/logical-replication.html)
+    the source exposes its changes under.
+  </Step>
+  <Step title="Test the connection before saving">
+    There is a **test connection** action. Use it. A CDC integration that cannot reach its
+    source fails quietly rather than loudly, so an untested one can look configured and
+    deliver nothing.
+  </Step>
+  <Step title="Choose the tables to include">
+    Add only the tables you have a use for. Pulling everything because it is easy produces a
+    faithful copy of somebody else's schema, which is the problem you adopted DataHub to
+    escape.
+  </Step>
+  <Step title="Set the flush interval">
+    How often captured data is written down, in milliseconds. Shorter means fresher data and
+    more write activity; longer means less overhead and more lag.
+  </Step>
+  <Step title="Decide where it lands">
+    Which [data set](/using/datasets) the incoming data belongs to, and therefore who can
+    see it.
+  </Step>
+</Steps>
+
+Existing integrations are listed under **CDC Integrations**, with a search box and a detail
+view per integration.
+
+## When CDC is the right tool
+
+| Use CDC when | Use something else when |
+| --- | --- |
+| The source database is reachable from the platform | The source is only accessible through an application API |
+| Its structure is stable across upgrades | The vendor reshapes tables on every release |
+| You need changes continuously, not nightly | A daily batch genuinely suffices |
+| Nobody owns an integration you could extend | You already have a supported integration path |
+
+For a vendor system with a volatile internal structure, an API-based integration that you
+control is more robust, it breaks loudly when something changes, rather than silently
+capturing the wrong columns. Your integration team can build that against the platform's API.
+[Developer and SDK documentation →](https://docs.intellistream.ai)
+
+## Landing CDC data well
+
+This is the part that decides whether a CDC integration is an asset or a liability.
+
+<span className="t-accent">CDC gets data *in*; it does not decide what the data *means*.</span>
+Plan the mapping before you switch an integration on:
+
+- **Which rows become resources**, and what [label](/concepts/taxonomy) each one gets
+- **Which columns become time series**, with what unit and
+  [value type](/using/timeseries#value-types)
+- **Which changes become events**, and which resources each event concerns
+- **What the [external id](/concepts/naming-and-standards#external-ids-are-promises) is**,
+  usually the source system's own primary key, which is stable and unique by construction
+- **Which resources each incoming record relates to.** Landing data without linking it is
+  [contextualization](/concepts/contextualization) left undone, and it is what turns an
+  integration into a second silo
+
+Getting the last one right matters more than the rest, because it is the field you cannot
+change afterwards. A source system's primary key is normally an excellent external id;
+a row's display name is normally a poor one.
+
+:::tip Do a small pass first
+Configure one table, let it land a few hundred rows, and look at what arrived in the console
+before adding the rest. **Mapping problems are obvious at 200 rows and expensive at 200,000.**
+:::
+
+## Security
+
+A CDC integration holds credentials to a source system, so treat it as you would any other
+integration account:
+
+- Give it a **read-only** account on the source database. CDC never needs to write.
+- Give it **write and not read** on the DataHub side, if it does nothing but feed data in.
+  [Why →](/administration/users-and-access#service-accounts)
+- Rotate its credentials through your normal process.
+
+## When to involve a developer, or an agent
+
+Configuring a CDC integration is administrator work and is done entirely in the console.
+Writing a custom integration, for a source with no reachable database, or one needing
+transformation on the way in, is developer work.
+
+It is also work <span className="t-brand">AI agents are unusually good at</span>: exploring an
+unfamiliar source system, proposing the mapping onto the four building blocks, writing the
+integration against the API, and repairing it when the source changes shape. In an
+[organisation of agents](/value/ai-agents#coordination) this is standing worker-agent work,
+running the integration and watching its data quality, not a one-off build. Since integration
+effort is normally the biggest driver of how long a first project takes, this is often the
+fastest payback available.
+[AI agents and integrations →](/value/ai-agents#agents-that-build-and-run-your-integrations)
+
+[Developer and SDK documentation →](https://docs.intellistream.ai)
+
+<References>
+
+- [Change data capture](https://en.wikipedia.org/wiki/Change_data_capture)
+- [Write-ahead logging, what CDC reads](https://en.wikipedia.org/wiki/Write-ahead_logging)
+- [PostgreSQL logical replication](https://www.postgresql.org/docs/current/logical-replication.html)
+- [Extract, transform, load (ETL)](https://en.wikipedia.org/wiki/Extract,_transform,_load)
+
+</References>
+
+<Deeper>
+- [Contextualization](/concepts/contextualization): linking incoming data to the things it describes
+- [Data sets](/using/datasets): deciding where incoming data lands
+- [The resource graph](/using/resources): the model CDC data should connect into
+- [Time series](/using/timeseries): units and value types for incoming signals
+- [Events](/using/events): what discrete source-system changes become
+- [Users and access](/administration/users-and-access#service-accounts): service accounts for integrations
+</Deeper>

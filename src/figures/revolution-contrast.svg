@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 348" class="fig-revolution-contrast" role="img" aria-label="Two halves. Left, the third revolution: three machines, each with its own closed control loop and no connection between them. Right, the fourth: the same machines and loops, now connected to each other and upward to the process they serve.">
+<text class="fig-title" x="20" y="24">The difference is not more automation</text>
+<text class="fig-sub" x="20" y="44">Revolution three gave every machine a loop. Revolution four lets the loops be reasoned about together.</text>
+<line class="fig-track" x1="380" y1="66" x2="380" y2="336"/>
+<text class="fig-box-title" x="30" y="86">Third: each machine, alone</text>
+<text class="fig-box-title" x="395" y="86">Fourth: connected, in context</text>
+<rect class="fig-box" x="30" y="116" width="150" height="48" rx="12"/><text class="fig-box-title" x="105" y="145" text-anchor="middle">Pump</text>
+<path class="fig-loop-arc" d="M176.3 113.3 A 9 9 0 1 1 182.7 119.7"/><path class="fig-loop-head" d="M177.4 118.3 L183.7 123.7 L185.5 116.7 z"/>
+<rect class="fig-box" x="200" y="116" width="150" height="48" rx="12"/><text class="fig-box-title" x="275" y="145" text-anchor="middle">Compressor</text>
+<path class="fig-loop-arc" d="M346.3 113.3 A 9 9 0 1 1 352.7 119.7"/><path class="fig-loop-head" d="M347.4 118.3 L353.7 123.7 L355.5 116.7 z"/>
+<rect class="fig-box" x="115" y="218" width="150" height="48" rx="12"/><text class="fig-box-title" x="190" y="247" text-anchor="middle">Separator</text>
+<path class="fig-loop-arc" d="M261.3 215.3 A 9 9 0 1 1 267.7 221.7"/><path class="fig-loop-head" d="M262.4 220.3 L268.7 225.7 L270.5 218.7 z"/>
+<text class="fig-box-sub" x="30" y="330">Each controller holds its loop perfectly, and knows nothing else.</text>
+<rect class="fig-centre" x="490" y="100" width="150" height="40" rx="12"/><text class="fig-centre-title" x="565" y="125" text-anchor="middle">Process · KPI</text>
+<path class="fig-exit-path fig-flow" d="M530 140 L470 170" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M600 140 L640 170" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M535 192 L585 192" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M450 214 L525 260" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M670 214 L595 260" fill="none"/>
+<rect class="fig-lit-box c-blue" x="395" y="170" width="140" height="44" rx="12"/><text class="fig-lit-title" x="465" y="197" text-anchor="middle">Pump</text>
+<path class="fig-loop-arc" d="M531.3 167.3 A 9 9 0 1 1 537.7 173.7"/><path class="fig-loop-head" d="M532.4 172.3 L538.7 177.7 L540.5 170.7 z"/>
+<rect class="fig-lit-box c-blue" x="585" y="170" width="140" height="44" rx="12"/><text class="fig-lit-title" x="655" y="197" text-anchor="middle">Compressor</text>
+<path class="fig-loop-arc" d="M721.3 167.3 A 9 9 0 1 1 727.7 173.7"/><path class="fig-loop-head" d="M722.4 172.3 L728.7 177.7 L730.5 170.7 z"/>
+<rect class="fig-lit-box c-blue" x="490" y="260" width="140" height="44" rx="12"/><text class="fig-lit-title" x="560" y="287" text-anchor="middle">Separator</text>
+<path class="fig-loop-arc" d="M626.3 257.3 A 9 9 0 1 1 632.7 263.7"/><path class="fig-loop-head" d="M627.4 262.3 L633.7 267.7 L635.5 260.7 z"/>
+<text class="fig-box-sub" x="395" y="330">Same machines, same loops, now facts in one model.</text>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 356" class="fig-features" role="img" aria-label="A dense, noisy vibration signal on the left passes through a function and comes out as three named numbers: RMS, peak, and crest factor.">
+<text class="fig-title" x="20" y="24">Feature extraction: many numbers in, a few meaningful ones out</text>
+<text class="fig-sub" x="20" y="44">The raw signal is too dense to act on. The features are what people, models and agents actually use.</text>
+<rect class="fig-track" x="20" y="70" width="280" height="200" rx="12" fill="none"/>
+<text class="fig-box-sub" x="36" y="92">Vibration, raw</text>
+<path class="fig-line-a" d="M36 176.0 L38 163.6 L40 157.9 L42 159.2 L44 161.8 L46 161.0 L48 158.7 L50 159.6 L52 165.2 L54 170.6 L56 169.6 L58 161.9 L60 154.0 L62 152.6 L64 158.0 L66 164.7 L68 168.2 L70 170.5 L72 176.3 L74 186.7 L76 196.6 L78 199.1 L80 193.7 L82 186.5 L84 184.1 L86 187.0 L88 190.0 L90 189.2 L92 186.8 L94 188.1 L96 194.3 L98 200.1 L100 198.6 L102 188.9 L104 177.1 L106 169.8 L108 167.6 L110 165.8 L112 161.0 L114 155.8 L116 155.8 L118 162.3 L120 170.0 L122 171.7 L124 166.0 L126 158.6 L128 155.7 L130 157.7 L132 159.9 L134 159.1 L136 158.1 L138 162.7 L140 174.2 L142 187.1 L144 193.8 L146 192.6 L148 188.6 L150 187.7 L152 190.0 L154 190.9 L156 187.4 L158 182.8 L160 183.2 L162 190.5 L164 199.2 L166 202.0 L168 196.8 L170 188.7 L172 183.2 L174 180.6 L176 176.3 L178 167.5 L180 158.0 L182 154.5 L184 159.2 L186 166.9 L188 170.4 L190 167.4 L192 162.4 L194 160.8 L196 162.3 L198 162.0 L200 157.1 L202 151.5 L204 152.0 L206 161.1 L208 173.8 L210 182.5 L212 185.0 L214 185.2 L216 188.0 L218 192.7 L220 194.0 L222 189.0 L224 181.9 L226 179.6 L228 185.2 L230 194.0 L232 198.9 L234 197.5 L236 194.0 L238 192.9 L240 193.2 L242 189.7 L244 179.5 L246 166.7 L248 159.0 L250 159.8 L252 164.9 L254 167.5 L256 165.5 L258 163.0 L260 164.1 L262 167.6 L264 167.6 L266 161.2 L268 152.1 L270 148.0 L272 152.6 L274 161.8 L276 169.2 L278 172.4 L280 175.5 L282 182.3 L284 191.0"/>
+<text class="fig-box-sub" x="160" y="256" text-anchor="middle">millions of samples per shift</text>
+<line class="fig-track" x1="300" y1="170" x2="322" y2="170"/>
+<path class="fig-centre" d="M322 164 L334 170 L322 176 z"/>
+<rect class="fig-lit-box c-blue" x="334" y="146" width="122" height="48" rx="12"/>
+<text class="fig-lit-title" x="395" y="166" text-anchor="middle">Function</text>
+<text class="fig-lit-sub" x="395" y="183" text-anchor="middle">every shift</text>
+<line class="fig-track" x1="456" y1="170" x2="478" y2="170"/>
+<path class="fig-centre" d="M478 164 L490 170 L478 176 z"/>
+<rect class="fig-box" x="490" y="82" width="250" height="52" rx="12"/><text class="fig-box-title" x="615" y="105" text-anchor="middle">RMS 4.2 mm/s</text><text class="fig-box-sub" x="615" y="123" text-anchor="middle">the energy of the vibration</text>
+<rect class="fig-box" x="490" y="146" width="250" height="52" rx="12"/><text class="fig-box-title" x="615" y="169" text-anchor="middle">Peak 9.8 mm/s</text><text class="fig-box-sub" x="615" y="187" text-anchor="middle">the worst single impact</text>
+<rect class="fig-box" x="490" y="210" width="250" height="52" rx="12"/><text class="fig-box-title" x="615" y="233" text-anchor="middle">Crest factor 2.3</text><text class="fig-box-sub" x="615" y="251" text-anchor="middle">spikiness, a bearing tell</text>
+<text class="fig-box-sub" x="20" y="330">Each feature is a new series in its own right, smaller, comparable across machines, and carrying its derivation.</text>
+</svg>

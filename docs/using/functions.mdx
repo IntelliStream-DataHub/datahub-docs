@@ -1,0 +1,270 @@
+---
+sidebar_position: 11
+title: Functions
+description: Modelling computations in DataHub today, and the execution engine on the roadmap, data cleaning, transformation, feature extraction and streaming computation.
+---
+import Cleaning from '@site/src/figures/cleaning-by-correlation.svg';
+import Features from '@site/src/figures/feature-extraction.svg';
+import Windowing from '@site/src/figures/windowing.svg';
+import EventDetection from '@site/src/figures/event-detection.svg';
+import FunctionWiring from '@site/src/figures/function-wiring.svg';
+import DetectionToAction from '@site/src/figures/detection-to-action.svg';
+import FunctionBranching from '@site/src/figures/function-branching.svg';
+
+
+# Functions
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Analysts</Persona>
+  <Persona>Domain experts</Persona>
+</Personas>
+
+<KeyIdea>
+A **function** is a computation that lives in the model: it consumes time series and events,
+produces new ones, and the derivation is recorded in the graph.
+
+Today you can **model** functions, name a computation, wire what it reads and what it
+produces. **Running** them inside the platform is the roadmap part, and it is one of the
+[two building blocks still being built](/start/core-ideas#functions-the-computations).
+</KeyIdea>
+
+<Roadmap>
+**Function execution is on the roadmap.** What exists now is the modelling side: a function
+is a kind of resource, it takes its place in the graph, and a derived series can record what
+it was derived from. The execution engine, running the computation on schedule or
+continuously over live data, is what is coming. This page covers both, clearly separated.
+</Roadmap>
+
+## What a function is for
+
+Every operation already runs computations on its data: cleaning a noisy signal, converting
+units, aggregating to hourly figures, deriving a rate from two totals. Today those live in
+spreadsheets, scripts and report logic, outside the model, which has two costs:
+
+- **Each consumer recomputes.** The same cleaning logic exists four times, in four tools,
+  drifting apart quietly.
+- **Nothing remembers the derivation.** A derived figure carries no record of what produced
+  it, which is precisely the gap [lineage](/concepts/lineage-and-quality) is meant to close.
+
+Registering the computation *as a function in the model* fixes both: one definition,
+referenced by everything downstream, with the derivation recorded where the data lives.
+
+## What this is worth to the business
+
+The value of functions is easy to understate because each instance looks small. It compounds
+across four lines:
+
+**One number per question.** When the same KPI is computed in three tools, meetings start
+with twenty minutes of reconciling whose figure is right. A function makes the derivation
+singular: everyone consumes the same cleaned level, the same energy-per-tonne, the same
+availability figure. The [tank story](#cleaning-drawn) below ends with a reorder decision
+made on the corrected series, and the point is that *everyone's* reorder decision uses that
+same series.
+
+**Expertise becomes infrastructure.** The engineer who knows that this tank breathes with
+the weather, or that spikiness in that bearing signal matters more than its level, currently
+applies that knowledge by hand, in a spreadsheet, until they leave. Written as a function,
+the trick runs forever and its author becomes visible in the model, the same
+[key-person argument](/value/cost-of-doing-nothing#2--knowledge-concentrated-in-people) that
+motivates the whole platform, applied to calculations.
+
+**Answers while they still matter.** A [windowed](#windowing-drawn) computation is at worst
+minutes old; a nightly batch is at worst a day old. For anything with an expiry, an
+excursion, a dosing decision, a filling tank, that difference is
+[the whole value of the answer](/value/cost-of-doing-nothing#4--decisions-that-arrive-too-late-to-matter).
+
+**New questions start higher up.** Once cleaned series and features exist, the next
+question assembles from them instead of starting at raw samples. This is the
+[compounding thesis](/value/business-case#lever-4--cheap-onboarding-of-new-data) again,
+applied to computation: the tenth derived signal is mostly built from the first nine.
+
+## What you can do today
+
+<Steps>
+  <Step title="Model the computation as a function resource">
+    Create it like any other resource, with a clear name and a `Function` classification.
+    *"Hourly energy aggregate, Line 3"* is a resource somebody can find, point at and
+    discuss, even before it executes anywhere.
+  </Step>
+  <Step title="Wire its inputs and outputs">
+    Relate the function to the series and events it reads, and to the series it produces. A
+    derived series can record what it was **derived from**, so the ancestry structure exists
+    in the graph from day one.
+  </Step>
+  <Step title="Keep the computation itself versioned somewhere honest">
+    Until execution ships, the logic still runs wherever it runs today. The gain is that the
+    model now names it, so the spreadsheet stops being invisible.
+  </Step>
+</Steps>
+
+<Figure
+  caption="The wiring drawn: three signals and the maintenance history feed a stress detector, whose output is not a dashboard number but new typed events, anchored to the pump they concern. Note what the graph makes queryable in both directions: everything this function depends on, and everything that depends on this function."
+  wide
+>
+  <FunctionWiring />
+</Figure>
+
+This is genuinely worth doing now: when execution arrives, the functions you have modelled
+are the ones that start running, and the lineage they have been promising becomes live
+without remodelling anything.
+
+## What the execution engine will add
+
+The planned capabilities, in the order most operations need them:
+
+| Capability | What it does | Typical use |
+| --- | --- | --- |
+| **[Data cleaning](https://en.wikipedia.org/wiki/Data_cleansing)** | Noise, outliers, drift and gap-filling handled once, at the source | One cleaned series everyone consumes, instead of four private cleanings |
+| **Transformation** | Unit conversions, derived signals, calculated rates | Energy per tonne computed once, consistently |
+| **[Feature extraction](https://en.wikipedia.org/wiki/Feature_engineering)** | Turning raw signals into inputs models can learn from | Vibration statistics per shift, fed to a failure model |
+| **[Streaming computation with windowing](https://en.wikipedia.org/wiki/Stream_processing)** | The above running continuously over live data, in sliding or tumbling windows | A 15-minute rolling average that is always current, not recomputed nightly |
+| **And more** | Aggregation, resampling, event detection from continuous signals | Turning a threshold crossing into a typed [event](/using/events) |
+
+### Cleaning, drawn
+
+<Figure
+  caption="A true story shape: the tank level climbed every warm afternoon, and the chemical never moved. Because temperature explains the swing, the function can subtract exactly that component and nothing else, so what remains, the slow decline, is consumption you can actually reorder against. Raw stays raw; the corrected series is derived and flagged."
+  wide
+>
+  <Cleaning />
+</Figure>
+
+### Feature extraction, drawn
+
+<Figure
+  caption="Nobody acts on a million vibration samples. They act on whether the energy is rising, how hard the worst impact was, and whether the signal is getting spiky, which is a bearing's tell. Extracting those into named series is what makes the raw data usable by people and learnable by models."
+  wide
+>
+  <Features />
+</Figure>
+
+### Windowing, drawn
+
+<Figure
+  caption="The stream has no natural end, so windows manufacture ends: equal slices of time, every event in exactly one of them, an aggregate emitted as each slice closes. This is what replaces the nightly batch, and why a 15-minute average is at worst 15 minutes old rather than a day."
+  wide
+>
+  <Windowing />
+</Figure>
+
+### Event detection, drawn
+
+<Figure
+  caption="Four different shapes, four different meanings: a spike past the threshold, a sustained elevation that never quite alarms, an oscillation that is abnormal for this signal, and a settle onto a new operating level. Only the first would be caught by a classic threshold; the other three are exactly what detection functions exist for. The types are yours to define, and each event lands anchored to its equipment, ready to wake an agent or an operator."
+  wide
+>
+  <EventDetection />
+</Figure>
+
+Two properties matter more than the list:
+
+- **Lineage accrues automatically.** A value produced through a platform function carries
+  its ancestry without anyone documenting it, which is what makes the
+  [planned lineage capability](/concepts/lineage-and-quality) complete rather than partial.
+- **The learning step moves into the model.** [Agents](/value/ai-agents) and ML stop living
+  in notebooks beside the platform and start consuming features the model itself produces.
+
+### Functions stack
+
+Read the four capability drawings in order, cleaning, features, windowing, detection, and
+they are one pipeline: cleaning produces
+trustworthy series, features condense them into meaning, windowing keeps both current, and
+detection turns them into events. Each layer consumes the one below, so every function you
+add raises the floor the next one starts from. That stacking, not any single computation, is
+what turns a data platform from a place data *sits* into a place understanding
+*accumulates*.
+
+### Branch it like code
+
+Because a function is a node with wired inputs and outputs, it can be **cloned and
+modified**, and the clone is a branch in the graph, the same move as
+[branching in version control](https://en.wikipedia.org/wiki/Branching_(version_control)),
+`git clone` applied to a data flow. Reuse the whole pipeline, swap only the part you want to improve, and run both
+versions against the same live inputs.
+
+<Figure
+  caption="The challenger is drawn outlined because that is its status: cloned, modified, and not yet trusted. Both versions read identical inputs and write parallel series, so judging them is a fair comparison against ground truth, here the manual lab dips, rather than an argument. Promote the winner; the race itself stays in the graph as history."
+  wide
+>
+  <FunctionBranching />
+</Figure>
+
+This is what makes improving a calculation *safe*. The alternative, editing the production
+algorithm in place, means last quarter's figures were computed one way and this quarter's
+another, with nothing recording the change. Branching keeps **the production series
+untouched** while the challenger proves itself, and when it wins, the promotion, the loser
+and the comparison all remain in the graph. It is the
+[branching half of the git-for-data idea](/concepts/lineage-and-quality#branching-for-data),
+made concrete: the wiring and the parallel series can be modelled today, and racing them
+automatically is what execution brings.
+
+## And then an agent picks it up
+
+Functions end where [agents](/value/ai-agents) begin, and the division of labour between
+them is worth stating precisely, because it is an economic argument as much as an
+architectural one.
+
+**Functions do the mechanical 99%.** They are deterministic, always-on and nearly free per
+evaluation: computing an average, checking a curve, comparing against a threshold costs
+effectively nothing, millions of times a day. **Agents do the judgement 1%**, and they are
+the opposite: powerful, open-ended, and expensive per invocation. Pointing an agent at raw
+samples wastes its reasoning on arithmetic; pointing it at nothing means paying it to watch
+a quiet plant.
+
+The chain below is the resolution: <span className="t-brand">the function is the tripwire,
+the agent is the responder</span>. Detection runs continuously at function cost, and the
+expensive reasoning wakes only when something merits it. The same functions also give the
+agent its vocabulary, an agent handed *crest factor rising, stress event at 14:32, level
+corrected for temperature* starts its [loop](/value/ai-agents#how-agent-loops-work) several
+steps ahead of one handed a million raw samples, and its conclusions are cheaper to verify
+because its inputs are named and flagged.
+
+The subsea hydrate case makes the chain concrete.
+
+<Figure
+  caption="Every hop is graph machinery: the function's inputs are wired relationships, its output is an event, the event wakes the agent, and the agent's draft goes to the control room, not past it. Trace the chain backwards afterwards and you have the audit trail for why the inhibitor dose changed."
+  wide
+>
+  <DetectionToAction />
+</Figure>
+
+And the arrow eventually points back the other way. An agent that discovers a useful
+relationship, say, that a temperature explains a tank level's swing, can
+[propose it as a function](/value/ai-agents#agents-that-build-and-run-your-integrations):
+reviewed by a person, then running permanently. That is the difference between
+<span className="hl">an insight and an asset</span>, a discovery that would once have been
+a slide in a presentation becomes a computation that never stops running, with its origin
+recorded.
+
+## Where functions sit in the bigger picture
+
+Functions are layer 2 of the [three-layer model](/concepts/three-layers): the things your
+assets *do*, including the computations that turn their raw signals into meaning. A function
+that cleans a signal serves the same role in the model as a pump that moves fluid, it is a
+named thing with inputs, outputs and relationships. They are also the
+[behaviour of a digital twin](/concepts/digital-twin#what-a-twin-is-made-of), and executing
+them is what moves a twin from level two to level three of the
+[maturity ladder](/concepts/digital-twin#the-maturity-ladder).
+
+<References>
+
+- [Data cleansing](https://en.wikipedia.org/wiki/Data_cleansing)
+- [Feature engineering](https://en.wikipedia.org/wiki/Feature_engineering)
+- [Stream processing](https://en.wikipedia.org/wiki/Stream_processing)
+- [Directed acyclic graph, the shape a pipeline wires into](https://en.wikipedia.org/wiki/Directed_acyclic_graph)
+- [Branching (version control)](https://en.wikipedia.org/wiki/Branching_(version_control))
+- [Anomaly detection](https://en.wikipedia.org/wiki/Anomaly_detection)
+
+</References>
+
+<Deeper>
+- [The roadmap building blocks](/start/core-ideas#functions-the-computations): functions and policies in the vocabulary
+- [Data governance](/concepts/data-governance): functions as governed computation
+- [The business case](/value/business-case): the compounding argument functions plug into
+- [AI agents](/value/ai-agents): the judgement layer functions wake
+- [Lineage and data quality](/concepts/lineage-and-quality): what recorded derivations make possible
+- [The three layers](/concepts/three-layers): functions as what assets do
+- [Time series](/using/timeseries): the inputs and outputs functions work over
+- [Policies](/using/policies): the other roadmap block, rules where functions are computations
+</Deeper>

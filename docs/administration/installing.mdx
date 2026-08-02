@@ -1,0 +1,183 @@
+---
+sidebar_position: 2
+title: Installing
+description: Standing up a DataHub evaluation stack, what it contains, and what has to change before production.
+---
+
+# Installing
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT and OT operations</Persona>
+</Personas>
+
+<KeyIdea>
+An evaluation stack is one command and needs only a container runtime, no Java, no build
+tools. It brings up the four DataHub services plus every backing store, seeded with demo
+tenants.
+
+<span className="t-accent">That stack is not production.</span> It runs without TLS, with
+development credentials and permissive database authentication. The changes needed for
+production are listed at the bottom of this page.
+</KeyIdea>
+
+## What you need
+
+- **A container runtime**, Docker with the `docker compose` plugin, or Podman. Nothing else.
+- **Access to the image registry.** The application images are private; authenticate before
+  installing.
+- **At least 16 GB of RAM.** The stack starts on less, but the backing stores compete for
+  memory and evaluation becomes misleadingly slow. Plus a few GB of disk for images and
+  volumes.
+
+## Installing the evaluation stack
+
+Obtain the release bundle through your internal channel, then:
+
+```bash
+podman login git.intellistream.ai      # or: docker login git.intellistream.ai
+tar -xzf datahub-<version>.tar.gz && cd datahub
+
+./scripts/datahub up          # pulls images and starts everything
+./scripts/datahub logs -f     # watch it come up
+```
+
+Two more commands worth knowing:
+
+```bash
+./scripts/datahub down        # stop, keeping all data
+./scripts/datahub down -v     # stop and wipe all data
+```
+
+The bundle is self-contained: the compose file, the backing-service initialisation config,
+the bootstrap scripts, and a pinned environment file naming the registry and version.
+
+## Reaching it
+
+Open it in a browser **on the same host**:
+
+| Service | URL | Login |
+| --- | --- | --- |
+| **Console** | `http://localhost:8080` | `foo` / `foo` |
+| **API** | `http://localhost:8081` | Bearer token |
+| **Identity provider** | `http://localhost:8090` | `admin` / `admin` |
+
+The stack assumes the browser runs on the host, login redirects and the dashboard's direct
+API calls are locked to `localhost` origins by design.
+
+:::caution Installed on a server, browsing from your laptop?
+This is fiddlier than it looks, and a plain SSH tunnel does not work: sign-in redirects your
+browser to the identity provider at the **server's routable IP** on port 8090, which a
+localhost-only tunnel cannot satisfy, so login fails after the redirect.
+
+For an evaluation, the reliable options are running the browser on the host itself, or
+making ports 8080 and 8090 on the server's IP directly reachable from your machine and
+accepting that this is an unhardened evaluation stack you have just exposed. Treat remote
+access as part of production hardening rather than a quick tweak.
+:::
+
+### If login redirects fail
+
+OAuth login sends the browser to the identity provider, and the browser **and** the
+in-network containers must agree on a single issuer URL. The launcher sets that to the
+machine's routable IP automatically. When auto-detection gets it wrong, or when you use
+plain `docker compose`, set it explicitly:
+
+```bash
+KC_ADDR=192.168.1.50 ./scripts/datahub up
+```
+
+This is by far the most common installation problem. If the console loads but signing in
+loops or errors, the issuer address is the first thing to check.
+
+## What the stack contains
+
+Four DataHub services:
+
+| Service | Role |
+| --- | --- |
+| **API** | The REST interface and the platform's core. Owns the model and the ingestion endpoints |
+| **Console** | The web interface people use |
+| **Datapoint and event consumer** | Lands measurements and events, and fans live data out to [subscribers](/using/subscriptions) |
+| **Graph consumer** | Applies model changes to the knowledge graph |
+
+Plus the backing stores, a relational database, a streaming platform, a columnar store for
+measurements, a graph database, two key-value stores, a secret store and an identity
+provider. [What each one does →](/administration/architecture)
+
+## Building from source
+
+For contributors, or when you need to build the images yourself rather than pull them:
+
+```bash
+git clone <repo> && cd datahub-platform
+./gradlew bootJar
+podman compose -f docker-compose.yml -f docker-compose.apps.yml up -d --build
+```
+
+The build needs only a JDK-capable machine, the Gradle wrapper provisions everything else,
+and the console's assets are built on the JVM with no Node.js required.
+
+## Before production
+
+The evaluation stack is deliberately convenient and deliberately insecure. Everything below
+must change.
+
+<Steps>
+  <Step title="Terminate TLS everywhere">
+    The evaluation stack runs plaintext. Production needs TLS on the console, the API, the
+    streaming platform and every database connection.
+  </Step>
+  <Step title="Replace every credential">
+    Demo tenants, demo users and default administrator passwords all exist for convenience.
+    None should survive into production.
+  </Step>
+  <Step title="Point at your real identity provider">
+    Users belong in your organisation's OAuth2/OIDC provider, with your existing groups and
+    joiner-mover-leaver process. The realm, the clients, the organisation claim and any
+    Entra ID brokering are covered on their own page.
+    [Identity providers, including Entra ID →](/administration/identity-providers)
+  </Step>
+  <Step title="Harden database authentication">
+    The evaluation stack uses permissive local authentication. Production wants proper
+    credentials, per-tenant database roles, and network restrictions.
+  </Step>
+  <Step title="Put a connection pooler in front of PostgreSQL">
+    For anything beyond a small single-tenant install. Without one, every transaction pays
+    connection-setup cost, and each backend is a process.
+    [Why →](/reference/faq#do-i-need-a-connection-pooler)
+  </Step>
+  <Step title="Configure the load balancer">
+    All services run as multiple instances. The load balancer needs WebSocket-upgrade support
+    and long connection timeouts, but <strong>no session affinity</strong>, because nothing
+    holds unrecoverable per-instance state, a [subscription's](/using/subscriptions)
+    position lives on the platform, so a reconnect resumes on any instance.
+    [Why →](/administration/architecture#load-balancing)
+  </Step>
+  <Step title="Set retention deliberately">
+    Defaults are for evaluation. Storage grows with ingestion whether or not anyone reads it.
+    [Data lifecycle →](/administration/data-lifecycle)
+  </Step>
+  <Step title="Establish backups per tenant">
+    Every store is database-per-tenant, so backup is per-database and restore can be scoped
+    to one tenant. [How →](/administration/data-lifecycle#backups)
+  </Step>
+</Steps>
+
+## Air-gapped installation
+
+DataHub runs entirely disconnected from the internet. Nothing in the platform requires an
+outbound connection at runtime, no licence check, no telemetry callback, no hosted
+dependency. What you need is a way to bring the images and the bundle across the boundary,
+which is a normal artefact-transfer problem rather than a platform one.
+
+This is a common requirement in regulated and critical-infrastructure environments, and it
+is one of the practical consequences of the platform being open source.
+[Security →](/administration/security)
+
+<Deeper>
+- [Architecture, without the jargon](/administration/architecture): what each component does
+- [Organisations and tenants](/administration/organizations): planning tenant boundaries before onboarding
+- [Data lifecycle](/administration/data-lifecycle): retention, backups and cost
+- [Security and compliance](/administration/security): the production posture
+</Deeper>

@@ -1,0 +1,194 @@
+---
+sidebar_position: 4
+title: The four building blocks
+description: Resources, time series, events and data sets, the complete vocabulary of the DataHub platform.
+---
+import FourBlocks from '@site/src/figures/four-blocks.svg';
+
+# The four building blocks
+
+<Personas>
+  <Persona primary>Everyone</Persona>
+</Personas>
+
+<KeyIdea>
+Everything in DataHub is one of four things: a **resource**, a **time series**, an
+**event**, or a **data set**.
+
+That is the whole working vocabulary today. Whatever your source systems call things, they
+arrive as one of these four, which is why you can query across a historian, an ERP and a
+maintenance system without learning any of their data models. Two more blocks, **policies**
+and **functions**, are on the roadmap and covered at the end of this page.
+</KeyIdea>
+
+## The four, at a glance
+
+| | What it answers | Arrives from | Example |
+| --- | --- | --- | --- |
+| 🔧 **Resource** | *What exists?* | Modelled by your experts, or imported | Pump P-101, Line 3, Site Nordvik, "OEE" |
+| 📈 **Time series** | *What is it doing?* | Sensors, meters, control systems | Discharge pressure in bar, every second |
+| ⚡ **Event** | *What happened?* | Alarms, work orders, permits, deploys | "High-vibration alarm, 14:32, P-101" |
+| 📦 **Data set** | *Who owns this, and who may see it?* | Defined by administrators | "Valve pressure sensors" |
+
+<Figure caption="The outer container is doing two jobs at once: it is the folder the material lives in and the boundary permissions are granted on. Relationship names like 'contains' are yours to invent, nothing in the platform prescribes them." wide>
+  <FourBlocks />
+</Figure>
+
+## 🔧 Resources, the things
+
+A **resource** is anything in your operation you want to talk about. Physical equipment, a
+location, a process step, an organisational unit, a performance indicator, if people refer
+to it by name, it can be a resource.
+
+Resources are connected to each other by <span className="t-accent">relationships</span> that
+you name yourself: *contains*, *feeds*, *monitors*, *powers*, *reports to*. A resource plus
+its relationships is what turns a list of equipment into a
+[knowledge graph](/concepts/knowledge-graph) you can navigate. The act of making those
+links is [contextualization](/concepts/contextualization).
+
+Every resource carries:
+
+- a **name**, what a person reads in a list, for example `21-PT-1234 Separator inlet pressure`
+- an **external id**, a stable, unique handle that never changes, used by integrations
+- at least one **label**, the class it belongs to: `Pump`, `Separator`, `Site`
+- optional **metadata**, free key/value context such as manufacturer, install date, criticality
+
+Those three required fields are not arbitrary. They are the same three roles a formal
+ontology uses, and the tagging standard your facility already follows very likely fills
+them already. [Naming, labels and standards →](/concepts/naming-and-standards)
+
+DataHub distinguishes a few kinds of resource so the console can treat them sensibly,
+**assets** (physical or logical things), **functions** (things that compute or perform),
+**time series**, **data sets** and **policies** are all resources in the same graph. And the
+list does not stop at the platform's own kinds: work procedures, documentation, risks,
+mitigations, obligations and KPIs all make good resources, because the test is not "is it
+equipment?" but **"do people refer to it by name?"**
+[What can be a resource →](/using/resources#what-can-be-a-resource)
+
+## 📈 Time series, the measurements
+
+A **[time series](https://en.wikipedia.org/wiki/Time_series)** is one signal, measured repeatedly: a stream of timestamped values from a
+single instrument or calculation. One series per measurement, pressure and temperature on
+the same vessel are two series, not one.
+
+Each series carries a **unit** (bar, °C, kWh) and a **value type** that fixes how each
+reading is stored. Value type matters more than it looks: it is set when the series is
+created and <span className="t-accent">cannot be changed afterwards</span>, and it drives both
+precision and storage cost. [Choosing a value type →](/using/timeseries#value-types)
+Sampling rate is the other decision worth making deliberately, and it has a real answer
+rather than a preference. [How often should you sample? →](/using/timeseries#how-often-should-you-sample)
+
+A series on its own is a column of numbers. A series *attached to a resource* is a property
+of a real thing, and that is what makes it useful. Always relate a series to the resource
+it measures.
+
+## ⚡ Events, the things that happened
+
+An **event** is a record that something occurred, at a point in time, to something
+specific. Alarms, threshold crossings, maintenance jobs, state changes, work permits opened
+and closed, purchase orders raised, deployments, all events.
+
+**Events are what make a time series interpretable.** A pressure trace that dips is ambiguous;
+a pressure trace that dips *while a maintenance event was open on the upstream valve* is an
+explanation. Because both are anchored to the same resources, laying one over the other is
+a query rather than a research project.
+
+This is also where **data liberation** usually starts: a source system's proprietary record
+of "something happened" becomes a plain DataHub event, readable through the same interface
+as everything else, without anyone learning that system's schema.
+[The data liberation play →](/value/value-paths#data-liberation)
+
+## 📦 Data sets, the containers
+
+A **data set** groups related data into one project or domain: *"Grid asset monitoring"*,
+*"Valve pressure sensors"*, *"Production line quality signals"*.
+
+Data sets do two jobs:
+
+1. **Organisation**: they are the home your resources, series, events and files live in,
+   so a team can work with its own material without wading through everything else.
+2. <span className="t-brand">**Access control**</span>, read and write permissions in DataHub are
+   granted per data set. **Deciding what goes in which data set *is* deciding who can see
+   what.** [Data set permissions →](/administration/dataset-permissions)
+
+Because of the second point, it is worth spending a little time on data set boundaries
+early. They are much easier to get right at the start than to rearrange later.
+
+## Two supporting pieces
+
+Not building blocks in their own right, but you will meet them immediately:
+
+- **Files**, documents and images attached to resources and data sets: P&IDs, datasheets,
+  inspection photos, certificates. [Working with files →](/using/files)
+- **Integrations**, how data actually gets in from your source systems. Mostly an
+  administrator's concern. [Change data capture →](/using/cdc-integrations)
+- **Subscriptions**, a standing request so new data is pushed to you the moment it lands,
+  rather than polled for on a schedule. [Data subscriptions →](/using/subscriptions)
+
+## Two more building blocks, on the roadmap
+
+<Roadmap>
+Both of these already exist as *kinds of resource* in the model, you will meet the words in
+the console. What makes each one a building block in its own right, **enforcement** for
+policies and **execution** for functions, is still being built. They are described here so
+the vocabulary is complete and so you can model with them in mind.
+</Roadmap>
+
+### 📜 Policies, the rules {#policies-the-rules}
+
+A **policy** is a rule attached to a data set: how long its data is kept, who may access it
+and on what terms, what requirements it must meet. Today a policy is a declarative record,
+it documents intent, and that alone has value, the rule is written down where the data
+lives instead of in a procedure document.
+
+Enforcement is what is coming: retention policies that actually expire measurement history,
+access policies that actually gate, requirement policies that actually check. Retention
+enforcement arrives together with
+[measurement expiry](/administration/data-lifecycle#lever-2--retention), which is why the
+two are planned as one piece of work.
+[Using policies →](/using/policies) ·
+[How the pieces carry governance →](/concepts/data-governance)
+
+### ⚙️ Functions, the computations {#functions-the-computations}
+
+A **function** is a computation registered in the model: it consumes time series and events,
+produces new ones, and the derivation is recorded as part of the graph. Planned capabilities
+include:
+
+- **[Data cleaning](https://en.wikipedia.org/wiki/Data_cleansing)**, noise, outliers, drift
+  and gap-filling handled once, at the source, instead of separately in every report
+- **Data transformation**, unit conversions, derived signals, aggregates
+- **[Feature extraction](https://en.wikipedia.org/wiki/Feature_engineering)**, turning raw
+  signals into the inputs models and [agents](/value/ai-agents) actually learn from
+- **[Streaming computation with windowing](https://en.wikipedia.org/wiki/Stream_processing)**,
+  running these continuously over live data in sliding or tumbling windows, rather than in
+  batches after the fact
+
+Functions matter beyond convenience, for two reasons. They are where
+[lineage](/concepts/lineage-and-quality) accrues automatically: a value produced through a
+function carries its ancestry without anyone documenting it. And they are how the learning
+step of machine learning plugs into the model rather than living in a notebook beside it.
+[Using functions →](/using/functions) ·
+[Functions as layer 2 of the model →](/concepts/three-layers#layer-2--functions-what-things-do)
+
+## How they fit together
+
+Read the diagram at the top of this page as a sentence:
+
+> A **data set** groups the material for one domain. Inside it, **resources** describe what
+> exists and how it connects. Each resource emits **time series** for what it is
+> continuously doing, and **events** for the discrete things that happen to it.
+
+Everything else in DataHub, charts, permissions and [live data](/using/subscriptions)
+today, relationship analysis and lineage as they land, operates on those four blocks.
+Learn them once and the rest of the platform is mostly self-explanatory. And connected,
+kept in step with live data, the four blocks are what a
+[digital twin](/concepts/digital-twin) is made of.
+
+<Deeper>
+- [Your first hour](/start/first-hour): create one of each, in the console
+- [What is an ontology?](/concepts/ontology): the model layer these blocks form
+- [Naming and standards](/concepts/naming-and-standards): how to name resources so the model stays usable
+- [Using the console](/using/console-tour): where each of these lives in the interface
+- [Glossary](/reference/glossary): one-line definitions of every term
+</Deeper>

@@ -1,0 +1,188 @@
+---
+sidebar_position: 7
+title: Data lifecycle
+description: Retention, storage cost, housekeeping and backups, keeping a DataHub installation proportionate as it grows.
+---
+
+# Data lifecycle
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT operations</Persona>
+  <Persona>Finance</Persona>
+</Personas>
+
+<KeyIdea>
+Storage is the dominant infrastructure cost, and it grows with ingestion whether or not
+anybody reads the data.
+
+Three levers control it: **value types** (chosen once per series, at creation),
+**retention** on the streams, and **housekeeping** that clears what is no longer referenced.
+</KeyIdea>
+
+## Where the data actually sits
+
+| Store | Holds | Grows with |
+| --- | --- | --- |
+| **Columnar store** | Measurements and events | Ingestion rate × retention. Usually the largest by far |
+| **Relational database** | The model, and the system of record | Number of resources, series and data sets. Modest |
+| **Graph database** | The traversable model | Number of resources and relationships. Modest |
+| **File storage** | Documents and images | What people upload |
+
+The measurements dominate everything else, typically by orders of magnitude. Cost control is
+almost entirely about them.
+
+## Lever 1 · Value types
+
+The single most effective cost decision, and it is made once per series at creation, after
+which it cannot be changed.
+
+Choosing a 32-bit float over a 64-bit float halves the storage for that series with no
+practical loss for most analog measurements. Choosing an exact decimal type where a float
+would do costs several times as much for no benefit.
+
+Across a large estate this is not a rounding error. It is the difference between a
+predictable storage bill and an alarming one.
+
+[The full value-type guide →](/using/timeseries#value-types)
+
+:::tip Make this a convention, not a per-user decision
+Agree with your data steward which value type applies to which class of measurement, and
+write it into the naming conventions document. Left to individuals, the exact-decimal types
+get chosen out of caution and the bill reflects it.
+[Naming and standards →](/concepts/naming-and-standards)
+:::
+
+## Lever 2 · Retention
+
+<Roadmap>
+**Automatic expiry of stored measurements is a planned feature.** Today the measurement
+store keeps datapoints indefinitely: there is no [time-to-live](https://en.wikipedia.org/wiki/Time_to_live) on the tables. Retention
+settings on the streaming layer bound the message log, not the stored history.
+
+Until expiry ships, treat stored measurement volume as **cumulative**, and plan capacity on
+total ingested volume rather than on a retention window. The guidance below is how to think
+about the policy once you can set it.
+</Roadmap>
+
+How long measurement history is kept. Storage for measurements is essentially
+<span className="t-brand">ingestion rate × retention</span>, so this is the lever that scales
+the bill linearly.
+
+Set it per data domain rather than globally. A high-rate vibration signal used for
+short-window condition monitoring and a monthly energy total used for regulated reporting
+have very different useful lifetimes, and giving them the same retention means either paying
+to keep the first one too long or losing the second one too early. Record each decision as
+a [lifecycle policy](/using/policies#the-three-kinds) on the data set, so the rule sits
+with the data it governs and is ready the day enforcement ships; "how long does it live?"
+is one of the five questions [data governance](/concepts/data-governance) answers.
+
+Two questions decide the number for any given domain:
+
+- **How far back does anyone actually look?** Ask, rather than assuming. The answer is
+  usually shorter than people expect for high-rate operational signals, and longer than they
+  expect for anything feeding a report.
+- **How long must it stay auditable?** See
+  [retention versus traceability](#retention-versus-traceability) below, this is the one
+  that catches organisations out.
+
+## Lever 3 · Housekeeping
+
+The platform's housekeeping service runs scheduled sweeps:
+
+- **Soft-deleted files** are purged after a 30-day grace period, which is what makes the
+  trash [restorable](/using/files#deleting-and-restoring) in the meantime
+- **Stale temporary uploads** are cleared after a few days
+- **Orphaned [streaming subscriptions](/using/subscriptions)** with a large backlog are
+  swept, the usual cause is a durable subscriber that stopped consuming, leaving the
+  platform holding its undelivered data. Note that this sweep
+  ships in a report-only mode and must be deliberately enabled before it deletes anything
+- **Removed tenants' folders** are quarantined for 30 days, then purged
+
+That covers the routine accumulation that nobody would otherwise notice, once the
+housekeeping service is actually deployed, it is not part of the reference stack today.
+[Architecture →](/administration/architecture)
+
+When storage grows unexpectedly and the cause is not obvious, the usual culprits are a
+newly connected source ingesting at a much higher rate than expected, or a bulk file upload.
+Checking recent [CDC integrations](/using/cdc-integrations) is a good first step.
+
+## Backups
+
+Because every store is database-per-tenant, backup and restore are naturally scoped to one
+tenant, and one tenant can be restored without touching the others.
+
+For each tenant:
+
+| Store | Backup |
+| --- | --- |
+| **Relational database** | A standard database dump |
+| **Columnar store** | Its native backup command |
+| **Graph database** | Your standard graph backup procedure |
+| **File storage** | The tenant's storage root |
+
+Two things worth deciding explicitly:
+
+- **Consistency across stores.** The model lives in the relational database and the graph;
+  the measurements live in the columnar store. A restore that takes them from different
+  points in time will have a model that disagrees with its data. **Snapshot them together**, or
+  accept and document the window.
+- **Retention of backups versus retention of data.** If measurements are retained for 90
+  days but backups for a year, the backups are the longer record. That may be exactly what
+  you want for audit purposes, or exactly what you do not want for data-minimisation
+  purposes. Decide rather than discover.
+
+## Offboarding a tenant
+
+Dropping the tenant's databases is the cleanest removal primitive available, there is no
+residue in shared tables to hunt for, because there were no shared tables. Remove the tenant
+from the registry, drop its databases, and delete its storage root. Housekeeping quarantines
+removed tenants' folders for 30 days and then purges them, so an accidental offboarding has a
+recovery window.
+
+[How tenants work →](/administration/organizations)
+
+## Planning capacity
+
+A rough approach that works:
+
+<Steps>
+  <Step title="Estimate datapoints per second, not series count">
+    A thousand series at one sample per minute is a very different load from a hundred series
+    at one sample per second. Only the datapoint rate matters.
+  </Step>
+  <Step title="Multiply by the storage per datapoint for your value types">
+    This is where the value-type decision shows up in the numbers.
+  </Step>
+  <Step title="Multiply by retention">
+    In seconds. This gives the steady-state size for measurements.
+  </Step>
+  <Step title="Add a generous allowance for files">
+    Document uploads are lumpy and hard to predict. P&IDs and inspection photography add up
+    faster than expected.
+  </Step>
+  <Step title="Scale ingestion capacity separately from API capacity">
+    They are different services and scale independently. Ingest volume drives one; user and
+    integration traffic drives the other. [Architecture →](/administration/architecture)
+  </Step>
+</Steps>
+
+## Retention versus traceability
+
+One tension worth flagging to whoever owns compliance.
+
+[Lineage](/concepts/lineage-and-quality) lets a reported figure be traced back to the raw
+measurements behind it. That only works while the raw measurements still exist. If
+measurements are retained for 90 days and a figure is audited a year later, the lineage
+records what the figure was computed from, but the inputs themselves are gone.
+
+Decide deliberately which reported figures need their inputs preserved for as long as the
+figure is auditable, and set retention on those data domains accordingly. It is a policy
+decision, not a technical one, and it is much cheaper to make in advance.
+
+<Deeper>
+- [Time series value types](/using/timeseries#value-types): the biggest cost lever
+- [Change data capture](/using/cdc-integrations): where ingestion volume comes from
+- [Organisations and tenants](/administration/organizations): the per-tenant boundary backups follow
+- [Lineage and data quality](/concepts/lineage-and-quality): why retention affects auditability
+</Deeper>

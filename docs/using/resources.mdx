@@ -1,0 +1,193 @@
+---
+sidebar_position: 3
+title: The resource graph
+description: Creating resources, connecting them with relationships, labelling them, and using the network view to trace dependencies.
+---
+
+# The resource graph
+
+<Personas>
+  <Persona primary>Domain experts</Persona>
+  <Persona primary>Engineers</Persona>
+  <Persona>Operations</Persona>
+</Personas>
+
+<KeyIdea>
+The **Resources** section is where your model lives. Resources are the things in your
+operation; the lines between them are named relationships; and the whole thing is drawn as
+a navigable network.
+
+This is the most important screen in the console, everything else hangs off what you build
+here. The graph you build is the
+[structure of your digital twin](/concepts/digital-twin#what-a-twin-is-made-of), the layer
+everything else is grown from.
+</KeyIdea>
+
+## What can be a resource?
+
+Anything your operation refers to by name. The word suggests equipment, and equipment is
+usually where a model starts, but the graph makes no such distinction, and the non-physical
+kinds are where much of the value hides:
+
+| Kind | Examples | Why it earns a place in the graph |
+| --- | --- | --- |
+| **Physical things** | Pumps, vessels, lines, sites, vehicles, instruments | The usual starting point |
+| **Structural things** | [Data sets](/using/datasets), [policies](/using/policies), [functions](/using/functions) | The platform's own building blocks are resources too, in the same graph |
+| **Work and knowledge** | Work procedures, operating instructions, [documentation](/using/files) | A procedure linked to the equipment it governs is findable from that equipment, instead of from whoever remembers the folder |
+| **Risk and safety** | Risks, mitigations, barriers, safety cases | *"Which risks does this pump carry, and which mitigations control them?"* becomes a traversal instead of a workshop |
+| **Business concepts** | KPIs, targets, obligations, contracts, cost centres | The [top layer](/concepts/three-layers) that connects data to decisions |
+
+The risk row deserves a sentence more, because it surprises people. Model a `Risk` connected
+to the equipment it concerns, and a `Mitigation` connected to the risk it controls, and
+<span className="hl">barrier thinking becomes something you can query</span>: a failed
+mitigation lights up every risk
+it was holding, and every asset those risks sit on. That is the same traversal machinery as
+everything else on this page, applied to safety instead of telemetry.
+
+One habit keeps this powerful rather than messy: give each kind its own
+[label](/concepts/taxonomy), so `Risk` and `Procedure` are queryable populations, not
+miscellaneous nodes.
+
+## Creating a resource
+
+Every resource needs three things. [Why these three →](/concepts/ontology)
+
+<Steps>
+  <Step title="Name">
+    What a person reads in a list. Lead with the plant tag if the facility has one:
+    `21-PT-1234 Separator inlet pressure`. Changeable at any time.
+  </Step>
+  <Step title="External id">
+    The permanent handle integrations match on. Derived from the name in lowercase with
+    underscores; override it when the derived value would encode something unstable.
+    <strong> It must never change and never be reused.</strong>
+  </Step>
+  <Step title="At least one label">
+    The class it belongs to, `Pump`, `Separator`, `Site`. Click **+** to pick an existing
+    label or create a new one. A resource with no label cannot be saved.
+  </Step>
+</Steps>
+
+Optionally also:
+
+- **Metadata**, free key/value context: location, owner, calibration date, criticality.
+  Anything you will later want to search, filter or group by.
+- **Source**, where this resource came from, useful when several systems feed the model.
+- **Data set**, which [container](/using/datasets) it belongs to and therefore who can see
+  it. Assigned through the API rather than this form.
+
+The naming help icon beside these fields opens the full conventions, including how they map
+onto your facility's tagging standard.
+[Naming and standards →](/concepts/naming-and-standards)
+
+## Root resources and building outward
+
+A **root resource** is one with no parent, typically a site, a plant, or the top of a
+network. Root resources are the entry points into your graph, and the resource list shows
+them first.
+
+From any node you have two ways to grow:
+
+- **Create resource with relation**, creates a new resource and connects it in one step.
+  This is the normal way to build out a model, because it makes it impossible to forget the
+  relationship.
+- **Create relationship**, connects two resources that both already exist.
+
+You can also **clone a resource**, which copies its labels and relationships as a starting
+point (metadata is not copied).
+That is the fast path for a row of near-identical equipment: model the first pump properly,
+clone it for the rest, adjust names and ids.
+
+:::tip You cannot strand a resource by deleting a relationship
+DataHub refuses a delete that would leave a resource disconnected from the graph root. The
+request is rejected with an error naming the resources that would be stranded: delete them
+together, or keep a connecting path. (The console's confirmation dialog still warns that a
+node "will be deleted"; it will not be, the delete is simply refused.)
+:::
+
+## Labels
+
+Labels are your [taxonomy](/concepts/taxonomy). They classify a resource and colour its node
+in the graph, which is what keeps a model with thousands of nodes readable at a glance.
+
+- Create labels deliberately, in the singular, spaces between words: `Pump`, `Control
+  Valve`. Names are stored upper-cased with underscores (`CONTROL_VALVE`).
+- Give each one a colour that makes sense at a glance, one colour family per layer of the
+  model works well.
+- Labels can carry a language code so the console can display them translated.
+- The **type** label is singular: a resource carries at most one type, fixed at creation,
+  encoding what it
+  fundamentally is. Other labels can be added and changed freely, which makes them good for
+  cross-cutting tags such as `SafetyCritical`.
+
+Label names must be unique, and a label in use cannot be deleted, which is a feature, not
+an obstacle.
+
+## Relationships
+
+The relationship is the name on the line between two resources: *contains*, *feeds*,
+*monitors*, *powers*, *contributesTo*.
+
+Two things to get right, both covered in
+[naming and standards](/concepts/naming-and-standards#relationships):
+
+- **Name what is actually asserted.** `relatedTo` carries no information and makes traversal
+  useless.
+- **Fix the direction and hold it.** *Monitors* and *is monitored by* are different facts.
+  Decide the convention once and apply it consistently.
+
+When editing a relationship you can also enable **animate data flow** and give it a datatype
+for example `temperature`. The datatype then travels visually along that relationship in
+the graph, from source node to target node, which makes a flow legible without reading
+labels.
+
+## Using the network view
+
+The graph is for exploring and explaining, and it has a few controls worth knowing:
+
+| Control | What it does |
+| --- | --- |
+| **Click a node** | Centres the view on it and shows what it connects to |
+| **Trace a path** | Dims everything else so one dependency chain stands out |
+| **Stabilise network layout** | Freezes a dense area that will not settle |
+| **Filters** | Narrows the graph by label, data set or name, essential above a few hundred nodes |
+| **Related resources** | Lists everything connected to the selected node, in both directions |
+
+Tracing is the feature people find most useful in practice. It answers *"which assets does
+this sensor feed?"* and *"what would a change here ripple into?"* visually, in seconds,
+without anybody writing a query. This traces **structure**, what connects to what. Tracing
+a *number* back through the computations that produced it is
+[lineage](/concepts/lineage-and-quality), a separate and planned capability.
+
+## Editing and deleting
+
+Editing a resource lets you change its name, labels, metadata, data set and relationships.
+The **external id** *should* never change, and the naming help says so, but this is
+guidance rather than enforcement: both the API and the edit form will change it if you
+insist. Treat it as immutable anyway, because integrations match on it and a change
+**breaks them silently**. What the form actually locks is the **type label**, which is
+<span className="t-accent">fixed at creation</span>.
+
+Deleting warns you when it would orphan a connected resource. Both endpoints of a
+relationship are checked, so you find out before rather than after.
+
+## Where resources come from at scale
+
+Creating resources by hand is right for modelling sessions and for the top layers of the
+model. At volume, thousands of instruments, a full equipment register, resources are
+imported through the API or a change-data-capture integration.
+
+The model you build by hand is what the import lands *into*: your labels and relationship
+types are the target structure. Linking each imported record to the thing it describes is
+[contextualization](/concepts/contextualization), and it is the work that decides whether
+an import produces a model or a pile. Build the shape first with a few dozen hand-made
+resources, prove it works, then import.
+[Building your model →](/concepts/building-your-model) ·
+[Change data capture →](/using/cdc-integrations)
+
+<Deeper>
+- [Knowledge graphs](/concepts/knowledge-graph): what the graph makes possible
+- [Naming and standards](/concepts/naming-and-standards): conventions for names, labels and relationships
+- [Building your model](/concepts/building-your-model): the workshops that decide what to create
+- [Time series](/using/timeseries): attaching measurements to these resources
+</Deeper>

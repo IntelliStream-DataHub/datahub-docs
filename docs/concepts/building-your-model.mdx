@@ -1,0 +1,202 @@
+---
+sidebar_position: 10
+title: Building your model
+description: A practical recipe for the modelling workshops that produce a DataHub ontology, who to invite, what to decide, and what to leave until later.
+---
+
+# Building your model
+
+<Personas>
+  <Persona primary>Domain experts</Persona>
+  <Persona primary>Data stewards</Persona>
+  <Persona>Project leads</Persona>
+</Personas>
+
+<KeyIdea>
+Modelling is a **workshop activity**, not a software activity. Three sessions of two hours,
+with the right five people in the room, produce a better model than three weeks of one
+person with a diagramming tool.
+
+The output you are aiming for is deliberately small: one question, modelled all the way from
+the business concern down to the raw signal.
+</KeyIdea>
+
+## Before the first session
+
+**Pick the question.** Not a topic, a question, phrased the way somebody would actually ask
+it, with a name attached to who wants the answer. *"Why does energy per tonne vary between
+our two grinding lines?"* is a question. *"Energy management"* is a topic, and topics do not
+finish. [Choosing a first question →](/value/where-to-start)
+
+**Invite five people.** More than seven and it becomes a presentation.
+
+- Someone who operates the thing daily
+- Someone who maintains it
+- Someone who reports on it
+- The data steward who will own the conventions
+- Someone who knows what the source systems actually contain
+
+**Bring the artefacts.** A [P&ID](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram) or network diagram, the tag list, the equipment register
+export, and last month's version of the report you are trying to improve. The model is
+mostly already written down across these; the session is largely about reconciling them.
+
+## Session 1 · Nouns and boundaries
+
+**Goal:** a list of classes and a boundary around the first slice.
+
+<Steps>
+  <Step title="Write the question on the wall">
+    Everything in the session gets tested against it. If a proposed class is not needed to
+    answer the question, it is out of scope for now: noted, not modelled.
+  </Step>
+  <Step title="Work top-down, not bottom-up">
+    Start at the business concern. What KPI, report or obligation is the question about?
+    Then: what activities contribute to it? Then: what equipment performs those activities?
+    This is the [three-layer](/concepts/three-layers) structure, and going top-down keeps
+    the scope naturally bounded.
+
+    Going bottom-up, starting from the tag list, produces a model of your instrumentation
+    rather than your operation, and has no natural stopping point.
+  </Step>
+  <Step title="Collect the nouns, then group them into classes">
+    Write down every distinct kind of thing that came up. Group synonyms. Argue about the
+    groupings, this argument is the valuable part of the session, because it surfaces where
+    two departments have been using one word for two different things.
+  </Step>
+  <Step title="Stop at 15–25 classes">
+    If you have more, you are modelling too broadly. Cut back to what the question needs.
+  </Step>
+  <Step title="Name them properly, then and there">
+    Singular, capitalised, in the vocabulary the plant already uses.
+    [Naming conventions →](/concepts/naming-and-standards)
+  </Step>
+</Steps>
+
+:::tip The synonym test
+Ask each person to define, out loud, what they mean by the most-used word in the room,
+"line", "unit", "system", "asset", the discipline software design calls a
+[ubiquitous language](https://en.wikipedia.org/wiki/Domain-driven_design). If two
+definitions differ, you have found a real problem that has been **costing your organisation
+money invisibly for years**. Resolve it now and write the resolution down.
+:::
+
+## Session 2 · Verbs and connections
+
+**Goal:** the relationship types, and the direction convention.
+
+<Steps>
+  <Step title="Draw the slice on a whiteboard">
+    Classes as boxes, connections as arrows. Not software yet, the point is to argue
+    cheaply.
+  </Step>
+  <Step title="Name every arrow">
+    `partOf`, `feeds`, `monitors`, `powers`, `contributesTo`. Read each one aloud as a
+    sentence with the two classes: *"Line contains Pump"*. If it does not read as a true
+    statement, the name or the direction is wrong.
+  </Step>
+  <Step title="Merge relationship names ruthlessly">
+    You will produce twenty and need eight. Merge near-synonyms, `supplies`, `feeds` and
+    `sendsTo` are almost certainly one relationship.
+  </Step>
+  <Step title="Fix the direction convention and write it down">
+    Decide once: does the instrument monitor the equipment, or is the equipment monitored by
+    the instrument? Both are valid; mixing them is not.
+    [Why this matters →](/concepts/naming-and-standards#relationships)
+  </Step>
+  <Step title="Identify what is not a tree">
+    Find at least one thing that belongs to two hierarchies, a pump on a process line and
+    a maintenance route, say. Model both. This is the moment the room understands why a
+    [graph](/concepts/knowledge-graph) rather than a hierarchy.
+  </Step>
+</Steps>
+
+## Between sessions · Load real data
+
+This is the step teams most want to skip and most need.
+
+Take the classes and relationships from sessions 1 and 2, and load a few hundred **real**
+assets into them, from the equipment register, the tag list, whatever source you trust
+most. Do not hand-curate. Load what is actually there.
+
+You will discover, reliably:
+
+- A class that needs splitting, because real items fall into two obviously different groups
+- Two classes that were really one
+- Items that fit nowhere, which usually means a class is missing or the boundary was drawn
+  wrong
+- Naming collisions between source systems
+
+All of this is cheap to fix now and expensive to fix at 40,000 items.
+<span className="hl">Loading real data early is the single highest-value habit in
+modelling.</span>
+
+## Session 3 · Fix what broke, then extend downward
+
+**Goal:** a model that survives real data, connected down to signals and events.
+
+<Steps>
+  <Step title="Review what did not fit">
+    Work through the misfits from the load. Adjust classes and relationships. Expect this to
+    take most of the session, that is the session working.
+  </Step>
+  <Step title="Attach time series and events">
+    For the assets in scope, connect the signals they emit and the events raised against
+    them. Every series should relate to the resource it measures. Decide the sample rate
+    here too, it is a signal-theory question rather than a preference.
+    [Time series →](/using/timeseries) · [Events →](/using/events) ·
+    [How often to sample →](/using/timeseries#how-often-should-you-sample)
+  </Step>
+  <Step title="Walk the question end to end">
+    Start at the business concern on the wall and traverse down to a raw measurement, out
+    loud, in the console. If you cannot make the walk, something in the middle is missing,
+    usually a function.
+  </Step>
+  <Step title="Write the conventions down">
+    A one-page document: the class list, the relationship list, the direction convention,
+    the external-id rule. This is what keeps the model coherent when the next twenty people
+    start adding to it.
+  </Step>
+</Steps>
+
+## After the sessions
+
+**Assign a steward.** One named person accountable for the conventions and for reviewing
+what gets added. A model without a steward drifts into inconsistency within a couple of
+months. [Who does what →](/start/who-does-what)
+
+**Set a review cadence.** Monthly for the first quarter, then quarterly. Each review asks
+two questions: what got added that does not follow the conventions, and what question could
+we now answer that we could not last time.
+
+**Let it grow by question.** The second question extends the model into whatever it needs
+and no further. After five or six questions the model covers most of what the organisation
+asks about, having never once been designed in the abstract. The same loop is why a
+[digital twin is grown, not built](/concepts/digital-twin#grown-not-built).
+
+## Anti-patterns
+
+| Pattern | Why it fails |
+| --- | --- |
+| **Model everything first** | No feedback until it is too expensive to change. Almost always subtly wrong. |
+| **Adopt a standard taxonomy wholesale** | Standards are excellent references and poor starting points, they encode a general industry, not your plant. Mirror the parts that match. |
+| **Let the supplier build it** | Produces a model your own people do not recognise, and cannot maintain. |
+| **Model the source systems** | You get a map of your IT estate, not your operation. The tell is class names like `SAPEquipment`. |
+| **One relationship type: `relatedTo`** | Traversal becomes meaningless. Nothing can be answered by walking. |
+| **No steward** | Inconsistency accumulates faster than value. |
+
+<References>
+
+- [Domain-driven design, the ubiquitous-language discipline](https://en.wikipedia.org/wiki/Domain-driven_design)
+- [P&ID, the drawing most models start from](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram)
+- [Functional decomposition](https://en.wikipedia.org/wiki/Functional_decomposition)
+- [Ontology engineering](https://en.wikipedia.org/wiki/Ontology_engineering)
+
+</References>
+
+<Deeper>
+- [The three layers](/concepts/three-layers): the top-down structure the sessions follow
+- [Naming and standards](/concepts/naming-and-standards): the conventions to agree in session 1
+- [Taxonomy, ontology, knowledge graph](/concepts/taxonomy): what you are building at each stage
+- [Where to start](/value/where-to-start): choosing the question that frames it all
+- [Working with resources](/using/resources): putting the model into the console
+</Deeper>

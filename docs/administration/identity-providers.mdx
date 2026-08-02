@@ -1,0 +1,341 @@
+---
+sidebar_position: 5
+title: Identity providers (OIDC)
+description: How DataHub authenticates users and services, Keycloak as the trusted issuer, and how to bring Microsoft Entra ID identities in through it.
+---
+
+# Identity providers (OIDC)
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona primary>IT security</Persona>
+  <Persona>Integrators</Persona>
+</Personas>
+
+<KeyIdea>
+DataHub trusts <span className="hl">exactly one issuer: [Keycloak](https://www.keycloak.org/)</span>. That is a deliberate
+design choice, not a limitation, it keeps all authorisation logic in one place.
+
+Other identity providers, including Microsoft Entra ID, are brought in *through* Keycloak
+rather than alongside it. Your users keep signing in with their corporate credentials; Keycloak
+is what turns that into a token DataHub accepts.
+</KeyIdea>
+
+## Why [Keycloak](https://www.keycloak.org/) sits in the middle
+
+The API validates every request against three things, and a raw token from a generic identity
+provider satisfies none of them:
+
+| What the API requires | Why |
+| --- | --- |
+| **A single known issuer** | The token signature is validated against one configured Keycloak realm |
+| **Roles in `realm_access.roles`** | This is where [data set permissions](/administration/dataset-permissions) are read from |
+| **A nested `organization` claim** | This resolves which [tenant](/administration/organizations) the request belongs to |
+
+That last one is the hard requirement. Without a tenant, there is no database to query, so a
+token with no `organization` claim is <span className="hl">rejected outright</span>, no matter how valid it is otherwise.
+
+<Figure
+  src="/img/figures/token-bridge.svg"
+  alt="A token from a corporate identity provider such as Entra ID is exchanged at Keycloak for a Keycloak-issued token, which the DataHub API accepts after checking the issuer, the roles and the organization claim."
+  caption="Whatever your organisation uses for identity, the token that reaches DataHub is a Keycloak token. That is what makes it possible to keep tenant resolution and authorisation in one auditable place."
+  wide
+/>
+
+## Keycloak
+
+### What a realm needs
+
+A working realm provides:
+
+- **A confidential client for the console**, used for the browser sign-in flow. The console
+  relays the signed-in user's access token straight to the API, so there is no separate token
+  handling in the browser.
+- **Realm roles**, which are what actually grant access:
+
+| Role | Grants |
+| --- | --- |
+| `DATAHUB_ACCESS` | The baseline, required to use the API at all |
+| `DATAHUB_CONSOLE` | Required for every console page |
+| `DATAHUB_ADMIN` | The operator escape hatch: read and write on every data set |
+| `DATAHUB_DATASET_*` | Read and write on data sets. [Full grammar →](/administration/dataset-permissions) |
+
+  Note that <span className="t-accent">access and data permissions are separate</span>. A user
+  with `DATAHUB_ACCESS` and `DATAHUB_CONSOLE` but no data set roles can sign in and then see
+  nothing: without a read role every list comes back empty, and without a write role nothing
+  can be saved. It looks like a broken install and is actually a missing role.
+
+- **The `organization` claim**, emitted per user. Each user carries an attribute holding their
+  tenant's claim, and a client attribute mapper emits it as the nested `organization` claim the
+  API reads.
+
+### Users and tenants
+
+A user's tenant comes from their `organization` claim, so **one user belongs to one tenant**.
+Somebody who needs access to two tenants needs two identities.
+
+For production, use Keycloak's Organizations feature with one organisation per tenant. The
+per-user attribute approach is a development shortcut, it works, but it puts tenant
+assignment in a place that is easy to get wrong and hard to audit.
+[How organizations will work →](#organizations-each-customers-own-identity-providers)
+
+### Machine-to-machine access
+
+Integrations and SDKs authenticate with the client-credentials grant, no user, no browser.
+The pattern is **one client per tenant**, because the tenant is bound to the client rather
+than passed at call time.
+
+Each client needs two halves:
+
+<Steps>
+  <Step title="The client itself, with service accounts enabled">
+    This is what mints the token.
+  </Step>
+  <Step title="A service-account user holding the organization attribute">
+    Named `service-account-<clientId>`. A service account has no user profile of its own, so
+    this is where the tenant claim lives.
+  </Step>
+</Steps>
+
+:::tip The failure that looks like bad credentials
+A client with service accounts enabled but **no matching service-account user entry** mints
+tokens with no `organization` claim. Every API call then fails with
+`401 invalid_token`, which reads as a credentials problem and is not one. If a new service
+client authenticates but every call returns 401, check for the missing half.
+:::
+
+### Adding a tenant
+
+Clone an existing tenant's client block plus its service-account user entry, and change the
+organisation id to match the new tenant's registry entry.
+[Provisioning a tenant →](/administration/organizations#provisioning-a-tenant)
+
+## Organizations, each customer's own identity providers {#organizations-each-customers-own-identity-providers}
+
+<Roadmap>
+**In active development, expected to land during the second half of 2026.** Keycloak's
+Organizations feature is how DataHub will handle tenants and their identity providers,
+replacing the per-user attribute approach described above. This section describes the
+intended model so you can plan around it; check the release notes before designing against
+it.
+</Roadmap>
+
+Keycloak realms support
+**[organizations](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)**,
+and an organization can have its own identity providers. That maps onto DataHub's tenant model directly, and it solves the problem that
+each customer wants to authenticate against **their own** directory.
+
+### What it changes
+
+| | Today | With organizations |
+| --- | --- | --- |
+| **Tenant identity** | A per-user attribute carrying the claim, a development shortcut | One organization per tenant |
+| **Identity provider** | One, shared by everyone in the realm | One or more per organization, so each customer brings their own Entra ID or other directory |
+| **Routing** | Not applicable | Users are routed to the right provider by verified email domain |
+| **Membership** | Manual | Authenticating through an organization's provider can grant membership automatically |
+| **Data set access** | `DATAHUB_DATASET_*` realm roles | Organization groups, see below |
+
+So several different Entra ID tenants can be connected to one DataHub deployment at the same
+time, each belonging to its own organization, **without a realm per customer**.
+
+### Two rules worth knowing
+
+- **An organization may have several identity providers.** Useful when one customer
+  authenticates more than one way.
+- <span className="t-accent">**An identity provider may belong to only one organization.**</span>
+  This is a current Keycloak limitation, so you cannot link a single shared directory to many
+  organizations and filter by email domain. Each customer needs its own provider entry.
+
+### Organization groups will carry data set access
+
+Organizations support **groups**, members can be added to them, roles can be assigned to
+them, and group membership can be mapped into the token. Members inherit the attributes and
+role mappings their group defines.
+
+That is the mechanism DataHub will use to decide **which data sets you may read and write**,
+in place of assigning the [role grammar](/administration/dataset-permissions) to individuals.
+The practical effect for an administrator is that access becomes something you grant by
+putting somebody in the right group inside their organization, rather than by composing role
+names.
+
+Plan your [data set boundaries](/using/datasets#designing-good-boundaries) with that in mind:
+they will line up with organization groups, so a boundary that matches how you would group
+people is one you will not have to redraw.
+
+## Microsoft Entra ID
+
+Entra ID is supported, but <span className="t-accent">not by pointing DataHub at it directly</span>.
+An Entra token is rejected for three independent reasons: the issuer is Microsoft's rather
+than your Keycloak, roles arrive as a flat top-level `roles` claim rather than in
+`realm_access.roles`, and there is no `organization` claim at all.
+
+So the Entra identity has to become a Keycloak identity first. There are two paths, depending
+on whether you are bringing in **people** or **services**.
+
+### For people, standard identity brokering
+
+For interactive sign-in, configure Entra ID as an OIDC identity provider in Keycloak. Users
+authenticate against Entra with your existing single sign-on, conditional access and MFA
+policies, and Keycloak issues the DataHub token.
+
+This is well-trodden Keycloak configuration. The work that is specific to DataHub is on the
+Keycloak side, and it is the part to plan for:
+
+- **Map Entra groups to the DataHub realm roles** listed above. Entra app roles are not read
+  by DataHub, authorisation comes entirely from the Keycloak realm roles the brokered user
+  ends up holding.
+- **Ensure every brokered user gets an `organization` claim.** This is the step that is easy
+  to miss, because sign-in will succeed and then every API call will fail.
+
+The upside is that your joiner-mover-leaver process stays in Entra, where it already lives.
+Keycloak becomes a translation layer rather than a second place to manage people.
+
+### For services, the JWT authorization grant bridge
+
+For a **service principal registered in Entra ID**, the bridge is Keycloak's
+**JWT Authorization Grant** ([RFC 7523](https://datatracker.ietf.org/doc/html/rfc7523)), available in Keycloak 26.5 and newer. Keycloak accepts
+the externally-signed Entra token as an assertion and returns a Keycloak-issued access token.
+
+The flow is three steps:
+
+<Steps>
+  <Step title="Get an Entra token">
+    Client credentials against Entra's token endpoint, scoped to your application.
+  </Step>
+  <Step title="Exchange it at Keycloak">
+    Present the Entra JWT as an assertion using the JWT bearer grant. Keycloak validates it
+    against a configured identity provider and returns a Keycloak token.
+  </Step>
+  <Step title="Call the API">
+    With the Keycloak token as a bearer credential. Nothing in DataHub changes, it is still
+    trusting exactly one issuer.
+  </Step>
+</Steps>
+
+Each Entra service principal must be linked to a Keycloak user, which carries the realm roles
+and the organisation claim.
+
+:::caution Use the current mechanism, not the old ones
+Two older approaches exist and should **not** be used. External-to-internal Token Exchange V1
+is both preview and deprecated, and the V2 variant was removed in Keycloak 26.7, so on current
+versions the JWT Authorization Grant is the only supported route.
+:::
+
+### Sharp edges
+
+These are the things most likely to bite, in roughly the order they bite:
+
+| Symptom | Cause and fix |
+| --- | --- |
+| **Audience error on exchange** | [RFC 7523](https://datatracker.ietf.org/doc/html/rfc7523) expects the audience to identify the Keycloak server; Entra sets it to your Application ID URI. Enable *Allows Client ID as audience for assertions*. This is the likeliest first failure. |
+| **Every assertion rejected as expired** | *Max allowed assertion expiration* defaults to 5 minutes; Entra tokens live 60–90. Raise it past the Entra lifetime. |
+| **Second exchange looks like a replay** | Entra serves the same cached token until it nears expiry, so Keycloak's one-time-use default rejects it. Enable *Allow assertion reuse*. |
+| **"User not found" on a correct-looking config** | The federated link needs the service principal's **Object ID**, not the Application (client) ID. Easy to confuse. |
+| **New service principal cannot authenticate** | There is no auto-provisioning. Every Entra service principal needs a matching linked Keycloak user, created manually. This is **the main ongoing operational cost**. |
+| **Granting an Entra app role changes nothing** | Expected. Authorisation comes only from the linked Keycloak user's realm roles. |
+
+Also budget for **two secrets per service**, an Entra client secret and the Keycloak grant
+client secret, both of which need rotation.
+
+:::caution Verify this against your own tenant
+The Entra service-principal configuration is documented against the Keycloak 26.x
+documentation but has **not been validated against a live Entra tenant**. Treat the specific
+field names as a starting point, confirm them in the admin console, and expect the sharp edges
+above. The interactive-user brokering path is standard Keycloak configuration and is much
+lower risk.
+:::
+
+## Can Entra ID replace Keycloak entirely?
+
+**Yes in principle, and it is the harder road.** Entra can be your only identity provider,
+but not with the platform as it stands, and the day-to-day administration is more work for
+the specific things DataHub needs. If you are choosing, understand what you are taking on.
+
+### What would have to change in the platform
+
+DataHub requires three things from a token, and Entra satisfies none of them out of the box:
+
+| Requirement | Keycloak | Entra ID directly |
+| --- | --- | --- |
+| **One trusted issuer** | What the API validates today | Needs the API changed to resolve multiple issuers, plus audience validation that does not exist yet |
+| **Roles in `realm_access.roles`** | Native | App roles arrive in a flat top-level `roles` claim, so a per-issuer role mapper is needed |
+| **Nested `organization` claim** | Emitted by a client mapper | The awkward one, see below |
+
+That third row is the real obstacle. Entra's optional claims are configured per application
+and emit **strings and arrays of strings**. Directory extension claims are emitted flat, as
+`extn.<attributename>`, and an application may issue **at most ten** extension attributes as
+optional claims. There is no documented way to emit the nested object shape DataHub reads for
+tenant resolution, so adopting Entra directly means changing how the platform resolves a
+tenant, not just how it reads a claim.
+
+### What is genuinely harder to administer
+
+Beyond the code, the ongoing work differs:
+
+- **Claims configuration is per application**, edited through the app registration UI or its
+  manifest, rather than centrally in one realm. Reshaping what a token contains is a
+  developer-adjacent task, not an identity-admin one.
+- **Group and role limits are real.** Group claims are capped in the token (200 in a JWT,
+  including nested groups), so large directories need "groups assigned to the application"
+  rather than "all groups", which is another thing to maintain per application.
+- **Service principals need per-principal setup.** There is no auto-provisioning, and each
+  new one is manual work.
+- **Two secrets per service** in the bridged model, both needing rotation.
+- **Tenant mapping becomes Entra's problem.** Today the mapping from a user to a DataHub
+  tenant lives in one realm and is easy to inspect. Moved into Entra, it depends on whatever
+  that directory can be persuaded to emit, and it is harder to audit.
+
+Against that, Entra brings real advantages: it is very likely already your corporate
+directory, with conditional access, MFA and a joiner-mover-leaver process that is audited and
+staffed. That is not nothing, and it is the reason the bridged approach exists.
+
+### The recommendation
+
+<span className="t-brand">Keep Keycloak as the issuer and broker Entra behind it.</span> Users
+authenticate against Entra with all your existing policy, and Keycloak does the small amount
+of claim shaping DataHub needs. You get the corporate directory and the required token shape
+without changing the platform.
+
+Replace Keycloak outright only if Entra is becoming the primary identity source for many
+services **and** you are prepared to own the platform changes: a multi-issuer resolver,
+per-issuer role and tenant mapping, audience validation, and the same work duplicated in the
+analysis service.
+
+| | |
+| --- | --- |
+| **Gains** | One directory, no linked Keycloak users, no second secret, SDKs talk to Entra directly |
+| **Costs** | Real code changes in the API security configuration, duplicated in the analysis service, plus audience validation that does not exist today |
+| **Risk** | Tenant resolution moves into whatever Entra can be persuaded to emit, and becomes harder to audit |
+
+The honest threshold: not worth it for one or two service principals.
+
+## Evaluation defaults are not production
+
+The evaluation stack ships a preconfigured realm with demo tenants, demo users and default
+client secrets so it starts without configuration. None of it should survive into production,
+replace the realm, the clients, the secrets and the users with your own.
+[Before production →](/administration/installing#before-production)
+
+<References>
+
+- [OpenID Connect](https://en.wikipedia.org/wiki/OpenID_Connect)
+- [OAuth 2.0](https://en.wikipedia.org/wiki/OAuth)
+- [JSON Web Token](https://en.wikipedia.org/wiki/JSON_Web_Token)
+- [RFC 7523, the JWT authorization grant](https://datatracker.ietf.org/doc/html/rfc7523)
+- [Keycloak](https://www.keycloak.org/)
+- [Microsoft Entra ID documentation](https://learn.microsoft.com/en-us/entra/identity/)
+- [Entra ID optional claims, and the ten-extension limit](https://learn.microsoft.com/en-us/entra/identity-platform/optional-claims)
+- [Configuring group claims, and the token size limits](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-fed-group-claims)
+- [App roles, and how they reach the token](https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-app-roles-in-apps)
+- [Access token claims reference](https://learn.microsoft.com/en-us/entra/identity-platform/access-token-claims-reference)
+- [Keycloak identity brokering](https://www.keycloak.org/docs/latest/server_admin/#_identity_broker)
+- [Keycloak organizations, members, identity providers and groups](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)
+
+</References>
+
+<Deeper>
+- [Users and access](/administration/users-and-access): tokens, service accounts and access reviews
+- [Data set permissions](/administration/dataset-permissions): the roles these providers must emit
+- [Organisations and tenants](/administration/organizations): what the organisation claim resolves to
+- [Security and compliance](/administration/security): the wider posture
+</Deeper>

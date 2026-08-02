@@ -1,0 +1,350 @@
+---
+sidebar_position: 4
+title: Value paths
+description: Six proven ways to get value from DataHub, what each one requires, what it returns, and how long it takes.
+---
+import ValuePlays from '@site/src/figures/value-plays.svg';
+
+
+# Value paths
+
+<Personas>
+  <Persona primary>Project sponsors</Persona>
+  <Persona primary>Leadership</Persona>
+  <Persona>Domain experts</Persona>
+</Personas>
+
+<KeyIdea>
+Six plays that reliably produce value, ordered from lowest effort to highest.
+
+Most organisations should start with **data liberation** or **faster investigations**, they
+need the least model, prove the platform quickly, and build the foundation the later plays
+depend on.
+</KeyIdea>
+
+## At a glance
+
+| Play | Effort | Time to value | Needs | Available |
+| --- | --- | --- | --- | --- |
+| [Data liberation](#data-liberation) | Low | Weeks | Almost no model | Today |
+| [Faster investigations](#faster-investigations) | Low–medium | Weeks | Assets + relationships | Today |
+| [Capital project handover](#capital-project-handover) | Medium | At handover | A project in flight | Today |
+| [Condition monitoring](#condition-monitoring) | Medium–high | 1–2 quarters | Model + data history | Today |
+| [Audit-ready reporting](#audit-ready-reporting) | Medium | 1–2 quarters | Model + lineage discipline | <span className="t-accent">Partly, see below</span> |
+| [Energy and emissions](#energy-and-emissions) | Medium–high | 2+ quarters | Full three-layer model | <span className="t-accent">Partly, see below</span> |
+
+<Figure
+  caption="Position is what matters here, not precision. The bottom-left plays are cheap to reach and build the foundation the others stand on, which is why starting anywhere else usually means doing that groundwork anyway, just later and under more pressure."
+  wide
+>
+  <ValuePlays />
+</Figure>
+
+## How to read a play
+
+Each one below follows the same shape, so you can compare them:
+
+| | |
+| --- | --- |
+| **The situation** | The problem as it actually presents itself, before anyone mentions software |
+| **The play** | What you build, and deliberately what you do not |
+| **What you get** | The outcome, stated as something observable |
+| **Who has to be involved** | The scarce people. This is usually the real constraint |
+| **How you know it worked** | The specific evidence, agreed before you start |
+| **Where it goes wrong** | The failure mode this play is prone to |
+
+---
+
+## Data liberation {#data-liberation}
+
+**The situation.** Your data sits in a historian, a maintenance system, a work-permit
+system and an ERP. Each one guards it behind a complex data model that takes vendor training
+to query. Answering anything across two of them requires two specialists and a spreadsheet.
+
+**The play.** Do not model anything ambitious. Just land the data, let the platform
+simplify it, and [attach each record to the thing it describes](/concepts/contextualization):
+whatever arrives from a silo becomes one of a few primitives. A work permit
+opening or closing, a purchase order, a sensor alarm, a system state change, all become
+**events**. Signals become **time series**. The things they describe become **resources**.
+
+**What you get.** One interface for querying and reading all of it. Nobody needs to
+understand a source system's schema to use its data. That is worth doing on its own, before
+any ontology work, and because the platform is open source the liberated data has not simply
+moved into a newer cage.
+
+**Who has to be involved.** An integrator, and somebody per source system who can authorise
+read access. <span className="hl">Notably **not** your domain experts, which is what makes
+this play schedulable when everyone is busy.</span>
+
+**How you know it worked.** Somebody answers a question that spans two source systems,
+without opening either of them, and without asking a specialist.
+
+**Where it goes wrong.** Landing everything because it is easy. You end up with a faithful
+copy of somebody else's schema, which is the problem you were escaping. Land what a question
+needs.
+
+**Effort:** low. **Time to value:** weeks. **Prerequisite:** source systems you can read.
+
+:::tip This is the honest starting point for most organisations
+Lineage, the knowledge graph and everything above can be layered on later. Having every silo
+readable through one simple model is worth doing by itself, and it is the play that most
+reliably survives contact with a sceptical audience.
+:::
+
+---
+
+## Faster investigations {#faster-investigations}
+
+**The situation.** When something goes wrong, diagnosis means a person mentally joining
+five systems. It takes hours or days, the quality depends on who is on shift, and the same
+investigation next month starts from scratch.
+
+**The play.** Model the assets in one process area and the relationships between them,
+*contains*, *feeds*, *monitors*, *powers*. Attach the signals and events they emit. Then
+investigate by walking the graph: from the symptom, to the asset, to what feeds it, to what
+was raised against any of them in the same window.
+
+**What you get.** Time to diagnosis falls from days to minutes for the covered area.
+"What is the blast radius of taking this out?" becomes a query rather than tribal
+knowledge. And the investigation is reproducible, the next person gets the same answer.
+
+**Who has to be involved.** One domain expert who knows how the area is actually connected,
+for a few hours across two or three sessions. Their attention is the constraint, not the
+modelling itself.
+
+**How you know it worked.** The next incident in the covered area is diagnosed by following
+the model rather than by phoning someone, and the person who did it can show the path they
+took.
+
+**Where it goes wrong.** Vague relationship names. A model wired together with `relatedTo`
+looks complete and traverses to nothing useful.
+[Naming relationships →](/concepts/naming-and-standards#relationships)
+
+**Effort:** low–medium. **Time to value:** weeks. **Prerequisite:** a modelled area with
+relationships that mean something.
+[Knowledge graphs →](/concepts/knowledge-graph) ·
+[Relationship analysis →](/using/relationship-analysis)
+
+---
+
+## Audit-ready reporting {#audit-ready-reporting}
+
+<Roadmap>
+**Partly available.** The half that exists today is real and useful: one queryable model over
+the sources a report draws on, so a figure is produced from the model rather than assembled
+from exports by hand. That alone removes most of the cycle effort.
+
+The half that makes it *audit-ready*, end-to-end lineage with data-quality flags on every
+derived value, is [on the roadmap](/concepts/lineage-and-quality). Do not promise an audit
+committee traceability that does not exist yet.
+</Roadmap>
+
+
+**The situation.** A regulated or board-level figure is assembled each cycle from several
+exports, in a spreadsheet, by one or two people. It is probably right. It cannot be proven
+right, and reproducing last year's number is a research exercise.
+
+**The play.** Model the reporting obligation as a resource in the
+[business knowledge layer](/concepts/three-layers#layer-3--business-and-operational-knowledge-what-matters),
+connect it down through the functions and assets that contribute to it, and move the
+derivation steps, cleaning, filtering, aggregation, into the platform so they accrue
+[lineage](/concepts/lineage-and-quality).
+
+**What you get, today.** The reporting cycle stops being an assembly exercise. Figures come
+from one model rather than from several exports reconciled by hand, so preparation time falls
+and the same number is reproducible next cycle.
+
+**What you get once lineage lands.** Every reported figure traceable to the raw measurements
+behind it, with data-quality flags at each step. Reports become auditable artefacts rather
+than claims.
+
+**Who has to be involved.** Whoever currently assembles the report, and the person who signs
+it. The signer matters: they decide whether the new figure is trusted, and if they are not
+involved early they will keep the spreadsheet running in parallel.
+
+**How you know it worked.** The cycle takes measurably fewer person-days, and two people
+independently produce the same number.
+
+**Where it goes wrong.** The calculation stays in a spreadsheet outside the platform. Then
+nothing accrues, and when lineage does land there is no ancestry to show. Move the
+derivation steps into the model as you go, and cycle preparation time drops, then drops
+again every cycle thereafter.
+
+**Effort:** medium. **Time to value:** one to two quarters. **Prerequisite:** willingness to
+move calculations into the platform, this is a change in working practice, and it is the
+part organisations underestimate.
+
+---
+
+## Capital project handover {#capital-project-handover}
+
+**The situation.** A new plant, unit or major modification is being handed over from the
+project to operations. The handover package, equipment register, tags, documentation,
+specifications, arrives as spreadsheets and a document tree, and is verified exactly once.
+
+**The play.** Land the handover into DataHub instead of into a folder. Equipment becomes
+resources, classified by the standard the project already used; documentation becomes
+[files](/using/files) attached to the equipment they describe; the tag structure becomes the
+relationships.
+
+**What you get.** Operations inherits a working model on day one rather than building it
+retroactively from a plant that is already running. The information is complete and verified
+at exactly the moment it is most complete and most verified.
+
+**Who has to be involved.** Whoever owns the handover specification, early enough to change
+what the contractor is asked to deliver. That is a procurement conversation, not a technical
+one, and it is why this play is usually missed: by the time engineering hears about it, the
+requirements are fixed.
+
+**How you know it worked.** On day one of operations, somebody looks up a piece of equipment
+and finds its datasheet, its tag, its position in the process and its documentation, without
+assembling any of it.
+
+**Where it goes wrong.** Discovering the opportunity after handover. The information is never
+again as complete or as verified as it is at that moment.
+
+**Effort:** medium, but almost all of it displaces work you were already doing.
+**Time to value:** immediate, at handover. **Prerequisite:** a project in flight, and getting
+to the handover requirements early enough to influence them.
+
+:::tip The highest-leverage moment available
+CFIHOS-conformant handover data is close to a ready-made asset model. If you have a capital
+project in progress, this is the cheapest complete model you will ever get.
+[Standards →](/concepts/naming-and-standards#standards-this-follows)
+:::
+
+---
+
+## Condition monitoring {#condition-monitoring}
+
+**The situation.** Maintenance is calendar-based or reactive. Equipment is serviced whether
+it needs it or not, and fails when it does not.
+
+**The play.** With assets modelled and signals attached, use
+[relationship analysis](/using/relationship-analysis) to find leading indicators, signals
+that reliably move before the one you care about, with a measurable lead time and a
+"lasting link" label. Turn the dependable ones into monitored conditions, the watching
+itself is what [detection functions](/using/functions#event-detection-drawn) will run
+continuously once they ship.
+
+**What you get.** Early warning with a known lead time, calibrated against the specific
+asset and its duty rather than a generic threshold, and
+[deliverable by push](/using/subscriptions) the moment the condition fires rather than on
+the next polling cycle. Fewer unplanned stoppages, and maintenance effort directed where it
+is needed.
+
+**Effort:** medium–high. **Time to value:** one to two quarters, and it needs data *history*,
+you cannot find a precursor in three weeks of data.
+**Prerequisite:** a modelled asset class with enough signal history to learn from.
+
+**Who has to be involved.** A reliability or maintenance engineer to say which failures
+actually matter, and an operator to say which warnings would be acted on. A leading indicator
+nobody will act on is a research finding, not a value play.
+
+**How you know it worked.** A specific warning, with a stated lead time, that somebody acted
+on. Count instances rather than extrapolating across the fleet.
+[Why that discipline matters →](/value/measuring-return#what-not-to-claim)
+
+**Where it goes wrong.** Two ways. Starting here first, before the model or the history
+exists. And treating a correlation as a cause: the analysis narrows the field, a person with
+process knowledge decides what it means.
+
+**A caution.** This is the play everyone wants to start with and the one that most often
+fails as a first project, because it depends on both a model and a history that a new
+platform does not yet have. Sequence it second or third.
+
+---
+
+## Energy and emissions {#energy-and-emissions}
+
+<Roadmap>
+**Partly available**, for the same reason as audit-ready reporting: attribution and
+near-real-time visibility work against the model today, while the traceability that makes a
+submission self-evidencing depends on [lineage](/concepts/lineage-and-quality), which is
+planned.
+</Roadmap>
+
+
+**The situation.** Energy and emissions reporting is periodic, manual, and disconnected
+from operational decisions. By the time a figure is known, the period it describes is over.
+
+**The play.** The full [three-layer model](/concepts/three-layers): obligations and targets
+at the top, the processes that consume energy in the middle, the metered assets at the
+bottom. Signals attached, derivations in the platform, lineage intact.
+
+**What you get.** Consumption and emissions attributable down to the asset and up to the
+obligation, in [near real time](/using/subscriptions) rather than in retrospect. Optimisation becomes possible
+because the figure is available while the period is still running. Submissions become
+queries with audit trails.
+
+**Who has to be involved.** Somebody who owns the obligation, not just the meters. This is
+the play that most needs the [business knowledge layer](/concepts/three-layers), and that
+layer cannot be built by engineering alone.
+
+**How you know it worked.** The figure is available while the period is still running, and
+somebody changes something because of it. A number that only arrives after the period closes
+has not changed the outcome, however accurate it is.
+
+**Where it goes wrong.** Modelling meters instead of obligations. You end up able to say what
+was consumed but not what it counts toward, which is the question being asked.
+
+**Effort:** medium–high. **Time to value:** two quarters or more.
+**Prerequisite:** the top layer of the model, which means leadership involvement rather than
+only engineering.
+
+---
+
+## Choosing between them
+
+Whichever you pick, the model that results is a [digital twin](/concepts/digital-twin) of
+that slice, grown to the size of the question. If you are not sure, this order works for
+most organisations:
+
+### If you recognise one of these, the choice is made for you
+
+| If this is true today | Start with |
+| --- | --- |
+| A capital project is in flight | [Capital project handover](#capital-project-handover), and start this week. The window closes at handover and does not reopen |
+| A regulated submission costs real effort every cycle | [Audit-ready reporting](#audit-ready-reporting), because the pain is already funded |
+| Incidents take days to diagnose and depend on who is on shift | [Faster investigations](#faster-investigations) |
+| Nobody can answer anything without a specialist per system | [Data liberation](#data-liberation) |
+| Leadership is asking about emissions or energy cost | [Energy and emissions](#energy-and-emissions), but read the roadmap note first |
+| None of the above feels urgent | [Data liberation](#data-liberation). It is the cheapest way to find out whether this is worth continuing |
+
+### Otherwise, this order works
+
+<Steps>
+  <Step title="Data liberation, on two or three sources">
+    Proves the platform, delivers immediate everyday value, requires almost no modelling
+    commitment.
+  </Step>
+  <Step title="Faster investigations, on one process area">
+    Builds the first real model, and produces the story that funds the next stage.
+  </Step>
+  <Step title="Audit-ready reporting, on one obligation">
+    Brings leadership and compliance into the model, which is what makes it an
+    organisational asset rather than an engineering tool.
+  </Step>
+  <Step title="Then condition monitoring or energy, whichever your business cares about more">
+    Both depend on the foundation the first three build.
+  </Step>
+</Steps>
+
+### What not to do
+
+- **Do not run two plays at once on a first project.** They compete for the same domain
+  experts, and neither finishes.
+- **Do not start with the play that has the largest number attached to it.** The biggest
+  prize is usually condition monitoring or emissions, and both need a model and a history
+  that do not exist yet. Starting there is the most common way this goes wrong.
+- **Do not pick a play nobody has asked for.** Every play here has an owner in the
+  organisation who already feels the pain. If you cannot name them, you have chosen the wrong
+  one. [Choosing a first question →](/value/where-to-start)
+
+<Deeper>
+- [Where to start](/value/where-to-start): turning a chosen play into a 90-day plan
+- [The business case](/value/business-case): the underlying value levers
+- [AI agents](/value/ai-agents): the plays that open up once the model exists
+- [Industry examples](/value/industry-examples): these plays in five different industries
+- [Measuring the return](/value/measuring-return): proving it worked
+</Deeper>
