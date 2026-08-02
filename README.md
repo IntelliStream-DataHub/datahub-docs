@@ -196,13 +196,20 @@ the fix belongs upstream rather than in a local fork.
 
 ## Deployment
 
-This site publishes at **https://intellistream.ai/documentation**, so
-`docusaurus.config.js` sets `url: https://intellistream.ai` and `baseUrl: '/documentation/'`.
-The SDK docs keep `docs.intellistream.ai`, which resolves the earlier root conflict.
+This site publishes at **https://intellistream.ai/data-platform-documentation**, so
+`docusaurus.config.js` sets `url: https://intellistream.ai` and
+`baseUrl: '/data-platform-documentation/'`. `/documentation` is a marketing page on the
+main site; the SDK docs move alongside these to `/sdk-documentation`.
+
+The build is served by the `intellistream-web` Spring Boot app out of
+`src/main/resources/static/`. Its `sync-docs` skill rebuilds this site and copies
+`build/` into place — use that rather than copying by hand.
 
 Consequences of the baseUrl:
 
-- The production web server must serve the contents of `build/` under `/documentation/`.
+- The production web server must serve the contents of `build/` under
+  `/data-platform-documentation/`.
 - Site-rooted asset paths in JSX need `useBaseUrl()`; the shared `Figure` and `IconItem`
   components already do this. Markdown links get the prefix automatically.
-- The dev server also serves under the prefix: `http://localhost:3000/documentation/`.
+- The dev server also serves under the prefix:
+  `http://localhost:3000/data-platform-documentation/`.
