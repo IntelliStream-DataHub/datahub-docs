@@ -48,6 +48,13 @@ The **Events** section lists everything that has happened across your operation.
 carries an event time (stored in UTC, shown in your local time), a type, and the resources it
 concerns.
 
+External ids behave differently here than on resources, and the difference is deliberate:
+**many events share one external id**. The id names the *subject*, the purchase order, the
+work permit, the batch, and every snapshot of what happened to it carries the same id, so
+"everything that has happened to order 4500171" is one indexed lookup rather than a
+metadata convention. The identity of an individual event is the platform's own event id;
+the external id is the thread its history hangs on.
+
 The filter panel narrows by:
 
 - **External id prefix**, the fastest route when you know roughly what you are looking for
