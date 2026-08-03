@@ -32,6 +32,10 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           routeBasePath: '/',          // docs at site root, GitBook-style
+          // Adds "Edit this page" to every doc. Docusaurus appends the file's
+          // path relative to this site directory, so this points at the repo
+          // root on the default branch — main here, master in datahub-sdk-docs.
+          editUrl: 'https://github.com/IntelliStream-DataHub/datahub-docs/edit/main/',
         },
         blog: false,
         theme: { customCss: './src/css/custom.css' },
@@ -92,10 +96,12 @@ const config = {
           { to: '/start/what-is-datahub', label: 'Start here', position: 'left' },
           { to: '/value/business-case', label: 'Business value', position: 'left' },
           { to: '/administration/overview', label: 'Administration', position: 'left' },
-          // Absolute, not root-relative: Docusaurus prefixes a leading-slash href
-          // with this site's baseUrl, which would point it back inside these docs.
-          { href: 'https://intellistream.ai/sdk-documentation/', label: 'Developer & SDK docs', position: 'right' },
-          { href: 'https://www.intellistream.ai', label: 'intellistream.ai', position: 'right' },
+          // Raw anchors, not `href` items. A Docusaurus <Link> treats any path
+          // starting with "/" as internal and hands the click to react-router,
+          // which pushState's the URL and then renders this site's own 404 —
+          // the href looks right in the HTML but the click never leaves the SPA.
+          { type: 'html', position: 'right', value: '<a class="navbar__item navbar__link" href="/sdk-documentation/">Developer &amp; SDK docs</a>' },
+          { href: 'https://github.com/IntelliStream-DataHub/datahub-docs', label: 'GitHub', position: 'right' },
         ],
       },
       footer: {
@@ -135,9 +141,9 @@ const config = {
             title: 'More',
             items: [
               { label: 'Administration', to: '/administration/overview' },
-              { label: 'Developer & SDK docs', href: 'https://intellistream.ai/sdk-documentation/' },
-              { label: 'intellistream.ai', href: 'https://www.intellistream.ai' },
-              { label: 'Contact us', href: 'https://intellistream.ai/contact-us' },
+              { html: '<a class="footer__link-item" href="/sdk-documentation/">Developer &amp; SDK docs</a>' },
+              { html: '<a class="footer__link-item" href="/">intellistream.ai</a>' },
+              { html: '<a class="footer__link-item" href="/contact-us">Contact us</a>' },
             ],
           },
         ],
