@@ -96,12 +96,11 @@ const config = {
           { to: '/start/what-is-datahub', label: 'Start here', position: 'left' },
           { to: '/value/business-case', label: 'Business value', position: 'left' },
           { to: '/administration/overview', label: 'Administration', position: 'left' },
-          // Same-domain links stay root-relative so they work on whatever host
-          // serves the build. Docusaurus would otherwise prefix a leading slash
-          // with this site's baseUrl (shouldAddBaseUrlAutomatically in Link.js),
-          // hence autoAddBaseUrl: false. data-noBrokenLinkCheck stops the link
-          // checker flagging a route that lives outside this site.
-          { href: '/sdk-documentation/', autoAddBaseUrl: false, 'data-noBrokenLinkCheck': true, label: 'Developer & SDK docs', position: 'right' },
+          // Raw anchors, not `href` items. A Docusaurus <Link> treats any path
+          // starting with "/" as internal and hands the click to react-router,
+          // which pushState's the URL and then renders this site's own 404 —
+          // the href looks right in the HTML but the click never leaves the SPA.
+          { type: 'html', position: 'right', value: '<a class="navbar__item navbar__link" href="/sdk-documentation/">Developer &amp; SDK docs</a>' },
           { href: 'https://github.com/IntelliStream-DataHub/datahub-docs', label: 'GitHub', position: 'right' },
         ],
       },
@@ -142,9 +141,9 @@ const config = {
             title: 'More',
             items: [
               { label: 'Administration', to: '/administration/overview' },
-              { label: 'Developer & SDK docs', href: '/sdk-documentation/', autoAddBaseUrl: false, 'data-noBrokenLinkCheck': true },
-              { label: 'intellistream.ai', href: '/', autoAddBaseUrl: false, 'data-noBrokenLinkCheck': true },
-              { label: 'Contact us', href: '/contact-us', autoAddBaseUrl: false, 'data-noBrokenLinkCheck': true },
+              { html: '<a class="footer__link-item" href="/sdk-documentation/">Developer &amp; SDK docs</a>' },
+              { html: '<a class="footer__link-item" href="/">intellistream.ai</a>' },
+              { html: '<a class="footer__link-item" href="/contact-us">Contact us</a>' },
             ],
           },
         ],
