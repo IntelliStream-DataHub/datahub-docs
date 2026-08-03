@@ -1,7 +1,7 @@
 ---
 sidebar_position: 12
 title: Policies
-description: Recording rules on data sets today, lifecycle, access and requirements, and the enforcement that is on the roadmap.
+description: Naming policies, enforced on every write, plus the lifecycle, access and requirement rules recorded today and the enforcement that is on the roadmap.
 ---
 import PolicyEnforcement from '@site/src/figures/policy-enforcement.svg';
 
@@ -15,22 +15,29 @@ import PolicyEnforcement from '@site/src/figures/policy-enforcement.svg';
 </Personas>
 
 <KeyIdea>
-A **policy** is a rule attached to a data set: how long its data is kept, who may access it
-and on what terms, what requirements it must meet.
+A **policy** is a rule the platform holds on your behalf: what an identifier must look like,
+how long data is kept, who may access it and on what terms, what requirements it must meet.
 
-Today a policy is a <span className="hl">declarative record</span>, it documents the rule
-where the data lives. Enforcement, the platform actually acting on it, is the roadmap part,
-and it is one of the
-[two building blocks still being built](/start/core-ideas#policies-the-rules).
+One kind is enforced today. A **naming policy** is checked on every write, and a create that
+breaks it is either refused or flagged for review.
+[Naming policies →](/concepts/naming-and-standards#naming-policies)
+
+The other three are <span className="hl">declarative records</span> for now: they document
+the rule where the data lives, and enforcement is the roadmap part of
+[one of the two building blocks still being built](/start/core-ideas#policies-the-rules).
 </KeyIdea>
 
 <Roadmap>
-**Policies are recorded, not enforced.** Nothing in the platform currently expires data,
-gates access or checks requirements because a policy says so: retention is a
-[coming feature](/administration/data-lifecycle#lever-2--retention) planned together with
-policy enforcement, and access comes entirely from
+**Lifecycle, access and requirement policies are recorded, not enforced.** Nothing in the
+platform currently expires data, gates access or checks requirements because a policy says
+so: retention is a [coming feature](/administration/data-lifecycle#lever-2--retention)
+planned together with policy enforcement, and access comes entirely from
 [groups in your identity provider](/administration/dataset-permissions). Treat what you write
 as documented intent, and write it as though it will be enforced, because it will be.
+
+**Naming policies are the exception**, and they are what the rest of policy enforcement is
+being built out from: naming is checked at the moment of writing, which is far simpler to
+enforce than a retention sweep or an access decision, so it shipped first.
 </Roadmap>
 
 ## Why record rules before they are enforced
@@ -55,13 +62,32 @@ A recorded policy fixes the visibility problem on its own:
   written, reviewed and attached. <span className="hl">Organisations that waited will be
   starting their retention workshops while yours activates.</span>
 
-## The three kinds
+## The four kinds
 
-| Kind | What it records | Enforced, once shipped |
+| Kind | What it records | Enforced |
 | --- | --- | --- |
-| **Lifecycle** | How long data is kept, and what happens when the clock runs out | Measurement history actually expires on schedule |
-| **Access** | Who may read or write, and on what terms | Gating, aligned with the [organization groups](/administration/identity-providers#organization-groups-carry-data-set-access) that grant access today |
-| **Requirement** | What the data set must satisfy, completeness, standards, review cadence | Checks that flag when the requirement is not met |
+| **Naming** | What an [external id](/concepts/naming-and-standards#external-ids-are-promises) must look like: a preset, or a pattern of your own | <span className="t-accent">Yes, today</span>, on every write |
+| **Lifecycle** | How long data is kept, and what happens when the clock runs out | Once shipped: measurement history actually expires on schedule |
+| **Access** | Who may read or write, and on what terms | Once shipped: gating, aligned with the [organization groups](/administration/identity-providers#organization-groups-carry-data-set-access) that grant access today |
+| **Requirement** | What the data set must satisfy, completeness, standards, review cadence | Once shipped: checks that flag when the requirement is not met |
+
+## The naming policy, in short {#naming}
+
+The one kind that acts rather than documents. It fixes the shape of new external ids, either
+by preset (verbatim tags, snake_case) or by a pattern you supply, and it runs in one of two
+modes: **reject**, where the write fails and nothing is created, or **warn**, where the write
+succeeds and a finding goes into a data steward's queue.
+
+Three properties are worth carrying in your head:
+
+- **It is set for the tenant, and can be overridden on one data set.** The most specific
+  policy wins and replaces the one above it rather than adding to it.
+- **A near-duplicate guard runs regardless of the preset**, refusing `pump-a-01` next to an
+  existing `pump_a_01` anywhere in the tenant.
+- **It does not govern events.** An event external id is the source system's key for the
+  subject the event is about, not a name anyone chose, and events are meant to share one.
+
+[The full rules, presets and findings queue →](/concepts/naming-and-standards#naming-policies)
 
 <Figure
   caption="Worth pausing on what this makes possible: because the policy and its enforcer are nodes, you can traverse from a series to the rule that governs it, or from a function to every rule it enforces. Compliance questions become graph questions. The enforcement arrow is the roadmap part; the structure around it can be modelled today."
@@ -83,9 +109,12 @@ just the rule but the reason.
     rule safely when the obligation changes.
   </Step>
   <Step title="Attach it to the right boundary">
-    Policies live on [data sets](/using/datasets), so the data set boundary decides what a
-    rule can govern. If one rule must cover two data sets, or half of one, that is a sign
-    the boundaries need a look first.
+    Lifecycle, access and requirement policies live on [data sets](/using/datasets), so the
+    data set boundary decides what a rule can govern. If one rule must cover two data sets,
+    or half of one, that is a sign the boundaries need a look first. A **naming** policy is
+    the exception: it is set for the whole tenant, because a rule living on a data set could
+    not govern the naming of the data set itself, and overridden on an individual data set
+    only where a source system's identifiers leave you no choice.
   </Step>
   <Step title="Keep lifecycle policies aligned with your audit horizon">
     <span className="t-accent">A reported figure can only ever be traced to inputs that
@@ -105,6 +134,10 @@ just the rule but the reason.
 Each data set has a **Policies** tab in the console, which is where its rules are recorded
 and read. [Data sets →](/using/datasets#policies)
 
+Warnings raised by a naming policy collect in a findings queue, grouped by policy and by the
+shape of the mistake rather than listed row by row, and a resource shows its own open
+findings. [The findings queue →](/concepts/naming-and-standards#findings)
+
 Policies are one of four pieces that carry governance here, alongside the graph, data sets
 and functions. [How the pieces fit →](/concepts/data-governance#how-the-pieces-carry-it)
 
@@ -117,6 +150,7 @@ and functions. [How the pieces fit →](/concepts/data-governance#how-the-pieces
 </References>
 
 <Deeper>
+- [Naming and standards](/concepts/naming-and-standards#naming-policies): the naming policy in full, presets, modes and findings
 - [Data governance](/concepts/data-governance): the umbrella policies are one piece of
 - [The roadmap building blocks](/start/core-ideas#policies-the-rules): policies and functions in the vocabulary
 - [Data sets](/using/datasets): the boundary a policy governs
