@@ -7,12 +7,13 @@ const config = {
   tagline: 'A shared model of your operation',
   favicon: 'img/favicon.ico',
 
-  // This site publishes at https://intellistream.ai/documentation, which
-  // resolves the earlier root conflict: the SDK docs keep docs.intellistream.ai.
+  // This site publishes at https://intellistream.ai/data-platform-documentation.
+  // /documentation is already taken by a marketing page on the main site, and the
+  // SDK docs move alongside these to /sdk-documentation.
   // baseUrl matters: every generated asset and route is prefixed with it, so
-  // the production web server must serve the build under /documentation/.
+  // the production web server must serve the build under /data-platform-documentation/.
   url: 'https://intellistream.ai',
-  baseUrl: '/documentation/',
+  baseUrl: '/data-platform-documentation/',
   organizationName: 'intellistream',
   projectName: 'datahub-docs',
   onBrokenLinks: 'warn',
@@ -76,13 +77,24 @@ const config = {
       },
       navbar: {
         title: 'DataHub',
-        logo: { alt: 'IntelliStream', src: 'img/logo.svg', srcDark: 'img/logo-dark.svg' },
+        // '/' is the main site root, not this site's baseUrl. That only works
+        // because src/theme/Logo is ejected to pass href through verbatim —
+        // stock Docusaurus would rewrite this to /data-platform-documentation/.
+        logo: {
+          alt: 'IntelliStream',
+          src: 'img/logo.svg',
+          srcDark: 'img/logo-dark.svg',
+          href: '/',
+          target: '_self',
+        },
         items: [
           { type: 'docSidebar', sidebarId: 'docsSidebar', position: 'left', label: 'Documentation' },
           { to: '/start/what-is-datahub', label: 'Start here', position: 'left' },
           { to: '/value/business-case', label: 'Business value', position: 'left' },
           { to: '/administration/overview', label: 'Administration', position: 'left' },
-          { href: 'https://docs.intellistream.ai', label: 'Developer & SDK docs', position: 'right' },
+          // Absolute, not root-relative: Docusaurus prefixes a leading-slash href
+          // with this site's baseUrl, which would point it back inside these docs.
+          { href: 'https://intellistream.ai/sdk-documentation/', label: 'Developer & SDK docs', position: 'right' },
           { href: 'https://www.intellistream.ai', label: 'intellistream.ai', position: 'right' },
         ],
       },
@@ -123,7 +135,7 @@ const config = {
             title: 'More',
             items: [
               { label: 'Administration', to: '/administration/overview' },
-              { label: 'Developer & SDK docs', href: 'https://docs.intellistream.ai' },
+              { label: 'Developer & SDK docs', href: 'https://intellistream.ai/sdk-documentation/' },
               { label: 'intellistream.ai', href: 'https://www.intellistream.ai' },
               { label: 'Contact us', href: 'https://intellistream.ai/contact-us' },
             ],
