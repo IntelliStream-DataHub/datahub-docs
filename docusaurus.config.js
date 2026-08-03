@@ -96,10 +96,12 @@ const config = {
           { to: '/start/what-is-datahub', label: 'Start here', position: 'left' },
           { to: '/value/business-case', label: 'Business value', position: 'left' },
           { to: '/administration/overview', label: 'Administration', position: 'left' },
-          // Absolute, not root-relative: Docusaurus prefixes a leading-slash href
-          // with this site's baseUrl, which would point it back inside these docs.
-          { href: 'https://intellistream.ai/sdk-documentation/', label: 'Developer & SDK docs', position: 'right' },
-          { href: 'https://www.intellistream.ai', label: 'intellistream.ai', position: 'right' },
+          // Same-domain links stay root-relative so they work on whatever host
+          // serves the build. Docusaurus would otherwise prefix a leading slash
+          // with this site's baseUrl (shouldAddBaseUrlAutomatically in Link.js),
+          // hence autoAddBaseUrl: false. data-noBrokenLinkCheck stops the link
+          // checker flagging a route that lives outside this site.
+          { href: '/sdk-documentation/', autoAddBaseUrl: false, 'data-noBrokenLinkCheck': true, label: 'Developer & SDK docs', position: 'right' },
           { href: 'https://github.com/IntelliStream-DataHub/datahub-docs', label: 'GitHub', position: 'right' },
         ],
       },
@@ -140,9 +142,9 @@ const config = {
             title: 'More',
             items: [
               { label: 'Administration', to: '/administration/overview' },
-              { label: 'Developer & SDK docs', href: 'https://intellistream.ai/sdk-documentation/' },
-              { label: 'intellistream.ai', href: 'https://www.intellistream.ai' },
-              { label: 'Contact us', href: 'https://intellistream.ai/contact-us' },
+              { label: 'Developer & SDK docs', href: '/sdk-documentation/', autoAddBaseUrl: false, 'data-noBrokenLinkCheck': true },
+              { label: 'intellistream.ai', href: '/', autoAddBaseUrl: false, 'data-noBrokenLinkCheck': true },
+              { label: 'Contact us', href: '/contact-us', autoAddBaseUrl: false, 'data-noBrokenLinkCheck': true },
             ],
           },
         ],

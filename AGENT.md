@@ -354,7 +354,7 @@ removed and would need re-pointing.
 ## Deployment
 
 Publishes at **https://intellistream.ai/data-platform-documentation**
-(`baseUrl: '/data-platform-documentation/'`); the SDK docs keep `docs.intellistream.ai`.
+(`baseUrl: '/data-platform-documentation/'`); the SDK docs sit alongside at `/sdk-documentation/`.
 Serve `build/` under `/data-platform-documentation/` on the main site's web server. The main
 site already serves a marketing page at `/documentation`, and its controller mapping would
 win over static resources, so this site cannot be mounted there. Markdown links pick up the baseUrl automatically, but any raw `<img src>`
