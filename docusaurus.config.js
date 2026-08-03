@@ -32,6 +32,10 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           routeBasePath: '/',          // docs at site root, GitBook-style
+          // Adds "Edit this page" to every doc. Docusaurus appends the file's
+          // path relative to this site directory, so this points at the repo
+          // root on the default branch — main here, master in datahub-sdk-docs.
+          editUrl: 'https://github.com/IntelliStream-DataHub/datahub-docs/edit/main/',
         },
         blog: false,
         theme: { customCss: './src/css/custom.css' },
@@ -96,6 +100,7 @@ const config = {
           // with this site's baseUrl, which would point it back inside these docs.
           { href: 'https://intellistream.ai/sdk-documentation/', label: 'Developer & SDK docs', position: 'right' },
           { href: 'https://www.intellistream.ai', label: 'intellistream.ai', position: 'right' },
+          { href: 'https://github.com/IntelliStream-DataHub/datahub-docs', label: 'GitHub', position: 'right' },
         ],
       },
       footer: {
