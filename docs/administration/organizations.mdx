@@ -40,18 +40,12 @@ Enterprise. On Community Edition, which the reference deployment uses,
 isolation is not enforced at the database level. If you need per-tenant graph isolation, plan
 for Enterprise.
 
-Each customer will also be able to bring **their own** identity providers. An organisation
-can have several of them, and each identity provider belongs to exactly one organisation,
-so several corporate directories, including multiple Entra ID tenants, can authenticate
-into a single deployment.
-
-<Roadmap>
-This is the Keycloak **organizations** work, in active development and expected to land
-during the second half of 2026. Organisations will also carry the **groups** that data set
-read and write access moves to. Check the release notes before designing a rollout against
-it.
-[How organizations will work →](/administration/identity-providers#organizations-each-customers-own-identity-providers)
-</Roadmap>
+Each customer can also bring **their own** identity providers. An organisation can have
+several of them, and each identity provider belongs to exactly one organisation, so several
+corporate directories, including multiple Entra ID tenants, can authenticate into a single
+deployment. The organisation also carries the **groups** that grant data set read and write
+access.
+[How organizations work →](/administration/identity-providers#organizations-each-customers-own-identity-providers)
 
 A user's tenant is resolved from the organisation claim in their access token on every
 request, and every downstream operation, which database to query, which files to read,
@@ -145,10 +139,10 @@ To add one:
     key-value endpoints, and the file-storage directories.
   </Step>
   <Step title="Create the organisation in your identity provider">
-    This is what the organisation claim in users' tokens will refer to. Once the
-    organizations feature lands, this is also where the customer's own identity providers
-    and the [groups that will carry data set access](/administration/identity-providers#organization-groups-will-carry-data-set-access)
-    live.
+    This is what the organisation claim in users' tokens refers to, and where the customer's
+    own identity providers and the
+    [groups that carry data set access](/administration/identity-providers#organization-groups-carry-data-set-access)
+    live. Add every user and service account of that tenant as a **member**.
   </Step>
   <Step title="Register the tenant in the secret store">
     Its connection details and organisation id go into the platform's tenant registry, which

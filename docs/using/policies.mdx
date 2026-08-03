@@ -28,8 +28,8 @@ and it is one of the
 **Policies are recorded, not enforced.** Nothing in the platform currently expires data,
 gates access or checks requirements because a policy says so: retention is a
 [coming feature](/administration/data-lifecycle#lever-2--retention) planned together with
-policy enforcement, and access today comes entirely from
-[roles in your identity provider](/administration/dataset-permissions). Treat what you write
+policy enforcement, and access comes entirely from
+[groups in your identity provider](/administration/dataset-permissions). Treat what you write
 as documented intent, and write it as though it will be enforced, because it will be.
 </Roadmap>
 
@@ -60,7 +60,7 @@ A recorded policy fixes the visibility problem on its own:
 | Kind | What it records | Enforced, once shipped |
 | --- | --- | --- |
 | **Lifecycle** | How long data is kept, and what happens when the clock runs out | Measurement history actually expires on schedule |
-| **Access** | Who may read or write, and on what terms | Gating, aligned with the [organization groups](/administration/identity-providers#organization-groups-will-carry-data-set-access) work |
+| **Access** | Who may read or write, and on what terms | Gating, aligned with the [organization groups](/administration/identity-providers#organization-groups-carry-data-set-access) that grant access today |
 | **Requirement** | What the data set must satisfy, completeness, standards, review cadence | Checks that flag when the requirement is not met |
 
 <Figure

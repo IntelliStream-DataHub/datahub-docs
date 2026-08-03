@@ -213,15 +213,37 @@ enforcement** (retention, access, requirements, retention enforcement planned to
 measurement expiry) and **executable functions** (data cleaning, transformation, feature
 extraction, streaming computation with windowing).
 
-Also flagged: **Keycloak Organizations** (one organisation per tenant, each with its own
-identity provider, so multiple customer Entra tenants can connect to one deployment) and
-**organization groups carrying data set access** in place of the `DATAHUB_DATASET_*` role
-grammar. This is in active development and expected during the second half of 2026, the
-wording the docs use, so check whether it has landed and update `identity-providers.mdx` and
-`dataset-permissions.mdx` accordingly. Verified
-against Keycloak docs: an organization may have several identity providers, but an identity
-provider may belong to only one organization, so a shared directory cannot be linked to many
-organizations.
+**Keycloak Organizations: landed, no longer roadmap** (was flagged here as "expected during
+the second half of 2026"; that instruction is discharged as of 2026-08-03). Both halves
+shipped, verified in `../datahub-platform/datahub-api/KEYCLOAK_ORG_GROUPS.md` against a live
+Keycloak 26.7. What is now true, and what the docs say:
+
+- **Tenant identity is the real Organizations feature**, one organization per tenant. The
+  old per-user `datahub_org` attribute shortcut is gone from the platform and the dev realm.
+  Do not reintroduce "a per-user attribute, a development shortcut" anywhere.
+- **Membership is the mechanism.** A user or service account that is not a member of its
+  organization gets no tenant. A non-member service account authenticates fine and then sees
+  nothing, which reads as a data problem rather than an access one. Likely support ticket,
+  documented on `users-and-access.mdx` and `identity-providers.mdx`.
+- **Clients must request an organization selector**, `scope=openid organization:*` or
+  `organization:<alias>`. Without one there is no organization claim and the token is
+  rejected. A user in several organizations gets an ambiguous token, also rejected.
+- **Data set access is organization groups**, `/datasets/<externalId>/read` and `/write`,
+  inheriting down the data set hierarchy. The id-bearing `DATAHUB_DATASET_READ_<id>` /
+  `WRITE_<id>` realm roles are **no longer read at all**; do not document them. The blanket
+  `DATAHUB_ADMIN` / `_DATASET_ALL` / `_READ_ALL` / `_WRITE_ALL` roles stay realm roles.
+- **Grants are not read from the token**, so "there is no cached permission state, revoking
+  takes effect at the next token issue" is wrong and was corrected on `security.mdx`,
+  `overview.mdx`, `users-and-access.mdx` and `building-applications.mdx`. Correct user-facing
+  wording: changes take effect **within about a minute**. If the identity provider is
+  unreachable, requests are refused rather than returning empty results.
+- **Creating, updating or deleting a data set itself needs an all-data-sets grant.** A grant
+  on individual data sets never confers it, because a data set is the unit access is granted
+  on. Documented on `dataset-permissions.mdx` and `using/datasets.mdx`.
+
+Still true and worth keeping: an organization may have several identity providers, but an
+identity provider may belong to only one organization, so a shared directory cannot be linked
+to many organizations.
 
 Documented with `<Roadmap>` rather than removed: **lineage and data quality** (no lineage
 subsystem exists; the only artefact is a `WAS_DERIVED_FROM` edge, and no data-quality flag
@@ -269,8 +291,8 @@ and the maturity ladder maps levels 3–4 onto the functions/agents roadmap hone
 new themed figures (`liberation-translate` on data-liberation, `resource-anatomy` on
 ontology, `digital-twin-mirror` on digital-twin), and five FAQ answers (digital twin,
 agents, subscriptions, functions/policies status, Entra ID sign-in). The FAQ's Entra answer
-repeats the Keycloak-organisations "when it lands" framing; unwind it when the feature
-ships.
+used to repeat the Keycloak-organisations "when it lands" framing; unwound on 2026-08-03, see
+the Organizations entry above.
 
 ### The 2026-08-02 site-wide review pass
 
