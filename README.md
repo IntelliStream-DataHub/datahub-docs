@@ -10,7 +10,7 @@ lives in the separate [`datahub-sdk-docs`](../datahub-sdk-docs) site.
 Built with [Docusaurus](https://docusaurus.io/) 3, using the same IntelliStream brand skin as
 the SDK docs.
 
-> **Working on this repo?** Read [AGENT.md](AGENT.md) first. It records the conventions, the
+> **Working on this repo?** Read [AGENTS.md](AGENTS.md) first. It records the conventions, the
 > traps that have already cost time, and, most importantly, which claims in the docs are
 > known to be inaccurate and still need correcting.
 
