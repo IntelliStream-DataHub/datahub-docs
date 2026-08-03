@@ -29,7 +29,7 @@ provider satisfies none of them:
 | What the API requires | Why |
 | --- | --- |
 | **A single known issuer** | The token signature is validated against one configured Keycloak realm |
-| **Roles in `realm_access.roles`** | This is where [data set permissions](/administration/dataset-permissions) are read from |
+| **Roles in `realm_access.roles`** | The baseline access roles, and the blanket all-data-sets grants |
 | **A nested `organization` claim** | This resolves which [tenant](/administration/organizations) the request belongs to |
 
 That last one is the hard requirement. Without a tenant, there is no database to query, so a
@@ -51,33 +51,43 @@ A working realm provides:
 - **A confidential client for the console**, used for the browser sign-in flow. The console
   relays the signed-in user's access token straight to the API, so there is no separate token
   handling in the browser.
-- **Realm roles**, which are what actually grant access:
+- **Realm roles**, which gate the platform itself and carry the blanket data set grants:
 
 | Role | Grants |
 | --- | --- |
 | `DATAHUB_ACCESS` | The baseline, required to use the API at all |
 | `DATAHUB_CONSOLE` | Required for every console page |
 | `DATAHUB_ADMIN` | The operator escape hatch: read and write on every data set |
-| `DATAHUB_DATASET_*` | Read and write on data sets. [Full grammar →](/administration/dataset-permissions) |
+| `DATAHUB_DATASET_ALL`, `_READ_ALL`, `_WRITE_ALL` | Blanket read and write across every data set |
+
+- **An organization per tenant**, using Keycloak's
+  [Organizations](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)
+  feature. Being a member of one is what puts the `organization` claim in a user's token, and
+  that claim is what resolves the tenant.
+
+- **Organization groups**, which grant access to individual data sets.
+  [Data set permissions →](/administration/dataset-permissions)
 
   Note that <span className="t-accent">access and data permissions are separate</span>. A user
-  with `DATAHUB_ACCESS` and `DATAHUB_CONSOLE` but no data set roles can sign in and then see
-  nothing: without a read role every list comes back empty, and without a write role nothing
-  can be saved. It looks like a broken install and is actually a missing role.
-
-- **The `organization` claim**, emitted per user. Each user carries an attribute holding their
-  tenant's claim, and a client attribute mapper emits it as the nested `organization` claim the
-  API reads.
+  with `DATAHUB_ACCESS` and `DATAHUB_CONSOLE` but no data set grants can sign in and then see
+  nothing: without a read grant every list comes back empty, and without a write grant nothing
+  can be saved. It looks like a broken install and is actually a missing grant.
 
 ### Users and tenants
 
-A user's tenant comes from their `organization` claim, so **one user belongs to one tenant**.
-Somebody who needs access to two tenants needs two identities.
+A user's tenant is the organization they belong to, so **one user belongs to one tenant**.
+Membership is the whole mechanism: somebody who is not a member of their tenant's
+organization gets a token with no tenant in it, and the API rejects it.
 
-For production, use Keycloak's Organizations feature with one organisation per tenant. The
-per-user attribute approach is a development shortcut, it works, but it puts tenant
-assignment in a place that is easy to get wrong and hard to audit.
-[How organizations will work →](#organizations-each-customers-own-identity-providers)
+Somebody who belongs to **several** organizations gets an ambiguous token, which the API
+rejects rather than guessing which tenant was meant. Access to two tenants means two
+identities.
+
+Where organizations carry the tenant, clients must ask for one when they request a token, with
+`scope=openid organization:*`, or `organization:<alias>` to pin one. Without that selector
+there is no `organization` claim at all. (A realm that instead supplies the claim from a
+mapper on the client needs no such scope; ask whoever runs your realm which applies.)
+[How organizations work →](#organizations-each-customers-own-identity-providers)
 
 ### Machine-to-machine access
 
@@ -91,49 +101,46 @@ Each client needs two halves:
   <Step title="The client itself, with service accounts enabled">
     This is what mints the token.
   </Step>
-  <Step title="A service-account user holding the organization attribute">
+  <Step title="Its service-account user, made a member of the tenant's organization">
     Named `service-account-<clientId>`. A service account has no user profile of its own, so
-    this is where the tenant claim lives.
+    organization membership is what gives its tokens a tenant.
   </Step>
 </Steps>
 
+The client must also request the organization scope, `scope=organization:*`, on every token
+request. This applies wherever organizations carry the tenant, which is the normal setup.
+
 :::tip The failure that looks like bad credentials
-A client with service accounts enabled but **no matching service-account user entry** mints
-tokens with no `organization` claim. Every API call then fails with
-`401 invalid_token`, which reads as a credentials problem and is not one. If a new service
-client authenticates but every call returns 401, check for the missing half.
+Without the organization scope the token carries no tenant, and every API call fails with
+`401 invalid_token`, which reads as a credentials problem and is not one. If instead the
+credentials work and every call comes back **empty**, check that the service-account user is
+an organization member.
 :::
 
 ### Adding a tenant
 
-Clone an existing tenant's client block plus its service-account user entry, and change the
-organisation id to match the new tenant's registry entry.
+Create the organisation, clone an existing tenant's client plus its service-account user, and
+make that user a member of the new organisation. Its id must match the new tenant's registry
+entry.
 [Provisioning a tenant →](/administration/organizations#provisioning-a-tenant)
 
 ## Organizations, each customer's own identity providers {#organizations-each-customers-own-identity-providers}
 
-<Roadmap>
-**In active development, expected to land during the second half of 2026.** Keycloak's
-Organizations feature is how DataHub will handle tenants and their identity providers,
-replacing the per-user attribute approach described above. This section describes the
-intended model so you can plan around it; check the release notes before designing against
-it.
-</Roadmap>
-
 Keycloak realms support
 **[organizations](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)**,
-and an organization can have its own identity providers. That maps onto DataHub's tenant model directly, and it solves the problem that
-each customer wants to authenticate against **their own** directory.
+and DataHub uses them as its tenants: **one organization per tenant**. An organization can
+also have its own identity providers, which solves the problem that each customer wants to
+authenticate against **their own** directory.
 
-### What it changes
+### What an organization carries
 
-| | Today | With organizations |
-| --- | --- | --- |
-| **Tenant identity** | A per-user attribute carrying the claim, a development shortcut | One organization per tenant |
-| **Identity provider** | One, shared by everyone in the realm | One or more per organization, so each customer brings their own Entra ID or other directory |
-| **Routing** | Not applicable | Users are routed to the right provider by verified email domain |
-| **Membership** | Manual | Authenticating through an organization's provider can grant membership automatically |
-| **Data set access** | `DATAHUB_DATASET_*` realm roles | Organization groups, see below |
+| | |
+| --- | --- |
+| **Tenant identity** | One organization per tenant. A user's membership is what resolves their tenant |
+| **Identity providers** | One or more per organization, so each customer brings their own Entra ID or other directory |
+| **Routing** | Users are routed to the right provider by verified email domain |
+| **Membership** | Authenticating through an organization's provider can grant membership automatically |
+| **Data set access** | Groups inside the organization, see below |
 
 So several different Entra ID tenants can be connected to one DataHub deployment at the same
 time, each belonging to its own organization, **without a realm per customer**.
@@ -146,21 +153,17 @@ time, each belonging to its own organization, **without a realm per customer**.
   This is a current Keycloak limitation, so you cannot link a single shared directory to many
   organizations and filter by email domain. Each customer needs its own provider entry.
 
-### Organization groups will carry data set access
+### Organization groups carry data set access {#organization-groups-carry-data-set-access}
 
-Organizations support **groups**, members can be added to them, roles can be assigned to
-them, and group membership can be mapped into the token. Members inherit the attributes and
-role mappings their group defines.
-
-That is the mechanism DataHub will use to decide **which data sets you may read and write**,
-in place of assigning the [role grammar](/administration/dataset-permissions) to individuals.
-The practical effect for an administrator is that access becomes something you grant by
-putting somebody in the right group inside their organization, rather than by composing role
-names.
+Organizations support **groups**, and group membership is what decides **which data sets you
+may read and write**. Access is granted by putting somebody in the right group inside their
+organization, named after the data set:
+`/datasets/<externalId>/read` and `/datasets/<externalId>/write`.
+[Data set permissions →](/administration/dataset-permissions)
 
 Plan your [data set boundaries](/using/datasets#designing-good-boundaries) with that in mind:
-they will line up with organization groups, so a boundary that matches how you would group
-people is one you will not have to redraw.
+they line up with organization groups, so a boundary that matches how you would group people
+is one you will not have to redraw.
 
 ## Microsoft Entra ID
 
@@ -184,8 +187,8 @@ Keycloak side, and it is the part to plan for:
 - **Map Entra groups to the DataHub realm roles** listed above. Entra app roles are not read
   by DataHub, authorisation comes entirely from the Keycloak realm roles the brokered user
   ends up holding.
-- **Ensure every brokered user gets an `organization` claim.** This is the step that is easy
-  to miss, because sign-in will succeed and then every API call will fail.
+- **Ensure every brokered user becomes a member of their tenant's organization.** This is the
+  step that is easy to miss, because sign-in will succeed and then every API call will fail.
 
 The upside is that your joiner-mover-leaver process stays in Entra, where it already lives.
 Keycloak becomes a translation layer rather than a second place to manage people.
@@ -213,7 +216,7 @@ The flow is three steps:
 </Steps>
 
 Each Entra service principal must be linked to a Keycloak user, which carries the realm roles
-and the organisation claim.
+and belongs to the tenant's organisation.
 
 :::caution Use the current mechanism, not the old ones
 Two older approaches exist and should **not** be used. External-to-internal Token Exchange V1
@@ -259,7 +262,7 @@ DataHub requires three things from a token, and Entra satisfies none of them out
 | --- | --- | --- |
 | **One trusted issuer** | What the API validates today | Needs the API changed to resolve multiple issuers, plus audience validation that does not exist yet |
 | **Roles in `realm_access.roles`** | Native | App roles arrive in a flat top-level `roles` claim, so a per-issuer role mapper is needed |
-| **Nested `organization` claim** | Emitted by a client mapper | The awkward one, see below |
+| **Nested `organization` claim** | Emitted from organization membership | The awkward one, see below |
 
 That third row is the real obstacle. Entra's optional claims are configured per application
 and emit **strings and arrays of strings**. Directory extension claims are emitted flat, as
@@ -335,7 +338,7 @@ replace the realm, the clients, the secrets and the users with your own.
 
 <Deeper>
 - [Users and access](/administration/users-and-access): tokens, service accounts and access reviews
-- [Data set permissions](/administration/dataset-permissions): the roles these providers must emit
+- [Data set permissions](/administration/dataset-permissions): the groups and roles these providers must emit
 - [Organisations and tenants](/administration/organizations): what the organisation claim resolves to
 - [Security and compliance](/administration/security): the wider posture
 </Deeper>

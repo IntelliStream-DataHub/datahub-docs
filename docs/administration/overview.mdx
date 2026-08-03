@@ -51,8 +51,8 @@ likely already runs.
 ### Managing access
 
 **Data set permissions** govern the stored data, resources, time series, events and files.
-They are granted through roles in your identity provider, and read and write are independent
-of each other. [→ Data set permissions](/administration/dataset-permissions)
+They are granted through organization groups in your identity provider, and read and write
+are independent of each other. [→ Data set permissions](/administration/dataset-permissions)
 
 Users themselves live in your existing identity provider, not in DataHub.
 [→ Users and access](/administration/users-and-access)
@@ -78,9 +78,9 @@ and making sure what arrives connects to the model rather than sitting orphaned.
 Worth knowing, because these are often assumed:
 
 - **You do not manage user accounts in DataHub.** Identity lives in your OAuth2/OIDC
-  provider. [Identity providers →](/administration/identity-providers) DataHub reads roles
-  from the token on every request, so revoking access is a
-  matter of removing a role, there is no cached permission state to clear.
+  provider. [Identity providers →](/administration/identity-providers) DataHub authorises
+  every request against what your provider currently says, so revoking access is a matter of
+  removing a role or a group membership, and it takes effect within about a minute.
 - **You do not run database migrations by hand.** They run automatically at startup, across
   every tenant, with locking that makes concurrent instance startup safe.
 - **You do not need session affinity on the load balancer.** All services, including the
@@ -114,7 +114,7 @@ capacity</span>, and restart the UI without interrupting ingestion.
     Keycloak as the trusted issuer, and bringing Entra ID in behind it.
   </Card>
   <Card title="Data set permissions" to="/administration/dataset-permissions" icon="🔐">
-    The role grammar that controls read and write on stored data.
+    The organization groups that control read and write on stored data.
   </Card>
   <Card title="Data lifecycle" to="/administration/data-lifecycle" icon="♻️">
     Retention, backups, housekeeping and storage cost.

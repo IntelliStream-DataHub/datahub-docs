@@ -40,6 +40,13 @@ with an identifiable owner and purpose</span>. That is the test.
 
 ## Creating one
 
+:::note Who can create one
+Creating, editing or deleting a data set needs a grant across *all* data sets, so in practice
+this is an administrator's job. Access to individual data sets never includes it, because
+changing a data set changes what existing grants cover.
+[Data set permissions →](/administration/dataset-permissions#managing-the-data-sets-themselves)
+:::
+
 <Steps>
   <Step title="Name it for what it contains, not who created it">
     *"Grid asset monitoring"*, not *"Erik's project"*. The name outlives the project.
@@ -96,7 +103,7 @@ much cheaper than rearranging later.
 describing lifecycle or access intent, and they document what *should* happen, but nothing in
 the platform currently acts on them.
 
-Read and write access comes entirely from the roles in your identity provider.
+Read and write access comes entirely from the groups and roles in your identity provider.
 [Data set permissions](/administration/dataset-permissions) ·
 [Policies as a building block →](/start/core-ideas#policies-the-rules)
 </Roadmap>
@@ -133,7 +140,7 @@ is a good first diagnostic.
 
 <Deeper>
 - [Data governance](/concepts/data-governance): data sets as the access piece of governance
-- [Data set permissions](/administration/dataset-permissions): the roles behind read and write
+- [Data set permissions](/administration/dataset-permissions): the groups behind read and write
 - [The four building blocks](/start/core-ideas): where data sets sit among the concepts
 - [Working with files](/using/files): data sets on folders and documents
 - [Data lifecycle](/administration/data-lifecycle): retention, which is also set per data domain

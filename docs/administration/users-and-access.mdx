@@ -14,12 +14,11 @@ description: Where DataHub users come from, how roles reach the platform, and ho
 <KeyIdea>
 DataHub does not hold user accounts. Identity lives in
 [your existing OAuth2/OIDC identity provider](/administration/identity-providers), and
-DataHub reads roles from the access token on every request.
+DataHub reads the caller's roles and data set grants from your provider on every request.
 
 The practical consequence: joiners, movers and leavers are handled by the process you
-already have, and revoking access takes effect as soon as the user's token is reissued,
-<span className="hl">there is no cached permission state anywhere in the platform to
-clear</span>.
+already have, and <span className="hl">granting or revoking access takes effect within about
+a minute</span>, without waiting for the user's token to expire.
 </KeyIdea>
 
 ## How a user reaches the platform
@@ -36,14 +35,14 @@ clear</span>.
     This resolves which [tenant](/administration/organizations) the request belongs to, and
     therefore which databases it touches.
   </Step>
-  <Step title="DataHub reads the roles">
-    Roles determine what the user may read and write.
+  <Step title="DataHub reads the roles and organization groups">
+    These determine what the user may read and write.
     [Data set permissions →](/administration/dataset-permissions)
   </Step>
 </Steps>
 
-Because this happens per request, changes take effect at the next token issue rather than
-after a cache expiry or a restart.
+Because this is evaluated per request, a change made in your identity provider takes effect
+within about a minute, with no restart and no need to sign anybody out.
 
 ## The baseline role
 
@@ -52,8 +51,8 @@ authenticates successfully and can do nothing, which is the correct default for 
 whose access has not been deliberately granted.
 
 Beyond that, permissions are granular: **data set permissions** grant read and write on the
-stored data, independently of each other.
-[→ Full role grammar](/administration/dataset-permissions)
+stored data, independently of each other, through organization groups.
+[→ How grants work](/administration/dataset-permissions)
 
 ## Access tokens
 
@@ -87,9 +86,21 @@ Recommended shape for an ingestion account:
 | | |
 | --- | --- |
 | **Identity** | A dedicated service account, named for the source system it represents |
-| **Data set roles** | Write on the specific data sets it feeds. No read, unless it genuinely needs it |
+| **Organisation membership** | Its service-account user must be a member of the tenant's organisation |
+| **Data set grants** | Write on the specific data sets it feeds. No read, unless it genuinely needs it |
 | **Source-side access** | Read-only on the source system it reads from |
 | **Credential rotation** | Through your identity provider's normal process |
+
+The membership row is the one that produces confusing support tickets, because two different
+mistakes look alike from the client:
+
+| Symptom | Cause |
+| --- | --- |
+| Rejected on every call, credentials look fine | Not a member of any organisation. Membership is what tells DataHub which tenant the account belongs to, so without it there is no tenant to serve and the call is refused rather than merely empty. |
+| Connects, but every list comes back <span className="t-accent">empty</span> | A member, but with no data set grants. Identity is fine; access is missing. |
+
+The first looks like a credential problem and is not. The second looks like a data problem and
+is not.
 
 ## Sessions
 
@@ -104,23 +115,22 @@ everybody out, and the load balancer needs no session affinity.
 
 Two practical habits:
 
-- **Review data set roles quarterly.** The role names encode which data sets they grant, so
-  a role list in your identity provider is a readable access report, no export from DataHub
-  required. When access moves to
-  [organisation groups](/administration/identity-providers#organization-groups-will-carry-data-set-access),
-  the same review reads the group list instead; the habit carries over, the grammar changes.
+- **Review data set grants quarterly.** The group names carry the data set they grant, so the
+  group list in your identity provider is a readable access report, no export from DataHub
+  required.
 - **Watch for over-broad grants.** Roles granting read or write across *all* data sets exist
   as an operator escape hatch. They should be held by very few accounts, and their holders
-  should be reviewed by name.
+  should be reviewed by name. Remember that a grant high in the data set hierarchy covers
+  everything beneath it.
 
-[The full role grammar →](/administration/dataset-permissions)
+[How grants work →](/administration/dataset-permissions)
 
 ## What administrators cannot do from the console
 
 By design, a few things live outside the platform:
 
 - **Creating users**, in your identity provider
-- **Assigning roles**, in your identity provider
+- **Assigning roles and data set groups**, in your identity provider
 - **Provisioning tenants**, infrastructure work
   [→ Organisations and tenants](/administration/organizations)
 
@@ -128,7 +138,7 @@ This is deliberate. Identity and infrastructure belong to systems built for them
 own audit trails and approval processes, rather than being duplicated inside an application.
 
 <Deeper>
-- [Data set permissions](/administration/dataset-permissions): the role grammar in detail
+- [Data set permissions](/administration/dataset-permissions): how grants are expressed, in detail
 - [Organisations and tenants](/administration/organizations): how the organisation claim resolves
 - [Security and compliance](/administration/security): the wider posture
 - [Change data capture](/using/cdc-integrations): service accounts for source-system integrations

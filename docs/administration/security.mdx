@@ -52,9 +52,10 @@ OAuth2/OIDC against your identity provider, so your existing single sign-on, mul
 requirements, conditional access and joiner-mover-leaver process all apply unchanged.
 [Identity providers, including Entra ID →](/administration/identity-providers)
 
-**Authorisation is per request.** Roles are read from the access token on every request.
-There is no cached permission state in the platform, so revoking a role takes effect as soon
-as the user's token is reissued rather than after a cache expiry.
+**Authorisation is per request.** Every request is authorised against your identity provider's
+current answer, so revoking a role or a group membership takes effect within about a minute,
+without waiting for the user's token to expire. If the identity provider cannot be reached,
+requests are refused rather than served with a stale or empty answer.
 
 **The API holds no sessions.** It is a stateless resource server. The console does hold
 sessions, externalised to a shared store, which is what lets it scale without affinity.
@@ -215,7 +216,7 @@ repository's security policy, rather than through public issue tracking.
 <Deeper>
 - [Organisations and tenants](/administration/organizations): the isolation model in detail
 - [Identity providers](/administration/identity-providers): Keycloak, and bringing in Entra ID
-- [Data set permissions](/administration/dataset-permissions): the authorisation grammar
+- [Data set permissions](/administration/dataset-permissions): how read and write are granted
 - [Data lifecycle](/administration/data-lifecycle): retention, backups and deletion
 - [Board briefing](/value/board-briefing): the governance-level summary
 </Deeper>

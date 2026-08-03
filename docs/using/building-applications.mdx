@@ -105,9 +105,9 @@ signals on screen.
 - **Build consumers [idempotent](https://en.wikipedia.org/wiki/Idempotence).** A durable
   subscription redelivers unacknowledged data after a reconnect; seeing a datapoint twice
   must be harmless.
-- **Do not cache permissions.** The platform re-reads roles from the token on every
-  request; an app that caches visibility decisions reintroduces exactly the stale-access
-  problem the platform avoids.
+- **Do not cache permissions.** The platform authorises every request afresh; an app that
+  caches visibility decisions reintroduces exactly the stale-access problem the platform
+  avoids.
 
 ## Where the developer detail lives
 
