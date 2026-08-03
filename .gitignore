@@ -8,9 +8,6 @@
 .docusaurus
 .cache-loader
 
-# Internal agent working notes, deliberately not published
-AGENT.md
-
 # Misc
 .DS_Store
 .env
