@@ -83,9 +83,10 @@ Somebody who belongs to **several** organizations gets an ambiguous token, which
 rejects rather than guessing which tenant was meant. Access to two tenants means two
 identities.
 
-Clients must ask for the organization when they request a token, with
+Where organizations carry the tenant, clients must ask for one when they request a token, with
 `scope=openid organization:*`, or `organization:<alias>` to pin one. Without that selector
-there is no `organization` claim at all.
+there is no `organization` claim at all. (A realm that instead supplies the claim from a
+mapper on the client needs no such scope; ask whoever runs your realm which applies.)
 [How organizations work →](#organizations-each-customers-own-identity-providers)
 
 ### Machine-to-machine access
@@ -107,7 +108,7 @@ Each client needs two halves:
 </Steps>
 
 The client must also request the organization scope, `scope=organization:*`, on every token
-request. It is not optional.
+request. This applies wherever organizations carry the tenant, which is the normal setup.
 
 :::tip The failure that looks like bad credentials
 Without the organization scope the token carries no tenant, and every API call fails with
