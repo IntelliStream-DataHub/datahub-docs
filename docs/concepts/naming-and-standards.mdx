@@ -183,7 +183,8 @@ A tenant-wide rule is the normal case. The override exists for the data set that
 records from a source system whose identifier scheme you do not control.
 
 :::caution Naming policies do not govern events
-They apply to **resources and data sets**. Event external ids are exempt, deliberately: an
+They apply to **resources, data sets and time series** — everything whose external id is a
+unique identity. Event external ids are exempt, deliberately: an
 event external id is not a name somebody chose, it is the source system's key for the
 subject the event is about, and events are *meant* to share one. The charset floor still
 applies to them, so a space or a control character is still refused.
