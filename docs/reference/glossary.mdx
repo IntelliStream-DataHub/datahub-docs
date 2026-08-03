@@ -21,7 +21,7 @@ One line each. Follow the link where you want the full explanation.
 | **Relationship** | A named, directional link between two resources, *contains*, *feeds*, *monitors*. [→](/concepts/knowledge-graph) |
 | **Label** | The class a resource belongs to, `Pump`, `Site`. Your taxonomy. [→](/concepts/taxonomy) |
 | **Metadata** | Free key/value context on a resource, series or event. No schema change needed. [→](/using/console-tour) |
-| **External id** | A resource's permanent, unique handle. Never changes, never reused. [→](/concepts/naming-and-standards#external-ids-are-promises) |
+| **External id** | A resource's permanent, unique handle, stored exactly as written. Never changes, never reused. On an event it means something else: a shared, non-unique key for the subject. [→](/concepts/naming-and-standards#external-ids-are-promises) |
 | **Name** | The readable label a person scans in a list. Changeable at any time. [→](/concepts/naming-and-standards) |
 
 ## Model concepts
@@ -94,7 +94,10 @@ One line each. Follow the link where you want the full explanation.
 | **Tenant** | A separate world with its own databases and file storage, and its own credentials where the deployment configures them. [→](/administration/organizations#what-the-reference-deployment-actually-does) |
 | **Organisation claim** | The field in a user's token that resolves which tenant a request belongs to. [→](/administration/users-and-access) |
 | **Organisation (Keycloak)** | A container in the identity provider holding one tenant's members, identity providers and groups. An organisation may have several identity providers; a provider belongs to exactly one organisation. [→](/administration/identity-providers#organizations-each-customers-own-identity-providers) |
-| **Policy** | A declarative rule on a data set, lifecycle, access, requirements. Recorded today; enforcement is on the roadmap. [→](/using/policies) |
+| **Policy** | A rule the platform holds: naming, lifecycle, access, requirements. Naming is enforced today; the other three are recorded, and enforcement is on the roadmap. [→](/using/policies) |
+| **Naming policy** | The rule fixing what a new external id may look like, checked on every write. Set per tenant, overridable on one data set, and never applied to events. [→](/concepts/naming-and-standards#naming-policies) |
+| **Near-duplicate guard** | The always-on check that refuses `pump-a-01` beside an existing `pump_a_01`, anywhere in the tenant. [→](/concepts/naming-and-standards#near-duplicate-guard) |
+| **Finding** | The record left when a policy warns rather than refuses: the write went through and a data steward is expected to look at it. [→](/concepts/naming-and-standards#findings) |
 | **`DATAHUB_ACCESS`** | The baseline role required to use the platform at all. [→](/administration/users-and-access) |
 | **`DATAHUB_ADMIN`** | The escape-hatch role granting read and write on every data set. [→](/administration/dataset-permissions) |
 | **Identity provider** | The external system holding user accounts and issuing tokens. [→](/administration/users-and-access) |

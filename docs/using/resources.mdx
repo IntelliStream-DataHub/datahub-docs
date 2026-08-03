@@ -58,9 +58,13 @@ Every resource needs three things. [Why these three →](/concepts/ontology)
     `21-PT-1234 Separator inlet pressure`. Changeable at any time.
   </Step>
   <Step title="External id">
-    The permanent handle integrations match on. Derived from the name in lowercase with
-    underscores; override it when the derived value would encode something unstable.
+    The permanent handle integrations match on. The form *suggests* one derived from the
+    name, in lowercase with underscores, and that is only a suggestion: type your own and it
+    is stored exactly as written, so `VAL-21-PT-1034` stays `VAL-21-PT-1034`. Override the
+    suggestion when the derived value would encode something unstable, and whenever the
+    facility already has a tag for this thing.
     <strong> It must never change and never be reused.</strong>
+    [What an external id may contain →](/concepts/naming-and-standards#what-an-external-id-may-contain)
   </Step>
   <Step title="At least one label">
     The class it belongs to, `Pump`, `Separator`, `Site`. Click **+** to pick an existing
@@ -79,6 +83,12 @@ Optionally also:
 The naming help icon beside these fields opens the full conventions, including how they map
 onto your facility's tagging standard.
 [Naming and standards →](/concepts/naming-and-standards)
+
+If an administrator has set a
+[naming policy](/concepts/naming-and-standards#naming-policies), it is checked as you save.
+The create then either goes through, goes through with a warning that lands in a data
+steward's queue, or is refused with the reason and a suggested id. An id that differs from an
+existing one only by case, or only by which separator it uses, is refused as a duplicate.
 
 ## Root resources and building outward
 
@@ -176,6 +186,12 @@ relationship are checked, so you find out before rather than after.
 Creating resources by hand is right for modelling sessions and for the top layers of the
 model. At volume, thousands of instruments, a full equipment register, resources are
 imported through the API or a change-data-capture integration.
+
+An import is <span className="t-accent">all or nothing</span>. Every external id in the batch
+is checked before anything is written, so if one item in five hundred breaks the
+[naming policy](/concepts/naming-and-standards#naming-policies) nothing at all is created,
+and the error lists every offending id rather than stopping at the first. Fix them together
+and send the batch again.
 
 The model you build by hand is what the import lands *into*: your labels and relationship
 types are the target structure. Linking each imported record to the thing it describes is

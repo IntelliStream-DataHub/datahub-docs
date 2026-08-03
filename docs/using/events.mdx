@@ -48,12 +48,33 @@ The **Events** section lists everything that has happened across your operation.
 carries an event time (stored in UTC, shown in your local time), a type, and the resources it
 concerns.
 
+### External ids on events {#external-ids-on-events}
+
 External ids behave differently here than on resources, and the difference is deliberate:
 **many events share one external id**. The id names the *subject*, the purchase order, the
 work permit, the batch, and every snapshot of what happened to it carries the same id, so
 "everything that has happened to order 4500171" is one indexed lookup rather than a
 metadata convention. The identity of an individual event is the platform's own event id;
 the external id is the thread its history hangs on.
+
+Two consequences follow, and both are easy to be surprised by:
+
+- **No uniqueness is enforced**, and none ever will be. Forcing it would push integrations
+  into inventing a synthetic id per snapshot, or worse into editing events in place, which
+  destroys the append-only history that makes the log worth having.
+- <strong>[Naming policies](/concepts/naming-and-standards#naming-policies) do not apply to
+  events.</strong> A resource external id is a name your organisation chose; an event
+  external id is the *source system's* key for the subject, so the platform does not impose
+  a convention on it. If you set a strict convention expecting it to reach your event
+  streams, <span className="t-accent">it will not</span>. The rest of the policy would be
+  meaningless here anyway: events deliberately share ids, so uniqueness does not apply and a
+  "near duplicate" is the normal case rather than an anomaly.
+
+What *does* apply is the
+[charset floor](/concepts/naming-and-standards#what-an-external-id-may-contain), the same on
+events as everywhere else: letters, digits and the separators `. _ : + = -`, spaces and
+control characters refused, and whatever you send stored exactly as sent. A purchase order
+keyed `PO-4500171` in the source system is keyed `PO-4500171` here.
 
 The filter panel narrows by:
 
@@ -145,6 +166,7 @@ after the fact, and the incentive loop that steers a fleet of agents is computed
 
 <Deeper>
 - [The four building blocks](/start/core-ideas): where events sit among the concepts
+- [Naming and standards](/concepts/naming-and-standards#what-an-external-id-may-contain): what an external id may contain, and why the naming policy stops at events
 - [Insights](/using/insights): charting the signals events explain
 - [The resource graph](/using/resources): navigating from an event to everything around it
 - [Change data capture](/using/cdc-integrations): one way events arrive

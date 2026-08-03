@@ -32,8 +32,11 @@ before you import at volume.
 | **Label** | The class the resource belongs to, `Pump`, `Separator`. In RDF terms, `rdf:type`. | Rarely, and deliberately |
 | **External id** | The stable identifier that follows the namespace in an IRI. Imports, integrations and the SDK match on it. | <span className="t-accent">Never</span> |
 
-The console derives the external id from the name, lowercase, underscores, and lets you
-override it. Take the override seriously when the derived value would encode something
+The console *suggests* an external id derived from the name, lowercase with underscores, and
+lets you override it. That derivation is a convenience for a typed name, not a rule about
+what an external id may look like: an id you supply yourself is
+[stored exactly as you write it](#what-an-external-id-may-contain), so a plant tag stays a
+plant tag. Take the override seriously when the derived value would encode something
 unstable.
 
 <Figure
@@ -98,6 +101,111 @@ different owner and cost centre, is the external id still correct?"* If not, it 
 something it should not.
 :::
 
+## What an external id may contain {#what-an-external-id-may-contain}
+
+External ids are stored <span className="t-accent">exactly as you write them</span>. The
+platform accepts letters, digits and the separators `. _ : + = -`, between 3 and 256
+characters, and rejects spaces, forward slashes and control characters. Nothing is rewritten
+on the way in.
+
+That guarantee matters more than it sounds. `VAL-21-PT-1034` stays `VAL-21-PT-1034`, and an
+[IEC 81346](https://en.wikipedia.org/wiki/IEC_81346) reference designation such as
+`=K1-M3+B02` keeps the `=` and `+` that carry its meaning. Your historian, your maintenance
+system and DataHub therefore hold the *same string*, so matching a record in one against a
+record in another is a comparison rather than a translation that every integration has to
+reimplement identically, forever.
+[Contextualization →](/concepts/contextualization#how-it-is-done-in-practice)
+
+### Case is ignored for matching, kept for storage {#case}
+
+Uniqueness ignores case. Creating `val-21-pt-1034` when `VAL-21-PT-1034` already exists is
+refused as a duplicate, and the message names the id it collides with. Lookups ignore case
+for the same reason, so either spelling finds the same thing. What is stored, listed and
+handed back to an integration is still exactly what you wrote.
+
+<span className="hl">Two spellings of one tag are two records of one asset</span>, and that
+is the failure this prevents. If two things genuinely need separate identities, they need
+two different ids, not two cases of one.
+
+## Naming policies, making the convention enforceable {#naming-policies}
+
+The charset above is a floor, not a house style. The convention itself, snake_case, verbatim
+plant tags, or a pattern of your own, is a **naming policy**: a rule an administrator records
+once and the platform then checks on every write. It is the first
+[policy](/using/policies) the platform actually enforces.
+
+| Preset | What it allows |
+| --- | --- |
+| **Verbatim tag** | The charset floor and nothing further. The shipped default, for facilities mirroring a tagging standard they already maintain. |
+| **Snake case** | Lowercase letters, digits and underscores only. Opt in where a house convention is wanted. |
+| **Pattern** | An expression you supply, for a convention neither preset describes. |
+
+### Reject or warn {#reject-or-warn}
+
+Each policy runs in one of two modes, and the difference is who gets interrupted:
+
+- **Reject.** The write fails and <span className="t-accent">nothing is created</span>. The
+  error names every offending id in the request rather than only the first, so a rejected
+  import of 500 items is fixed in one pass instead of 500.
+- **Warn.** The write succeeds and a **finding** is recorded against the entity for a data
+  steward to review. Warn means *allowed and in the queue*, not *allowed and forgotten*.
+
+Warn is how a convention gets tightened without stopping the business: turn the rule on in
+warn mode, work the queue down, then switch it to reject once the backlog is clear.
+
+### The near-duplicate guard {#near-duplicate-guard}
+
+Independently of the preset, and always on, the platform refuses to let `pump-a-01` land
+beside an existing `pump_a_01`. It compares ids with case ignored and separator characters
+folded together, so one naming intent written two ways is caught at creation.
+
+This is the protection that lets the verbatim default be safe. Mixed separators for the same
+thing are how a model quietly acquires two records for one asset, and the symptom arrives
+months later as a search that comes back short, which nobody notices.
+
+Two things to know about it:
+
+- **It spans the whole tenant, not one data set.** `pump-a-01` in one data set collides with
+  `pump_a_01` in another, because those two cannot both be *the* identifier for one asset,
+  and a search that misses records misses them across data set boundaries too.
+- **It rejects by default.** Set it to warn only if your operation genuinely maintains
+  `21-PT-1234` and `21_PT_1234` as two different tags. That is possible, and it is rare
+  enough to be the thing you opt into rather than the thing you get.
+
+### Where a policy applies {#where-a-naming-policy-applies}
+
+A naming policy is set for the tenant and can be overridden on an individual
+[data set](/using/datasets). The most specific one wins, and it **replaces** rather than adds
+to the one above it: a data set carrying its own naming policy is governed by that policy
+alone, because a half-overridden naming rule is not something anyone can reason about.
+
+A tenant-wide rule is the normal case. The override exists for the data set that lands
+records from a source system whose identifier scheme you do not control.
+
+:::caution Naming policies do not govern events
+They apply to **resources, data sets and time series** — everything whose external id is a
+unique identity. Event external ids are exempt, deliberately: an
+event external id is not a name somebody chose, it is the source system's key for the
+subject the event is about, and events are *meant* to share one. The charset floor still
+applies to them, so a space or a control character is still refused.
+[Why events are different →](/using/events#external-ids-on-events)
+
+If you configure a strict convention expecting it to cover your event streams, it will not.
+:::
+
+### The findings queue {#findings}
+
+Every warning is recorded against the entity that raised it, so the steward's queue is a
+list of what the convention let through rather than a log line somebody had to be watching
+at the time. It can be filtered by policy, by data set, and by open versus closed.
+
+Closing a finding is a judgement, not a fix: the id still breaks the convention, someone has
+decided that is acceptable, and it stays closed unless the id itself changes.
+
+Bulk imports produce findings in bulk, so the queue groups them by policy and by the shape of
+the mistake rather than listing them one by one. Ten thousand findings from one import are
+one decision, not ten thousand.
+
 ## Labels, building the taxonomy {#labels}
 
 Labels are your [taxonomy](/concepts/taxonomy). Every resource needs at least one, and the
@@ -154,7 +262,9 @@ Two of these map onto DataHub especially directly:
 - **[IEC/ISO 81346](https://en.wikipedia.org/wiki/IEC_81346)'s aspects** are exactly the [three layers](/concepts/three-layers):
   function (`=`), product (`-`) and location (`+`) are three different relationships from
   the same item, which is precisely what a graph represents naturally and a hierarchy
-  cannot.
+  cannot. The aspect prefixes are also part of the
+  [accepted charset](#what-an-external-id-may-contain), so a designation such as `=K1-M3+B02`
+  is a valid external id written exactly that way.
 
 :::tip If you are receiving a capital project handover
 **CFIHOS-conformant handover data is close to a ready-made layer-1 model.** Landing it into
@@ -187,4 +297,6 @@ something, which is when it actually gets read.
 - [What is an ontology?](/concepts/ontology): the model layer, and the RDF alignment
 - [Building your model](/concepts/building-your-model): agreeing conventions before you scale
 - [Working with resources](/using/resources): the forms these fields appear on
+- [Policies](/using/policies): where a naming policy is recorded, alongside the other rules on a data set
+- [Events](/using/events#external-ids-on-events): the one place an external id means something different
 </Deeper>

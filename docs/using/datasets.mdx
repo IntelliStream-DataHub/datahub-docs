@@ -52,8 +52,9 @@ changing a data set changes what existing grants cover.
     *"Grid asset monitoring"*, not *"Erik's project"*. The name outlives the project.
   </Step>
   <Step title="Set a stable external id">
-    Derived from the name by default, `grid_asset_monitoring`. Integrations refer to it, so
-    it must never change. [Why →](/concepts/naming-and-standards#external-ids-are-promises)
+    Suggested from the name by default, `grid_asset_monitoring`, and stored exactly as
+    written if you supply your own. Integrations refer to it, so it must never change.
+    [Why →](/concepts/naming-and-standards#external-ids-are-promises)
   </Step>
   <Step title="Write a real description">
     Say what belongs in here and what does not. In six months this is what stops somebody
@@ -99,9 +100,9 @@ much cheaper than rearranging later.
 ## Policies
 
 <Roadmap>
-**Policies are declarative records today, not enforcement.** A data set can carry policies
-describing lifecycle or access intent, and they document what *should* happen, but nothing in
-the platform currently acts on them.
+**Lifecycle, access and requirement policies are declarative records today, not
+enforcement.** A data set can carry policies describing lifecycle or access intent, and they
+document what *should* happen, but nothing in the platform currently acts on them.
 
 Read and write access comes entirely from the groups and roles in your identity provider.
 [Data set permissions](/administration/dataset-permissions) ·
@@ -111,6 +112,12 @@ Read and write access comes entirely from the groups and roles in your identity 
 Each data set has a **Policies** tab, where the rules governing that data set, lifecycle,
 access, requirements, are recorded and read. They document intent today and will be enforced
 later. [Policies in full →](/using/policies)
+
+One kind is enforced now. A **naming policy** fixes the shape of new external ids and is
+checked on every write. It is normally set once for the whole tenant, and a data set can
+override it where the records landing in that data set come from a source system with its own
+identifier scheme. An override replaces the tenant rule rather than adding to it.
+[Naming policies →](/concepts/naming-and-standards#naming-policies)
 
 The underlying grants are read and write, and they are independent:
 <span className="t-accent">write does not imply read</span>. That is deliberate, an ingestion service account can be allowed
