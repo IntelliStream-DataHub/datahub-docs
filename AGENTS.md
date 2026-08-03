@@ -1,5 +1,4 @@
-# AGENT.md
-
+# AGENTS.md
 Working notes for anyone, human or agent, picking up this repository. Read this before
 editing. It records the conventions, the traps that have already cost time, and, most
 importantly, **which claims in the docs are known to be wrong**.
@@ -320,7 +319,7 @@ themes, so the next pass knows what to watch:
   sin 2πx/34 sampled every 30px lands exactly on sin 2πx/255), `.fig-dot-a/b` classes.
 - Installing: minimum RAM raised to 16 GB, 6 GB was too low to run the stack.
 - Git: public repo, remote `git@github.com:IntelliStream-DataHub/datahub-docs.git`.
-  AGENT.md was gitignored and local-only until 2026-08-03, when it was brought under version
+  AGENTS.md (then named AGENT.md) was gitignored and local-only until 2026-08-03, when it was brought under version
   control. It is now committed, so it is as public as the docs themselves: keep it candid
   about conventions and traps, but weigh anything that describes unshipped or weak platform
   behaviour before writing it down here.
