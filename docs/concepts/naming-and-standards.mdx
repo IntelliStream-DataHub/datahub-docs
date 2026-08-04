@@ -136,9 +136,16 @@ once and the platform then checks on every write. It is the first
 
 | Preset | What it allows |
 | --- | --- |
-| **Verbatim tag** | The charset floor and nothing further. The shipped default, for facilities mirroring a tagging standard they already maintain. |
+| **Qualified tag** | The charset floor, plus at least three separator-delimited parts. `VAL-21-PT-1034` and `=K1-M3+B02` pass; `pump-1234` does not. The shipped default. |
+| **Verbatim tag** | The charset floor and nothing further, for facilities mirroring a tagging standard they already maintain. |
 | **Snake case** | Lowercase letters, digits and underscores only. Opt in where a house convention is wanted. |
 | **Pattern** | An expression you supply, for a convention neither preset describes. |
+
+**What ships on, in full:** the qualified-tag rule in *warn* mode, and the near-duplicate
+guard in *reject* mode. So a short tag is written and queued for review, while a near
+duplicate is refused outright. The asymmetry is deliberate: a near duplicate is a statement
+about data you already hold, whereas `P-101` is a good tag at a site with one pump and a poor
+one at a site with forty, and nothing in the write says which site this is.
 
 ### Reject or warn {#reject-or-warn}
 
@@ -159,7 +166,7 @@ Independently of the preset, and always on, the platform refuses to let `pump-a-
 beside an existing `pump_a_01`. It compares ids with case ignored and separator characters
 folded together, so one naming intent written two ways is caught at creation.
 
-This is the protection that lets the verbatim default be safe. Mixed separators for the same
+This is the protection that lets a permissive preset be safe. Mixed separators for the same
 thing are how a model quietly acquires two records for one asset, and the symptom arrives
 months later as a search that comes back short, which nobody notices.
 
