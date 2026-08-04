@@ -95,8 +95,38 @@ file is ever re-copied from `../intellistream-web`.
 ### Components
 
 Registered globally in `src/theme/MDXComponents.js`, defined in `src/components/DocsUI.jsx`,
-so no import line is needed: `Lead`, `KeyIdea`, `Cards`/`Card`, `Deeper`, `Personas`/`Persona`,
-`Stats`/`Stat`, `Steps`/`Step`, `Figure`, `IconRow`/`IconItem`, `Roadmap`, `References`.
+so no import line is needed in `.mdx`:
+
+| Component | Use |
+| --- | --- |
+| `<Lead>` | One-sentence framing under the page title |
+| `<KeyIdea title="…">` | The "in one minute" box at the top of a page |
+| `<Cards wide>` / `<Card title to icon eyebrow>` | Click-through navigation grid |
+| `<Deeper title="…">` | The "go deeper" link list at the foot of a page |
+| `<Personas>` / `<Persona primary>` | "Who this page is for" chips |
+| `<Stats>` / `<Stat value label note>` | Headline figures |
+| `<Steps>` / `<Step title>` | Numbered walkthroughs |
+| `<Figure src caption wide>` | All three figure kinds (see Figures below) |
+| `<IconRow>` / `<IconItem>` | Icon-led bullet rows |
+| `<Roadmap>` | Marks capabilities that are planned, not shipped |
+| `<References>` | External source links, above `<Deeper>` |
+
+### Emphasis and colour
+
+Use `**bold**` for the terms that carry a sentence, and the colour helpers from
+`src/css/custom.css` sparingly, one or two per paragraph, on words a reader should be able
+to find by scanning:
+
+```html
+<span className="t-brand">brand blue</span>
+<span className="t-accent">accent orange</span>
+<span className="t-success">green</span>
+<span className="hl">highlighted term</span>
+```
+
+The `--doc-*-text` variables are darkened variants of the raw brand colours so inline text
+clears 4.5:1 contrast in both light and dark themes. Use those, not `--is-orange` directly,
+for anything made of words.
 
 ---
 
@@ -122,7 +152,34 @@ reaches them.
 `scripts/check-docs.py` enforces this.
 
 `scripts/make-figures.py` generates the figures whose geometry needs computing. Run
-`python3 scripts/make-figures.py` after editing it.
+`python3 scripts/make-figures.py` after editing it. It writes static figures to
+`static/img/figures/` and themed ones to `src/figures/`.
+
+Themed-figure usage in a page:
+
+```mdx
+import AgentLoop from '@site/src/figures/agent-loop.svg';
+
+<Figure caption="What the diagram adds beyond its title." wide>
+  <AgentLoop />
+</Figure>
+```
+
+### Available figure classes
+
+Defined in `custom.css`, so a new figure normally needs no new CSS at all:
+
+- **Text**: `fig-title`, `fig-sub`, `fig-box-title`, `fig-box-sub`, `fig-centre-title`,
+  `fig-centre-sub`, `fig-lit-title`, `fig-lit-sub`, `fig-exit-title`, `fig-exit-sub`,
+  `fig-exit-note`
+- **Shapes**: `fig-box`, `fig-lit-box` + `c-blue`/`c-orange`/`c-green`, `fig-centre`,
+  `fig-track`, `fig-token`, `fig-exit-box`, `fig-exit-path`, `fig-dot-a/b`,
+  `fig-badge*` (the ai-agents robot chips)
+- **Animation**: `fig-seq` + `fig-d1`…`fig-d6` (staggered reveal on a shared 8s loop),
+  `fig-flow` (marching dashes), `fig-pulse`, `fig-draw` (stroke draws itself in)
+
+All loops share an 8-second cycle so several figures on one page stay in sympathy, and
+every animation is disabled under `prefers-reduced-motion`.
 
 ### Figure lessons learned
 
@@ -382,3 +439,7 @@ win over static resources, so this site cannot be mounted there. Markdown links 
 in JSX must go through `useBaseUrl()`, `Figure` and `IconItem` already do. The dev server
 lives at `http://<host>:3000/data-platform-documentation/`, the bare root shows only a
 redirect hint.
+
+The build is served by the `intellistream-web` Spring Boot app out of
+`src/main/resources/static/`. That repo's `sync-docs` skill rebuilds this site and copies
+`build/` into place; use it rather than copying by hand.
