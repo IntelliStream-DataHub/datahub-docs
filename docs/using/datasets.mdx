@@ -67,6 +67,23 @@ changing a data set changes what existing grants cover.
   </Step>
 </Steps>
 
+## Seeing the time series in a data set
+
+The data set section has a **Time series** tab. Click a data set in the list and the table
+fills with every time series belonging to it, including the series of its sub-data sets,
+their sub-data sets, and so on. A programme-level data set therefore shows the series of
+the whole family beneath it, which is the payoff for connecting data sets under others
+when you create them.
+
+Each row also names the data set the series directly belongs to. That name is a link into
+the time series explorer, opened with the series selected and its surroundings drawn as a
+graph: the series, its data set, and the data sets above it, so you can see in one picture
+where in the hierarchy a series lives.
+
+The table only ever shows series from data sets you can read. Anything outside your grants
+is left out silently rather than shown as an error.
+[Data set permissions →](/administration/dataset-permissions)
+
 ## Designing good boundaries
 
 Because permissions are granted per data set, the boundary decision is really an access
