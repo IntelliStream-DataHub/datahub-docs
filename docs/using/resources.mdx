@@ -151,6 +151,15 @@ for example `temperature`. The datatype then travels visually along that relatio
 the graph, from source node to target node, which makes a flow legible without reading
 labels.
 
+Two relationships are constrained, because data sets are the access boundary:
+
+- A relation **to a data set** must use `BELONGS_TO`, the relationship the data set
+  hierarchy and membership are built from. The create-relation form defaults to it whenever
+  the from resource is a data set, and any other type is rejected, in the form and by the
+  API alike.
+- A time series belongs to **one** data set. Connecting a data set to a time series that
+  already sits in another one is rejected with an error saying so.
+
 ## Using the network view
 
 The graph is for exploring and explaining, and it has a few controls worth knowing:
@@ -158,6 +167,7 @@ The graph is for exploring and explaining, and it has a few controls worth knowi
 | Control | What it does |
 | --- | --- |
 | **Click a node** | Centres the view on it and shows what it connects to |
+| **Add from a node** | The + on a node creates a connected resource. On a data set it first asks what to add: a resource, a time series, a sub-data set or a policy, each created already connected under the data set |
 | **Trace a path** | Dims everything else so one dependency chain stands out |
 | **Stabilise network layout** | Freezes a dense area that will not settle |
 | **Filters** | Narrows the graph by label, data set or name, essential above a few hundred nodes |
