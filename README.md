@@ -74,6 +74,6 @@ from the folder tree; ordering comes from `position` in each `_category_.json` a
 ## Deployment
 
 The site publishes at **https://intellistream.ai/data-platform-documentation** and is served
-by the `intellistream-web` app; that repo's `sync-docs` skill rebuilds and copies `build/`
+by the `intellistream-website` app; that repo's `sync-docs` skill rebuilds and copies `build/`
 into place. Details and the baseUrl consequences are in
 [AGENTS.md](AGENTS.md#deployment).
