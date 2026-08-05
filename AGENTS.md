@@ -20,7 +20,7 @@ brand palette and Docusaurus setup were copied from there.
 
 Source material for the content: `../datahub-platform` (README, ARCHITECTURE, FAQ,
 GETTING_STARTED, INSTALL, EntraID.md, SPESIFICATIONS, `datahub-api/DATASET_ACL_SETUP.md`, and
-the console i18n bundle), plus reusable brand SVGs from `../intellistream-web`.
+the console i18n bundle), plus reusable brand SVGs from `../intellistream-website`.
 
 ---
 
@@ -64,13 +64,13 @@ written. `npm run build` catches MDX errors and broken links but none of the abo
 
 Current state: docs checker clean, figures clean, themed contrast clean. The only outstanding
 contrast failures are 14 in `static/img/figures/knowledge-graph-oilgas.svg` at 4.37 to 4.38
-against a 4.5 threshold. That file is imported unchanged from `../intellistream-web`, so the
+against a 4.5 threshold. That file is imported unchanged from `../intellistream-website`, so the
 fix belongs upstream rather than in a local fork.
 
 `knowledge-graph-oilgas.svg` has one local divergence from the upstream copy: the node label
 `FPSO A` was changed to `Plant A`, because the docs deliberately describe a generic oil and
 gas processing facility rather than a floating production vessel. Keep that in mind if the
-file is ever re-copied from `../intellistream-web`.
+file is ever re-copied from `../intellistream-website`.
 
 ---
 
@@ -217,6 +217,13 @@ every animation is disabled under `prefers-reduced-motion`.
 
 ## Traps that have already cost time
 
+- **Fonts are self-hosted; do not reintroduce a Google Fonts `@import`.** Manrope and
+  JetBrains Mono are served from our own origin, from the `@fontsource-variable/*` packages
+  via `src/css/fonts.css`. Webpack rewrites the `url()`s to hashed files under
+  `build/assets/fonts/`, so the baseUrl is handled for you. If you add a weight or a style,
+  check the variable axis covers it (Manrope 200 to 800, JetBrains Mono 100 to 800) rather
+  than reaching for the CDN. Italic monospace is not declared, as it was not in the old
+  import either; browsers synthesise it.
 - **Keep every `@docusaurus/*` package on the same version.** A drift of one patch
   (`theme-common` 3.10.2 against `core` 3.10.1) makes Mermaid fail during static generation
   with `Hook useColorMode is called outside the <ColorModeProvider>`, and the build dies on
@@ -440,6 +447,6 @@ in JSX must go through `useBaseUrl()`, `Figure` and `IconItem` already do. The d
 lives at `http://<host>:3000/data-platform-documentation/`, the bare root shows only a
 redirect hint.
 
-The build is served by the `intellistream-web` Spring Boot app out of
+The build is served by the `intellistream-website` Spring Boot app out of
 `src/main/resources/static/`. That repo's `sync-docs` skill rebuilds this site and copies
 `build/` into place; use it rather than copying by hand.
