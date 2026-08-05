@@ -108,7 +108,7 @@ platform accepts letters, digits and the separators `. _ : + = -`, between 3 and
 characters, and rejects spaces, forward slashes and control characters. Nothing is rewritten
 on the way in.
 
-That guarantee matters more than it sounds. `VAL-21-PT-1034` stays `VAL-21-PT-1034`, and an
+That guarantee matters more than it sounds. `COM-99-PT-1034` stays `COM-99-PT-1034`, and an
 [IEC 81346](https://en.wikipedia.org/wiki/IEC_81346) reference designation such as
 `=K1-M3+B02` keeps the `=` and `+` that carry its meaning. Your historian, your maintenance
 system and DataHub therefore hold the *same string*, so matching a record in one against a
@@ -118,7 +118,7 @@ reimplement identically, forever.
 
 ### Case is ignored for matching, kept for storage {#case}
 
-Uniqueness ignores case. Creating `val-21-pt-1034` when `VAL-21-PT-1034` already exists is
+Uniqueness ignores case. Creating `com-99-pt-1034` when `COM-99-PT-1034` already exists is
 refused as a duplicate, and the message names the id it collides with. Lookups ignore case
 for the same reason, so either spelling finds the same thing. What is stored, listed and
 handed back to an integration is still exactly what you wrote.
@@ -136,16 +136,21 @@ once and the platform then checks on every write. It is the first
 
 | Preset | What it allows |
 | --- | --- |
-| **Qualified tag** | The charset floor, plus at least three separator-delimited parts. `VAL-21-PT-1034` and `=K1-M3+B02` pass; `pump-1234` does not. The shipped default. |
+| **Qualified tag** | The charset floor, plus at least three separator-delimited parts. `COM-99-PT-1034` and `=K1-M3+B02` pass; `pump-1234` does not. The shipped default. |
 | **Verbatim tag** | The charset floor and nothing further, for facilities mirroring a tagging standard they already maintain. |
 | **Snake case** | Lowercase letters, digits and underscores only. Opt in where a house convention is wanted. |
 | **Pattern** | An expression you supply, for a convention neither preset describes. |
 
-**What ships on, in full:** the qualified-tag rule in *warn* mode, and the near-duplicate
-guard in *reject* mode. So a short tag is written and queued for review, while a near
-duplicate is refused outright. The asymmetry is deliberate: a near duplicate is a statement
-about data you already hold, whereas `P-101` is a good tag at a site with one pump and a poor
-one at a site with forty, and nothing in the write says which site this is.
+**What ships on, in full:** the qualified-tag rule and the near-duplicate guard, both in
+*warn* mode. <span className="hl">Out of the box nothing is refused</span>: a short tag and a
+near duplicate are both written, and both are recorded for review.
+
+That is deliberate. Each rule is a judgement the platform cannot make for you. `P-101` is a
+good tag at a site with one pump and a poor one at a site with forty. `pump-a-01` beside an
+existing `pump_a_01` is usually one asset written two ways, and occasionally two tags a
+facility genuinely maintains apart. Nothing in the write says which, so neither costs anyone
+their data, and both land in [Findings](/using/policies) for a steward to settle. Turn either
+one to *reject* when your conventions are settled enough to enforce.
 
 ### Reject or warn {#reject-or-warn}
 
@@ -175,9 +180,10 @@ Two things to know about it:
 - **It spans the whole tenant, not one data set.** `pump-a-01` in one data set collides with
   `pump_a_01` in another, because those two cannot both be *the* identifier for one asset,
   and a search that misses records misses them across data set boundaries too.
-- **It rejects by default.** Set it to warn only if your operation genuinely maintains
-  `21-PT-1234` and `21_PT_1234` as two different tags. That is possible, and it is rare
-  enough to be the thing you opt into rather than the thing you get.
+- **It warns by default,** so the write goes through and the collision is queued. Set it to
+  reject once you are confident the two forms are never both wanted: an operation that
+  genuinely maintains `21-PT-1234` and `21_PT_1234` as different tags does exist, and the
+  platform cannot tell that case from an accident.
 
 ### Where a policy applies {#where-a-naming-policy-applies}
 

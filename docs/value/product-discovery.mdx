@@ -1,0 +1,193 @@
+---
+sidebar_position: 6
+title: Product discovery
+description: How to find the work in your organisation worth handing to an AI agent, score the candidates on your own numbers, and build the first one so it survives production.
+---
+
+# Product discovery
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Project sponsors</Persona>
+  <Persona>Operations</Persona>
+  <Persona>Domain experts</Persona>
+</Personas>
+
+<KeyIdea>
+Building stopped being the expensive part. Coding agents turn what used to be weeks of
+implementation into days, which moves the risk somewhere else: <span className="hl">choosing
+the wrong thing to build</span>.
+
+Product discovery is the work of finding which repeating loops in your organisation are worth
+handing to an agent, ranked on your own hours and your own error costs, **before anyone writes
+code**.
+</KeyIdea>
+
+## Why finding the work became the hard part
+
+An internal tool used to cost enough that only obvious candidates were worth building, and
+that cost did the filtering for you. If a job was not visibly expensive, nobody proposed
+automating it, because the build would never pay back.
+
+Two things changed at once. Agents can now carry out the judgement-light office work that
+conventional software could not touch, which [AI agents](/value/ai-agents) covers in detail.
+And coding agents shortened the build itself, so the threshold at which automation pays back
+dropped a long way.
+
+The result is a much longer list of viable candidates with no filter on it. The expensive
+mistake is no longer a slow build, it is <span className="t-accent">six weeks spent building
+the wrong loop</span>.
+
+## The work is invisible from the top
+
+The loops that consume the most hours are usually not recorded anywhere. They live *between*
+systems: someone reads a figure out of one and types it into another, arbitrates between two
+reports that disagree, or answers the same question from memory for the fifth time this week.
+None of that appears in a system of record, so none of it appears in a plan, and what does
+not appear in a plan cannot be ranked.
+
+This is why discovery is done by **watching rather than by asking**. People describe their
+jobs in terms of the decisions they make, not the twenty minutes each morning spent
+assembling the inputs to those decisions. The assembly is the automatable part, and it is the
+part that gets left out of every interview.
+
+## Five shapes worth looking for
+
+These five account for most of what is worth automating in an operations-heavy organisation.
+They are easy to miss from the inside, because from the inside they are not problems, they
+are simply how the work gets done.
+
+| Shape | What it looks like | Why it is a candidate |
+| --- | --- | --- |
+| **The copy-paste loop** | Somebody reads a document and types what it says into another system: invoices, lab results, inspection reports, permits | High volume, little judgement, and mistakes are expensive to unwind |
+| **The recurring report** | The same report assembled by hand from the same handful of systems, every week, owned by nobody | Predictable inputs, a known output, and a baseline that is easy to measure |
+| **The reconciliation** | Two systems disagree and a person decides which is right, using rules that have never been written down | Capturing the rules is worth doing whether or not you automate afterwards |
+| **The question queue** | The same questions asked of the same few people, answered from memory and a folder nobody else can find | The answers already exist in data the asker cannot reach |
+| **The handover** | Shift to shift, or project to project, where most of what was known never gets written down | The loss is continuous and nobody currently owns it |
+
+## Scoring a candidate
+
+A shape being present does not make it worth building. Score each candidate against all five
+tests below, using **your** numbers rather than a vendor's, and expect most candidates to fail
+at least one. That is the point of scoring: a discovery that recommends everything has not
+discriminated.
+
+| Test | Why it matters |
+| --- | --- |
+| **It repeats on a known rhythm** | Daily or weekly work has a countable baseline. Work that happens "when something comes up" does not, and cannot be measured afterwards |
+| **The hours are real and attributable** | Somebody can say how long it takes and who does it. If nobody can, you are estimating a saving you will never prove |
+| **The inputs are already digital** | An agent can read a PDF. It cannot read a conversation or a filing cabinet, and instrumenting the input is a separate project |
+| **A wrong answer is recoverable** | The first version will be wrong sometimes. Choose a loop where a person catches it at an approval step, not one where the error ships |
+| **The data underneath is modelled** | The agent needs to know what a value means and what it relates to. An unmodelled source turns a six-week build into a modelling programme |
+
+The last test is the one most often skipped, and it is the one that decides whether the
+result survives. A candidate that passes the first four and fails the fifth is not a bad
+candidate, it is a **later** candidate: model the source first, using
+[building your model](/concepts/building-your-model), then revisit it.
+
+## The data underneath decides more than the model does
+
+An agent asked a question in a demonstration answers from whatever it happens to reach. The
+same agent in production has to answer the same way twice, show where the answer came from,
+and stop when it is out of its depth. None of that is a prompting problem.
+
+- **Meaning.** Querying [a knowledge graph](/concepts/knowledge-graph) rather than a set of
+  tables is what lets an agent know which of four asset lists is authoritative, and what a
+  reading is attached to.
+- **Checkability.** [Lineage and data quality](/concepts/lineage-and-quality) is what turns
+  "the agent says 412" into a figure somebody can trace back to its inputs and defend.
+- **A gate.** Anything that changes a record, sends a message or moves money should wait for
+  a person. The agent drafts, a human commits. This is the difference between a tool your
+  operations staff adopt and one they quietly stop using.
+
+:::tip The ordering that matters
+Agent capability is <span className="t-accent">downstream of the data model</span>, not an
+alternative to building one. Discovery that finds a wonderful candidate sitting on
+unmodelled data has found a modelling project, and saying so early is worth more than
+building on sand.
+:::
+
+## Running a discovery
+
+<Steps>
+  <Step title="Week 1 · Watch the work">
+    Sit with the people doing the job, at the desks where they do it. Not a workshop and not
+    a questionnaire: watch the actual clicks, the actual spreadsheets, the actual retyping.
+    Note what is being copied, from where, to where, and how often.
+  </Step>
+  <Step title="Weeks 1–2 · Write every loop down the same way">
+    For each loop: who starts it, what it touches, how long it takes, how often it runs, and
+    what it costs on the day it goes wrong. Uniform records are what make the next step
+    possible, so resist the urge to describe the interesting ones in more detail.
+  </Step>
+  <Step title="End of week 2 · Score and cut">
+    Rank the candidates against the five tests, and write down the reasoning for the ones
+    you cut as well as the ones you keep. **Most of the list should be cut here**, and the
+    cut list is a genuine deliverable: it stops the same suggestions returning next quarter.
+
+    [Measuring the return →](/value/measuring-return)
+  </Step>
+  <Step title="Weeks 3–8 · Build one">
+    The highest-scoring candidate only. Wired into the systems it needs, placed behind the
+    approval step it belongs behind, and checked against cases your team already handled by
+    hand so you can compare its answers to known-good ones.
+  </Step>
+  <Step title="From week 8 · Run it and measure">
+    In production, used by the people whose work it changes, measured against the baseline
+    taken in week one. A pilot that lives in a sandbox never survives the handover to the
+    people who were supposed to benefit from it.
+  </Step>
+</Steps>
+
+## What a discovery should produce
+
+- **A ranked map of the work**, every loop found, costed in your hours and your error rates.
+- **A cut list with reasons**, so the rejected candidates stay rejected for a stated cause.
+- **One agent in production**, not a prototype and not a demonstration.
+- **The evaluation cases** it was checked against, which are what catch it later when its
+  behaviour drifts.
+- **A measurement you can defend**, the baseline from week one, the figure afterwards, and
+  the method in between. [Measuring the return](/value/measuring-return) covers how to take
+  a baseline that survives scrutiny.
+
+## How discovery goes wrong
+
+| Failure | What happens |
+| --- | --- |
+| **Interviewing instead of watching** | You get a description of the job people think they do, and miss the assembly work that is the actual candidate |
+| **Scoring on ease rather than cost** | The easiest loop to describe gets built, and it was never the expensive one |
+| **No baseline taken in week one** | The agent works, and you cannot prove it, so the second one does not get funded |
+| **Automating a loop nobody agreed was broken** | The people whose work it changes were not asked, and adoption stalls at the pilot |
+| **Recommending everything** | A discovery that cuts nothing has not discriminated, and the ranking is worthless |
+| **Building on unmodelled sources** | The six-week build becomes a modelling programme discovered halfway through |
+
+## After the first one
+
+The second candidate is where the approach is tested. Choose one that reuses the model built
+for the first, because that is what shows the compounding effect that makes the platform
+worth having rather than the agent worth having. If the second candidate needs an entirely
+new model, the first was narrower than it looked.
+
+By the third or fourth, the pattern usually becomes clear enough that your own people can run
+discovery without help, which is the intended outcome. The method is not proprietary, and the
+value was never in knowing it.
+
+<References>
+
+- [Intelligent agent](https://en.wikipedia.org/wiki/Intelligent_agent)
+- [Human-in-the-loop](https://en.wikipedia.org/wiki/Human-in-the-loop)
+- [Business process discovery](https://en.wikipedia.org/wiki/Business_process_discovery)
+- [Process mining](https://en.wikipedia.org/wiki/Process_mining)
+- [Time and motion study](https://en.wikipedia.org/wiki/Time_and_motion_study)
+- [Robotic process automation](https://en.wikipedia.org/wiki/Robotic_process_automation)
+
+</References>
+
+<Deeper>
+- [AI agents](/value/ai-agents): what an agent is, and why a model makes it accurate
+- [Where to start](/value/where-to-start): choosing a first platform question that finishes
+- [Measuring the return](/value/measuring-return): baselines that survive scrutiny
+- [Lineage and data quality](/concepts/lineage-and-quality): what makes agent output checkable
+- [Building your model](/concepts/building-your-model): what to do when a candidate fails the fifth test
+- [The business case](/value/business-case): where the return comes from
+</Deeper>
