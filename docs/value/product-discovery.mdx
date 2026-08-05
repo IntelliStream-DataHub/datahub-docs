@@ -29,14 +29,15 @@ An internal tool used to cost enough that only obvious candidates were worth bui
 that cost did the filtering for you. If a job was not visibly expensive, nobody proposed
 automating it, because the build would never pay back.
 
-Two things changed at once. Agents can now carry out the judgement-light office work that
-conventional software could not touch, which [AI agents](/value/ai-agents) covers in detail.
-And coding agents shortened the build itself, so the threshold at which automation pays back
-dropped a long way.
+Two things changed at once, and both are recent. AI agents, barely a year old as a
+concept, can carry out the judgement-light office work that conventional software could
+not touch, which [AI agents](/value/ai-agents) covers in detail. And coding agents
+shortened the build itself: what was weeks of implementation, often months, is now days
+from start to production. The threshold at which automation pays back dropped a long way.
 
 The result is a much longer list of viable candidates with no filter on it. The expensive
-mistake is no longer a slow build, it is <span className="t-accent">six weeks spent building
-the wrong loop</span>.
+mistake is no longer a slow build, it is <span className="t-accent">building the wrong thing
+quickly</span>, and then living with it.
 
 ## The work is invisible from the top
 
@@ -78,7 +79,7 @@ discriminated.
 | **The hours are real and attributable** | Somebody can say how long it takes and who does it. If nobody can, you are estimating a saving you will never prove |
 | **The inputs are already digital** | An agent can read a PDF. It cannot read a conversation or a filing cabinet, and instrumenting the input is a separate project |
 | **A wrong answer is recoverable** | The first version will be wrong sometimes. Choose a loop where a person catches it at an approval step, not one where the error ships |
-| **The data underneath is modelled** | The agent needs to know what a value means and what it relates to. An unmodelled source turns a six-week build into a modelling programme |
+| **The data underneath is modelled** | The agent needs to know what a value means and what it relates to. An unmodelled source turns a few days of building into a modelling programme |
 
 The last test is the one most often skipped, and it is the one that decides whether the
 result survives. A candidate that passes the first four and fails the fifth is not a bad
@@ -127,12 +128,13 @@ building on sand.
 
     [Measuring the return →](/value/measuring-return)
   </Step>
-  <Step title="Weeks 3–8 · Build one">
+  <Step title="Days, not months · Build one">
     The highest-scoring candidate only. Wired into the systems it needs, placed behind the
     approval step it belongs behind, and checked against cases your team already handled by
-    hand so you can compare its answers to known-good ones.
+    hand so you can compare its answers to known-good ones. Coding agents do the building,
+    so this is the short part: days to a working tool deployed to production, not a quarter.
   </Step>
-  <Step title="From week 8 · Run it and measure">
+  <Step title="Straight after · Run it and measure">
     In production, used by the people whose work it changes, measured against the baseline
     taken in week one. A pilot that lives in a sandbox never survives the handover to the
     people who were supposed to benefit from it.
@@ -159,7 +161,7 @@ building on sand.
 | **No baseline taken in week one** | The agent works, and you cannot prove it, so the second one does not get funded |
 | **Automating a loop nobody agreed was broken** | The people whose work it changes were not asked, and adoption stalls at the pilot |
 | **Recommending everything** | A discovery that cuts nothing has not discriminated, and the ranking is worthless |
-| **Building on unmodelled sources** | The six-week build becomes a modelling programme discovered halfway through |
+| **Building on unmodelled sources** | What should have been days of building becomes a modelling programme discovered halfway through |
 
 ## After the first one
 
