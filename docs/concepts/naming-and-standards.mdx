@@ -210,14 +210,16 @@ If you configure a strict convention expecting it to cover your event streams, i
 
 Every warning is recorded against the entity that raised it, so the steward's queue is a
 list of what the convention let through rather than a log line somebody had to be watching
-at the time. It can be filtered by policy, by data set, and by open versus closed.
+at the time. It can be filtered by policy, by data set, and by status: open, resolved, or
+both together.
 
-Closing a finding is a judgement, not a fix: the id still breaks the convention, someone has
-decided that is acceptable, and it stays closed unless the id itself changes.
+Resolving a finding is a judgement, not a fix: the id still breaks the convention, someone
+has decided that is acceptable, and it stays resolved unless the id itself changes.
 
-Bulk imports produce findings in bulk, so the queue groups them by policy and by the shape of
-the mistake rather than listing them one by one. Ten thousand findings from one import are
-one decision, not ten thousand.
+Bulk imports produce findings in bulk, so the queue groups them rather than listing them one
+by one. A row is one policy, one data set, one status and one shape of mistake, with a count
+beside it, and the data set names the one it landed in so the row can be handed to whoever
+owns it. Ten thousand findings from one import are one decision, not ten thousand.
 
 ## Labels, building the taxonomy {#labels}
 
