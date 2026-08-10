@@ -29,7 +29,7 @@ provider satisfies none of them:
 | What the API requires | Why |
 | --- | --- |
 | **A single known issuer** | The token signature is validated against one configured Keycloak realm |
-| **Roles in `realm_access.roles`** | The baseline access roles, and the blanket all-data-sets grants |
+| **Roles in `realm_access.roles`** | The baseline access roles, and the operator role `DATAHUB_ADMIN` |
 | **A nested `organization` claim** | This resolves which [tenant](/administration/organizations) the request belongs to |
 
 That last one is the hard requirement. Without a tenant, there is no database to query, so a
@@ -51,21 +51,22 @@ A working realm provides:
 - **A confidential client for the console**, used for the browser sign-in flow. The console
   relays the signed-in user's access token straight to the API, so there is no separate token
   handling in the browser.
-- **Realm roles**, which gate the platform itself and carry the blanket data set grants:
+- **Realm roles**, which gate the platform itself:
 
 | Role | Grants |
 | --- | --- |
 | `DATAHUB_ACCESS` | The baseline, required to use the API at all |
 | `DATAHUB_CONSOLE` | Required for every console page |
-| `DATAHUB_ADMIN` | The operator escape hatch: read and write on every data set |
-| `DATAHUB_DATASET_ALL`, `_READ_ALL`, `_WRITE_ALL` | Blanket read and write across every data set |
+| `DATAHUB_ADMIN` | The operator escape hatch: read and write on every data set in every tenant |
 
 - **An organization per tenant**, using Keycloak's
   [Organizations](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)
   feature. Being a member of one is what puts the `organization` claim in a user's token, and
   that claim is what resolves the tenant.
 
-- **Organization groups**, which grant access to individual data sets.
+- **Organization groups**, which grant access to data sets: per data set, or across all of
+  the organization's data sets through the wildcard groups `/datasets/*/read` and
+  `/datasets/*/write`.
   [Data set permissions →](/administration/dataset-permissions)
 
   Note that <span className="t-accent">access and data permissions are separate</span>. A user
@@ -158,7 +159,10 @@ time, each belonging to its own organization, **without a realm per customer**.
 Organizations support **groups**, and group membership is what decides **which data sets you
 may read and write**. Access is granted by putting somebody in the right group inside their
 organization, named after the data set:
-`/datasets/<externalId>/read` and `/datasets/<externalId>/write`.
+`/datasets/<externalId>/read` and `/datasets/<externalId>/write`. The wildcard pair
+`/datasets/*/read` and `/datasets/*/write` grants the same across **all** of the
+organization's data sets, so even all-data-sets access is delegated inside the tenant rather
+than granted realm-wide.
 [Data set permissions →](/administration/dataset-permissions)
 
 Plan your [data set boundaries](/using/datasets#designing-good-boundaries) with that in mind:
@@ -185,8 +189,8 @@ This is well-trodden Keycloak configuration. The work that is specific to DataHu
 Keycloak side, and it is the part to plan for:
 
 - **Map Entra groups to the DataHub realm roles** listed above. Entra app roles are not read
-  by DataHub, authorisation comes entirely from the Keycloak realm roles the brokered user
-  ends up holding.
+  by DataHub, authorisation comes entirely from the Keycloak realm roles and organization
+  groups the brokered user ends up holding.
 - **Ensure every brokered user becomes a member of their tenant's organization.** This is the
   step that is easy to miss, because sign-in will succeed and then every API call will fail.
 

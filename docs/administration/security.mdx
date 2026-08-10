@@ -186,8 +186,10 @@ The evaluation stack is deliberately convenient and deliberately insecure. Befor
     system they read from.
     [Why →](/administration/users-and-access#service-accounts)
   </Step>
-  <Step title="Named holders for the escape-hatch roles">
-    Roles granting access to all data sets should have a short, reviewed list of holders.
+  <Step title="Named holders for the escape hatches">
+    The wildcard all-data-sets groups and the `DATAHUB_ADMIN` role should have a short,
+    reviewed list of holders.
+    [The wildcard groups →](/administration/dataset-permissions#access-to-everything-is-a-wildcard-group)
   </Step>
   <Step title="Backups, tested">
     Per tenant, with a restore actually exercised rather than assumed.
