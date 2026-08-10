@@ -118,10 +118,11 @@ Two practical habits:
 - **Review data set grants quarterly.** The group names carry the data set they grant, so the
   group list in your identity provider is a readable access report, no export from DataHub
   required.
-- **Watch for over-broad grants.** Roles granting read or write across *all* data sets exist
-  as an operator escape hatch. They should be held by very few accounts, and their holders
-  should be reviewed by name. Remember that a grant high in the data set hierarchy covers
-  everything beneath it.
+- **Watch for over-broad grants.** The wildcard groups `/datasets/*/read` and
+  `/datasets/*/write` grant everything in the tenant, and the `DATAHUB_ADMIN` role grants
+  everything in every tenant. All three should be held by very few accounts, and their
+  holders should be reviewed by name. Remember that a grant high in the data set hierarchy
+  covers everything beneath it.
 
 [How grants work →](/administration/dataset-permissions)
 

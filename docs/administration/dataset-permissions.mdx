@@ -74,25 +74,49 @@ This is deliberate, and it enables the pattern described in
 account that can write measurements without being able to read anything back. If those
 credentials leak, the exposure is limited.
 
-### Access to everything stays a role
+### Access to everything is a wildcard group {#access-to-everything-is-a-wildcard-group}
 
-Blanket grants name no data set, so they remain ordinary realm roles:
+All-data-sets access follows the same pattern, with `*` in place of an external id:
+
+```text
+/datasets/*/read
+/datasets/*/write
+```
+
+A member of `/datasets/*/read` can read **every data set in the organization**, including
+ones created later. These are ordinary organization groups, sitting in the same group tree
+as the per-data-set grants, so a tenant's own administrator can hand them out, and "every
+data set" means every data set of that tenant, never another tenant's. The `*` cannot
+collide with a real data set, because
+[external ids may not contain an asterisk](/concepts/naming-and-standards#what-an-external-id-may-contain).
+
+Read and write stay independent here too: somebody who needs both must be a member of both
+groups.
+
+One realm role remains, for the people operating the platform itself:
 
 | Role | Grants |
 | --- | --- |
-| `DATAHUB_ADMIN` | Read **and** write every data set, the operator escape hatch |
-| `DATAHUB_DATASET_ALL` | Read **and** write every data set |
-| `DATAHUB_DATASET_READ_ALL` | Read every data set |
-| `DATAHUB_DATASET_WRITE_ALL` | Write every data set |
+| `DATAHUB_ADMIN` | Read **and** write on every data set in every tenant, the operator escape hatch. It is read from the token itself, so operator access keeps working even when the identity provider cannot be reached. |
+
+:::caution Removed roles
+The realm roles `DATAHUB_DATASET_ALL`, `DATAHUB_DATASET_READ_ALL` and
+`DATAHUB_DATASET_WRITE_ALL` no longer exist and are no longer read. A stale assignment
+grants nothing: move any remaining holders into the wildcard groups above.
+:::
 
 ### Managing the data sets themselves {#managing-the-data-sets-themselves}
 
-Creating, updating or deleting a **data set itself** requires one of the all-data-sets write
-grants above, `DATAHUB_DATASET_ALL`, `DATAHUB_DATASET_WRITE_ALL` or `DATAHUB_ADMIN`. Grants on
-individual data sets never confer it, however many of them somebody holds.
+Creating, updating or deleting a **data set itself** requires the all-data-sets write grant,
+`/datasets/*/write`, or `DATAHUB_ADMIN`. Grants on individual data sets never confer it,
+however many of them somebody holds.
 
 The reason is that a data set is the unit access is granted on: renaming one, or moving it in
 the hierarchy, changes what every existing grant covers.
+
+Because the wildcard group is scoped to one organization, the responsibility can be
+delegated per tenant: a tenant's own data steward can hold `/datasets/*/write` without
+gaining anything in any other tenant.
 
 ### Granting access in Keycloak
 
@@ -112,9 +136,9 @@ the hierarchy, changes what every existing grant covers.
 Groups that do not match the pattern are ignored, so an organization's group tree can hold
 whatever else it needs.
 
-<span className="t-brand">Changes take effect within about a minute</span>, rather than
-waiting for the user's token to expire, so revoking access does not mean asking somebody to
-sign out and back in.
+<span className="t-brand">Changes take effect within about a minute</span>, the wildcard
+groups included, rather than waiting for the user's token to expire, so revoking access does
+not mean asking somebody to sign out and back in.
 
 ### Why groups rather than roles
 
@@ -122,7 +146,9 @@ Realm roles are global to the realm, but data sets belong to one tenant. A role 
 data set would mean something different in every tenant, and somebody who belongs to two
 tenants would carry it into both. An organization group is scoped to one organization by
 construction, and it can be delegated, so a tenant's own administrator can manage their
-team's access without realm-wide rights.
+team's access without realm-wide rights. The same logic is why the all-data-sets grants are
+wildcard groups rather than roles: `/datasets/*/write` in one organization says nothing
+about any other.
 
 ## How denial behaves
 
@@ -170,7 +196,7 @@ did not specify one. What happens then differs by type, and the difference matte
 
 | Type | With no data set |
 | --- | --- |
-| **Resources, time series, events** | Conservative. Only a caller holding an all-data-sets grant can see them. |
+| **Resources, time series, events** | Conservative. Readable only with `/datasets/*/read` and writable only with `/datasets/*/write` (or `DATAHUB_ADMIN`). |
 | <span className="t-accent">**Files and folders**</span> | **Public to every authenticated user.** No data set means no restriction. |
 
 That file exception is the one to plan around. If you are relying on data sets to control who
@@ -197,7 +223,8 @@ normal permission model.
     Most people need read on many data sets and write on very few. Reflect that.
   </Step>
   <Step title="Keep the escape hatches rare and named">
-    `DATAHUB_ADMIN` and the `_ALL` roles should have a small, reviewable list of holders.
+    The wildcard groups `/datasets/*/read` and `/datasets/*/write`, and the `DATAHUB_ADMIN`
+    role, should each have a small, reviewable list of holders.
   </Step>
   <Step title="Review quarterly">
     The group names carry the data set they grant, so the group list in your identity

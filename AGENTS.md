@@ -293,8 +293,12 @@ Keycloak 26.7. What is now true, and what the docs say:
   rejected. A user in several organizations gets an ambiguous token, also rejected.
 - **Data set access is organization groups**, `/datasets/<externalId>/read` and `/write`,
   inheriting down the data set hierarchy. The id-bearing `DATAHUB_DATASET_READ_<id>` /
-  `WRITE_<id>` realm roles are **no longer read at all**; do not document them. The blanket
-  `DATAHUB_ADMIN` / `_DATASET_ALL` / `_READ_ALL` / `_WRITE_ALL` roles stay realm roles.
+  `WRITE_<id>` realm roles are **no longer read at all**; do not document them. As of the
+  platform branch `refactor/blanket-dataset-grants-to-org-groups` (2026-08), the blanket
+  `_DATASET_ALL` / `_READ_ALL` / `_WRITE_ALL` roles are gone too, replaced by per-tenant
+  wildcard organization groups `/datasets/*/read` and `/datasets/*/write`; do not
+  reintroduce them. Only `DATAHUB_ADMIN` stays a realm role, the operator escape hatch,
+  resolved from the token alone so it survives an unreachable identity provider.
 - **Grants are not read from the token**, so "there is no cached permission state, revoking
   takes effect at the next token issue" is wrong and was corrected on `security.mdx`,
   `overview.mdx`, `users-and-access.mdx` and `building-applications.mdx`. Correct user-facing

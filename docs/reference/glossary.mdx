@@ -99,7 +99,8 @@ One line each. Follow the link where you want the full explanation.
 | **Near-duplicate guard** | The always-on check that refuses `pump-a-01` beside an existing `pump_a_01`, anywhere in the tenant. [→](/concepts/naming-and-standards#near-duplicate-guard) |
 | **Finding** | The record left when a policy warns rather than refuses: the write went through and a data steward is expected to look at it. [→](/concepts/naming-and-standards#findings) |
 | **`DATAHUB_ACCESS`** | The baseline role required to use the platform at all. [→](/administration/users-and-access) |
-| **`DATAHUB_ADMIN`** | The escape-hatch role granting read and write on every data set. [→](/administration/dataset-permissions) |
+| **`DATAHUB_ADMIN`** | The escape-hatch role granting read and write on every data set in every tenant. [→](/administration/dataset-permissions) |
+| **Wildcard data set group** | `/datasets/*/read` or `/datasets/*/write`: an organization group granting read or write on all of that tenant's data sets. [→](/administration/dataset-permissions#access-to-everything-is-a-wildcard-group) |
 | **Identity provider** | The external system holding user accounts and issuing tokens. [→](/administration/users-and-access) |
 | **Air-gapped** | Running with no internet connection at all, fully supported. [→](/administration/security) |
 
