@@ -67,6 +67,30 @@ is filtered by the same data set read boundary as any other read.
 [Users and access →](/administration/users-and-access) ·
 [Data set permissions →](/administration/dataset-permissions)
 
+## AI agents and the console assistant
+
+DataHub can be used by AI assistants through the
+[Model Context Protocol](https://modelcontextprotocol.io/) (MCP), an open standard for
+connecting AI assistants to tools. The property a security review should note:
+<span className="t-brand">for access control, an MCP call is no different from any other
+call</span>. There is no separate credential and no API key for agents. Every MCP request
+carries a normal OAuth2 token from your identity provider, exactly like the REST API and
+the console, and every call is authorised by that token: the tenant, the `DATAHUB_ACCESS`
+role and the per-data-set read and write grants apply unchanged.
+
+Scoping an AI agent is therefore the same administrative act as scoping any
+[service account](/administration/users-and-access#service-accounts): create a service
+account in your identity provider, grant its groups read on the data sets it should see,
+and it cannot write or see anything else.
+
+The console's built-in assistant is stricter still:
+
+- It only ever offers its model **read-only tools**, whatever the signed-in user could do.
+- It runs only where three switches agree: enabled in the deployment, enabled for the
+  tenant, and the user holds the `DATAHUB_CHAT` role.
+
+[What agents can do with the platform →](/value/ai-agents#how-an-agent-actually-connects)
+
 ## Tenant isolation
 
 This is usually the question a risk committee cares most about, and the answer is stronger

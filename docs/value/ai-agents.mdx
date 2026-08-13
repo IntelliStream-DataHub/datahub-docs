@@ -210,17 +210,27 @@ unverifiable answer is not a cheap answer; it is a liability.
 Everything above describes why a model makes an agent better. This is the plumbing that lets
 one reach it.
 
-DataHub ships a server for the [Model Context Protocol](https://modelcontextprotocol.io/),
-the emerging standard for handing an agent a set of tools it can call. It publishes **36
-tools** covering datasets, equipment and other resources, the relationships between them,
-time series, events, labels and units. An agent can search the model, walk outward from a
-piece of equipment to its neighbourhood, pull history between two timestamps, and write back:
-record an event, append a reading, create a resource.
+DataHub serves agents through the [Model Context Protocol](https://modelcontextprotocol.io/),
+the open standard for connecting AI assistants to tools. Three parts of the platform take
+part:
+
+| Part | What it offers an agent |
+| --- | --- |
+| **The API** | **37 tools** covering datasets, equipment and other resources, the relationships between them, time series, events, labels and units. An agent can search the model, walk outward from a piece of equipment to its neighbourhood, find the nearest resources of a given kind, pull history between two timestamps, and write back: record an event, append a reading, create a resource |
+| **The analysis service** | The [relationship analysis](/using/relationship-analysis) behind the console's Analyze tab, as a single tool: given one time series and a time window, it finds related series through the graph and reports how strongly they move together, which one leads, and whether the link is dependable |
+| **The console assistant** | An agent itself, and a client of that tool: asked a cause or influence question, it runs the statistical analysis rather than estimating from raw numbers |
+
+The analysis service is optional, and the assistant is built to cope: if the service is
+not deployed, the assistant keeps working and that one tool is simply unavailable. The
+assistant itself appears only where the deployment enables it, the tenant has the feature,
+and the user holds the chat role.
+[How that is controlled →](/administration/security#ai-agents-and-the-console-assistant)
 
 The part worth understanding, even if you never look at the code:
 
-- **There is no separate door for agents.** The MCP endpoint sits on the same security chain
-  as everything else. Same token, same checks, same tenant isolation.
+- **There is no separate door for agents.** Each of the two services publishes its tools at
+  its own `/mcp` address, on the same security chain as everything else it serves. Same
+  token, same checks, same tenant isolation.
 - **An agent inherits the permissions of whoever it acts for.** It is not a service account
   with blanket access. If it should read but not write,
   <span className="t-brand">issue it a token that can read but not write</span>. There is no
@@ -229,11 +239,11 @@ The part worth understanding, even if you never look at the code:
   trimmed projections rather than whole records, so the agent spends its context on the few
   things that matter instead of the audit fields of everything it looked at.
 
-The endpoint, the authentication model and the full tool list are in the
+The endpoints, the authentication model and the full tool list are in the
 <a href="/sdk-documentation/mcp-server">developer documentation</a>.
 
 :::caution The approval step is yours to build
-The server executes what it is asked. It has no way to stop mid-call and ask a person to
+An MCP server executes what it is asked. It has no way to stop mid-call and ask a person to
 confirm a deletion or a write, so **if an agent should pause for a human before it changes
 anything, that gate belongs in the agent you build**, not in the platform. The simplest
 version of this is also the strongest: give an agent that has no business writing a token
@@ -560,7 +570,7 @@ they add inherits the same context. That ordering is the whole strategic argumen
 </References>
 
 <Deeper>
-- <a href="/sdk-documentation/mcp-server">MCP server</a>: the 36 tools an agent connects through
+- <a href="/sdk-documentation/mcp-server">MCP servers</a>: the two endpoints and the 38 tools an agent connects through
 - [Knowledge graphs](/concepts/knowledge-graph): the structure agents reason over
 - [Lineage and data quality](/concepts/lineage-and-quality): what makes agent output checkable
 - [The operational data problem](/start/the-data-problem#why-industry-40-stalls-without-this): why context, not algorithms, is the blocker
