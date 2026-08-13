@@ -111,6 +111,13 @@ the API on their behalf, so data set permissions still apply.
 
 **Scales with:** analysis queries. **Stateless:** yes, entirely.
 
+The service also offers the analysis to
+[AI agents](/value/ai-agents#how-an-agent-actually-connects) as a tool, using the token
+validation it already performs, so exposing it needs no extra configuration. The console's
+assistant reaches it through the same address setting the Analyze tab uses, and copes with
+its absence: if the service is not deployed, the assistant keeps working and that one tool
+is simply unavailable.
+
 This service is <span className="t-accent">not yet part of the reference deployment</span>,
 which is why [relationship analysis](/using/relationship-analysis) is flagged as roadmap: the
 capability is implemented, the shipping is not.
