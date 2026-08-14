@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" class="fig-issuer-neighbourhood" role="img" aria-label="A results release arrives as an event on Issuer A. From there the graph reaches two suppliers held in the portfolio, a fund holding both, and a peer in the same end market, each of which carries its own price and fundamentals series.">
+<text class="fig-title" x="20" y="24">One filing, and everything it is allowed to move</text>
+<text class="fig-sub" x="20" y="44">The event lands on one issuer. What it means for the book is a question about relationships.</text>
+<rect class="fig-lit-box c-orange" x="310" y="76" width="150" height="30" rx="10"/><text class="fig-lit-sub" x="385" y="96" text-anchor="middle">results release, 06:59</text>
+<path class="fig-exit-path fig-flow" d="M385 106 L385 129" fill="none"/>
+<path class="fig-centre" d="M380 129 L385 140 L390 129 z"/>
+<rect class="fig-lit-box c-blue" x="300" y="140" width="170" height="56" rx="12"/><text class="fig-lit-title" x="385" y="164" text-anchor="middle">Issuer A</text><text class="fig-lit-sub" x="385" y="182" text-anchor="middle">the one that just reported</text>
+<path class="fig-exit-path fig-flow" d="M300 168 L231 120" fill="none"/>
+<path class="fig-centre" d="M231 115 L220 120 L231 125 z"/>
+<text class="fig-box-sub" x="266" y="137" text-anchor="middle">SUPPLIES</text>
+<path class="fig-exit-path fig-flow" d="M300 168 L231 240" fill="none"/>
+<path class="fig-centre" d="M231 235 L220 240 L231 245 z"/>
+<text class="fig-box-sub" x="266" y="197" text-anchor="middle">SUPPLIES</text>
+<path class="fig-exit-path fig-flow" d="M470 168 L539 120" fill="none"/>
+<path class="fig-centre" d="M539 115 L550 120 L539 125 z"/>
+<text class="fig-box-sub" x="504" y="137" text-anchor="middle">OWNED_BY</text>
+<path class="fig-exit-path fig-flow" d="M470 168 L539 240" fill="none"/>
+<path class="fig-centre" d="M539 235 L550 240 L539 245 z"/>
+<text class="fig-box-sub" x="504" y="197" text-anchor="middle">COMPETES_WITH</text>
+<rect class="fig-box" x="40" y="96" width="180" height="48" rx="12"/><text class="fig-box-title" x="54" y="117">Supplier B</text><text class="fig-box-sub" x="54" y="133">held in the portfolio</text>
+<path class="fig-line-a" d="M162.0 120.9 L167.8 118.9 L173.5 118.2 L179.2 119.0 L185.0 120.9 L190.8 123.0 L196.5 124.6 L202.2 125.0 L208.0 124.3" fill="none"/>
+<rect class="fig-box" x="40" y="216" width="180" height="48" rx="12"/><text class="fig-box-title" x="54" y="237">Supplier C</text><text class="fig-box-sub" x="54" y="253">held in the portfolio</text>
+<path class="fig-line-a" d="M162.0 243.8 L167.8 246.1 L173.5 248.3 L179.2 249.8 L185.0 249.8 L190.8 248.3 L196.5 245.9 L202.2 243.5 L208.0 241.8" fill="none"/>
+<rect class="fig-box" x="550" y="96" width="180" height="48" rx="12"/><text class="fig-box-title" x="564" y="117">Fund D</text><text class="fig-box-sub" x="564" y="133">holds both of them</text>
+<path class="fig-line-a" d="M672.0 124.6 L677.8 124.6 L683.5 123.4 L689.2 121.5 L695.0 119.6 L700.8 118.5 L706.5 118.8 L712.2 120.6 L718.0 123.2" fill="none"/>
+<rect class="fig-box" x="550" y="216" width="180" height="48" rx="12"/><text class="fig-box-title" x="564" y="237">Peer E</text><text class="fig-box-sub" x="564" y="253">same end market</text>
+<path class="fig-line-a" d="M672.0 246.2 L677.8 245.1 L683.5 243.9 L689.2 243.4 L695.0 244.0 L700.8 245.7 L706.5 247.7 L712.2 249.2 L718.0 249.4" fill="none"/>
+<text class="fig-sub" x="20" y="298">Every node the walk reaches carries its own series, which is why one arrival at 06:59 becomes</text>
+<text class="fig-sub" x="20" y="316">five things worth reading by 07:04 rather than one headline worth repeating.</text>
+</svg>

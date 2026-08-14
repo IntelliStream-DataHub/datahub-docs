@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 336" class="fig-text-sequence" role="img" aria-label="Three requests written as rows of word chips. The first and third share an intent but not their words; the first and second share nearly all their words but not their intent. The words that decide the meaning are highlighted.">
+<text class="fig-title" x="20" y="24">Almost the same words, three different requests</text>
+<text class="fig-sub" x="20" y="44">Counting words cannot separate these. Reading them in order can.</text>
+<text class="fig-box-sub" x="20" y="92">what was asked</text>
+<text class="fig-box-sub" x="530" y="92">what it means</text>
+<rect class="fig-box" x="20" y="116" width="39" height="34" rx="9"/><text class="fig-box-sub" x="40" y="138" text-anchor="middle">can</text>
+<rect class="fig-box" x="66" y="116" width="39" height="34" rx="9"/><text class="fig-box-sub" x="86" y="138" text-anchor="middle">you</text>
+<rect class="fig-lit-box c-orange" x="112" y="116" width="52" height="34" rx="9"/><text class="fig-lit-sub" x="138" y="138" text-anchor="middle">close</text>
+<rect class="fig-box" x="171" y="116" width="33" height="34" rx="9"/><text class="fig-box-sub" x="188" y="138" text-anchor="middle">my</text>
+<rect class="fig-lit-box c-orange" x="211" y="116" width="90" height="34" rx="9"/><text class="fig-lit-sub" x="256" y="138" text-anchor="middle">credit card</text>
+<path class="fig-exit-path fig-flow" d="M315 133 L520 133" fill="none"/>
+<rect class="fig-box" x="530" y="116" width="210" height="34" rx="9"/><text class="fig-box-sub" x="635" y="138" text-anchor="middle">close · my own card</text>
+<rect class="fig-box" x="20" y="178" width="39" height="34" rx="9"/><text class="fig-box-sub" x="40" y="200" text-anchor="middle">can</text>
+<rect class="fig-box" x="66" y="178" width="39" height="34" rx="9"/><text class="fig-box-sub" x="86" y="200" text-anchor="middle">you</text>
+<rect class="fig-lit-box c-orange" x="112" y="178" width="46" height="34" rx="9"/><text class="fig-lit-sub" x="135" y="200" text-anchor="middle">open</text>
+<rect class="fig-lit-box c-orange" x="165" y="178" width="78" height="34" rx="9"/><text class="fig-lit-sub" x="204" y="200" text-anchor="middle">my wife’s</text>
+<rect class="fig-box" x="250" y="178" width="90" height="34" rx="9"/><text class="fig-box-sub" x="295" y="200" text-anchor="middle">credit card</text>
+<path class="fig-exit-path fig-flow" d="M353 195 L520 195" fill="none"/>
+<rect class="fig-box" x="530" y="178" width="210" height="34" rx="9"/><text class="fig-box-sub" x="635" y="200" text-anchor="middle">open · somebody else’s</text>
+<rect class="fig-box" x="20" y="240" width="26" height="34" rx="9"/><text class="fig-box-sub" x="33" y="262" text-anchor="middle">I</text>
+<rect class="fig-lit-box c-orange" x="53" y="240" width="110" height="34" rx="9"/><text class="fig-lit-sub" x="108" y="262" text-anchor="middle">no longer need</text>
+<rect class="fig-box" x="170" y="240" width="33" height="34" rx="9"/><text class="fig-box-sub" x="186" y="262" text-anchor="middle">my</text>
+<rect class="fig-lit-box c-orange" x="210" y="240" width="84" height="34" rx="9"/><text class="fig-lit-sub" x="252" y="262" text-anchor="middle">mastercard</text>
+<path class="fig-exit-path fig-flow" d="M307 257 L520 257" fill="none"/>
+<rect class="fig-box" x="530" y="240" width="210" height="34" rx="9"/><text class="fig-box-sub" x="635" y="262" text-anchor="middle">close · my own card</text>
+<text class="fig-sub" x="20" y="300">Rows one and three mean the same thing and share only the word “my”. Rows one and two share nearly</text>
+<text class="fig-sub" x="20" y="318">every word and mean different things. Order and context are the whole difference.</text>
+</svg>

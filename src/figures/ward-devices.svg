@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 384" class="fig-ward-devices" role="img" aria-label="A ward node connected to three device groups, each carrying a time series and an event. A patient records node sits below, with no line connecting it to any of them, deliberately.">
+<text class="fig-title" x="20" y="24">The same walk as the compressor, on a different kind of plant</text>
+<text class="fig-sub" x="20" y="44">Resolve the ward, step out to what is deployed in it, read the series and the events on each.</text>
+<rect class="fig-lit-box c-blue" x="20" y="160" width="140" height="52" rx="12"/><text class="fig-lit-title" x="90" y="184" text-anchor="middle">WARD-3B</text><text class="fig-lit-sub" x="90" y="201" text-anchor="middle">where the question starts</text>
+<path class="fig-exit-path fig-flow" d="M160 186 L189 120" fill="none"/>
+<path class="fig-centre" d="M189 115 L200 120 L189 125 z"/>
+<rect class="fig-box" x="206" y="96" width="186" height="48" rx="12"/><text class="fig-box-title" x="299" y="125" text-anchor="middle">Infusion pumps ×12</text>
+<line class="fig-track" x1="392" y1="120" x2="422" y2="120"/>
+<rect class="fig-box" x="422" y="103" width="140" height="34" rx="9"/><text class="fig-box-sub" x="492" y="125" text-anchor="middle">run hours</text>
+<line class="fig-track" x1="562" y1="120" x2="586" y2="120"/>
+<rect class="fig-box" x="586" y="103" width="154" height="34" rx="9"/><text class="fig-box-sub" x="663" y="125" text-anchor="middle">12 calibrations due</text>
+<path class="fig-exit-path fig-flow" d="M160 186 L189 184" fill="none"/>
+<path class="fig-centre" d="M189 179 L200 184 L189 189 z"/>
+<rect class="fig-box" x="206" y="160" width="186" height="48" rx="12"/><text class="fig-box-title" x="299" y="189" text-anchor="middle">Ventilator V-207</text>
+<line class="fig-track" x1="392" y1="184" x2="422" y2="184"/>
+<rect class="fig-box" x="422" y="167" width="140" height="34" rx="9"/><text class="fig-box-sub" x="492" y="189" text-anchor="middle">self-test result</text>
+<line class="fig-track" x1="562" y1="184" x2="586" y2="184"/>
+<rect class="fig-box" x="586" y="167" width="154" height="34" rx="9"/><text class="fig-box-sub" x="663" y="189" text-anchor="middle">3 warnings this week</text>
+<path class="fig-exit-path fig-flow" d="M160 186 L189 248" fill="none"/>
+<path class="fig-centre" d="M189 243 L200 248 L189 253 z"/>
+<rect class="fig-box" x="206" y="224" width="186" height="48" rx="12"/><text class="fig-box-title" x="299" y="253" text-anchor="middle">MRI suite</text>
+<line class="fig-track" x1="392" y1="248" x2="422" y2="248"/>
+<rect class="fig-box" x="422" y="231" width="140" height="34" rx="9"/><text class="fig-box-sub" x="492" y="253" text-anchor="middle">helium boil-off</text>
+<line class="fig-track" x1="562" y1="248" x2="586" y2="248"/>
+<rect class="fig-box" x="586" y="231" width="154" height="34" rx="9"/><text class="fig-box-sub" x="663" y="253" text-anchor="middle">boil-off drift opened</text>
+<text class="fig-box-sub" x="492" y="82" text-anchor="middle">time series</text>
+<text class="fig-box-sub" x="663" y="82" text-anchor="middle">events</text>
+<rect class="fig-box" x="20" y="284" width="150" height="40" rx="12"/><text class="fig-box-sub" x="95" y="308" text-anchor="middle">Patient records</text>
+<text class="fig-box-sub" x="186" y="303">Notice there is no line from here to anything above.</text>
+<text class="fig-box-sub" x="186" y="319">That is deliberate, and it is the point.</text>
+<text class="fig-sub" x="20" y="352">A question can reach whatever is linked to where it started. So the dependable way</text>
+<text class="fig-sub" x="20" y="370">to keep two things apart is to leave the link out, rather than to rely on a permission at the far end.</text>
+</svg>

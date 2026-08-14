@@ -3,6 +3,8 @@ sidebar_position: 7
 title: Events
 description: What events are in DataHub, how the event log works, and why anchoring events to resources is what makes an investigation fast.
 ---
+import EventsFromSeries from '@site/src/figures/events-from-series.svg';
+
 
 # Events
 
@@ -100,12 +102,32 @@ click from "something happened" to "here is everything around it".**
 
 ## Events and time series together
 
-This is the pairing that does the real work.
+This is the pairing that does the real work, and it runs in both directions. A series can
+produce an event, and an event explains a series.
 
-A pressure trace that dips is ambiguous. The same trace with a maintenance event open on the
-upstream valve during the dip is an explanation. Because both the series and the event are
-anchored to resources in the same [graph](/concepts/knowledge-graph), laying one over the
-other is a query rather than a research project.
+<Figure
+  caption="One trace, three different reasons to record something. The first crosses a limit, which is the familiar case. The second never leaves the limits at all and is caught because its shape stopped matching what this pump normally does. The third is not a problem in any sense, it is a change of condition worth knowing about later, when somebody asks why the readings look different after Tuesday."
+  wide
+>
+  <EventsFromSeries />
+</Figure>
+
+The three are worth separating, because organisations usually record only the first:
+
+| What was noticed | Who usually notices it | Why record it |
+| --- | --- | --- |
+| **A limit was crossed** | The control system, immediately | The classic alarm. Already recorded almost everywhere, and already, often, too many of them |
+| **The pattern changed** | A [model watching the shape](/concepts/machine-learning#sequences-lstm-and-why-time-series-need-it) rather than the value | The interesting failures start here, weeks before a limit is anywhere near |
+| **The condition changed** | Whoever, or whatever, made the change | Not a fault at all. It is the context that makes next month's readings interpretable |
+
+The third row is the one most often skipped and the one people miss most, because without it
+a series changes character for no recorded reason and nobody remembers why.
+
+Read the other way round, an event explains a series. A pressure trace that dips is
+ambiguous; the same trace with a maintenance event open on the upstream valve during the dip
+is an explanation. Because both the series and the event are anchored to resources in the
+same [graph](/concepts/knowledge-graph), laying one over the other is a query rather than a
+research project.
 
 A practical investigation pattern:
 
@@ -163,6 +185,18 @@ The same property is what makes the log the accountability layer for agents: bec
 actions and outcomes are recorded against the same resources, an agent's work is reviewable
 after the fact, and the incentive loop that steers a fleet of agents is computed from it.
 [How agents are steered by the event log →](/value/ai-agents#where-this-is-heading-dynamic-incentives)
+[The event log as an agent's fourth guardrail →](/using/ai-agents#the-four-limits-worth-setting)
+
+## Where agents help
+
+Events are where agents both read and write. They **read** them as the record of what
+happened, which is what turns a question into an investigation with evidence, and what makes
+your log a labelled training set for [models](/concepts/machine-learning).
+
+They **write** them too: a detection agent raises a typed event when it sees something
+significant, and any agent that acts should record what it did as an event against the
+resources concerned. That habit is what makes agent work auditable afterwards.
+[Building AI agents →](/using/ai-agents)
 
 <Deeper>
 - [The four building blocks](/start/core-ideas): where events sit among the concepts

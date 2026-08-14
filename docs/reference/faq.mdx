@@ -6,9 +6,7 @@ description: The questions people ask before and during a DataHub adoption, abou
 
 # Frequently asked questions
 
-<Lead>
-Short answers, each linking to the page that explains it properly.
-</Lead>
+<Lead>Short answers, each linking to the page that explains it properly.</Lead>
 
 ## About the platform
 
@@ -63,13 +61,24 @@ around questions, not built as monuments.
 Yes, and they are unusually good with it, because an agent reasoning over a knowledge graph
 gets context instead of raw tables: it can follow *sensor → pump → line → KPI* the same way
 an engineer would, and answer with the traversal as its evidence. Agents connect through
-the [Model Context Protocol](/value/ai-agents#how-an-agent-actually-connects), with the
+the [Model Context Protocol](/using/mcp), which the platform serves as 38 tools, with the
 same token and permissions as any other caller, and can also write and
 operate integrations against the API. Once several run, a
 [coordinator](/value/ai-agents#coordination) sequences them into an organisation, and the
 same structure holds when the workers grow bodies, inspection robots and
 [unmanned installations](/value/ai-agents#the-workforce-will-not-stay-virtual).
-[→ AI agents](/value/ai-agents)
+[→ AI agents](/value/ai-agents) · [→ Building AI agents](/using/ai-agents)
+
+### What is MCP, and do we need it?
+
+MCP, the Model Context Protocol, is the open standard that lets an AI assistant call tools
+instead of guessing from what it was trained on. It matters because it removed the bespoke
+integration between each assistant and each system: a system publishes its tools once, and
+any assistant that speaks the protocol can use them. DataHub publishes 38 of them, over the
+graph, time series, events, labels, units and the statistical analysis. You do not have to use it, the API is still
+there, but it is the shortest path from "we have a model of our operation" to "an assistant
+can answer questions about it", and it takes about twenty minutes and no code.
+[→ Using MCP](/using/mcp)
 
 ### Can we build our own applications on it?
 
@@ -195,9 +204,9 @@ cost is near zero. [→ The objection worth taking seriously](/start/the-data-pr
 
 Four core services, the API, the console and two consumers, plus the backing stores: a
 relational database, a streaming platform, a columnar store, a graph database, two
-key-value stores, a secret store and an OAuth2/OIDC identity provider. Three more pieces
-round out a full deployment: the analysis service behind the Analyze tab, a scheduled
-housekeeping service, and a broker plugin that supports live data delivery.
+key-value stores, a secret store and an OAuth2/OIDC identity provider. Alongside those run
+the analysis service behind the Analyze tab, a scheduled housekeeping service, and a broker
+plugin that supports live data delivery.
 [→ Architecture](/administration/architecture)
 
 ### Why is the platform split into several services?

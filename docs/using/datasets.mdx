@@ -163,7 +163,20 @@ with no data set is readable by every authenticated user.
 If data seems to be missing after an import, checking whether it landed without a data set
 is a good first diagnostic.
 
+## Where agents help
+
+Mostly by not being given too much. An agent's reach is decided by the data sets its token can
+read, so the useful practice is to give it the narrowest set that lets it do its job.
+Note the one asymmetry: creating, changing or deleting a data set needs an all-data-sets
+grant, so <span className="t-accent">most agents should not be able to</span>, however useful
+their other work is. [Data set permissions →](/administration/dataset-permissions)
+
+Where an agent does help is review: which data sets have drifted from their stated purpose,
+which hold members nobody has read in a year, and which are quietly empty.
+[Building AI agents →](/using/ai-agents)
+
 <Deeper>
+- [Using MCP](/using/mcp): the data sets an AI assistant can see are the ones its token can read
 - [Data governance](/concepts/data-governance): data sets as the access piece of governance
 - [Data set permissions](/administration/dataset-permissions): the groups behind read and write
 - [The four building blocks](/start/core-ideas): where data sets sit among the concepts

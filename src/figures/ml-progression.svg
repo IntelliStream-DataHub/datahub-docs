@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 344" class="fig-ml-progression" role="img" aria-label="Three panels. First, linear regression fits a straight line through scattered points to predict a number. Second, logistic regression bends that line into an S-curve between no and yes, to predict a probability. Third, a support vector machine separates two groups of points with the line that leaves the widest margin, resting on a few points at the edges.">
+<text class="fig-title" x="20" y="24">The same idea, answering three harder questions</text>
+<text class="fig-sub" x="20" y="44">Fit a line. Bend it into a probability. Then use it as a boundary, and make the gap as wide as possible.</text>
+<text class="fig-box-title" x="20" y="78">Linear regression</text>
+<text class="fig-box-sub" x="20" y="96">how much? · days until service</text>
+<line class="fig-track" x1="20" y1="252" x2="240" y2="252"/>
+<text class="fig-box-title" x="270" y="78">Logistic regression</text>
+<text class="fig-box-sub" x="270" y="96">how likely? · chance it fails this month</text>
+<line class="fig-track" x1="270" y1="252" x2="490" y2="252"/>
+<text class="fig-box-title" x="520" y="78">Support vector machine</text>
+<text class="fig-box-sub" x="520" y="96">which side? · healthy or failing</text>
+<line class="fig-track" x1="520" y1="252" x2="740" y2="252"/>
+<path class="fig-centre" d="M248 178 L260 184 L248 190 z"/>
+<path class="fig-centre" d="M498 178 L510 184 L498 190 z"/>
+<circle class="fig-dot-a" cx="36" cy="232" r="4"/>
+<circle class="fig-dot-a" cx="59" cy="230" r="4"/>
+<circle class="fig-dot-a" cx="82" cy="209" r="4"/>
+<circle class="fig-dot-a" cx="105" cy="206" r="4"/>
+<circle class="fig-dot-a" cx="128" cy="181" r="4"/>
+<circle class="fig-dot-a" cx="151" cy="177" r="4"/>
+<circle class="fig-dot-a" cx="174" cy="153" r="4"/>
+<circle class="fig-dot-a" cx="197" cy="150" r="4"/>
+<circle class="fig-dot-a" cx="220" cy="132" r="4"/>
+<path class="fig-line-a" d="M34 236 L220 134" fill="none"/>
+<text class="fig-box-sub" x="20" y="274">the line is the prediction: read it off</text>
+<text class="fig-box-sub" x="20" y="290">anywhere along the bottom axis</text>
+<text class="fig-box-sub" x="266" y="124" text-anchor="end">yes</text>
+<text class="fig-box-sub" x="266" y="256" text-anchor="end">no</text>
+<path class="fig-line-b" d="M280.0 251.5 L285.0 251.3 L290.0 251.1 L295.0 250.8 L300.0 250.4 L305.0 249.9 L310.0 249.3 L315.0 248.5 L320.0 247.4 L325.0 246.0 L330.0 244.2 L335.0 241.9 L340.0 239.0 L345.0 235.5 L350.0 231.1 L355.0 225.8 L360.0 219.5 L365.0 212.4 L370.0 204.4 L375.0 195.9 L380.0 187.0 L385.0 178.1 L390.0 169.6 L395.0 161.6 L400.0 154.5 L405.0 148.2 L410.0 142.9 L415.0 138.5 L420.0 135.0 L425.0 132.1 L430.0 129.8 L435.0 128.0 L440.0 126.6 L445.0 125.5 L450.0 124.7 L455.0 124.1 L460.0 123.6 L465.0 123.2 L470.0 122.9 L475.0 122.7 L480.0 122.5" fill="none"/>
+<circle class="fig-dot-a" cx="288" cy="248" r="4"/>
+<circle class="fig-dot-a" cx="310" cy="248" r="4"/>
+<circle class="fig-dot-a" cx="332" cy="248" r="4"/>
+<circle class="fig-dot-a" cx="358" cy="248" r="4"/>
+<circle class="fig-dot-b" cx="398" cy="118" r="4"/>
+<circle class="fig-dot-b" cx="422" cy="118" r="4"/>
+<circle class="fig-dot-b" cx="446" cy="118" r="4"/>
+<circle class="fig-dot-b" cx="470" cy="118" r="4"/>
+<line class="fig-track" x1="270" y1="184" x2="490" y2="184"/>
+<text class="fig-box-sub" x="270" y="274">above the middle line, act on it;</text>
+<text class="fig-box-sub" x="270" y="290">below it, keep watching</text>
+<path class="fig-line-a" d="M528 184.0 L532 189.4 L536 194.5 L540 199.4 L544 203.7 L548 207.4 L552 210.4 L556 212.5 L560 213.8 L564 214.1 L568 213.5 L572 212.1 L576 209.8 L580 206.8 L584 203.2 L588 199.2 L592 194.9 L596 190.5 L600 186.2 L604 182.0 L608 178.3 L612 175.1 L616 172.6 L620 170.9 L624 170.0 L628 170.0 L632 170.9 L636 172.8 L640 175.5 L644 179.0 L648 183.1 L652 187.8 L656 192.9 L660 198.2 L664 203.6 L668 208.8 L672 213.8 L676 218.3 L680 222.3 L684 225.5 L688 227.9 L692 229.5 L696 230.1 L700 229.8 L704 228.6 L708 226.6 L712 223.9 L716 220.5 L720 216.6 L724 212.4 L728 208.0" fill="none"/>
+<path class="fig-track" d="M528 168.0 L532 173.4 L536 178.5 L540 183.4 L544 187.7 L548 191.4 L552 194.4 L556 196.5 L560 197.8 L564 198.1 L568 197.5 L572 196.1 L576 193.8 L580 190.8 L584 187.2 L588 183.2 L592 178.9 L596 174.5 L600 170.2 L604 166.0 L608 162.3 L612 159.1 L616 156.6 L620 154.9 L624 154.0 L628 154.0 L632 154.9 L636 156.8 L640 159.5 L644 163.0 L648 167.1 L652 171.8 L656 176.9 L660 182.2 L664 187.6 L668 192.8 L672 197.8 L676 202.3 L680 206.3 L684 209.5 L688 211.9 L692 213.5 L696 214.1 L700 213.8 L704 212.6 L708 210.6 L712 207.9 L716 204.5 L720 200.6 L724 196.4 L728 192.0" fill="none"/>
+<path class="fig-track" d="M528 200.0 L532 205.4 L536 210.5 L540 215.4 L544 219.7 L548 223.4 L552 226.4 L556 228.5 L560 229.8 L564 230.1 L568 229.5 L572 228.1 L576 225.8 L580 222.8 L584 219.2 L588 215.2 L592 210.9 L596 206.5 L600 202.2 L604 198.0 L608 194.3 L612 191.1 L616 188.6 L620 186.9 L624 186.0 L628 186.0 L632 186.9 L636 188.8 L640 191.5 L644 195.0 L648 199.1 L652 203.8 L656 208.9 L660 214.2 L664 219.6 L668 224.8 L672 229.8 L676 234.3 L680 238.3 L684 241.5 L688 243.9 L692 245.5 L696 246.1 L700 245.8 L704 244.6 L708 242.6 L712 239.9 L716 236.5 L720 232.6 L724 228.4 L728 224.0" fill="none"/>
+<circle class="fig-box" cx="616" cy="188.6" r="9"/>
+<circle class="fig-box" cx="665" cy="188.9" r="9"/>
+<circle class="fig-dot-a" cx="532" cy="231.4" r="4"/>
+<circle class="fig-dot-a" cx="575" cy="236.4" r="4"/>
+<circle class="fig-dot-a" cx="616" cy="188.6" r="4"/>
+<circle class="fig-dot-a" cx="644" cy="217.0" r="4"/>
+<circle class="fig-dot-a" cx="720" cy="240.6" r="4"/>
+<circle class="fig-dot-b" cx="548" cy="183.4" r="4"/>
+<circle class="fig-dot-b" cx="588" cy="159.2" r="4"/>
+<circle class="fig-dot-b" cx="628" cy="132.0" r="4"/>
+<circle class="fig-dot-b" cx="665" cy="188.9" r="4"/>
+<circle class="fig-dot-b" cx="702" cy="201.3" r="4"/>
+<circle class="fig-dot-b" cx="728" cy="170.0" r="4"/>
+<text class="fig-box-sub" x="520" y="274">the ringed points are the only ones that</text>
+<text class="fig-box-sub" x="520" y="290">matter: move them and the boundary moves</text>
+<text class="fig-sub" x="20" y="312">Start at the left. Move right only when the question demands it, because everything you gain</text>
+<text class="fig-sub" x="20" y="330">going right is paid for in how easily you can explain the answer afterwards.</text>
+</svg>

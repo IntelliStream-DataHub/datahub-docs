@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" class="fig-agent-guardrails" role="img" aria-label="A proposal passes through four limits in order: the token scope, which lets it read only its own data sets; a step cap, which stops it churning; a human gate, where it drafts rather than dispatches; and the event log, which records every action. The chain ends in autonomy you can audit.">
+<text class="fig-title" x="20" y="24">Four limits between an agent and a mistake</text>
+<text class="fig-sub" x="20" y="44">The first three you set, in three different places. The fourth is what makes the other three checkable.</text>
+<rect class="fig-box" x="20" y="96" width="150" height="64" rx="12"/><text class="fig-box-title" x="95" y="122" text-anchor="middle">Token scope</text><text class="fig-box-sub" x="95" y="141" text-anchor="middle">reads only its data sets</text>
+<text class="fig-box-sub" x="95" y="190" text-anchor="middle">set in your identity provider</text>
+<path class="fig-exit-path fig-flow" d="M170 128 L199 128" fill="none"/>
+<path class="fig-centre" d="M199 123 L210 128 L199 133 z"/>
+<rect class="fig-box" x="210" y="96" width="150" height="64" rx="12"/><text class="fig-box-title" x="285" y="122" text-anchor="middle">Step cap</text><text class="fig-box-sub" x="285" y="141" text-anchor="middle">stops instead of churning</text>
+<text class="fig-box-sub" x="285" y="190" text-anchor="middle">set in the agent you build</text>
+<path class="fig-exit-path fig-flow" d="M360 128 L389 128" fill="none"/>
+<path class="fig-centre" d="M389 123 L400 128 L389 133 z"/>
+<rect class="fig-box" x="400" y="96" width="150" height="64" rx="12"/><text class="fig-box-title" x="475" y="122" text-anchor="middle">Human gate</text><text class="fig-box-sub" x="475" y="141" text-anchor="middle">drafts, never dispatches</text>
+<text class="fig-box-sub" x="475" y="190" text-anchor="middle">set in your own process</text>
+<path class="fig-exit-path fig-flow" d="M550 128 L579 128" fill="none"/>
+<path class="fig-centre" d="M579 123 L590 128 L579 133 z"/>
+<rect class="fig-box" x="590" y="96" width="150" height="64" rx="12"/><text class="fig-box-title" x="665" y="122" text-anchor="middle">Event log</text><text class="fig-box-sub" x="665" y="141" text-anchor="middle">every action recorded</text>
+<text class="fig-box-sub" x="665" y="190" text-anchor="middle">given by the platform</text>
+<circle class="fig-token fig-pulse" cx="10" cy="128" r="6"/>
+<path class="fig-exit-path fig-flow" d="M740 160 L740 249 L541 249" fill="none"/>
+<path class="fig-centre" d="M541 244 L530 249 L541 254 z"/>
+<rect class="fig-exit-box" x="230" y="222" width="300" height="54" rx="14"/><text class="fig-exit-title" x="380" y="246" text-anchor="middle">Autonomy you can audit</text><text class="fig-exit-sub" x="380" y="264" text-anchor="middle">what it did, why, and what happened next</text>
+</svg>

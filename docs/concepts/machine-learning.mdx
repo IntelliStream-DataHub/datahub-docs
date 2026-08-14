@@ -1,0 +1,354 @@
+---
+sidebar_position: 13
+title: What is machine learning?
+description: Machine learning in plain language for people who will never write any, the five methods worth recognising by name, what each one is actually good for, and how to tell which one a supplier is really selling you.
+---
+import RulesVsLearning from '@site/src/figures/rules-vs-learning.svg';
+import MlProgression from '@site/src/figures/ml-progression.svg';
+import Clustering from '@site/src/figures/clustering.svg';
+import NeuralNetwork from '@site/src/figures/neural-network.svg';
+import LstmAnomaly from '@site/src/figures/lstm-sequence-anomaly.svg';
+import TextSequence from '@site/src/figures/text-sequence-intent.svg';
+
+# What is machine learning?
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Leadership</Persona>
+  <Persona>Board members</Persona>
+</Personas>
+
+<KeyIdea>
+Normally you tell a computer the rule: *if vibration goes above 4.5, raise an alarm.* Machine
+learning turns that around. You show it <span className="hl">examples of what happened</span>
+and it works out the rule itself.
+
+That is the entire idea. Everything with a name, regression, clustering, neural networks, is
+a different answer to one follow-up question: **what shape is the rule allowed to be?**
+</KeyIdea>
+
+## Why turn it around at all
+
+<Lead>Because for most interesting questions, nobody knows the rule well enough to write it
+down, and the ones we do write down go stale.</Lead>
+
+A threshold is a rule an expert wrote from experience. It works until the machine is replaced,
+the duty changes, the season turns or the same alarm has to cover forty pumps that are not
+quite alike. Then it either misses things or cries wolf, and people start ignoring it, which
+is worse than not having it.
+
+<Figure
+  caption="Both lanes end in a decision. The left one needs somebody to know the answer in advance and to keep it up to date; the right one needs examples of the thing happening, which most operations have been accumulating for years without noticing."
+  wide
+>
+  <RulesVsLearning />
+</Figure>
+
+The catch is in the last box: a learned rule is harder to read. A threshold explains itself.
+A model, depending on which kind, may or may not. That trade-off runs through everything
+below and is the main thing to hold on to.
+
+## The five words you need
+
+| Word | What it means |
+| --- | --- |
+| **Feature** | An input: a number that means something. Vibration level, hours since last start, ambient temperature. [Where they come from →](/concepts/feature-extraction) |
+| **Label** | The answer for a past example: it failed, it did not, it lasted nine days. In this platform, labels are usually [events](/using/events) |
+| **Training** | Showing the method the features and the labels together, so it can work out the rule |
+| **Model** | The rule it arrived at, saved so it can be used on new data |
+| **Overfitting** | The failure mode: memorising the examples instead of learning the pattern. Looks brilliant on the data it has seen, useless on Tuesday |
+
+Overfitting is why you always keep some examples back and test on those. A model scored on
+the data it trained on is a student marking their own exam.
+
+## Three methods that are the same idea
+
+The first three belong together, because each is the previous one asked a harder question.
+
+<Figure
+  caption="Read left to right. The first fits a straight line and reads a number off it. The second bends that line into an S so it can express a probability between no and yes, which is why the answer is a chance rather than a verdict. The third stops caring about the value and cares about the boundary instead: it may curve, it is positioned so the gap between the two groups is as wide as possible, and it rests entirely on the two ringed points."
+  wide
+>
+  <MlProgression />
+</Figure>
+
+### Linear regression: predict a number
+
+The oldest and still the most used. Draw the straight line that best fits the points, then
+read predictions off it. *Given this load and this ambient temperature, this bearing runs at
+about 71 degrees.*
+
+It is worth more respect than it gets. It is fast, it needs little data, and above all it is
+**readable**: the model is literally "so much per unit of this, plus so much per unit of
+that", which an engineer can sanity-check against physics and a regulator can accept. A great
+many production models that get described as AI are a linear regression with good features in
+front of it, and there is nothing wrong with that.
+
+Its limit is in the name. If the real relationship bends, a straight line will describe it
+badly and do so with total confidence.
+
+### Logistic regression: predict a yes or a no
+
+Most operational questions are not "how much" but "will it". *Will this pump fail this month?
+Is this batch out of spec? Is this reading a genuine excursion?*
+
+Logistic regression takes the same straight-line machinery and bends it into an S so the
+answer lands between 0 and 1, which you read as a **probability**. That is more useful than a
+bare yes, because you get to choose where to act: a maintenance planner might act at 30 per
+cent, a shutdown decision might need 90.
+
+It keeps most of linear regression's readability, which is why it is the workhorse of
+medicine, credit and safety, three fields that are obliged to explain themselves.
+
+### Support vector machines: draw the best boundary
+
+Now the question changes shape. Instead of a value or a probability, you want the **dividing
+line** between two groups: healthy against failing, good weld against bad.
+
+Many boundaries separate two groups. A support vector machine picks the one that leaves the
+widest empty corridor either side, on the reasoning that a boundary with room to spare is
+more likely to survive contact with next month's data. The striking part, and the thing worth
+remembering about it, is that only the few points nearest the boundary matter, the ones the
+figure rings. Everything comfortably inside its group could be deleted without moving the
+boundary at all.
+
+It also does not have to be straight. Through a trick that effectively bends the space until
+the groups can be split cleanly, the boundary can curve, which is what lets a support vector
+machine separate groups that no straight line could. That buys real power and costs some of
+the explainability, the same trade appearing again.
+
+<span className="t-accent">A fair note on the comparison:</span> logistic regression can bend
+too, if you feed it features that bend, such as a squared term. The difference is where the
+work goes. With logistic regression you have to know which curve to supply; with a support
+vector machine the shape is part of what gets fitted.
+
+### Sequences: LSTM, and why time series need it
+
+Everything so far judges a reading on its own merits, and industrial data rarely works that
+way. <span className="hl">The interesting failures are changes of shape, not changes of
+value.</span> A pump whose daily cycle quietly flattens is in trouble long before any reading
+leaves its normal band, and every method above will look at that plant and see nothing wrong.
+
+A **long short-term memory** network, always called an LSTM, is a neural network with a memory
+running along the sequence. At each step it decides what to keep from what it has already
+seen, what to forget, and what to add, and carries that forward. Designed in the 1990s to fix
+the fact that earlier sequence models forgot anything more than a few steps back, it remains
+one of the best tools available for the shape of data this platform holds.
+
+**How that becomes anomaly detection.** The model is trained to predict the next value from
+the sequence so far. Once it is good at that, you run it forward against live data and watch
+the gap between what it expected and what arrived. A small gap is normal operation. A gap
+that opens and stays open is the finding, and it is available while every individual reading
+is still perfectly ordinary.
+
+<Figure
+  caption="The signal never leaves its limits, so no threshold fires and nothing that looks at one reading at a time has anything to report. What changed is the rhythm: the cycle collapses and drifts. The ghost line is what the model expected from everything it had seen before, the gap between that and what arrived is the surprise, and the surprise is what you raise an event on."
+  wide
+>
+  <LstmAnomaly />
+</Figure>
+
+Where it earns its place:
+
+- **Anomaly detection in sequences.** The case above: something is wrong with the pattern
+  while every value is in range. This is the one that finds problems no alarm limit can.
+- **Early warning.** Recognising the *shape* of a run-up to a failure, days before any single
+  reading crosses a limit.
+- **Forecasting.** What this signal will do over the next hours, which is the same machinery
+  used forwards rather than as a comparison.
+- **Sequences of events**, not just numbers: a particular order of alarms, starts and
+  interventions that has ended badly before.
+- **Classifying free text**, where the order of the words carries the meaning: what was
+  asked, about what, and by whom.
+
+**Text is a sequence too, and this is where LSTMs became famous.** Three requests, built from
+almost the same words:
+
+<Figure
+  caption="A model that counts words gets all three wrong. Reading them in order gives you what actually matters: the action changed from close to open, the owner changed from the customer to somebody else, which is usually a different authority question entirely, and the third request asks for the same thing as the first while sharing only the word my with it."
+  wide
+>
+  <TextSequence />
+</Figure>
+
+That is a hard problem for anything that treats a sentence as a bag of words, and a natural
+one for a model that reads left to right while remembering what it has seen.
+
+**Which is why sequence models are the workhorse of classifying, labelling and tagging.**
+Your operation is full of text that nobody has time to categorise by hand, and every item of
+it has a structured answer hiding inside it:
+
+| What arrives as text | What a classifier can assign |
+| --- | --- |
+| **Inspection reports and datasheets** | Which [equipment](/using/resources) it concerns, what kind of finding it is, how serious |
+| **Work permits** | The hazard class, the isolations implied, the equipment affected |
+| **Free-text alarms and notifications** | An [event](/using/events) type and sub type, and the resource it belongs to |
+| **Maintenance notes** | A failure mode, and whether it records a repair, an inspection or a deferral |
+| **Spare part descriptions** | The part class, so stock can be matched to the equipment that needs it |
+
+Every row turns prose into something you can filter, count and trace. It is also how
+[labels](/concepts/taxonomy) get applied consistently across a decade of documents rather
+than reflecting whoever happened to type each one, and how a document ends up attached to the
+right asset, which is [contextualization](/concepts/contextualization) done to text.
+
+Have the model **propose** a classification and let a person confirm the first few hundred,
+because a mislabelled permit is worse than an unlabelled one.
+
+**And the obvious question: why not just use a large language model?** Often you should, but
+the trade is real and worth stating plainly:
+
+| | A trained LSTM | A large language model |
+| --- | --- | --- |
+| **Getting started** | Needs labelled examples and a training run before it does anything | Works from a written instruction, today, with no training |
+| **Accuracy on your categories** | Higher once trained, because it only knows your label set and has seen your language | Good, and occasionally confidently wrong |
+| **How it fails** | Predictably, and you can measure the rate on held-out examples | It can [hallucinate](https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)): invent a category, misread a negation, or attach a finding to the wrong asset |
+| **Running it** | Small and fast: your own hardware, scoring a stream as it arrives | Usually a call out per item, with the cost and latency that implies |
+
+<span className="t-accent">A properly trained classifier is the more accurate and more
+auditable of the two on a fixed set of labels</span>, and the language model is by far the
+easier to start with. In practice the two combine well: use the language model to label a few
+thousand examples quickly, have people check them, then train the small model on the result
+and run that in production. You get the language model's convenience once and the trained
+model's reliability every day after.
+
+**Its big brother, xLSTM.** In 2024 the original LSTM's inventors published an extended
+version, [xLSTM](https://arxiv.org/abs/2405.04517), which adds exponential gating and a richer
+memory so the architecture scales to the sizes that made
+[transformers](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)) famous,
+while keeping the property that makes LSTMs attractive here: they process a sequence step by
+step, so they suit a signal that arrives continuously rather than a document that arrives
+whole. If you are choosing a sequence model for industrial time series today, it belongs on
+the shortlist.
+
+The caveat is the one from the section above, sharpened. Sequence models need a lot of
+history, they need that history to be [clean](/concepts/data-cleaning), and they are hard to
+interrogate afterwards. A run-up they flag should point at the resources and the window it
+was reading, so a person can look at the same evidence.
+
+## Clustering: learning without being told the answer
+
+Everything above is **supervised**: it needs labelled examples, meaning somebody, or some
+event, recorded what actually happened. **Unsupervised** learning drops that requirement. You
+hand it the data with no answers attached and it finds structure on its own.
+
+<Figure
+  caption="The points do not change between the panels. What changes is that something has decided which ones belong together. It was never told there were three groups, what they represent, or which one is good, and it cannot tell you any of that afterwards either."
+  wide
+>
+  <Clustering />
+</Figure>
+
+Where this earns its place in an operation:
+
+- **Grouping equipment that behaves alike**, which often cuts across how the plant is
+  organised on paper and is a genuinely useful discovery.
+- **Anomaly detection.** A reading that belongs to no group is unusual by definition, and
+  this is how "unusual" gets defined without anybody writing a threshold.
+- **Making sense of a mess** before you have any labels, which is exactly the position most
+  operations are in at the start.
+
+The honest limitation: clustering finds groups, not meaning. It cannot tell you that group two
+is "pumps approaching cavitation". Somebody who knows the plant has to look and name it, and
+that naming is worth capturing in the model as a
+[label](/concepts/taxonomy) rather than losing in a slide deck.
+
+## Neural networks: when the rule is a shape nobody can describe
+
+A neural network stacks many simple calculations in layers, and each connection carries a
+number that training adjusts until the answers come out right. With enough layers it can
+express almost any relationship, including ones no person could write down.
+
+<Figure
+  caption="One route is highlighted so the eye has something to follow, but every connection is live and every one is a number that training tuned. Nobody decided what the middle layers stand for, which is both why a network can learn a pattern nobody could describe and why it struggles to explain itself afterwards."
+  wide
+>
+  <NeuralNetwork />
+</Figure>
+
+This is what "deep learning" means, and it is behind the things that made AI famous: images,
+speech, and the [large language models](https://en.wikipedia.org/wiki/Large_language_model)
+underneath the [agents](/using/ai-agents) described elsewhere on this site.
+
+Two things to keep in view before reaching for one in an industrial setting:
+
+- **They are hungry.** They need far more examples than the earlier methods, and industrial
+  failure data is usually scarce, which is exactly the problem
+  [synthetic data](/concepts/synthetic-data) exists to soften.
+- **They are hard to interrogate.** "Why did it say that?" has no short answer. In a
+  safety-relevant or regulated decision, that is not a detail, and a slightly less accurate
+  model you can defend often beats a slightly better one you cannot.
+
+## Which one should you reach for?
+
+| If the question is | Start with | Because |
+| --- | --- | --- |
+| How much, how long, how many? | **Linear regression** | Fast, honest, and readable by the people who will be held to it |
+| Will this happen, and how sure are we? | **Logistic regression** | A probability lets you choose the threshold per decision |
+| Which of these two is it? | **Support vector machine** | Optimises the boundary itself, and copes with few examples |
+| I do not know what I am looking for | **Clustering** | Needs no labels at all, which is where most operations begin |
+| The pattern is complicated and I have lots of data | **Neural network** | Expresses shapes nothing else can, at the cost of explaining itself |
+| The answer depends on what came before | **LSTM**, or [xLSTM](https://arxiv.org/abs/2405.04517) | Carries a memory along the sequence, which is what time series, event chains and sentences need |
+
+The professional habit is to <span className="t-brand">start at the top of that table and
+move down only when the results demand it</span>. A simple model that ships, that operators
+trust and that an auditor accepts beats a sophisticated one still being tuned. It is also the
+honest way to judge a supplier: if a demonstration will not say which of these is inside, the
+answer is usually the simplest one, dressed up.
+
+## What all of them need from you
+
+Every method above depends on the same three things, and none of them are the method:
+
+- **Features that mean something**, which come from understanding the process, not from the
+  algorithm. [How features are found and kept →](/concepts/feature-extraction)
+- **Labels you can trust**, meaning a record of what actually happened, attached to the thing
+  it happened to. This is what an [event log](/using/events) is, and most organisations have
+  one without realising it is also a training set.
+- **Data that is not quietly wrong**, because a model trained on a frozen sensor learns the
+  sensor. [What dirty data looks like →](/concepts/data-cleaning)
+
+<span className="t-accent">Which is why this page sits in the concepts section rather than in
+a developer manual.</span> The gap between organisations that get value from machine learning
+and organisations that get demonstrations is almost never the choice of method. It is whether
+the data has meaning attached, and that is a modelling job.
+
+:::tip A model is not an agent
+Worth keeping straight, because the words get used interchangeably. A model takes one input
+and returns one output: a number, a class, a probability. An **agent** is given a goal, has
+tools, and decides what to do next, and it may call several models along the way.
+[The distinction, drawn out →](/using/ai-agents#what-an-agent-is-in-one-minute)
+:::
+
+<References>
+
+- [Machine learning](https://en.wikipedia.org/wiki/Machine_learning)
+- [Linear regression](https://en.wikipedia.org/wiki/Linear_regression)
+- [Logistic regression](https://en.wikipedia.org/wiki/Logistic_regression)
+- [Support vector machine](https://en.wikipedia.org/wiki/Support_vector_machine)
+- [Cluster analysis](https://en.wikipedia.org/wiki/Cluster_analysis)
+- [Artificial neural network](https://en.wikipedia.org/wiki/Artificial_neural_network)
+- [Long short-term memory](https://en.wikipedia.org/wiki/Long_short-term_memory)
+- [xLSTM: Extended Long Short-Term Memory](https://arxiv.org/abs/2405.04517)
+- [Recurrent neural network](https://en.wikipedia.org/wiki/Recurrent_neural_network)
+- [Time series forecasting](https://en.wikipedia.org/wiki/Time_series)
+- [Natural language processing](https://en.wikipedia.org/wiki/Natural_language_processing)
+- [Text classification](https://en.wikipedia.org/wiki/Document_classification)
+- [Deep learning](https://en.wikipedia.org/wiki/Deep_learning)
+- [Overfitting](https://en.wikipedia.org/wiki/Overfitting)
+- [Supervised learning](https://en.wikipedia.org/wiki/Supervised_learning)
+- [Anomaly detection](https://en.wikipedia.org/wiki/Anomaly_detection)
+
+</References>
+
+<Deeper>
+- [Data cleaning](/concepts/data-cleaning): the prerequisite everything else inherits
+- [Feature extraction](/concepts/feature-extraction): where a model's inputs come from
+- [Synthetic data](/concepts/synthetic-data): what to do when the examples are too few
+- [Building AI agents](/using/ai-agents): what to do with models once you have them
+- [Relationship analysis](/using/relationship-analysis): statistics rather than learning, and often the better first answer
+- [Time series](/using/timeseries): where features come from
+- [Events](/using/events): where labels come from
+- [Lineage and data quality](/concepts/lineage-and-quality): why a model is only as good as what it was trained on
+- [Knowledge graphs](/concepts/knowledge-graph): the context that decides whether a model has anything meaningful to learn from
+</Deeper>

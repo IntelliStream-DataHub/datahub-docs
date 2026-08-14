@@ -55,11 +55,10 @@ happened *because of* something else.</span> Suction
 pressure against discharge pressure, motor current against throughput, ambient temperature
 against energy consumption, the pairing is the analysis.
 
-When you want suggestions for what to compare against, the **Analyze** tab is being built
-to rank other series by how strongly they move with the one you have selected, so you do
-not have to guess. It needs the analysis service, which is not part of the standard
-deployment yet.
-[Relationship analysis, and its status →](/using/relationship-analysis)
+When you want suggestions for what to compare against, the **Analyze** tab ranks other
+series by how strongly they move with the one you have selected, so you do not have to
+guess.
+[Relationship analysis →](/using/relationship-analysis)
 
 <Figure caption="The divergence is the finding, not the shape of either trace on its own: motor current climbing while throughput falls is the signature of something obstructing the process. Because both series were already on screen when Live started streaming, the widening gap was visible as it opened rather than reconstructed afterwards." wide>
   <LiveChart />
@@ -90,8 +89,7 @@ position that survives reconnects.
 
 Alongside Insights there is an **Analyze** view, which goes past plotting into
 characterising how two signals relate: correlation, lead and lag, shared periodicity, and
-whether the relationship holds up over the whole range or only part of it. The service
-behind it is on the roadmap for the standard deployment.
+whether the relationship holds up over the whole range or only part of it.
 
 That has its own page, because the ideas need explaining rather than just listing.
 [Relationship analysis →](/using/relationship-analysis)
@@ -107,6 +105,14 @@ Three habits that prevent most misreadings:
   under the two, and the difference is meaningful for anything with discrete states.
 - **Look for gaps, not just shapes.** A flat line can mean a stable process **or a dead
   instrument**. Overlaying [events](/using/events) usually tells you which.
+
+## Where agents help
+
+Charting is a human act, but choosing what to chart is a question. If the console assistant is
+enabled for you, asking it in words is often faster than building the comparison by hand: it
+looks the series up, answers from the data, and can hand you a button that opens this screen
+with those series and that window already selected.
+[The console assistant →](/using/mcp#the-console-assistant-mcp-with-nothing-to-set-up)
 
 <Deeper>
 - [Time series](/using/timeseries): creating the series you are charting

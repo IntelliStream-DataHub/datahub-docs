@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 344" class="fig-agent-graph-join" role="img" aria-label="Three time series on the left and three events on the right, with a small graph in the middle: a compressor, its lube system and the export line it feeds. Every series and every event connects to the node it belongs to, so the vibration trace, the high-vibration alarm and the lube work order meet on the same machine.">
+<text class="fig-title" x="20" y="24">The model is what joins a number to something that happened</text>
+<text class="fig-sub" x="20" y="44">A reading and an event have nothing in common until both hang off the same thing in the graph.</text>
+<text class="fig-box-title" x="105" y="78" text-anchor="middle">Time series</text>
+<text class="fig-box-title" x="390" y="78" text-anchor="middle">Your model</text>
+<text class="fig-box-title" x="655" y="78" text-anchor="middle">Events</text>
+<path class="fig-exit-path fig-flow" d="M190 113 L290 171" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M190 169 L290 179" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M190 225 L310 250" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M570 113 L470 108" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M570 169 L490 187" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M570 225 L470 250" fill="none"/>
+<line class="fig-track" x1="390" y1="128" x2="390" y2="152"/>
+<line class="fig-track" x1="390" y1="206" x2="390" y2="230"/>
+<text class="fig-box-sub" x="398" y="144">HAS_PART</text>
+<text class="fig-box-sub" x="398" y="222">FEEDS</text>
+<rect class="fig-box" x="20" y="94" width="170" height="38" rx="10"/><text class="fig-box-sub" x="105" y="117" text-anchor="middle">21-VT-4013 · vibration</text>
+<rect class="fig-box" x="20" y="150" width="170" height="38" rx="10"/><text class="fig-box-sub" x="105" y="173" text-anchor="middle">21-TT-4015 · bearing temp</text>
+<rect class="fig-box" x="20" y="206" width="170" height="38" rx="10"/><text class="fig-box-sub" x="105" y="229" text-anchor="middle">21-PT-3105 · discharge</text>
+<rect class="fig-box" x="570" y="94" width="170" height="38" rx="10"/><text class="fig-box-sub" x="655" y="117" text-anchor="middle">WO-4471 · lube service</text>
+<rect class="fig-box" x="570" y="150" width="170" height="38" rx="10"/><text class="fig-box-sub" x="655" y="173" text-anchor="middle">ALM-8823 · high vibration</text>
+<rect class="fig-box" x="570" y="206" width="170" height="38" rx="10"/><text class="fig-box-sub" x="655" y="229" text-anchor="middle">INSP-311 · flange check</text>
+<rect class="fig-box" x="310" y="88" width="160" height="40" rx="12"/><text class="fig-box-title" x="390" y="106" text-anchor="middle">LUBE-12</text><text class="fig-box-sub" x="390" y="121" text-anchor="middle">lube system</text>
+<rect class="fig-lit-box c-blue" x="290" y="152" width="200" height="54" rx="12"/><text class="fig-lit-title" x="390" y="175" text-anchor="middle">K-401</text><text class="fig-lit-sub" x="390" y="192" text-anchor="middle">export compressor</text>
+<rect class="fig-box" x="310" y="230" width="160" height="40" rx="12"/><text class="fig-box-title" x="390" y="248" text-anchor="middle">EXP-LINE</text><text class="fig-box-sub" x="390" y="263" text-anchor="middle">export line</text>
+<text class="fig-sub" x="20" y="304">Without the model these are two lists that happen to cover the same week. With it, one question</text>
+<text class="fig-sub" x="20" y="322">reaches all six, and the agent can say which machine the story is about.</text>
+</svg>

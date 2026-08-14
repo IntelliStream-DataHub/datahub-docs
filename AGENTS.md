@@ -422,11 +422,218 @@ descriptions.
 (`partOf`, `contributesTo`) in illustrative examples. Conceptually fine, and the RDF example
 is legitimately camelCase, but a sweep to spaced names would match what the platform stores.
 
+### MCP and agents, 2026-08-14
+
+Two new pages in the using section: `using/mcp.mdx` (position 14) and `using/ai-agents.mdx`
+(position 15, "Building AI agents", distinct from the leadership-facing `value/ai-agents`).
+Twenty-three new themed figures: `agent-anatomy` (static, the six parts, reusing the
+`revolution_contrast` self-loop glyph unchanged as the house pattern says to),
+`mcp-one-protocol` (static, the N×M against N+M argument),
+`mcp-call-path` (animated, one call through the auth gate), `agent-guardrails` (animated,
+the four limits), `agent-graph-join` (a series column and an event column joined only by the
+nodes they hang off), and one per industry example: `wind-peer-comparison`,
+`vessel-sisters`, `blast-radius-cooling`, `readiness-gate`, `issuer-neighbourhood` and
+`ward-devices`. Every example on that page now carries a figure; keep it that way if an
+eighth is added. The concept pages add `dirty-data`, `feature-flywheel`,
+`synthetic-and-measured`, `rules-vs-learning`, `ml-progression`, `clustering` and
+`neural-network`.
+
+Two more figure lessons from that batch. **Draw rings before the dots they single out**: a
+`fig-box` circle fills with the surface colour, so drawn afterwards it hid the support
+vectors it was meant to highlight. And **put illustrative points where the geometry says
+they go**: the first `ml-progression` ringed two arbitrary points as support vectors when
+they sat nowhere near the margin, which argued against its own caption.
+
+Three figure lessons from those, all found by looking at the rendered page or by a reader
+saying they were lost, none of them by a checker. **Never name a platform rule in a figure.**
+`ward-devices` originally ended "traversal is gated on the starting node, so a boundary has
+to be an absence of edges, not a label", which is precise and useless: it only parses for
+someone who already knows the rule. It now says what the rule *does*, that a question can
+reach whatever is linked to where it started, so the way to keep two things apart is to
+leave the link out. **Plot the quantity the finding lives in.** Four per cent of a power curve is
+five pixels; four per cent of production-relative-to-the-string-median is the whole chart, so
+`wind-peer-comparison` plots the ratio. **Get the physics the right way round.** The first
+`vessel-sisters` had consumption climbing *after* a hull cleaning and the cleaning dates
+plotted backwards; fouling climbs, a cleaning resets it, and the vessel cleaned longest ago
+is the one riding highest now. A figure that is merely pretty will pass every check in this
+repo.
+
+**Four new concept pages** carry the data-and-models material, positions 11 to 14:
+`data-cleaning`, `feature-extraction`, `machine-learning` and `synthetic-data`, in that
+reading order (clean, featurise, learn, and generate when the examples run out). They began
+as one section on the agents page and were split out on request, because each is its own
+topic; `using/ai-agents.mdx` keeps a short "Agents that improve the data itself" section
+saying what an agent contributes to each and linking out. Keep that shape: depth in concepts,
+the agent angle on the agent page.
+
+The claims worth preserving across them. Cleaning is a **graph** question, because a reading
+is convicted by its neighbours rather than on its own terms, which is also why the advice is
+"model first, clean second". The **event log is an unintentional labelled training set**,
+since the trips and failures are already attached to the equipment they happened to. A
+feature kept as a series compounds; one kept in a notebook is recomputed by the next project.
+And synthetic data needs a *structural* separation, its own data set, labelled, train on both
+but test only on measured, because the failure mode is always plumbing rather than
+dishonesty. The cleaning rules (raw stays raw, corrections are events, flag rather than
+silently substitute) carry a `<Roadmap>`, because with no quality flag and no lineage the
+platform enforces none of them today.
+
+`synthetic-data.mdx` opens with a plain-language **"what it actually is"**, added after a
+reader pointed out that it dived straight into the argument: a datapoint is one reading with
+a time on it, generated data is a datapoint no sensor produced stored in the same shape, and
+the flight-simulator comparison carries the rest. Assume the reader of these four pages is
+still new to datapoints and series; for much of this audience it is the first
+machine-learning material they will read anywhere.
+
+It also carries a **robotics** section, because that field is the most vivid live proof of the
+argument: robot learning is bottlenecked on training data that cannot be downloaded, so it
+runs on imitation learning plus reinforcement learning in simulation, and a teaching rig
+generates terabytes an hour. One correction already made there, worth not reintroducing: the
+cameras are **on the wrist and around the workspace**, not on the hand. The exception is the
+tactile fingertip, where the best designs really are a small camera filming a gel pad from
+behind: that is GelSight, first built at MIT, and the claim is cited on the page because it
+sounds invented and is not. The reason it belongs on this
+site rather than being a digression is the last line of that section: the simulator a robot
+practises in is a digital twin of somewhere real, so an operation described well enough for a
+machine to work in it is the same asset whether the worker is software, a person or steel.
+
+`machine-learning.mdx` is deliberately maths-free: linear regression, logistic regression and
+the SVM, then sequences (LSTM, with [xLSTM](https://arxiv.org/abs/2405.04517) named as its
+modern extension), clustering and neural networks. The LSTM section carries two jobs, both
+requested and both worth keeping: **anomaly detection in sequences**, where the model predicts
+the next value and the gap between prediction and arrival is the finding, which catches what
+no threshold can because every reading stays in range; and **classifying free text**, where
+the illustration is three requests ("can you close my credit card" / "can you open my wife's
+credit card" / "I no longer need my mastercard": the third shares only one word with the
+first and means the same thing, the second shares nearly every word and means something else) and the payoff is a table of what a classifier assigns
+to inspection reports, work permits, alarms, maintenance notes and spare descriptions. It
+closes with an honest **LSTM against LLM** comparison, which is the question every reader will
+have: the language model needs no training and is far easier to start with, the trained
+classifier is more accurate and more auditable on a fixed label set and fails predictably
+rather than by hallucinating, and the practical answer is usually to use the first to label
+examples and the second to run in production. The recurring point is that everything
+gained by moving right is paid for in explainability, and that the method matters far less
+than the features and labels underneath it.
+
+`lstm-sequence-anomaly` replaced a first attempt (`lstm-memory`) that drew four labelled
+boxes and taught nothing. The lesson generalises: **do not illustrate that a mechanism
+exists, illustrate what it buys.** The figure now shows a signal whose cycle quietly
+collapses while every reading stays inside its limits, the model's expected continuation as
+a ghost line, and the growing gap between them, because that gap is how a sequence model
+finds an anomaly no threshold can see. Two placement bugs found by looking: the gap marker
+was first put where the two curves cross (no gap to see) and the three right-hand labels all
+piled into the same corner.
+
+`ml-progression` is **three panels, and should stay three panels**. It was rebuilt mid-session
+as a single scatter that refitted itself three times on a three-state animation, on the
+reasoning that "same points, one chart" would show the progression better. It did not: the
+three questions need three different pictures (a value read off a line, a probability between
+no and yes, a boundary with a margin), and forcing them onto one set of axes made every one of
+them harder to read. Reverted at the author's request, and the `.fig-state` CSS utility it
+needed was removed with it. Three details in the surviving figure are load-bearing: **panel
+three's boundary waves**, because a support vector machine with a kernel draws whatever shape
+separates the groups with the most room, and a straight line (or the barely perceptible bow
+that was tried in between) makes the third method look like the second. Its points are
+derived from the boundary function rather than hand-placed, so the two bands wave with it and
+nothing can land on the wrong side; the two ringed points sit exactly
+on the margins; and the rings are drawn before the dots, because `fig-box` fills with the
+surface colour and would otherwise hide them.
+
+`using/events.mdx` gained `events-from-series`, one trace with three moments marked, because
+the page described events well but never showed one being born. The distinction it draws is
+the useful part and is easy to lose in editing: a **limit crossed** (which everyone already
+records, often too much), a **pattern change** (caught by shape rather than value, and where
+the interesting failures start), and a **change of condition** (not a fault at all, and the
+row most often skipped, which is why a series later changes character for no recorded reason).
+
+`feature-extraction.mdx` gained `features-on-image`, the pixels-edges-shapes-object ladder,
+as the concrete version of "a feature is a number computed from numbers that do not mean
+anything". It ends on the point that matters industrially: on images those layers are
+learned, on your signals they are usually still designed by hand, because three bearing
+failures is not enough to learn them from.
+
+Every page in the left menu was then reviewed for whether it should carry a **"Where agents
+help"** section, and nineteen gained one: three in start, five in concepts, eight in using,
+one in value, two in administration. The rule applied, and worth keeping: add one only where
+there is specific work an agent does on *that page's subject*, say what stays human, and link
+out. Pages that already carry agent material in the body (subscriptions, functions,
+relationship-analysis, console-tour, security, digital-twin) and pages with nothing to
+delegate (installing, architecture, organizations, identity-providers, the value arguments,
+reference) were deliberately left alone.
+
+**What an agent is** is now argued on both agent pages rather than defined in a sentence:
+decisions and actions rather than content, goals with sub-goals rather than instructions,
+plain language, independence from step-by-step supervision, tools plus a planner, memory,
+and self-assessment. Two framings carry the weight and should survive editing: agents learn
+from **what actually happened** (the event log as training material, not bookkeeping), and
+they **build the thing that makes the next job easier**, so capability improves as a
+consequence of use. Both are paired with the caveat that autonomy is about steps, not
+accountability, which is what keeps the claim compatible with the four limits.
+
+The seven industry examples on `using/ai-agents.mdx` (oil and gas, wind, shipping, data
+centres, defence, markets, healthcare) are deliberately written **through the graph**: each one lists the resources, relationships, series and events its own model holds,
+then describes the traversal rather than the outcome, because the point being made is that
+the same walk, resolve a node then step outward, is what joins a reading to something that
+happened. Keep that structure if the examples are edited; a scenario written without the
+traversal reads as vendor fiction. The build side of agents lives in `using/`, the strategic case
+stays in `value/`; keep that split, and keep them cross-linked.
+
+**Current state, and a trap worth reading before the next MCP edit:**
+
+- **There are two MCP servers.** The API serves `/mcp`, and the analysis service serves its
+  own `/mcp` with the single tool `analysis_related_series`. **38 tools between them**, 37
+  on the API. The API's resource family has **7** tools, not 6: `resource_fetch_nearest`
+  (breadth-first to the nearest nodes carrying a wanted label) joined
+  `resource_fetch_related`.
+- **How this was nearly got wrong.** A local `../datahub-platform` checkout dated
+  2026-08-10 has no analysis MCP server and 36 API tools, and on that basis the two-server
+  claim was "corrected" out of `value/ai-agents.mdx` before the mistake was caught. Both
+  landed in the platform on 2026-08-11 or 12. **Check `git log -1 --date=short` in
+  `../datahub-platform` and `../datahub-sdk-docs` before trusting either as the current
+  state**, and note that neither can be fetched from this environment without the user's
+  SSH agent: ask them to pull. The sibling SDK docs are written from the code and are
+  usually the fresher of the two working copies.
+- **The console assistant is an MCP client**, not a server. As of the 2026-08-10 console
+  code: `ToolPolicy` is a default-deny allowlist of read-only tool names, anything not
+  listed is filtered out before the model sees it and refused again at execution;
+  `ChatProperties` caps a turn at 6 model-to-tool round trips, truncates a tool result at
+  24k chars and trims the transcript at 40 messages; local `open_*_view` navigation tools
+  render a button rather than fetching anything, which is what an "analyze" request
+  produces. Whether the assistant now also calls `analysis_related_series` is **unverified
+  against the newer platform**; the docs are worded so they hold either way. The exact
+  allowlist size was deliberately dropped from the prose because it drifts.
+- Gating is `datahub.chat.enabled` in the deployment, the tenant flag, and the
+  `DATAHUB_CHAT` authority, and the entry point in the console is the **Ask AI** button in
+  the top bar.
+- **The analysis service ships in the standard deployment** (confirmed by the product owner,
+  2026-08-14). The docs used to say the opposite in six places, and it was the stated reason
+  `relationship-analysis.mdx` carried a `<Roadmap>` banner at all. That banner is gone, along
+  with the matching claims on `using/insights.mdx`, `reference/faq.mdx` and
+  `administration/architecture.mdx`. The compose files in a 2026-08-10 platform checkout do
+  not mention the service, which is the stale-checkout trap again, not evidence.
+
+**Unrelated but noticed, and not acted on:** platform commit dbb06bef removed the functions
+feature and reverted to a simple metadata store. `docs/using/functions.mdx` already carries
+a `<Roadmap>`, so nothing is actively false, but the page deserves a look next time
+someone is in there.
+
+**Two mechanical notes from the same session.** `npm install` had to be rerun: both
+`@fontsource-variable/*` packages were in `package.json` but missing from `node_modules`, so
+every build died on the font `url()`s. And a `<Lead>` (or a raw `<p className="lead">`) whose
+content sits on its own lines gets that content wrapped in a second `<p>`, which is invalid
+HTML and a React hydration warning visible only in a browser console. Keep the text on the
+same line as the opening tag. The warning is still present on `start/what-is-datahub.mdx`,
+`value/industry-examples.mdx` and `value/ai-agents.mdx`, which use the raw form.
+
 ### The lesson
 
 Do not document platform behaviour from i18n strings, console text or the platform's own
 prose docs. **Read the code.** Several i18n strings describe behaviour the backend does not
 implement, and at least one states the exact opposite.
+
+The MCP episode above adds a second half to that rule: **a stale checkout is as misleading
+as prose.** Reading the code is only worth something if the code is current, so date the
+working copy before you trust what it does not contain. Absence of a feature in a checkout
+is weak evidence; presence is strong.
 
 ---
 

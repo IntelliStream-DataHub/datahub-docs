@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 322" class="fig-features-image" role="img" aria-label="Four panels. A grid of pixels, then the edges found in it, then the shapes those edges form, a ring with a pointer and tick marks, and finally the object itself, recognised as a pressure gauge with a confidence score.">
+<text class="fig-title" x="20" y="24">The same idea, on a photograph</text>
+<text class="fig-sub" x="20" y="44">Nobody writes down what a gauge looks like. Each panel is built out of the one to its left.</text>
+<text class="fig-box-title" x="95" y="82" text-anchor="middle">Pixels</text>
+<text class="fig-box-sub" x="95" y="240" text-anchor="middle">brightness at a point,</text>
+<text class="fig-box-sub" x="95" y="256" text-anchor="middle">and nothing else</text>
+<text class="fig-box-title" x="280" y="82" text-anchor="middle">Edges</text>
+<text class="fig-box-sub" x="280" y="240" text-anchor="middle">where the brightness</text>
+<text class="fig-box-sub" x="280" y="256" text-anchor="middle">changes, and which way</text>
+<path class="fig-exit-path fig-flow" d="M170 146 L194 146" fill="none"/>
+<path class="fig-centre" d="M194 141 L205 146 L194 151 z"/>
+<text class="fig-box-title" x="465" y="82" text-anchor="middle">Shapes</text>
+<text class="fig-box-sub" x="465" y="240" text-anchor="middle">edges that keep company:</text>
+<text class="fig-box-sub" x="465" y="256" text-anchor="middle">a ring, a pointer, ticks</text>
+<path class="fig-exit-path fig-flow" d="M355 146 L379 146" fill="none"/>
+<path class="fig-centre" d="M379 141 L390 146 L379 151 z"/>
+<text class="fig-box-title" x="650" y="82" text-anchor="middle">An object</text>
+<text class="fig-box-sub" x="650" y="240" text-anchor="middle">a name, and how sure</text>
+<text class="fig-box-sub" x="650" y="256" text-anchor="middle">the model is of it</text>
+<path class="fig-exit-path fig-flow" d="M540 146 L564 146" fill="none"/>
+<path class="fig-centre" d="M564 141 L575 146 L564 151 z"/>
+<rect class="fig-box" x="47" y="98" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="63" y="98" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="79" y="98" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="95" y="98" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="111" y="98" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="127" y="98" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="47" y="114" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="63" y="114" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="79" y="114" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="95" y="114" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="111" y="114" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="127" y="114" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="47" y="130" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="63" y="130" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="79" y="130" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="95" y="130" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="111" y="130" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="127" y="130" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="47" y="146" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="63" y="146" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="79" y="146" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="95" y="146" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="111" y="146" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="127" y="146" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="47" y="162" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="63" y="162" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="79" y="162" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="95" y="162" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="111" y="162" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="127" y="162" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="47" y="178" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="63" y="178" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="79" y="178" width="15" height="15" rx="2"/>
+<rect class="fig-lit-box c-blue" x="95" y="178" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="111" y="178" width="15" height="15" rx="2"/>
+<rect class="fig-box" x="127" y="178" width="15" height="15" rx="2"/>
+<path class="fig-line-a" d="M312.0 137.0 L312.0 155.0" fill="none"/>
+<path class="fig-line-a" d="M312.2 154.2 L303.2 169.8" fill="none"/>
+<path class="fig-line-a" d="M303.8 169.2 L288.2 178.2" fill="none"/>
+<path class="fig-line-a" d="M289.0 178.0 L271.0 178.0" fill="none"/>
+<path class="fig-line-a" d="M271.8 178.2 L256.2 169.2" fill="none"/>
+<path class="fig-line-a" d="M256.8 169.8 L247.8 154.2" fill="none"/>
+<path class="fig-line-a" d="M248.0 155.0 L248.0 137.0" fill="none"/>
+<path class="fig-line-a" d="M247.8 137.8 L256.8 122.2" fill="none"/>
+<path class="fig-line-a" d="M256.2 122.8 L271.8 113.8" fill="none"/>
+<path class="fig-line-a" d="M271.0 114.0 L289.0 114.0" fill="none"/>
+<path class="fig-line-a" d="M288.2 113.8 L303.8 122.8" fill="none"/>
+<path class="fig-line-a" d="M303.2 122.2 L312.2 137.8" fill="none"/>
+<path class="fig-line-a" d="M280 146 L298 132" fill="none"/>
+<circle class="fig-line-a" cx="465" cy="146" r="34" fill="none"/>
+<path class="fig-line-a" d="M492.0 146.0 L498.0 146.0" fill="none"/>
+<path class="fig-line-a" d="M484.1 165.1 L488.3 169.3" fill="none"/>
+<path class="fig-line-a" d="M465.0 173.0 L465.0 179.0" fill="none"/>
+<path class="fig-line-a" d="M445.9 165.1 L441.7 169.3" fill="none"/>
+<path class="fig-line-a" d="M438.0 146.0 L432.0 146.0" fill="none"/>
+<path class="fig-line-a" d="M445.9 126.9 L441.7 122.7" fill="none"/>
+<path class="fig-line-a" d="M465.0 119.0 L465.0 113.0" fill="none"/>
+<path class="fig-line-a" d="M484.1 126.9 L488.3 122.7" fill="none"/>
+<path class="fig-line-b" d="M465 146 L487 129" fill="none"/>
+<rect class="fig-centre" x="606" y="102" width="88" height="88" rx="10"/>
+<circle class="fig-line-a" cx="650" cy="146" r="30" fill="none"/>
+<path class="fig-line-b" d="M650 146 L670 131" fill="none"/>
+<rect class="fig-lit-box c-blue" x="588" y="194" width="124" height="24" rx="8"/><text class="fig-lit-sub" x="650" y="210" text-anchor="middle">pressure gauge · 0.94</text>
+<text class="fig-sub" x="20" y="292">Only the last panel has a name a person would use. The two in the middle are features the model</text>
+<text class="fig-sub" x="20" y="310">worked out for itself, and they are what the answer is actually built from.</text>
+</svg>

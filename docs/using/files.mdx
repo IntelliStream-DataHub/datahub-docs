@@ -107,7 +107,21 @@ That is the difference this makes. In a conventional document store you search f
 document. Here you can <span className="hl">start from the equipment</span>, which is
 usually what you actually have in front of you.
 
+## Where agents help
+
+Documents are the least structured thing in the platform and the most rewarding for an agent
+to read. A datasheet holds the design values somebody will otherwise retype; an inspection
+report holds findings that belong in the event log; a drawing holds connections that belong
+in the graph.
+
+An agent with API access can read what is attached to a piece of equipment and propose the
+structured version: a [series](/using/timeseries) for a design limit, an
+[event](/using/events) for a finding, a relationship for a connection. The document stays as
+the source, and the model gains something queryable.
+[Building AI agents →](/using/ai-agents)
+
 <Deeper>
+- [Building AI agents](/using/ai-agents): agents that read the documents attached to your equipment
 - [Data sets](/using/datasets): the access boundary files inherit
 - [The resource graph](/using/resources): attaching files to the assets they document
 - [Capital project handover](/value/value-paths#capital-project-handover): landing a full documentation package at handover

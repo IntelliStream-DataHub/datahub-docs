@@ -1,0 +1,188 @@
+---
+sidebar_position: 12
+title: Feature extraction
+description: What a feature is, why better features beat better algorithms almost every time, how the event log turns out to be a labelled training set, and why a feature kept as a series compounds while one kept in a notebook does not.
+---
+import FeatureFlywheel from '@site/src/figures/feature-flywheel.svg';
+import FeaturesOnImage from '@site/src/figures/features-on-image.svg';
+
+# Feature extraction
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Data stewards</Persona>
+  <Persona>Operations</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+A **feature** is a number that means something, computed from numbers that do not. Not "the
+vibration trace", but *"vibration energy between 2 and 8 kilohertz"*. Not "the last thousand
+readings", but *"hours since the last start"*.
+
+Models, and people, do not learn from raw floods. They learn from features. And the
+uncomfortable truth of most analytics work is that
+<span className="hl">better features beat better algorithms</span>, almost every time and by
+a wide margin.
+</KeyIdea>
+
+## Raw numbers against numbers that mean something
+
+| What arrives | What is useful | Why the difference matters |
+| --- | --- | --- |
+| A vibration waveform, thousands of points a second | Energy in the band where this bearing fails | The failure signature lives in one band. Everything else is noise that hides it |
+| Motor current | Load as a fraction of rated | Comparable between a 20 kW pump and a 200 kW one, which the raw amps never are |
+| A timestamp | Hours since last start, and starts this week | Wear tracks cycles, not the calendar |
+| Flow and pressure separately | Efficiency against the design curve | A pump can look fine on both signals and still be doing much less work than it should |
+| Temperature at a point | Difference from its neighbours in the same duty | Removes the weather, the season and the shift, which otherwise dominate |
+
+Read the right-hand column again: every one of those is **domain knowledge expressed as
+arithmetic**. That is the actual job. The algorithm that consumes the result is comparatively
+interchangeable.
+
+### The version everyone has seen: object detection
+
+If the table above still feels abstract, the clearest example is a photograph, because the
+raw form is so obviously useless. An image arrives as a grid of brightness values. No single
+one of them means anything at all; "the pixel at row 400, column 210 is fairly bright" is a
+fact about nothing.
+
+<Figure
+  caption="Each panel is built from the one to its left: edges out of pixels, shapes out of edges, and only then an object with a name. It is the same move as computing vibration energy from a waveform, done several times over."
+  wide
+>
+  <FeaturesOnImage />
+</Figure>
+
+What a detection model does is build features in layers. From pixels it finds **edges**, the
+places where brightness changes and the direction it changes in. From edges it finds
+**shapes**: a ring, a pointer, evenly spaced ticks. Only at the end does anything have a name
+a person would use, and by then the model is not looking at pixels any more, it is looking at
+the features it made out of them.
+
+Two things about that are worth carrying back to industrial signals:
+
+- **The layers are features, not decoration.** "Edge at 40 degrees here" is exactly the same
+  kind of object as "vibration energy between 2 and 8 kilohertz": a number computed from
+  numbers, chosen because it carries the signal.
+- **On images the layers are learned; on your signals they usually are not.** A deep network
+  works its own features out because it has millions of examples to do it with. With three
+  bearing failures you do not have that luxury, which is why somebody who understands the
+  process still designs the features by hand, and why doing that well is worth more than
+  changing the algorithm. [What too few examples means →](/concepts/synthetic-data)
+
+This is also a use case in its own right here: a model that reads
+[inspection photographs](/using/files) and finds the equipment in them is doing
+[contextualization](/concepts/contextualization) with a camera, turning an image into a
+finding attached to a resource.
+
+## The loop that finds them
+
+<Figure
+  caption="The test is the part that keeps it honest: a feature is kept because it predicted something, not because it looked clever. And a kept feature is written back as an ordinary series, so the next lap starts with one more thing worth looking at."
+  wide
+>
+  <FeatureFlywheel />
+</Figure>
+
+Finding features has historically been a specialist project measured in months, which is why
+most operations have very few. The loop itself is simple enough to describe in four steps:
+
+<Steps>
+  <Step title="Propose candidates">
+    From physics, from what the maintenance team says the failure looks like, from what the
+    [graph](/concepts/knowledge-graph) says is connected, or from the plain statistical
+    question of what moves with what.
+    [Relationship analysis →](/using/relationship-analysis)
+  </Step>
+  <Step title="Compute them over history">
+    Not just over the last week. A feature is only interesting if it was also interesting on
+    the days something went wrong, and those days are in the past.
+  </Step>
+  <Step title="Test each against what actually happened">
+    The candidate has to earn its place by predicting an outcome, on data it has not seen.
+    Most candidates fail here, which is the point of the step.
+  </Step>
+  <Step title="Keep the survivors as series">
+    Written back against the same resource, in the same platform, visible to everyone.
+  </Step>
+</Steps>
+
+## Your event log is a labelled training set
+
+This is the part most organisations do not realise they already have.
+
+Testing a feature, and later training any
+[supervised model](/concepts/machine-learning), needs **labels**: recorded examples of the
+thing you want to predict. Not opinions about it, records of it. The trips, the failures, the
+interventions, the batches that went out of spec.
+
+Those are [events](/using/events), and in this platform they are already attached to the
+equipment they happened to. So joining a candidate feature to its outcomes is not a data
+engineering project, it is the same [walk](/concepts/knowledge-graph) as everything else:
+resolve the resource, read the series hanging off it, filter the events on the same resource
+over the same window.
+
+<span className="t-brand">An operation that has been recording events properly has been
+building a training set for years without meaning to.</span> An operation that records them
+in free text, or against the wrong thing, has not, and that is usually discovered at exactly
+the wrong moment.
+
+## Why a kept feature compounds
+
+There are two places a feature can live once somebody has found it.
+
+| In a notebook or a model file | As a series in the platform |
+| --- | --- |
+| One team knows it exists | It shows up in search, next to the raw signals |
+| It is recomputed, differently, by the next project | Computed once, consumed by everyone |
+| It disappears when the person moves on | It outlives the project that produced it |
+| Nobody can plot it next to a work order | It charts, alarms and correlates like any other signal |
+
+Writing a feature back as an ordinary [time series](/using/timeseries) against the resource it
+describes costs almost nothing and is the difference between a project and an asset. It is the
+same rule as the one on [building applications](/using/building-applications): a computed
+result kept outside the model builds a new silo on top of the platform that exists to remove
+them.
+
+<Roadmap>
+Computing features **inside** the platform is planned rather than shipped.
+[Functions](/using/functions) will eventually run this work where the data lives; today an
+agent or an external service reads by [subscription](/using/subscriptions) or API, computes,
+and writes the result back as a derived series. The pattern is the same either way, and
+nothing you build now is wasted.
+</Roadmap>
+
+## Where agents help
+
+Proposing, computing and testing candidates is repetitive, needs patience, and is easy to
+judge objectively, which makes it unusually good agent work. An agent can generate far more
+candidates than a person would bother with, discard the ones that predicted nothing, and
+record what it tried, so the next attempt does not repeat it.
+
+What stays human is the sanity check. A feature that predicts well for a reason nobody can
+explain is a liability in a plant, and somebody who knows the process should be able to say
+why it works before it is trusted.
+[How agents do this work →](/using/ai-agents#agents-that-improve-the-data-itself)
+
+<References>
+
+- [Feature engineering](https://en.wikipedia.org/wiki/Feature_engineering)
+- [Feature (machine learning)](https://en.wikipedia.org/wiki/Feature_(machine_learning))
+- [Supervised learning](https://en.wikipedia.org/wiki/Supervised_learning)
+- [Fast Fourier transform](https://en.wikipedia.org/wiki/Fast_Fourier_transform): how a vibration trace becomes bands
+- [Feature extraction](https://en.wikipedia.org/wiki/Feature_extraction)
+- [Object detection](https://en.wikipedia.org/wiki/Object_detection)
+- [Edge detection](https://en.wikipedia.org/wiki/Edge_detection)
+- [Soft sensor](https://en.wikipedia.org/wiki/Soft_sensor)
+
+</References>
+
+<Deeper>
+- [Data cleaning](/concepts/data-cleaning): a feature computed from a frozen sensor measures the sensor
+- [What is machine learning?](/concepts/machine-learning): what consumes features, and why the choice of method matters less than the features
+- [Synthetic data](/concepts/synthetic-data): what to do when the labels are too few to learn from
+- [Events](/using/events): where labels come from
+- [Time series](/using/timeseries): where features live once they are kept
+- [Building AI agents](/using/ai-agents#agents-that-improve-the-data-itself): running the loop continuously
+</Deeper>

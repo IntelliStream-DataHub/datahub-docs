@@ -127,6 +127,19 @@ On the roadmap, this is also where assisted classification lands: suggesting the
 placement of new or unfamiliar data, so the human confirms instead of constructs.
 [AI agents and integration work →](/value/ai-agents#agents-that-build-and-run-your-integrations)
 
+## Where agents help
+
+This is the single best match between the work and the tool. Deciding that `21-PT-3105`
+belongs to the separator on train two is a judgement made from naming patterns, from the
+source system's own hierarchy, from what the signal actually does, and from what is already
+in the graph. That is pattern-matching over messy evidence, at a scale nobody wants to do by
+hand, which is exactly what a model is good at.
+
+Two conditions keep it safe. Have the agent **propose** links rather than commit them, at
+least until you have watched a few hundred of its suggestions, and have it record its
+reasoning so a rejected suggestion teaches you something about the naming rather than
+vanishing. [Building AI agents →](/using/ai-agents)
+
 <References>
 
 - [Data integration](https://en.wikipedia.org/wiki/Data_integration)
