@@ -1,0 +1,271 @@
+---
+sidebar_position: 14
+title: Using MCP
+description: What the Model Context Protocol is, why it changed what AI assistants can do, and how to point one at your own DataHub so it answers from your operation instead of from general knowledge. The two servers, the 38 tools, and how access is decided.
+---
+import McpOneProtocol from '@site/src/figures/mcp-one-protocol.svg';
+import McpCallPath from '@site/src/figures/mcp-call-path.svg';
+
+# Using MCP
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Integrators</Persona>
+  <Persona>Operations</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+An AI assistant on its own knows a great deal about the world and
+<span className="hl">nothing at all about your plant</span>. The Model Context Protocol,
+usually shortened to **MCP**, is the standard way to fix that: it lets an assistant call
+tools that fetch real data, in a form any assistant can use.
+
+DataHub publishes **38 tools** across two MCP servers. Point an assistant at them and a
+question like *"what did the export compressor do overnight, and was anything raised
+against it?"* stops being unanswerable. The access rules do not change:
+<span className="t-brand">an MCP call is checked exactly like any other request</span>.
+</KeyIdea>
+
+## What MCP is
+
+<Lead>MCP is a small open standard that says how an AI assistant asks a system what it
+can do, and then does it. Nothing more exotic than that.</Lead>
+
+A system that wants to be usable by AI publishes an **MCP server**: a list of named tools,
+each with typed arguments and a description written for the model to read. An assistant, the
+**client**, connects, reads the list, and calls the ones it needs. Because the list is
+described rather than hard-coded, the assistant works out for itself which tool answers the
+question in front of it.
+
+The reason this matters is arithmetic. Before a shared protocol, every combination of
+assistant and system needed its own integration, so five assistants and eight systems meant
+forty pieces of software that all had to be maintained by somebody. With one protocol, each
+system is served once and each assistant speaks it once.
+
+<Figure
+  caption="The left panel is the state everyone was in before the protocol existed, and the reason so few AI pilots ever reached real data. The right panel is why an assistant can be useful on day one against a system nobody wrote it for."
+  wide
+>
+  <McpOneProtocol />
+</Figure>
+
+The vocabulary, so the rest of this page reads cleanly:
+
+| Term | What it means here |
+| --- | --- |
+| **Client** | The thing the person talks to: a desktop assistant, a coding tool, the console's own assistant, or an agent you wrote |
+| **Server** | The system exposing capabilities. DataHub is one; your maintenance system might be another |
+| **Tool** | One named capability, such as `event_filter`, with typed arguments and a description the model reads |
+| **Transport** | How they talk. DataHub's servers speak ordinary HTTP, with your normal token in the `Authorization` header |
+
+## Why it matters now
+
+Three things arrived at roughly the same time, and only the combination is interesting.
+
+**Models became reliable at using tools.** Choosing the right call, filling in its arguments
+correctly and reacting sensibly to what comes back used to fail often enough to be a
+curiosity. It now works well enough to build on.
+
+**Access to real data stopped being bespoke.** MCP, published as an open standard in late
+2024, was adopted quickly and broadly, so the plumbing question, *how do we let this thing
+see our data*, has one answer instead of one per vendor.
+
+**Which moves the bottleneck.** When the model is good and the connection is standard, the
+thing that decides whether an assistant is useful is
+<span className="t-accent">whether the data it reaches has any meaning attached</span>. An
+assistant connected to a tag list can fetch numbers it cannot interpret. The same assistant
+connected to [a model of your operation](/concepts/knowledge-graph) can follow a signal to
+the equipment, the equipment to what it feeds, and the failure to what it will cost.
+
+That is the strategic reading of MCP for an industrial operator: it makes the connection
+cheap, and therefore makes the context the scarce part.
+[Why that compounds →](/value/ai-agents#why-this-ends-up-being-a-requirement-not-an-option)
+
+:::tip The one-line version for a leadership meeting
+MCP is a standard plug. It does not make your data meaningful, it makes meaningful data
+reachable, which is why the work on this site, naming, modelling, connecting, is what
+decides how much you get from AI.
+:::
+
+## What DataHub exposes
+
+Two servers, each at a `/mcp` address on the service that owns it. Every tool is named
+`<domain>_<action>`, so the listing reads the same to you and to the model.
+
+The **API server** publishes 37 tools in seven families:
+
+| Family | Tools | What it lets an assistant do |
+| --- | --- | --- |
+| **Data sets** | 5 | List, search, create, update and delete [data sets](/using/datasets) |
+| **Resources** | 7 | Search and fetch [equipment and other things](/using/resources), create and update them, walk outward to a neighbourhood, or hunt for the nearest thing of a given kind |
+| **Relationships** | 5 | List and create [relationship types](/concepts/knowledge-graph), connect two existing things, delete an edge |
+| **Time series** | 9 | Find [series](/using/timeseries), read the latest value, fetch history between two timestamps, append a datapoint |
+| **Events** | 6 | Search, filter, read, create, update and delete [events](/using/events) |
+| **Labels** | 3 | List and manage the [labels](/concepts/taxonomy) that classify things |
+| **Units** | 2 | Look up units of measure, so a number arrives with its dimension |
+
+Three are worth knowing by name, because they are what make an answer good rather than
+merely fast:
+
+- **`resource_fetch_related`** returns a thing's neighbourhood in one call rather than
+  making the assistant crawl edge by edge. This is the tool that turns *"what does this
+  affect?"* into a single question.
+- **`resource_fetch_nearest`** asks the sharper version: not *"what surrounds this"* but
+  *"where is the nearest thing of this kind"*, breadth-first outward until it has found
+  enough of them. This is how an assistant gets from a pump to the series measuring it
+  without knowing your modelling conventions.
+- **`event_filter`** answers anything time-bounded or exact. Search is for when the
+  assistant only has words to go on.
+
+### The second server: statistics as a tool {#the-second-server-statistics-as-a-tool}
+
+The analysis service publishes its own `/mcp` with a single tool,
+**`analysis_related_series`**. Given one series and a window, it walks the graph outward to
+find physically related candidates, tests each pair statistically and returns them ranked:
+how strongly they move together, which one leads, whether the link survives removing shared
+trends, and whether it holds across the whole window or rides one burst.
+
+This is the same [relationship analysis](/using/relationship-analysis) behind the console's
+Analyze tab, and it matters more for an agent than for a person. Asked *"what is driving
+this?"*, an assistant with only raw numbers will estimate, and estimate confidently. With
+this tool it can answer from the statistics instead.
+
+The full tool list, with arguments and return shapes, is in the
+<a href="/sdk-documentation/mcp-server">developer documentation</a>.
+
+## The security property that matters
+
+This is the part worth reading even if somebody else will do the connecting.
+
+<Figure
+  caption="Nothing in this path was added for agents. The gate is the same one the console and every REST client pass through, in the same order, and it is the same on both servers, which is why an agent's reach is decided entirely by whose token it holds."
+  wide
+>
+  <McpCallPath />
+</Figure>
+
+- **There is no separate door and no agent key.** Every MCP request carries an ordinary
+  OAuth2 token from your identity provider. Each endpoint sits on the same security chain
+  as everything else its service serves.
+- **An agent inherits the permissions of whoever it acts for.** If it should read but not
+  write, <span className="t-brand">issue it a token that can read but not write</span>. There
+  is no second permission model to keep aligned with the first.
+- **Tenant comes from the token's organization claim**, so an assistant cannot reach another
+  tenant's data even by asking for an id it happens to know.
+  [Organizations →](/administration/organizations)
+- **Scoping an assistant is scoping a service account.** Create one in your identity
+  provider, grant its groups read on the data sets it should see, and it can see nothing
+  else. [Service accounts →](/administration/users-and-access#service-accounts)
+
+:::caution The approval step is yours to build
+A server executes what it is asked. It cannot stop mid-call to ask a person to confirm a
+write or a delete, so **if an assistant should pause for a human before it changes anything,
+that gate belongs in the agent you build**, not in the platform. The simplest version is
+also the strongest: an assistant with no business writing gets a token that cannot write.
+[Guardrails in practice →](/using/ai-agents#the-four-limits-worth-setting)
+:::
+
+## Connecting an assistant
+
+<Steps>
+  <Step title="Decide whose eyes it looks through">
+    A person's own login is right for a desktop assistant they use themselves. A
+    [service account](/administration/users-and-access#service-accounts) is right for
+    anything that runs unattended, because its access can be scoped and revoked without
+    touching a person's account.
+  </Step>
+  <Step title="Grant it read on the data sets it should see">
+    Membership of the read group for each data set, and nothing wider. Grants take effect
+    within about a minute. [Data set permissions →](/administration/dataset-permissions)
+  </Step>
+  <Step title="Point the client at the servers">
+    Any MCP client that speaks HTTP and can attach a bearer token will work. The two
+    servers are two entries, with the same token in both:
+
+```json
+{
+  "mcpServers": {
+    "datahub": {
+      "type": "http",
+      "url": "https://your-datahub-host/mcp",
+      "headers": { "Authorization": "Bearer ${DATAHUB_TOKEN}" }
+    },
+    "datahub-analysis": {
+      "type": "http",
+      "url": "https://your-analysis-host/mcp",
+      "headers": { "Authorization": "Bearer ${DATAHUB_TOKEN}" }
+    }
+  }
+}
+```
+
+  Tokens are short-lived. For anything long-running, refresh through your identity provider
+  and update the header rather than pinning a token into a file.
+  </Step>
+  <Step title="Ask something that needs the model">
+    Not *"what is the pressure on P-101"*, which any historian could answer. Ask *"what feeds
+    P-101, and did anything happen upstream of it last night?"* If the answer names the
+    upstream equipment and the event, the connection and the model are both doing their job.
+  </Step>
+  <Step title="Check what it did, not just what it said">
+    A good answer cites the ids, timestamps and values it used. Spot-check two of them in the
+    console. Do this on the first few answers and you will calibrate quickly on where the
+    model is thin.
+  </Step>
+</Steps>
+
+## The console assistant: MCP with nothing to set up
+
+The console's own assistant is a client of the API's server, which makes it the easiest way
+to see what an AI assistant can do with your data before anybody wires anything up.
+
+It is deliberately stricter than a general client:
+
+- **Read-only, by an allowlist.** It is offered a named subset of the read-only tools and
+  nothing else. The filter is default-deny: anything not on the list, including a tool
+  added to the API later, is treated as mutating and never offered. A mutating call is
+  refused again at the point of execution, so the property holds even if the model asks for
+  one.
+- **It answers about your tenant, not about the world.** Asked *"anything unusual this
+  weekend?"*, it reads events and datapoints in your own data rather than answering from
+  general knowledge, and it says so plainly when the tools return nothing.
+- **It bounds itself.** Up to six model-to-tool round trips per question, oversized tool
+  results truncated with a note telling the model to narrow its query, and a capped
+  conversation history.
+- **It can hand you the console.** Alongside the data tools it offers navigation tools, so
+  an answer can arrive with a button that opens the events, resources,
+  [insights](/using/insights) or [Analyze](/using/relationship-analysis) view, already
+  filtered to what it just looked up.
+- **Three switches must agree** before it appears at all: enabled in the deployment, enabled
+  for your tenant, and the signed-in user holds the `DATAHUB_CHAT` role.
+  [How that is controlled →](/administration/security#ai-agents-and-the-console-assistant)
+
+## What MCP does not do
+
+| It does not | Which means |
+| --- | --- |
+| **Add context you never modelled** | An assistant reaching an unmodelled tag list gets numbers without meaning, faster. The protocol carries what is there. [Building your model →](/concepts/building-your-model) |
+| **Ask permission before it writes** | A server has no way to interrupt a call for a human decision. Put that gate in the agent, or issue a read-only token |
+| **Widen what a user can see** | The token decides. An assistant used by a person sees exactly what that person sees, no more |
+| **Cache anything** | Every call is authorised afresh, so a revoked grant stops working within about a minute rather than at the next sign-in |
+| **Replace the API** | For a fixed integration that runs the same way every day, write it against the [API](/using/building-applications). MCP is for the case where the sequence of calls is decided at the time by a model |
+
+<References>
+
+- [Model Context Protocol](https://modelcontextprotocol.io/): the specification and its documentation
+- [Model Context Protocol on Wikipedia](https://en.wikipedia.org/wiki/Model_Context_Protocol)
+- [OAuth 2.0](https://en.wikipedia.org/wiki/OAuth)
+- [JSON Web Token](https://en.wikipedia.org/wiki/JSON_Web_Token)
+- [API](https://en.wikipedia.org/wiki/API)
+
+</References>
+
+<Deeper>
+- [Building AI agents](/using/ai-agents): what to build on top of these tools, and the examples that already work
+- [AI agents](/value/ai-agents): why a model makes an agent both faster and more accurate
+- <a href="/sdk-documentation/mcp-server">MCP servers reference</a>: both endpoints, the full tool list and the result shapes
+- [Security](/administration/security#ai-agents-and-the-console-assistant): the review answer on agent access
+- [Users and access](/administration/users-and-access#service-accounts): scoping the account an assistant uses
+- [Building applications](/using/building-applications): when a written integration is the better tool
+</Deeper>

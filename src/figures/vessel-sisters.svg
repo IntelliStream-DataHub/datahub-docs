@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" class="fig-vessel-sisters" role="img" aria-label="Three sister vessels on the same route. Each trace climbs as the hull fouls and drops back when the hull is cleaned. The two cleaned recently sit low; MV-Nord, cleaned 240 days ago, has been climbing ever since and now rides highest.">
+<text class="fig-title" x="20" y="24">A sister ship is a control group you already own</text>
+<text class="fig-sub" x="20" y="44">Same route, same season, same design. What differs is one event in each vessel’s history.</text>
+<text class="fig-box-sub" x="210" y="78">consumption per tonne-mile · the dot is a hull cleaning · the dashed line is a clean hull</text>
+<text class="fig-box-title" x="20" y="106">MV-Nord</text>
+<text class="fig-box-sub" x="20" y="123">+6% per tonne-mile</text>
+<line class="fig-track" x1="210" y1="116" x2="720" y2="116"/>
+<path class="fig-line-b fig-draw" d="M210.0 116.0 L220.6 115.3 L231.2 114.6 L241.9 113.9 L252.5 113.2 L263.1 112.5 L273.8 111.8 L284.4 111.0 L295.0 110.3 L305.6 109.6 L316.2 108.9 L326.9 108.2 L337.5 107.5 L348.1 106.8 L358.8 106.1 L369.4 105.4 L380.0 104.7 L390.6 115.5 L401.2 114.8 L411.9 114.1 L422.5 113.4 L433.1 112.7 L443.8 112.0 L454.4 111.3 L465.0 110.6 L475.6 109.9 L486.2 109.1 L496.9 108.4 L507.5 107.7 L518.1 107.0 L528.8 106.3 L539.4 105.6 L550.0 104.9 L560.6 104.2 L571.2 103.5 L581.9 102.8 L592.5 102.1 L603.1 101.4 L613.8 100.6 L624.4 99.9 L635.0 99.2 L645.6 98.5 L656.2 97.8 L666.9 97.1 L677.5 96.4 L688.1 95.7 L698.8 95.0 L709.4 94.3 L720.0 93.6" fill="none"/>
+<circle class="fig-dot-b" cx="383" cy="116" r="5"/>
+<text class="fig-box-sub" x="393" y="134" text-anchor="start">cleaned 240 days ago</text>
+<text class="fig-box-title" x="20" y="174">MV-Sør</text>
+<text class="fig-box-sub" x="20" y="191">the reference</text>
+<line class="fig-track" x1="210" y1="184" x2="720" y2="184"/>
+<path class="fig-line-a fig-draw" d="M210.0 184.0 L220.6 183.3 L231.2 182.6 L241.9 181.9 L252.5 181.2 L263.1 180.5 L273.8 179.8 L284.4 179.0 L295.0 178.3 L305.6 177.6 L316.2 176.9 L326.9 176.2 L337.5 175.5 L348.1 174.8 L358.8 174.1 L369.4 173.4 L380.0 172.7 L390.6 172.0 L401.2 171.2 L411.9 170.5 L422.5 169.8 L433.1 169.1 L443.8 168.4 L454.4 167.7 L465.0 167.0 L475.6 166.3 L486.2 165.6 L496.9 164.9 L507.5 164.2 L518.1 163.5 L528.8 162.8 L539.4 162.0 L550.0 161.3 L560.6 160.6 L571.2 159.9 L581.9 159.2 L592.5 158.5 L603.1 157.8 L613.8 157.1 L624.4 156.4 L635.0 155.7 L645.6 183.5 L656.2 182.8 L666.9 182.1 L677.5 181.4 L688.1 180.7 L698.8 180.0 L709.4 179.3 L720.0 178.6" fill="none"/>
+<circle class="fig-dot-a" cx="638" cy="184" r="5"/>
+<text class="fig-box-sub" x="628" y="202" text-anchor="end">cleaned 60 days ago</text>
+<text class="fig-box-title" x="20" y="242">MV-Vest</text>
+<text class="fig-box-sub" x="20" y="259">+1%</text>
+<line class="fig-track" x1="210" y1="252" x2="720" y2="252"/>
+<path class="fig-line-a fig-draw" d="M210.0 252.0 L220.6 251.3 L231.2 250.6 L241.9 249.9 L252.5 249.2 L263.1 248.5 L273.8 247.8 L284.4 247.0 L295.0 246.3 L305.6 245.6 L316.2 244.9 L326.9 244.2 L337.5 243.5 L348.1 242.8 L358.8 242.1 L369.4 241.4 L380.0 240.7 L390.6 240.0 L401.2 239.2 L411.9 238.5 L422.5 237.8 L433.1 237.1 L443.8 236.4 L454.4 235.7 L465.0 235.0 L475.6 234.3 L486.2 233.6 L496.9 232.9 L507.5 232.2 L518.1 231.5 L528.8 230.8 L539.4 230.0 L550.0 229.3 L560.6 228.6 L571.2 227.9 L581.9 227.2 L592.5 252.0 L603.1 251.3 L613.8 250.6 L624.4 249.9 L635.0 249.2 L645.6 248.5 L656.2 247.8 L666.9 247.0 L677.5 246.3 L688.1 245.6 L698.8 244.9 L709.4 244.2 L720.0 243.5" fill="none"/>
+<circle class="fig-dot-a" cx="592" cy="252" r="5"/>
+<text class="fig-box-sub" x="582" y="270" text-anchor="end">cleaned 90 days ago</text>
+<text class="fig-box-sub" x="210" y="292">January</text>
+<text class="fig-box-sub" x="720" y="292" text-anchor="end">now</text>
+<text class="fig-sub" x="20" y="312">The gap is a number; the cleaning date is the reason. One is a time series, the other is an event.</text>
+</svg>

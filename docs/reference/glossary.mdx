@@ -6,9 +6,7 @@ description: Every term used on this site, defined in one line, with a link to w
 
 # Glossary
 
-<Lead>
-One line each. Follow the link where you want the full explanation.
-</Lead>
+<Lead>One line each. Follow the link where you want the full explanation.</Lead>
 
 ## The core vocabulary
 
@@ -70,6 +68,17 @@ One line each. Follow the link where you want the full explanation.
 | Term | In one line |
 | --- | --- |
 | **AI agent** | Software that reasons over your data and acts or recommends, far more accurately when it can use the knowledge graph. [→](/value/ai-agents) |
+| **Machine learning** | Working the rule out from examples instead of writing it down. [→](/concepts/machine-learning) |
+| **Feature** | An input to a model: a number that means something, such as vibration energy or hours since last start. [→](/concepts/machine-learning) |
+| **Label** | The recorded answer for a past example, which in this platform is usually an event. [→](/concepts/machine-learning) |
+| **Supervised / unsupervised** | Learning from labelled examples, against finding structure with no answers given. [→](/concepts/machine-learning#clustering-learning-without-being-told-the-answer) |
+| **Overfitting** | Memorising the examples rather than learning the pattern. Excellent on old data, useless on new. [→](/concepts/machine-learning) |
+| **MCP** | Model Context Protocol, the open standard by which an AI assistant discovers and calls a system's tools. [→](/using/mcp) |
+| **MCP server** | The side that publishes the tools. DataHub has two, 38 tools between them, on the same token and checks as every other call. [→](/using/mcp#what-datahub-exposes) |
+| **Tool** | One named capability an agent can call, such as `event_filter`, with typed arguments and a description written for the model. [→](/using/mcp#what-datahub-exposes) |
+| **Console assistant** | The console's own read-only agent, reached from **Ask AI**, answering from your tenant's data. [→](/using/mcp#the-console-assistant-mcp-with-nothing-to-set-up) |
+| **Agent loop** | Observe, decide the next step, act, check, repeat until the goal is met or a limit stops it. [→](/using/ai-agents#what-an-agent-is-in-one-minute) |
+| **Human gate** | The approval an agent's draft passes through before anything irreversible happens. [→](/using/ai-agents#the-four-limits-worth-setting) |
 | **Perception agent** | Watches continuous signals and emits typed events when something significant happens. [→](/value/ai-agents#perception-turning-signals-into-meaning) |
 | **Triage agent** | Collapses an alarm flood into the causal chain and one clear action. [→](/value/ai-agents#triage-turning-noise-into-one-clear-action) |
 | **Coordinator** | Sequences several agents' output so their actions do not collide. [→](/value/ai-agents#coordination) |

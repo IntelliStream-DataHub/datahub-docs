@@ -1,0 +1,231 @@
+---
+sidebar_position: 14
+title: Synthetic data
+description: Why the failures you most want to predict are the ones you have barely seen, where generated data comes from, the four situations where it earns its place, and the separation rules that keep it from poisoning everything downstream.
+---
+import MeasuredVsGenerated from '@site/src/figures/measured-vs-generated.svg';
+import RobotLearning from '@site/src/figures/robot-learning-loop.svg';
+import SyntheticAndMeasured from '@site/src/figures/synthetic-and-measured.svg';
+
+# Synthetic data
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Data stewards</Persona>
+  <Persona>Operations</Persona>
+  <Persona>Risk and compliance</Persona>
+</Personas>
+
+<KeyIdea>
+Synthetic data is <span className="hl">data nobody measured</span>. A computer that knows how
+a piece of equipment behaves works out what the readings would have been in a situation you
+have never actually had, and those numbers are written down in the same form as real ones.
+
+It exists because the failure you most want to predict is almost always the one you have
+barely seen, and <span className="t-accent">nothing learns a pattern from three
+examples</span>. It is also the fastest way to ruin a data set permanently, so the separation
+rules on this page matter as much as the technique.
+</KeyIdea>
+
+## What it actually is
+
+<Lead>Ordinary data is a record of something that happened. Synthetic data is a record of the
+same kind, for something that did not.</Lead>
+
+Two words first, because everything here is built from them. A **datapoint** is one reading
+with a time attached: *71.2 °C at 09:14 on the pump's bearing.* The datapoints from one
+sensor, in order, are a **time series**. [Time series →](/using/timeseries)
+
+Synthetic data means datapoints that no sensor produced. Something else worked out what the
+reading would have been, and it was stored in exactly the same shape: same equipment, same
+timestamps, same units, same charts.
+
+<Figure
+  caption="Once stored, the two are the same kind of record, which is precisely why generated data is useful: everything downstream, every chart, every model, every query, treats it like any other reading. It is also why the mark on the second one has to be there."
+  wide
+>
+  <MeasuredVsGenerated />
+</Figure>
+
+The closest everyday comparison is a **flight simulator**. A pilot trains for an engine
+failure by watching a full set of instruments behave exactly as they would in a real one.
+Nothing is burning, no sensor measured anything, and the training still works, because the
+readings are realistic enough to learn from. Synthetic data is that, written to a data set
+instead of a cockpit.
+
+Scale is the thing people underestimate. Three real bearing failures might amount to a few
+thousand datapoints across the days that led up to each one. Generate three hundred variants,
+each at a slightly different load, temperature and speed, and you have hundreds of thousands
+of datapoints describing the same failure arriving under conditions you have not personally
+lived through. That is the difference between having a story and having a pattern.
+
+## Why you would want that
+
+<Figure
+  caption="The left panel is why so many predictive maintenance projects stall, and it is not a modelling problem, it is a counting one. The right panel is the way out, and the box underneath is what keeps it from becoming a much worse problem than the one it solved."
+  wide
+>
+  <SyntheticAndMeasured />
+</Figure>
+
+The trap is that this looks like a modelling failure and gets treated as one. Teams try
+another algorithm, then another, then conclude that machine learning does not work for their
+plant. The actual finding was available at the start:
+<span className="t-accent">there were three examples</span>. No method fixes that, and the
+honest options are to gather more, which means waiting for more failures, to borrow from
+similar equipment, or to generate.
+
+## Where generated data comes from
+
+| Source | How it works | Best for |
+| --- | --- | --- |
+| **Physics or a simulation** | A model of how the equipment behaves is run under conditions you choose, including the failure conditions you have never survived | Rare failures, and anything where the mechanism is understood |
+| **A [digital twin](/concepts/digital-twin)** | The same idea, driven by your actual configuration rather than a generic model | Plant-specific behaviour, commissioning, operator training |
+| **A statistical model fitted to real data** | Learns the distribution of what you *have* seen, then draws new samples from it | Filling out a class that is thin rather than empty |
+| **Deliberate variation of real examples** | Take the three real failures and vary load, ambient, speed within plausible ranges | The quickest useful option, and the easiest to explain |
+
+The last row is worth noticing because it needs no new technology at all. In machine learning
+this is usually called
+[data augmentation](https://en.wikipedia.org/wiki/Data_augmentation), and for industrial
+signals it is often enough.
+
+## Where it earns its place
+
+| Situation | Why generating helps |
+| --- | --- |
+| **Rare failures** | Turns three examples into a training set, with conditions varied the way they vary in life |
+| **Equipment with no history** | A new plant, or a machine installed last month, can borrow from a model of how its type behaves |
+| **Sensitive data** | Patient, personnel or commercially confidential records that cannot leave a boundary can be represented by generated data carrying the pattern but not the person |
+| **Testing before commissioning** | Alerts, dashboards, integrations and agents can be exercised against generated conditions long before the real ones occur |
+
+That last one is quietly the most useful and the least discussed. It lets you find out that
+your alarm logic is wrong in a workshop rather than during the event it was built for.
+
+## The field that runs entirely on this: robotics
+
+If you want to see how far this technique goes, look at what is happening in robotics right
+now, because <span className="hl">the whole field is bottlenecked on training data</span> and
+has organised itself around generating it.
+
+The reason is worth understanding, because it is the opposite of the situation with text and
+images. Everything a language model learned from already existed and could be downloaded. The
+data a robot needs, what it feels like to grip a fitting that is slightly the wrong size, does
+not exist anywhere. Somebody has to produce it, one attempt at a time.
+
+<Figure
+  caption="A person can demonstrate a task a few hundred times before the day runs out. Learning it reliably takes millions of attempts, which no physical machine survives, so the attempts happen in simulation and almost all of the training data is generated. The real robot is where the result is tested, not where the practice happens."
+  wide
+>
+  <RobotLearning />
+</Figure>
+
+Two techniques do the work, and they are used together:
+
+- **Imitation learning.** A person performs the task, usually by
+  [operating the robot remotely](https://en.wikipedia.org/wiki/Teleoperation), and the robot
+  learns to copy. A few hundred good demonstrations get it to competent, which is remarkable,
+  and a few hundred is about all a person can produce in a day, which is the problem.
+- **[Reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning).** The
+  robot tries, scores the result against a reward, adjusts, and tries again. It works, and it
+  needs millions of attempts. So the attempts happen in a simulator, where a fleet of virtual
+  robots practises for a thousand hours in an afternoon, with the physics deliberately varied
+  so the robot learns the task rather than one exact world. Only the final validation happens
+  on real hardware.
+
+That last sentence is the rule from the section below, arrived at independently by a different
+field: <span className="t-brand">train on generated data, test on the real thing</span>.
+
+**And the volumes are extraordinary.** A rig used to teach a robot manipulation carries
+several cameras, typically one or two mounted at the wrist so they move with the gripper and
+two or three watching the workspace from fixed angles, alongside joint encoders, motor
+currents, force and torque sensing at the wrist, and tactile fingertips. Those fingertips are
+worth a footnote of their own: the most capable designs are literally
+<span className="t-brand">small cameras inside the finger</span>. A
+[GelSight-style sensor](https://en.wikipedia.org/wiki/Tactile_sensor), first built at MIT,
+puts a camera behind an opaque gel pad lit from several angles, so when the pad moulds itself
+around whatever it touches the camera reads the contact geometry as an image.
+
+Add it up and half a dozen video streams at 1080p and 30 frames a second is on the order of a
+gigabyte every second before compression, so one robot practising for an hour produces
+**terabytes**. Robot learning is among the most data-intensive activities anyone currently
+attempts, and the overwhelming majority of that data never came from the world.
+
+:::tip Why this is in your documentation
+The robots arriving on industrial sites are trained exactly this way, and the simulator they
+practise in is a [digital twin](/concepts/digital-twin) of somewhere real. An operation
+described well enough for a machine to work in it is the same asset whether the worker is
+software, a person or steel.
+[The workforce will not stay virtual →](/value/ai-agents#the-workforce-will-not-stay-virtual)
+:::
+
+## The discipline that keeps it honest
+
+This section matters more than the technique. Every serious failure involving synthetic data
+is a plumbing accident rather than an act of dishonesty.
+
+<Steps>
+  <Step title="Keep it in its own data set, labelled, permanently separable">
+    Generated readings live in their own [data set](/using/datasets), with a
+    [label](/concepts/taxonomy) that says what they are, and external ids that make it
+    obvious. The day generated values become indistinguishable from measurements is the day
+    every number downstream stops being a fact and becomes an assertion.
+  </Step>
+  <Step title="Train on both, test only on what was measured">
+    A model scored against data from its own generator has proved one thing: that it learned
+    the generator. Validation belongs on real observations, always, however few there are.
+  </Step>
+  <Step title="Remember what the generator knows">
+    Synthetic data cannot contain a failure mode nobody modelled. It multiplies your
+    understanding; it does not extend it. A model trained mostly on generated data will be
+    confident precisely where your simulation was confident, including where it was wrong.
+  </Step>
+  <Step title="Never let a generated figure reach a report">
+    Not a regulator, not a board, not an investor deck, not a KPI. This is the failure that
+    ends programmes, and it is why the separation has to be structural rather than a matter
+    of everyone remembering.
+  </Step>
+</Steps>
+
+<Roadmap>
+With [lineage](/concepts/lineage-and-quality) not yet shipped, nothing in the platform will
+tell you automatically that a figure has generated data in its ancestry. Until it does, the
+separation lives in your data sets, labels and naming, and in the discipline of the people
+building models. Decide the convention before you generate the first datapoint.
+</Roadmap>
+
+## Where agents help
+
+An agent can run the generation loop: vary the conditions, produce the cases, retrain,
+measure whether the model actually improved on real held-out examples, and record what it
+tried. That last part is what makes it safe to do at volume, because the alternative is a
+folder of generated files nobody can account for.
+
+It also suits the sensitive-data case, where the agent that generates never needs to see, or
+be allowed to see, more than the boundary permits.
+[How agents do this work →](/using/ai-agents#agents-that-improve-the-data-itself)
+
+<References>
+
+- [Synthetic data](https://en.wikipedia.org/wiki/Synthetic_data)
+- [Data augmentation](https://en.wikipedia.org/wiki/Data_augmentation)
+- [Training, validation and test data sets](https://en.wikipedia.org/wiki/Training,_validation,_and_test_data_sets)
+- [Simulation](https://en.wikipedia.org/wiki/Computer_simulation)
+- [Class imbalance](https://en.wikipedia.org/wiki/Oversampling_and_undersampling_in_data_analysis)
+- [Robot learning](https://en.wikipedia.org/wiki/Robot_learning)
+- [Reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning)
+- [Apprenticeship learning](https://en.wikipedia.org/wiki/Apprenticeship_learning), the formal name for learning from demonstrations
+- [Teleoperation](https://en.wikipedia.org/wiki/Teleoperation)
+- [Tactile sensor](https://en.wikipedia.org/wiki/Tactile_sensor), including the camera-behind-gel designs
+- [GelSlim: a high-resolution, compact tactile-sensing finger](https://arxiv.org/abs/1803.00628)
+- [GelSight360: an omnidirectional camera-based tactile sensor](https://arxiv.org/abs/2304.04268)
+
+</References>
+
+<Deeper>
+- [What is machine learning?](/concepts/machine-learning): what the generated data is for
+- [Feature extraction](/concepts/feature-extraction): the other half of making data learnable
+- [Data cleaning](/concepts/data-cleaning): generated data cannot rescue measurements nobody trusts
+- [Digital twin](/concepts/digital-twin): the model that can produce conditions you have never survived, and the simulator a robot practises in
+- [Data sets](/using/datasets): the boundary that keeps generated data separable
+- [Building AI agents](/using/ai-agents#agents-that-improve-the-data-itself): running generation and validation as standing work
+</Deeper>

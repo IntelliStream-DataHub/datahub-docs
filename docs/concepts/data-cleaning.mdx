@@ -1,0 +1,156 @@
+---
+sidebar_position: 11
+title: Data cleaning
+description: Why bad industrial data does not announce itself, the five defects that actually turn up, how the model around a reading is what convicts it, and the three rules that keep a correction from becoming a worse problem than the error.
+---
+import DirtyData from '@site/src/figures/dirty-data.svg';
+
+# Data cleaning
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Data stewards</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+Bad data almost never looks bad. A frozen sensor reports a perfectly reasonable number, over
+and over. A drifting calibration is right to two decimal places and wrong by four per cent.
+Both flow into reports, models and decisions without anybody noticing, and
+<span className="hl">the answer that comes out is confident, well sourced and untrue</span>.
+
+Cleaning is not the tidying you do before the interesting work. It is what decides whether
+any of the interesting work is true.
+</KeyIdea>
+
+## What dirty actually looks like
+
+<Figure
+  caption="Only the gap is visibly missing. The other four arrive as ordinary readings, which is exactly why they survive into everything downstream."
+  wide
+>
+  <DirtyData />
+</Figure>
+
+| Defect | What you see | Where it comes from |
+| --- | --- | --- |
+| **Frozen** | The same value, hour after hour, while the plant carries on | A failed transmitter, a stuck buffer, a lost connection where the last value is repeated rather than dropped |
+| **Spike** | A single impossible value | Electrical noise, a comms glitch, a sensor briefly out of range. Harmless to look at, ruinous to any average |
+| **Drift** | Slowly wrong, and never obviously so | Calibration ageing, fouling, a sensor moving out of position |
+| **Gap** | Missing hours or days | An outage upstream, a filter, a network drop. Dangerous mostly for what gets filled in afterwards |
+| **Wrong unit or scale** | A step change that looks like an event | A configuration change, an instrument replacement, an integration mapping bar where the source meant psi |
+
+Two more do not draw well but cost just as much:
+
+- **Duplicates.** The same measurement arriving twice through two routes, quietly doubling
+  a count or halving an average. Usually a symptom of matching on names instead of
+  [external ids](/concepts/naming-and-standards#external-ids-are-promises).
+- **Timestamps in the wrong zone.** An offset that turns a night shift into a day shift and
+  destroys any comparison against something recorded properly. The favourite of anyone who
+  has ever tried to correlate two source systems.
+
+:::tip One that is not a defect at all
+A signal that looks like a slow, clean wave may be an artefact of sampling too rarely rather
+than anything the plant did. That one is chosen at the instrument and cannot be repaired
+afterwards. [What undersampling invents →](/using/timeseries#how-often-should-you-sample)
+:::
+
+## The model is what convicts a reading
+
+Here is the part that matters most, and the reason this page sits in the concepts section
+rather than in a manual.
+
+<span className="t-brand">A value is rarely wrong on its own terms.</span> A tank level rising
+on a warm afternoon is a plausible number. It becomes suspicious only when you know that
+nothing was delivered, that the tank is outdoors, and that the ambient temperature rose at
+the same time. A vibration reading of zero is fine, unless the pump it belongs to is running.
+
+Every one of those judgements is made by looking at the **neighbours** of the reading: the
+equipment it belongs to, what feeds that equipment, what else was happening at the time. In
+other words, cleaning is a [knowledge graph](/concepts/knowledge-graph) problem wearing a
+statistics costume.
+
+Two consequences worth acting on:
+
+- **Model first, clean second.** Teams that try to clean a data set before describing what
+  the data is about end up applying thresholds they cannot justify. The context is what makes
+  a defect visible.
+- **Cleaning is never finished.** Data keeps arriving, so detection has to keep running. This
+  is standing work, not a project with an end date, which is exactly why it suits
+  [an agent](/using/ai-agents#agents-that-improve-the-data-itself).
+
+[Finding what moves with what →](/using/relationship-analysis)
+
+## Three rules that keep a correction honest
+
+A correction is a claim about reality, and it deserves the same scepticism as the reading it
+replaces.
+
+<Steps>
+  <Step title="Raw stays raw">
+    A correction is a **new [series](/using/timeseries) beside the original**, never an edit
+    to it. The measurement is a historical fact even when it is a wrong one, and you will
+    want it the day somebody disputes the correction, or the day you discover the correction
+    itself was wrong.
+  </Step>
+  <Step title="Every correction is an event">
+    What was changed, when, by whom or by which agent, and on what grounds, recorded as an
+    [event](/using/events) against the resource. A cleaned number with no record of the
+    cleaning is worse than a dirty one, because it cannot be argued with.
+  </Step>
+  <Step title="Flag rather than silently substitute">
+    Smoothing noise is safe. Declaring a sensor faulty and substituting a modelled value is a
+    judgement with consequences, and it belongs in front of a person the first several times.
+    An automatic substitution nobody sees becomes an assumption nobody remembers.
+  </Step>
+</Steps>
+
+<Roadmap>
+The platform has no data-quality flag of its own yet, and
+[lineage](/concepts/lineage-and-quality) is not shipped, so "this series is derived and
+corrected" is carried by your naming, your [data set](/using/datasets) boundaries and the
+events you write, rather than enforced. Agree the convention before the first correction,
+not after the hundredth.
+</Roadmap>
+
+## Where agents help
+
+Cleaning is continuous, judgement-heavy and dull, which is an unusually good description of
+work to delegate. An agent fed by [subscription](/using/subscriptions) sees each reading as it
+lands, can compare it against everything the model says is related, and raises a typed event
+when something looks wrong instead of quietly rewriting it.
+
+The guardrails are the same as for any acting agent: a narrow account, a step limit, and a
+human gate before anything irreversible.
+[How agents do this work →](/using/ai-agents#agents-that-improve-the-data-itself)
+
+## Why it is worth the trouble
+
+Every later capability inherits this. A [feature](/concepts/feature-extraction) computed from
+a frozen sensor is a feature that measures the sensor. A
+[model](/concepts/machine-learning) trained on drifted readings learns the drift. An agent
+reasoning over gap-filled values produces gap-filled conclusions, and cites its sources while
+doing so.
+
+<span className="t-accent">The cost of dirty data is not the error, it is the confidence.</span>
+
+<References>
+
+- [Data cleansing](https://en.wikipedia.org/wiki/Data_cleansing)
+- [Calibration](https://en.wikipedia.org/wiki/Calibration)
+- [Missing data](https://en.wikipedia.org/wiki/Missing_data)
+- [Outlier](https://en.wikipedia.org/wiki/Outlier)
+- [Mars Climate Orbiter](https://en.wikipedia.org/wiki/Mars_Climate_Orbiter): the most expensive unit-conversion error on record
+- [Data quality](https://en.wikipedia.org/wiki/Data_quality)
+
+</References>
+
+<Deeper>
+- [Feature extraction](/concepts/feature-extraction): what you build once the readings can be trusted
+- [What is machine learning?](/concepts/machine-learning): why a model trained on dirty data learns the dirt
+- [Lineage and data quality](/concepts/lineage-and-quality): what the platform will eventually track for you
+- [Relationship analysis](/using/relationship-analysis): the statistics behind "does this reading fit what everything else did?"
+- [Time series](/using/timeseries): where readings live, and the sampling trap that cannot be cleaned away
+- [Building AI agents](/using/ai-agents#agents-that-improve-the-data-itself): delegating the standing work
+</Deeper>

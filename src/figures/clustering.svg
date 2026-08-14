@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 326" class="fig-clustering" role="img" aria-label="The same scatter of points twice. On the left it is unlabelled. On the right, three rings mark the groups a clustering method found without being told what to look for.">
+<text class="fig-title" x="20" y="24">Learning without being told the answer</text>
+<text class="fig-sub" x="20" y="44">Nobody labelled these points. The grouping is the output, not the input.</text>
+<text class="fig-box-title" x="20" y="80">What you have</text>
+<text class="fig-box-sub" x="20" y="98">every pump, described by how it behaves</text>
+<text class="fig-box-title" x="400" y="80">What clustering found</text>
+<text class="fig-box-sub" x="400" y="98">three groups, and no idea what they mean</text>
+<circle class="fig-dot-a" cx="64" cy="162" r="4.5"/>
+<circle class="fig-dot-a" cx="88" cy="152" r="4.5"/>
+<circle class="fig-dot-a" cx="78" cy="180" r="4.5"/>
+<circle class="fig-dot-a" cx="106" cy="168" r="4.5"/>
+<circle class="fig-dot-a" cx="56" cy="184" r="4.5"/>
+<circle class="fig-dot-a" cx="94" cy="190" r="4.5"/>
+<circle class="fig-dot-a" cx="188" cy="227" r="4.5"/>
+<circle class="fig-dot-a" cx="216" cy="214" r="4.5"/>
+<circle class="fig-dot-a" cx="200" cy="247" r="4.5"/>
+<circle class="fig-dot-a" cx="226" cy="239" r="4.5"/>
+<circle class="fig-dot-a" cx="170" cy="241" r="4.5"/>
+<circle class="fig-dot-a" cx="234" cy="257" r="4.5"/>
+<circle class="fig-dot-a" cx="270" cy="156" r="4.5"/>
+<circle class="fig-dot-a" cx="292" cy="174" r="4.5"/>
+<circle class="fig-dot-a" cx="312" cy="155" r="4.5"/>
+<circle class="fig-dot-a" cx="286" cy="146" r="4.5"/>
+<circle class="fig-dot-a" cx="316" cy="179" r="4.5"/>
+<circle class="fig-dot-a" cx="260" cy="173" r="4.5"/>
+<circle class="fig-track" cx="462" cy="173" r="37" fill="none"/>
+<circle class="fig-track" cx="586" cy="233" r="40" fill="none"/>
+<circle class="fig-track" cx="670" cy="162" r="36" fill="none"/>
+<circle class="fig-dot-a" cx="444" cy="162" r="4.5"/>
+<circle class="fig-dot-a" cx="468" cy="152" r="4.5"/>
+<circle class="fig-dot-a" cx="458" cy="180" r="4.5"/>
+<circle class="fig-dot-a" cx="486" cy="168" r="4.5"/>
+<circle class="fig-dot-a" cx="436" cy="184" r="4.5"/>
+<circle class="fig-dot-a" cx="474" cy="190" r="4.5"/>
+<circle class="fig-dot-a" cx="568" cy="227" r="4.5"/>
+<circle class="fig-dot-a" cx="596" cy="214" r="4.5"/>
+<circle class="fig-dot-a" cx="580" cy="247" r="4.5"/>
+<circle class="fig-dot-a" cx="606" cy="239" r="4.5"/>
+<circle class="fig-dot-a" cx="550" cy="241" r="4.5"/>
+<circle class="fig-dot-a" cx="614" cy="257" r="4.5"/>
+<circle class="fig-dot-a" cx="650" cy="156" r="4.5"/>
+<circle class="fig-dot-a" cx="672" cy="174" r="4.5"/>
+<circle class="fig-dot-a" cx="692" cy="155" r="4.5"/>
+<circle class="fig-dot-a" cx="666" cy="146" r="4.5"/>
+<circle class="fig-dot-a" cx="696" cy="179" r="4.5"/>
+<circle class="fig-dot-a" cx="640" cy="173" r="4.5"/>
+<text class="fig-sub" x="20" y="296">Useful when you do not know what you are looking for: which machines behave alike, which readings sit</text>
+<text class="fig-sub" x="20" y="314">outside every group. Naming the groups is a job for somebody who knows the plant.</text>
+</svg>

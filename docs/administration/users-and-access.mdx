@@ -138,7 +138,19 @@ By design, a few things live outside the platform:
 This is deliberate. Identity and infrastructure belong to systems built for them, with their
 own audit trails and approval processes, rather than being duplicated inside an application.
 
+## Where agents help
+
+An AI agent is an ordinary consumer of everything on this page. It runs as a
+[service account](#service-accounts), it holds a normal token, and its reach is whatever that
+token's grants allow, which is why scoping one is an administrative act rather than an AI
+decision. [How that works →](/using/mcp#the-security-property-that-matters)
+
+Agents can also help with the administration itself: reviewing which accounts still need the
+access they have, and which service accounts have not been used in months, both of which are
+tedious enough that they are usually skipped.
+
 <Deeper>
+- [Using MCP](/using/mcp#the-security-property-that-matters): why scoping an AI agent is the same act as scoping a service account
 - [Data set permissions](/administration/dataset-permissions): how grants are expressed, in detail
 - [Organisations and tenants](/administration/organizations): how the organisation claim resolves
 - [Security and compliance](/administration/security): the wider posture

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" class="fig-wind-peer" role="img" aria-label="On the left, five turbines on one string running to a substation, with A07 highlighted. On the right, nine days of production for each turbine as a percentage of the string median: four traces sit around one hundred per cent and A07 sits steadily near ninety-six.">
+<text class="fig-title" x="20" y="24">Underperformance only exists as a comparison</text>
+<text class="fig-sub" x="20" y="44">Against its own history A07 looks normal. Against the turbines that shared its wind, it does not.</text>
+<text class="fig-box-title" x="20" y="78">String B</text>
+<text class="fig-box-sub" x="20" y="96">one cable, one wind, five comparable machines</text>
+<path class="fig-exit-path fig-flow" d="M340 162 L112 162" fill="none"/>
+<rect class="fig-box" x="20" y="140" width="92" height="44" rx="12"/><text class="fig-box-sub" x="66" y="167" text-anchor="middle">substation</text>
+<circle class="fig-box" cx="148" cy="162" r="15"/>
+<text class="fig-box-sub" x="148" y="196" text-anchor="middle">A05</text>
+<circle class="fig-box" cx="196" cy="162" r="15"/>
+<text class="fig-box-sub" x="196" y="196" text-anchor="middle">A06</text>
+<circle class="fig-lit-box c-orange" cx="244" cy="162" r="15"/>
+<text class="fig-box-sub" x="244" y="196" text-anchor="middle">A07</text>
+<circle class="fig-box" cx="292" cy="162" r="15"/>
+<text class="fig-box-sub" x="292" y="196" text-anchor="middle">A08</text>
+<circle class="fig-box" cx="340" cy="162" r="15"/>
+<text class="fig-box-sub" x="340" y="196" text-anchor="middle">A09</text>
+<text class="fig-box-sub" x="244" y="136" text-anchor="middle">never faulted</text>
+<line class="fig-track" x1="452" y1="252" x2="730" y2="252"/>
+<line class="fig-track" x1="452" y1="147" x2="730" y2="147"/>
+<text class="fig-box-sub" x="452" y="96">production, as a percentage of the string median</text>
+<text class="fig-box-sub" x="444" y="151" text-anchor="end">100%</text>
+<path class="fig-line-a" d="M452.0 133.0 L459.7 130.7 L467.4 128.6 L475.2 126.9 L482.9 125.7 L490.6 125.2 L498.3 125.3 L506.1 126.1 L513.8 127.5 L521.5 129.4 L529.2 131.6 L536.9 134.0 L544.7 136.2 L552.4 138.2 L560.1 139.7 L567.8 140.6 L575.6 140.9 L583.3 140.4 L591.0 139.4 L598.7 137.7 L606.4 135.7 L614.2 133.4 L621.9 131.1 L629.6 128.9 L637.3 127.1 L645.1 125.9 L652.8 125.2 L660.5 125.2 L668.2 125.9 L675.9 127.2 L683.7 129.1 L691.4 131.2 L699.1 133.5 L706.8 135.8 L714.6 137.8 L722.3 139.5 L730.0 140.5" fill="none"/>
+<path class="fig-line-a" d="M452.0 135.2 L459.7 136.4 L467.4 138.2 L475.2 140.5 L482.9 143.0 L490.6 145.6 L498.3 148.0 L506.1 150.0 L513.8 151.4 L521.5 152.2 L529.2 152.1 L536.9 151.4 L544.7 149.9 L552.4 147.9 L560.1 145.5 L567.8 142.9 L575.6 140.4 L583.3 138.1 L591.0 136.3 L598.7 135.2 L606.4 134.8 L614.2 135.1 L621.9 136.2 L629.6 137.9 L637.3 140.1 L645.1 142.6 L652.8 145.1 L660.5 147.6 L668.2 149.7 L675.9 151.2 L683.7 152.1 L691.4 152.2 L699.1 151.6 L706.8 150.2 L714.6 148.3 L722.3 145.9 L730.0 143.4" fill="none"/>
+<path class="fig-line-a" d="M452.0 155.8 L459.7 157.7 L467.4 159.3 L475.2 160.4 L482.9 160.9 L490.6 160.9 L498.3 160.2 L506.1 159.1 L513.8 157.4 L521.5 155.5 L529.2 153.4 L536.9 151.4 L544.7 149.6 L552.4 148.2 L560.1 147.3 L567.8 147.0 L575.6 147.3 L583.3 148.2 L591.0 149.6 L598.7 151.4 L606.4 153.4 L614.2 155.4 L621.9 157.4 L629.6 159.0 L637.3 160.2 L645.1 160.9 L652.8 161.0 L660.5 160.4 L668.2 159.3 L675.9 157.7 L683.7 155.8 L691.4 153.8 L699.1 151.7 L706.8 149.9 L714.6 148.4 L722.3 147.4 L730.0 147.0" fill="none"/>
+<path class="fig-line-a" d="M452.0 147.3 L459.7 146.1 L467.4 144.4 L475.2 142.3 L482.9 140.0 L490.6 137.7 L498.3 135.6 L506.1 133.9 L513.8 132.7 L521.5 132.2 L529.2 132.3 L536.9 133.1 L544.7 134.6 L552.4 136.5 L560.1 138.7 L567.8 141.0 L575.6 143.2 L583.3 145.2 L591.0 146.7 L598.7 147.6 L606.4 147.9 L614.2 147.4 L621.9 146.4 L629.6 144.7 L637.3 142.7 L645.1 140.4 L652.8 138.1 L660.5 135.9 L668.2 134.1 L675.9 132.9 L683.7 132.2 L691.4 132.2 L699.1 132.9 L706.8 134.3 L714.6 136.1 L722.3 138.3 L730.0 140.6" fill="none"/>
+<path class="fig-line-b" d="M452.0 209.3 L459.7 210.3 L467.4 211.7 L475.2 213.2 L482.9 214.8 L490.6 216.2 L498.3 217.4 L506.1 218.3 L513.8 218.7 L521.5 218.7 L529.2 218.2 L536.9 217.3 L544.7 216.1 L552.4 214.7 L560.1 213.1 L567.8 211.6 L575.6 210.3 L583.3 209.2 L591.0 208.5 L598.7 208.3 L606.4 208.5 L614.2 209.1 L621.9 210.1 L629.6 211.5 L637.3 213.0 L645.1 214.5 L652.8 216.0 L660.5 217.2 L668.2 218.1 L675.9 218.7 L683.7 218.7 L691.4 218.3 L699.1 217.5 L706.8 216.4 L714.6 214.9 L722.3 213.4 L730.0 211.9" fill="none"/>
+<text class="fig-box-sub" x="456" y="201">A07 · 4% down for nine days · 120 MWh</text>
+<text class="fig-box-sub" x="452" y="272">nine days</text>
+<text class="fig-box-sub" x="730" y="272" text-anchor="end">today</text>
+<text class="fig-sub" x="20" y="300">No alarm fired, because nothing was wrong with A07 on its own terms. The graph supplies the</text>
+<text class="fig-sub" x="20" y="318">only thing that makes the loss visible: which turbines were standing in the same wind.</text>
+</svg>

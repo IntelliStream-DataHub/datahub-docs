@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 356" class="fig-readiness-gate" role="img" aria-label="A squadron of fourteen airframes, eleven available and three gated. Below, the three gated tails connect to what is holding them: two of them to the same hydraulic part with a nine day lead time, and one to a scheduled inspection.">
+<text class="fig-title" x="20" y="24">Readiness is a rollup, and the answer is which nodes gate it</text>
+<text class="fig-sub" x="20" y="44">Fourteen airframes is a number anyone can produce. Which three, and why, is a traversal.</text>
+<rect class="fig-box" x="20" y="82" width="130" height="52" rx="12"/><text class="fig-box-title" x="85" y="104" text-anchor="middle">SQN-4</text><text class="fig-box-sub" x="85" y="120" text-anchor="middle">14 airframes</text>
+<path class="fig-exit-path fig-flow" d="M150 108 L177 108" fill="none"/>
+<path class="fig-centre" d="M177 103 L188 108 L177 113 z"/>
+<rect class="fig-box" x="196" y="86" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="232" y="86" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="268" y="86" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="304" y="86" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="340" y="86" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="376" y="86" width="30" height="24" rx="7"/>
+<rect class="fig-lit-box c-orange" x="412" y="86" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="196" y="116" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="232" y="116" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="268" y="116" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="304" y="116" width="30" height="24" rx="7"/>
+<rect class="fig-box" x="340" y="116" width="30" height="24" rx="7"/>
+<rect class="fig-lit-box c-orange" x="376" y="116" width="30" height="24" rx="7"/>
+<rect class="fig-lit-box c-orange" x="412" y="116" width="30" height="24" rx="7"/>
+<text class="fig-box-title" x="510" y="104">11 available</text>
+<text class="fig-box-sub" x="510" y="122">3 gated, and not by three different things</text>
+<text class="fig-box-title" x="20" y="176">What is holding the other three</text>
+<rect class="fig-lit-box c-orange" x="190" y="190" width="110" height="36" rx="10"/><text class="fig-lit-sub" x="245" y="212" text-anchor="middle">TAIL-07</text>
+<rect class="fig-lit-box c-orange" x="190" y="234" width="110" height="36" rx="10"/><text class="fig-lit-sub" x="245" y="256" text-anchor="middle">TAIL-11</text>
+<rect class="fig-lit-box c-orange" x="190" y="278" width="110" height="36" rx="10"/><text class="fig-lit-sub" x="245" y="300" text-anchor="middle">TAIL-03</text>
+<path class="fig-exit-path fig-flow" d="M300 208 L419 214" fill="none"/>
+<path class="fig-exit-path fig-flow" d="M300 252 L419 214" fill="none"/>
+<path class="fig-centre" d="M419 209 L430 214 L419 219 z"/>
+<path class="fig-exit-path fig-flow" d="M300 296 L419 298" fill="none"/>
+<path class="fig-centre" d="M419 293 L430 298 L419 303 z"/>
+<rect class="fig-box" x="436" y="190" width="270" height="48" rx="12"/><text class="fig-box-title" x="571" y="211" text-anchor="middle">PN-4471 hydraulic pack</text><text class="fig-box-sub" x="571" y="228" text-anchor="middle">9-day lead, none on hand</text>
+<rect class="fig-box" x="436" y="274" width="270" height="48" rx="12"/><text class="fig-box-title" x="571" y="295" text-anchor="middle">50-hour inspection</text><text class="fig-box-sub" x="571" y="312" text-anchor="middle">could be pulled forward</text>
+<text class="fig-sub" x="20" y="346">One requisition returns two airframes. That is a fact about the graph, not about any one record.</text>
+</svg>

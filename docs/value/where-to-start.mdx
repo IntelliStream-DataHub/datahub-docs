@@ -194,7 +194,23 @@ By the fourth or fifth question, most of what people ask can be answered against
 already exists. That is the point at which the platform stops being a project and becomes
 infrastructure.
 
+## Where agents fit in the sequence
+
+Not first. An agent inherits whatever context exists, so an agent added before the model is a
+faster way to get unreliable answers. The sequence that works is the one on this page, with
+two agent-shaped exceptions worth taking early:
+
+- **Integration work**, which agents do well and which is usually the long pole in a first
+  project. [More →](/value/ai-agents#agents-that-build-and-run-your-integrations)
+- **A read-only assistant**, connected as soon as the first area is modelled, because it is
+  the cheapest honest test of whether the model is good enough yet.
+  [Using MCP →](/using/mcp)
+
+Everything else, detection, drafting, acting, is better after the model has proved itself on
+questions people already care about. [Building AI agents →](/using/ai-agents)
+
 <Deeper>
+- [Using MCP](/using/mcp): the cheapest way to find out whether your model is good enough yet
 - [The business case](/value/business-case): where the return comes from
 - [Value paths](/value/value-paths): six proven plays to choose a first question from
 - [Building your model](/concepts/building-your-model): how to run the modelling workshops

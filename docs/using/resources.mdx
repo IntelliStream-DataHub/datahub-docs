@@ -211,7 +211,19 @@ resources, prove it works, then import.
 [Building your model →](/concepts/building-your-model) ·
 [Change data capture →](/using/cdc-integrations)
 
+## Where agents help
+
+An agent can create and update resources through the same
+[API and MCP tools](/using/mcp#what-datahub-exposes) you use here, which makes it useful for
+the two jobs that are tedious by hand: **bulk creation** from a source system, and **finding
+the duplicates** that appear when the same pump was created twice under two spellings.
+
+It is also the fastest reader of this screen you will ever have. Asked what a piece of
+equipment affects, an agent walks outward from it and answers in one step, where a person
+clicks through the graph.
+
 <Deeper>
+- [Using MCP](/using/mcp): how an assistant walks outward from a resource to its neighbourhood
 - [Knowledge graphs](/concepts/knowledge-graph): what the graph makes possible
 - [Naming and standards](/concepts/naming-and-standards): conventions for names, labels and relationships
 - [Building your model](/concepts/building-your-model): the workshops that decide what to create

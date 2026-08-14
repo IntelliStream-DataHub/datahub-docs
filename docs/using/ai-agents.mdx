@@ -1,0 +1,705 @@
+---
+sidebar_position: 15
+title: Building AI agents
+description: What an AI agent actually is, what you build against DataHub versus what you get for free, the four limits worth setting, and seven worked examples of what agents can already do today, across oil and gas, wind, shipping, data centres, defence, markets and healthcare.
+---
+import AgentAnatomy from '@site/src/figures/agent-anatomy.svg';
+import AgentGuardrails from '@site/src/figures/agent-guardrails.svg';
+import AgentGraphJoin from '@site/src/figures/agent-graph-join.svg';
+import WindPeerComparison from '@site/src/figures/wind-peer-comparison.svg';
+import VesselSisters from '@site/src/figures/vessel-sisters.svg';
+import BlastRadiusCooling from '@site/src/figures/blast-radius-cooling.svg';
+import ReadinessGate from '@site/src/figures/readiness-gate.svg';
+import IssuerNeighbourhood from '@site/src/figures/issuer-neighbourhood.svg';
+import WardDevices from '@site/src/figures/ward-devices.svg';
+
+# Building AI agents
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Integrators</Persona>
+  <Persona>Operations</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+An agent is not a bigger chatbot. It is software you give
+<span className="hl">a goal instead of instructions</span>, plus tools and permission to use
+them, and it works out the steps itself.
+
+Against DataHub, most of what used to make that hard is already done: the tools exist
+[as MCP](/using/mcp), the permissions ride the same token as everything else, and the
+[model of your operation](/concepts/knowledge-graph) gives the agent something true to reason
+over. What you build is the goal, the limits, and the judgement about when it should stop.
+</KeyIdea>
+
+## What an agent is, in one minute
+
+<Lead>An AI agent is software that pursues a goal in a complicated environment on its own
+judgement, working out each step for itself instead of waiting to be told the next one.</Lead>
+
+The distinction that matters commercially is what the output *is*. The generative tools most
+people have met produce content: a draft, a summary, an image. An agent produces
+<span className="hl">decisions and actions</span>, and the content it writes along the way is
+a by-product of getting something done.
+
+| | What you give it | What it gives back |
+| --- | --- | --- |
+| **A model** | One input | One output: a number, a classification, a sentence. [What these are →](/concepts/machine-learning) |
+| **A chatbot** | A question, every time | An answer, from what it already knows |
+| <span className="t-brand">**An agent**</span> | A **goal**, plus tools and access | A result reached by taking steps, checking them, and continuing until done |
+
+### What it takes to be one
+
+<Figure
+  caption="The left column is what an agent is given, the right is what it can do about it. A chatbot has the language interface and nothing else, which is why it can describe your plant but cannot investigate it. The loop mark on the agent is the part that turns six components into something that finishes work."
+  wide
+>
+  <AgentAnatomy />
+</Figure>
+
+- **A goal, usually with sub-goals inside it.** "Find out why the export train tripped and
+  what to do about it" is not one task, it is a small tree of them, and the agent decides
+  the order and how deep to go. It is given the outcome, not the procedure.
+- **A plain language interface.** People ask in the words they already use, and the agent
+  answers the same way. Nobody has to learn a query language, which is why the audience for
+  a well-modelled operation stops being the handful of people who can write queries.
+- **Independence from supervision.** It does not need a prompt for each step or a person
+  watching each decision. That is what "autonomous" means here, and it is the difference
+  between a tool you operate and a colleague you delegate to.
+- **Tools and a planner.** It can act on the world, and it decides which action comes next
+  based on what the last one returned, rather than executing a script somebody wrote in
+  advance.
+- **Memory.** It knows what it already tried, what worked, and what it was told last week.
+  Without memory an agent re-solves yesterday's problem every morning, at full price.
+- **Judgement about its own progress.** It looks at what came back and decides whether that
+  helped, which is also what lets it stop and say it could not determine something.
+
+The loop is what these add up to. Observe what is true, pick the single next step, take it,
+check whether it helped, and go round again until the goal is met or a limit stops it. After
+two or three laps an agent has a chain of evidence rather than a guess.
+
+The reason this works far better against a knowledge graph than against raw tags is that
+every lap begins with *observe*. If "what feeds P-101" is a fact the agent can read in one
+step, it spends its reasoning on the question. If it is not, the agent burns laps
+rediscovering the plant, and each wrong guess compounds into the next lap.
+
+### Why this is a bigger shift than it first looks
+
+Two properties turn agents from a productivity tool into something the
+[fourth industrial revolution](/start/industry-4) argument rests on.
+
+**They learn from what actually happened, not from what somebody assumed.** An agent working
+against a real operation has the record of that operation available: which warnings were
+acted on, which drafts were accepted, which predictions came true. That is real-world
+behaviour rather than a rulebook, and it is why the [event log](/using/events) is not
+bookkeeping but training material.
+
+**They build the thing that makes them better at the next job.** An agent that writes an
+integration has permanently widened what every later agent can see. One that records a
+finding as an event has left evidence the next investigation starts from. Work compounds
+instead of evaporating, and
+<span className="t-accent">the capability improves as a consequence of being used</span>,
+which is not how tools have historically behaved.
+[The strategic version of this argument →](/value/ai-agents#why-this-ends-up-being-a-requirement-not-an-option)
+
+A necessary caveat, because the rest of this page depends on it: autonomy is about *steps*,
+not about *accountability*. An agent needs no prompt to take its next step, and it still
+needs a person to approve anything irreversible. Those two statements are compatible, and
+keeping them both true is what the [four limits](#the-four-limits-worth-setting) are for.
+
+## Why this is buildable now, and was not two years ago
+
+- **Models became dependable at using tools.** Picking the right call, filling in its
+  arguments and reacting to what comes back now works often enough to build on.
+- **Access became standard.** [MCP](/using/mcp) removed the bespoke integration between an
+  assistant and each system it needs.
+- **The remaining variable is context.** With a good model and a standard connection,
+  <span className="t-accent">what decides whether an agent is useful is whether the data it
+  reaches means anything</span>. That part is yours, and it is what the rest of this site is
+  about.
+
+## What you build, and what you get for free
+
+| Part of an agent | Who provides it |
+| --- | --- |
+| **The goal and the prompt** | You. The single most valuable thing you write, and the part worth iterating on |
+| **The model** | Your choice of provider, swappable, because the tools are behind a standard |
+| **The tools** | The platform: [38 MCP tools](/using/mcp#what-datahub-exposes) over the graph, series, events, labels and units, including the [statistical analysis](/using/mcp#the-second-server-statistics-as-a-tool) that keeps an agent from estimating a cause it could measure |
+| **The loop** | Whichever agent framework your team already uses, or fifty lines of your own |
+| **Permissions** | The platform: the agent's token decides what it can read and write, checked on every call |
+| **Live input** | The platform: [subscriptions](/using/subscriptions) push data the moment it lands, so an agent can be woken by a reading rather than polling for one |
+| **Memory of what it did** | The platform: write findings back as [events](/using/events) against the resources they concern, and the agent's history is queryable by the next agent |
+| **The limits** | You. Covered next, because this is where agents succeed or embarrass you |
+
+The pattern to hold on to: **an agent is an application** in the sense the
+[building applications](/using/building-applications) page means, with the same API, the same
+service account and the same event log. It differs only in that the sequence of calls is
+decided at the time, by a model, rather than written down in advance.
+
+## The four limits worth setting
+
+<Figure
+  caption="Three of these you set, in three different places, and each one closes a different failure. The fourth is not a restriction at all: it is what lets you answer, afterwards, what the agent did and whether it was right."
+  wide
+>
+  <AgentGuardrails />
+</Figure>
+
+<Steps>
+  <Step title="Token scope, so it cannot reach what it should not">
+    Give the agent its own
+    [service account](/administration/users-and-access#service-accounts) with read on the
+    data sets it needs and nothing wider. What it cannot read, it cannot reason about or
+    leak; what it cannot write, it cannot damage. Write does not imply read, so an agent that
+    only records findings need not be able to browse.
+  </Step>
+  <Step title="A step cap, so a confused agent stops">
+    Every loop needs a maximum number of laps. *"Inconclusive after twenty steps, here is what
+    I checked"* is a perfectly good outcome, and far better than an agent that keeps going
+    confidently in the wrong direction. The console's own assistant caps a single question at
+    six model-to-tool round trips for exactly this reason.
+  </Step>
+  <Step title="A human gate before anything irreversible">
+    Drafting is safe. Filing, dispatching, ordering and adjusting a setpoint are not.
+    [MCP has no way to pause a call and ask](/using/mcp#the-security-property-that-matters),
+    so the gate lives in your agent: it produces a draft, and a person with the authority
+    approves it. Put the gate where accountability already sits, not where it is convenient.
+  </Step>
+  <Step title="An event log, so the whole thing is checkable">
+    Have the agent record what it did as [events](/using/events) against the resources
+    concerned. This costs almost nothing and buys three things: you can audit a conclusion,
+    you can measure whether its advice was taken, and the next agent can read what the last
+    one found.
+  </Step>
+</Steps>
+
+:::tip The failure mode to design against
+An agent that cannot tell it is stuck will keep going confidently. Judge an agent on
+<span className="t-accent">whether it knows when to stop and say "I could not determine
+this"</span>, not only on whether its answers are right when it does produce them.
+:::
+
+## Your first agent, in an afternoon
+
+Start with one whose mistakes are visible and harmless. The morning brief is the usual
+choice: read-only, runs on a schedule, and its output is checked by people who already know
+what happened yesterday.
+
+<Steps>
+  <Step title="Write the goal, not the procedure">
+    *"Summarise what happened on the export train since 06:00 yesterday: any events raised,
+    any series outside its normal range, and anything upstream that might explain them. Cite
+    the ids and timestamps for every claim. If nothing significant happened, say so in one
+    line."*
+  </Step>
+  <Step title="Give it a narrow, read-only account">
+    Read on the data sets covering that train. No write. It cannot damage anything, so the
+    first week costs you nothing but attention.
+  </Step>
+  <Step title="Let it find its own way there">
+    Do not spell out the calls. A working shape is: search for the resources, walk outward
+    from them for context, filter events over the window, then pull the series that the
+    events point at. Let the agent choose; the tool descriptions are written for it.
+  </Step>
+  <Step title="Insist on sourced answers">
+    Every claim points at a resource, event or value. Spot-check two of them each morning
+    for the first week. This is how you calibrate on where the model is thin, and it usually
+    tells you more about your data than about the agent.
+  </Step>
+  <Step title="Then let it write, narrowly">
+    When you trust the briefing, let the agent record its summary as an event against the
+    train, and its rejected hypotheses too. Now the next agent starts where this one stopped.
+  </Step>
+</Steps>
+
+Two further steps, once that is boring: an **alert router** that watches a
+[subscription](/using/subscriptions) and delivers typed events to the channel each team
+actually reads, and an **integration agent** that explores an unfamiliar source system and
+proposes the mapping onto the model.
+[Why agents are unusually good at integration work →](/value/ai-agents#agents-that-build-and-run-your-integrations)
+
+## What is already possible that still sounds like science fiction
+
+Everything in this section is buildable with technology that exists today, by a competent
+team, without a research budget. What makes each one sound impossible is not the AI: it is
+the assumption that nobody could assemble the context fast enough. That assumption is what a
+model of the operation removes.
+
+All seven run on the same mechanism, so it is worth stating once before the stories.
+<span className="hl">The knowledge graph is the join.</span> A time series is a column of
+numbers and an event is a line in a log; neither knows about the other. What relates them is
+that both hang off the same [resource](/using/resources), and that resource is connected to
+the equipment around it. So an agent's walk is always the same shape: **resolve the thing,
+step outward to its neighbours, then read the series and the events hanging off everything
+it reached.**
+
+<Figure
+  caption="Six records that mean nothing apart. The alarm and the vibration trace are the same story because both point at K-401; the lube work order joins them because LUBE-12 is part of K-401. An agent asked what is happening to the compressor reaches all six through the graph, in one walk, and can say which of them belong together."
+  wide
+>
+  <AgentGraphJoin />
+</Figure>
+
+In DataHub's tools that walk is `resource_search` to find the thing,
+[`resource_fetch_related` or `resource_fetch_nearest`](/using/mcp#what-datahub-exposes) to
+step outward, then `timeseries_fetch_datapoints` and `event_filter` over what came back.
+Each example below names what its own graph holds, because that is the part you build and
+the part that decides whether the story works, and what stays human, because that boundary
+is what most descriptions leave out.
+
+### Oil and gas: the facility that keeps working while nobody is aboard
+
+**The scene.** It is 02:40 and there is no one on the platform. Vibration on the export
+compressor drifts three per cent outside its envelope for this duty. By the time the onshore
+control room opens, there is a draft work order naming the bearing, a parts check saying the
+spare is in stock at the supply base, a permit draft with the isolations the model says are
+required, and a proposed slot in the vessel schedule two days out, when the weather window
+holds. A four-legged robot has already walked to the flange and confirmed the temperature by
+thermal camera.
+
+**Why it is possible now.**
+[Normally unmanned installations](https://en.wikipedia.org/wiki/Normally_unmanned_installation)
+already operate with no permanent crew, inspection robots and drones already walk and fly
+industrial sites, and fibre-optic acoustic sensing can locate a leak to the metre. None of
+that is new. What was missing was the connective tissue: a machine-readable answer to *what
+is this, what does it feed, what did it do last month, and who needs to know*.
+
+**In the graph.** Resources: the compressor, its lube system and driver, the export line,
+the supply base and its stock items. Relationships: `HAS_PART`, `FEEDS`, `LOCATED_AT`. Time
+series: vibration, bearing temperature, discharge pressure, lube oil pressure. Events: work
+orders, alarms, inspections, permit records. Files: the datasheet and the last inspection
+report, attached to the equipment they describe.
+
+**The walk.** The agent wakes on a [subscription](/using/subscriptions) rather than a
+schedule, so it sees the drift as it happens. It resolves the compressor, steps outward one
+hop to the lube system, the driver and the export line, and pulls the series hanging off all
+four, which is how the lube oil pressure ends up in an investigation that started on
+vibration. It filters events on the same set of resources over the past year, and finds the
+two earlier excursions and the lube service that preceded one of them. The chain it drafts
+is the traversal it walked, so every claim names the node it came from. Then it stops.
+
+**What stays human.** Approving the work, the permit and the isolation. The agent removes the
+two days of coordination between a decision and the work, not the decision.
+
+**What it needs from you.** The `FEEDS` edge, above everything. An agent that knows the
+compressor's vibration is high has found a maintenance job; an agent that knows the
+compressor feeds the export line has found deferred production, and those two findings go to
+different people with different urgency. The difference between them is one relationship in
+the graph.
+[Digital twin →](/concepts/digital-twin)
+
+### Wind: the turbine losing money without ever raising an alarm
+
+**The scene.** It is a November night and WTG-A07 has been producing four per cent below the
+turbines sharing its wind for nine days. It has not faulted, it has not alarmed, and against
+its own history it looks entirely normal. By morning there is a note: 120 MWh gone, more than
+a vessel trip costs, the gap tracks nacelle temperature rather than pitch, and there are
+three other open jobs on the same string that could go out on the same sailing, in Thursday's
+weather window.
+
+**Why it is possible now.** Turbine data has been arriving at ten-minute resolution for
+twenty years and power-curve comparison is textbook. The reason this loss usually goes
+unnoticed is not analytical, it is that
+<span className="t-accent">underperformance only exists as a comparison</span>, and the
+comparison is only valid between turbines that saw the same wind. Answering *which turbines
+are comparable* is a question about topology, not about signals.
+
+<Figure
+  caption="Plotted against itself, A07 is unremarkable, which is why no alarm fired. Plotted against the four turbines on its own string, it has been four per cent down for nine days. The string is the part the graph supplies: without it there is no denominator, and the loss is simply invisible."
+  wide
+>
+  <WindPeerComparison />
+</Figure>
+
+**In the graph.** Resources: turbines, gearboxes, converters, the string each sits on, the
+substation, the export cable, the met mast, the offtake agreement. Relationships: `HAS_PART`,
+`CONNECTED_TO`, `SAME_MODEL_AS`, `EXPORTS_VIA`. Time series: power, wind speed and direction,
+nacelle temperature, pitch angle, vibration, the curtailment setpoint. Events: stops, alarms,
+service visits, curtailment instructions, vessel movements.
+
+**The walk.** The agent resolves WTG-A07, steps to its string and collects the turbines on
+it, which is the graph answering "who saw the same wind", then reads power and wind series
+for the whole set over one window. The 4 per cent only appears at this point, because it does
+not exist in any single series. It filters events across the same set to rule out the honest
+explanations, a curtailment instruction is a grid decision rather than a fault, then calls
+[`analysis_related_series`](/using/mcp#the-second-server-statistics-as-a-tool) to see what
+the gap actually tracks. It closes by finding the other open jobs on the same string, because
+the cost that matters is the sailing, not the repair.
+
+**What stays human.** Sending the vessel, and accepting or challenging a curtailment. The
+agent's contribution is that the trip carries four jobs instead of one.
+
+**What it needs from you.** The string topology and the model labels. This is the example
+where the graph is not a convenience but the entire measurement: without knowing which
+turbines are comparable, every turbine looks fine against itself, which is exactly how a
+fleet loses production quietly for a year.
+
+### Shipping: the fleet that reports its own fuel and carbon
+
+**The scene.** Quarterly close. Instead of a spreadsheet assembled from noon reports, there
+is a figure per vessel with the voyages behind it, the two vessels driving most of the
+liability, and one line that pays for the whole exercise: MV-Nord is burning six per cent
+more than its sister on the same route, the gap opened gradually, and the last hull cleaning
+was 240 days ago. The payback arithmetic at the current fuel and allowance price is attached.
+
+**Why it is possible now.** Carbon is priced for shipping in Europe and fuel-intensity limits
+now apply, so emissions moved from a reporting chore to a line in the accounts, and everyone
+suddenly needs figures they can defend. The consumption, shaft power and speed data has been
+logged for years. What was missing is the same thing as in the wind example: knowing which
+vessels are comparable, and which event explains a drift.
+
+**In the graph.** Resources: vessels, main and auxiliary engines, voyages, port calls,
+charter parties, bunker deliveries. Relationships: `SISTER_OF`, `POWERED_BY`, `CALLED_AT`,
+`CHARTERED_UNDER`. Time series: fuel flow, shaft power, speed over ground, draught, slip.
+Events: port calls, bunkering, dry dock, hull cleaning, off-hire, deviations.
+
+**The walk.** The agent resolves the vessel, steps along `SISTER_OF`, keeps the voyages on
+the same route and season, and compares consumption per tonne-mile across them. Then it does
+the thing a spreadsheet cannot: it filters events on each vessel for what would explain a
+drift, and finds that the two performing well were cleaned within the last hundred days. The
+reporting half is the same walk in reverse, summing by vessel over the period, where each
+figure can be opened up into the voyages and bunker events it was built from.
+
+<Figure
+  caption="Three vessels of the same design on the same route, so the differences between them mean something. The traces are time series and the dots are events, and the answer needs both: the gap says which vessel to look at, the cleaning date says why, and the pair together turn an observation into a decision with a payback attached."
+  wide
+>
+  <VesselSisters />
+</Figure>
+
+**What stays human.** The commercial call. Taking a vessel off hire to clean a hull, or
+slow-steaming against a charter obligation, is a contract decision with a number attached,
+and the number is the only part an agent should be producing.
+
+**On the compliance half, honestly.** [Lineage](/concepts/lineage-and-quality) is not shipped,
+so a submission does not carry its own ancestry automatically. An agent can cite every id and
+timestamp it used, which is enough for an internal audit trail and is what you should insist
+on, but the assembled evidence is the agent's work rather than the platform's guarantee.
+
+### Data centres: what actually breaks when one chiller trips
+
+**The scene.** 14:20, CHILLER-02 trips. Within a minute the operations channel has the 38
+racks that depend on it, the six with no second cooling path, the tenants sitting behind
+those six, and a note that two of them already ran hot in July. Later the same week, the
+quieter answer that is worth more money: 210 kW of capacity is stranded behind a single PDU,
+in a building everyone believes is full.
+
+**Why it is possible now.** Rack-level power and inlet temperature are already metered on
+every modern floor. The dependency chain, which rack is cooled by which unit, on which loop,
+backed by which chiller, and powered through which PDU from which UPS, also exists, but it
+exists in single-line drawings and in the heads of three people. Written down as edges, *what
+fails if this fails* stops being a fire drill and becomes one traversal.
+
+**In the graph.** Resources: racks, PDUs, UPSs, generators, cooling units, loops, chillers,
+rooms, tenants. Relationships: `POWERED_BY`, `COOLED_BY`, `FEEDS`, `LOCATED_IN`, `SERVES`.
+Time series: rack kW, inlet and outlet temperature, delta-T, chiller load, facility power.
+Events: thermal excursions, maintenance, failovers, moves and installs.
+
+**The walk.** The agent resolves the chiller and walks *downstream* through `FEEDS` and
+`COOLED_BY` to every loop, unit, room and rack that depends on it, which is the blast radius
+in the [knowledge graph](/concepts/knowledge-graph) sense. It reads inlet temperature and
+rack kW on everything it reached, counts which racks have a second `COOLED_BY` edge and which
+do not, and filters events for the ones with a history of running hot. Capacity is the same
+graph with different arithmetic: sum rack kW under each PDU against its rating, and the
+stranded capacity falls out as a traversal rather than a survey.
+
+<Figure
+  caption="Each hop is one step outward in the graph, and the answer is the set of things the walk reached. Redundancy is visible in the same picture: a rack group with a second incoming path survives, the six without it do not, and that distinction exists only because somebody wrote the second edge down."
+  wide
+>
+  <BlastRadiusCooling />
+</Figure>
+
+**What stays human.** Load shedding, and anything said to a tenant. The agent produces the
+list and the ranking; committing to a customer is a commercial act.
+
+**What it needs from you.** The power and cooling topology as relationships rather than as
+drawings. It is the least glamorous modelling job on this page and the one with the shortest
+payback, because the same edges answer the outage question and the capacity question, and the
+second one usually releases megawatts somebody was about to spend a building on.
+
+### Defence: a readiness answer in minutes rather than a week of staff work
+
+**The scene.** A commander asks whether the squadron can sustain a fourteen-day deployment
+starting Thursday. Twenty minutes later there is an answer with its working attached: eleven
+of fourteen airframes available, two gated by the same part with a nine-day lead time, one by
+a scheduled inspection that could be brought forward, and a note that the fuel bowser fleet
+at the forward base has a serviceability trend that will bite in the second week.
+
+**Why it is possible now.** Nothing here is a new capability, it is arithmetic over records
+that already exist in maintenance systems, supply systems and usage logs, in different
+formats, held by different units. Fleet readiness, sustainment and predictive maintenance
+are the defence versions of exactly the industrial problem this platform exists for: many
+assets, long lives, heavy compliance, and answers currently assembled by hand.
+
+**In the graph.** Resources: each airframe, its engines and subsystems, the units they are
+assigned to, the parts and the depots holding them. Relationships: `HAS_PART`,
+`ASSIGNED_TO`, `SUPPLIED_BY`. Time series: airframe and engine hours, cycles, fuel burn,
+serviceability by day. Events: faults, scheduled inspections, part fitments and removals,
+requisitions.
+
+**The walk.** The agent resolves the squadron, steps down to its airframes and from each
+airframe to its subsystems, reads the hours series on every node it reached against the
+inspection interval, then filters events for open faults and outstanding requisitions on the
+same set. *"Are we ready?"* becomes a list of the specific nodes that gate readiness, each
+one traceable to the airframe it sits under. The same walk covers base infrastructure,
+power, water and fuel, which is where availability quietly fails.
+
+<Figure
+  caption="Eleven of fourteen is a number any system can produce. The useful part is the lower half: two of the three grounded airframes are waiting on the same part, so one requisition returns both. That convergence exists in the graph and nowhere else, because it is a fact about two aircraft at once rather than about either of them."
+  wide
+>
+  <ReadinessGate />
+</Figure>
+
+**What stays human, and firmly.** Every decision about force. This is a data platform: it
+answers questions about equipment, supply and readiness, and its agents draft logistics and
+maintenance work. Decisions with a human consequence stay with the accountable commander,
+under the rules of engagement, with the agent's evidence in front of them, not behind them.
+The audit trail matters more here than anywhere else on this page, which is why the
+[event log](/using/events) is the non-negotiable part of the design.
+
+**What it needs from you.** One stable identity per asset across the maintenance, supply
+and usage systems, so that the hours, the fault and the requisition land on the *same* node
+rather than three near-duplicates. Readiness answers fail on external ids far more often
+than on analytics.
+[External ids are promises →](/concepts/naming-and-standards#external-ids-are-promises)
+
+### Markets: the analyst who has read everything before the opening bell
+
+**The scene.** A results release lands at 06:59. By 07:04 there is a note on the desk: what
+changed against guidance, which of the three premises behind the current position it
+supports and which it undermines, the two suppliers in the portfolio whose revenue depends
+on that company's capital programme, and the sentence in the transcript that moved the view,
+quoted with a link.
+
+**Why it is possible now.** Reading everything, the moment it is published, is the thing
+models are unambiguously better at than people. The hard part was never reading, it was
+knowing what connects to what: that this issuer supplies that one, that this fund holds
+both, that a covenant in a document from four years ago is the reason a ratio matters.
+
+**In the graph.** A market model is the same four building blocks in different clothes.
+Resources: issuers, instruments, funds, contracts. Relationships: `SUPPLIES`, `OWNED_BY`,
+`COMPETES_WITH`, `SUBSIDIARY_OF`. Time series: prices, volumes, reported fundamentals, the
+operating metrics behind them. Events: filings, results releases, halts, dividends, rating
+changes. Files: the prospectus and the transcript, attached to the issuer they belong to.
+
+**The walk.** The filing arrives as an event on one issuer. The agent steps outward along
+`SUPPLIES` and `OWNED_BY` to the neighbours that matter, which is how a result at one
+company reaches the two suppliers in the portfolio, and reads the price and fundamentals
+series on all of them for the same window. The covenant that makes a ratio matter is a file
+on a node it already walked past. Nothing here required the agent to guess what connects to
+what, which is the step that normally goes wrong.
+
+<Figure
+  caption="The filing is an event on one node. Everything the desk actually needs is a step away from it, and every node the step reaches carries its own price and fundamentals, which is how one arrival at 06:59 becomes five things worth reading rather than one headline worth repeating."
+  wide
+>
+  <IssuerNeighbourhood />
+</Figure>
+
+For an industrial operator there is a second, nearer version of this: your own production,
+throughput and downtime are the numbers your finance function reforecasts on, and today they
+usually arrive late and by spreadsheet.
+
+**What stays human.** The position. An agent that assembles evidence and flags a broken
+premise is a research analyst who never sleeps, not a decision maker, and a sourced note is
+what makes that distinction enforceable rather than aspirational.
+
+**The failure mode specific to this domain.** A confident, unsourced number is worse than no
+number, because it will be acted on. Insist that every figure carries its origin, and treat
+an agent that cannot show where a number came from as broken rather than fast.
+
+### Healthcare: the ward round that starts with the whole picture
+
+**The scene.** Before the round begins, each patient has a one-page brief: the observations
+trend rather than the last reading, the results that arrived overnight, what changed since
+the last round, and the two things the model flags as diverging from the expected course.
+Meanwhile the biomedical engineering team gets its own brief: the infusion pump fleet due
+for calibration, the imaging suite whose helium boil-off rate has drifted, and the
+ventilator that has logged three self-test warnings this week.
+
+**Why it is possible now.** Continuous vitals are already time series, and early-warning
+scoring on them is long-established clinical practice. Assembling the picture is the part
+that consumes clinician time, and it is exactly the assembly problem an agent over a
+connected model is good at.
+
+**In the graph.** Take the equipment half, which is the part available today. Resources:
+each pump, ventilator and scanner, the ward or theatre it is deployed in, the service
+contract covering it. Relationships: `DEPLOYED_IN`, `HAS_PART`, `COVERED_BY`. Time series:
+helium boil-off, self-test results, run hours, utilisation. Events: faults, calibrations,
+services, recalls.
+
+**The walk.** The agent resolves the ward, steps outward to every device deployed in it,
+reads the run hours and self-test series on each, filters events for calibrations coming due
+and faults logged this week, and ranks by what will stop a list running. It is the same walk
+as the compressor, on a different kind of plant.
+
+<Figure
+  caption="Ward outward to its devices, then the series and the events hanging off each one. The box at the bottom matters as much as the ones above it: patient records are modelled apart, with nothing linking them to the equipment, so a question that starts on a pump has no route to them."
+  wide
+>
+  <WardDevices />
+</Figure>
+
+**The honest split.** The second half of that scene, the equipment fleet, is the industrial
+use case in a hospital: assets, maintenance, uptime, calibration, compliance. It is
+available today and carries no regulatory burden beyond your normal quality system. The
+first half, anything that informs a clinical decision, is
+<span className="t-accent">regulated as a medical device in most jurisdictions</span>. That
+is not a reason to avoid it, it is a reason to plan for clearance, clinical validation and a
+clinician in the loop from the first design meeting rather than discovering it after a pilot.
+
+**What stays human.** Every clinical decision, without qualification. The agent's job is to
+make sure the person deciding has the whole picture, and to be explicit about what it could
+not find.
+
+**What it needs from you.** Modelling discipline of the same kind an industrial plant
+needs, applied to beds, devices, theatres and pathways, plus one design decision that is
+easy to get wrong. A question is checked at the point where it starts, and from there it
+follows the links it finds, so
+<span className="t-accent">anything joined to the equipment is reachable from an equipment
+question</span>. If patient records should be out of reach of one, the answer is not to
+label them differently, it is not to link them.
+[The rule, in detail →](/administration/dataset-permissions#graph-traversal-is-gated-on-the-starting-node-only)
+
+### What they all have in common
+
+| Industry | The walk | What joins the records | What stays human |
+| --- | --- | --- | --- |
+| **Oil and gas** | Compressor outward to what it feeds | `FEEDS`, `HAS_PART` | Approving the work |
+| **Wind** | Turbine outward to the string sharing its wind | `CONNECTED_TO`, `SAME_MODEL_AS` | Sending the vessel |
+| **Shipping** | Vessel across to its sisters and their voyages | `SISTER_OF`, `CALLED_AT` | The commercial call |
+| **Data centres** | Chiller downstream to everything depending on it | `COOLED_BY`, `POWERED_BY` | Load shedding |
+| **Defence** | Squadron down to airframes and subsystems | `HAS_PART`, `ASSIGNED_TO` | Every decision about force |
+| **Markets** | Issuer outward to suppliers and holders | `SUPPLIES`, `OWNED_BY` | The position |
+| **Healthcare** | Ward outward to its devices | `DEPLOYED_IN` | Every clinical decision |
+
+The middle two columns are the same column seven times. Every one of these agents begins by
+resolving a single node and stepping outward, and everything it then reads, the series and
+the events alike, is reached *through* that step rather than looked up separately. Change the
+relationship names and the industry changes; the walk does not.
+
+Three of them, wind, shipping and data centres, make an additional point worth stating on its
+own: <span className="hl">the finding does not exist in any single series</span>. A turbine
+four per cent down, a vessel six per cent heavy and a rack with no second cooling path are
+all comparisons, and a comparison is only valid between things the model says are comparable.
+That is not analytics riding on top of a graph, it is analytics that cannot be done without
+one.
+
+Which is why the last question is always the same: in every case, the thing standing between
+the organisation and the capability is
+<span className="hl">a description of its own operation</span>, not the AI. That is the whole
+argument of this documentation, arriving from a different direction.
+
+## Agents that improve the data itself
+
+So far an agent has been something that answers questions. The other half of the job is
+quieter and worth more over time: <span className="hl">work that leaves the data better than
+it found it</span>, so every model and every agent afterwards starts from a better position.
+Each of these is its own topic, with its own page; what follows is what an agent contributes
+to each.
+
+### Cleaning
+
+Bad data does not announce itself, and an agent reasoning over it produces a confident,
+well-sourced answer that happens to be wrong. Detection has to run continuously because data
+keeps arriving, and the judgement involved suits a model: *does this reading make sense given
+everything else happening right now?* An agent fed by [subscription](/using/subscriptions)
+sees each reading as it lands, compares it against everything the graph says is related, and
+**raises a typed event rather than quietly rewriting anything**. Raw stays raw, and the
+correction is itself a record.
+[Data cleaning, and the rules that keep a correction honest →](/concepts/data-cleaning)
+
+### Finding features
+
+A feature is a number that means something, and finding good ones has historically been a
+specialist project measured in months. An agent can run that loop continuously: propose
+candidates, compute them over history, test each against what actually happened, discard the
+ones that predicted nothing, and write the survivors back as ordinary series. The test data is
+already there, because your [events](/using/events) are a labelled record of outcomes attached
+to the equipment they happened to.
+[Feature extraction, and why the event log is a training set →](/concepts/feature-extraction)
+
+### Generating what you do not have
+
+The failure you most want to predict is usually the one you have barely seen, and no method
+learns a pattern from three examples. An agent can generate the missing cases from a physics
+model or a [digital twin](/concepts/digital-twin), retrain, and measure whether the model
+actually improved against real held-out examples, recording what it tried. The discipline
+matters more than the technique: generated data lives in its own labelled data set, and
+validation happens only on what was measured.
+[Synthetic data, and the separation rules →](/concepts/synthetic-data)
+
+Taken together, the three make a straightforward argument: an agent that cleans, features and
+augments is not doing preparatory work for the real project.
+<span className="t-accent">It is compounding the asset the whole platform exists to
+build.</span>
+
+## Being honest about what is not here yet
+
+Two capabilities would make several of the examples above easier, and both are planned
+rather than shipped. It is worth knowing which parts of a design lean on them.
+
+<Roadmap>
+- **In-platform functions.** Detection logic that runs inside the platform and raises typed
+  events is planned. Today, an agent or an external service does that work, reading by
+  [subscription](/using/subscriptions) and writing results back as events.
+  [Functions →](/using/functions)
+- **Lineage.** The ancestry of a derived number is not tracked yet, so an agent can cite the
+  values it used but not, automatically, where those values came from. For regulated
+  reporting that matters, and it is the qualifier to keep in mind when an agent's output is
+  destined for a submission. [Lineage and data quality →](/concepts/lineage-and-quality)
+</Roadmap>
+
+Everything else on this page, the tools, the permissions, the live input, the event log, is
+available today.
+
+## Where to go next
+
+<Steps>
+  <Step title="Connect an assistant and ask it something hard">
+    Twenty minutes, no code. If the answer is thin, it is usually the model of your operation
+    talking, which is useful information on its own. [Using MCP →](/using/mcp)
+  </Step>
+  <Step title="Build the read-only briefing agent">
+    Cheap to be wrong, easy to judge, and it exercises the graph, the series and the events
+    in one go.
+  </Step>
+  <Step title="Give it a narrow write grant">
+    Findings recorded as events, so the work compounds instead of evaporating each morning.
+  </Step>
+  <Step title="Only then consider agents that act">
+    Control, dosing, scheduling, dispatch, with explicit limits, logged actions and a person
+    accountable for each approval.
+  </Step>
+</Steps>
+
+<References>
+
+- [Intelligent agent](https://en.wikipedia.org/wiki/Intelligent_agent)
+- [Large language model](https://en.wikipedia.org/wiki/Large_language_model)
+- [Human-in-the-loop](https://en.wikipedia.org/wiki/Human-in-the-loop)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [Normally unmanned installation](https://en.wikipedia.org/wiki/Normally_unmanned_installation)
+- [Predictive maintenance](https://en.wikipedia.org/wiki/Predictive_maintenance)
+- [Early warning score](https://en.wikipedia.org/wiki/Early_warning_score)
+- [Wind turbine power curve](https://en.wikipedia.org/wiki/Wind_turbine_design#Power_control)
+- [EU Emissions Trading System](https://en.wikipedia.org/wiki/European_Union_Emissions_Trading_System)
+- [Hull fouling](https://en.wikipedia.org/wiki/Biofouling)
+- [Power usage effectiveness](https://en.wikipedia.org/wiki/Power_usage_effectiveness)
+
+</References>
+
+<Deeper>
+- [Using MCP](/using/mcp): the tools an agent connects through, and how access is decided
+- [AI agents](/value/ai-agents): the strategic case, the organisation of agents, and where this is heading
+- [Building applications](/using/building-applications): the same foundation, without a model deciding the steps
+- [Data subscriptions](/using/subscriptions): waking an agent on a reading instead of a timer
+- [Events](/using/events): the record that makes an agent's work auditable and reusable, and the labels a model trains against
+- [What is machine learning?](/concepts/machine-learning): the methods an agent's models are made of, in plain language
+- [Data cleaning](/concepts/data-cleaning), [feature extraction](/concepts/feature-extraction) and [synthetic data](/concepts/synthetic-data): the three pieces of data work agents take on
+- [Digital twin](/concepts/digital-twin): the model an unmanned operation is run through
+- [Users and access](/administration/users-and-access#service-accounts): the account an agent should run as
+</Deeper>

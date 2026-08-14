@@ -20,14 +20,9 @@ you three things about each: **how strongly** they are related, **which one lead
 No statistics background needed. Every result is labelled in plain language.
 </KeyIdea>
 
-<Roadmap>
-**Relationship analysis is on the roadmap.** The analysis itself is implemented, in a
-separate service that the console's Analyze tab calls directly, but that service is not part
-of the standard deployment yet, so the tab has nothing to call on a default install.
-
-The measures described below are real and worth understanding, because they shape how the
-feature will be used once it ships.
-</Roadmap>
+The analysis runs in a separate service that the console's Analyze tab calls directly, and
+that service is part of the standard deployment. The same analysis is available to agents as
+an [MCP tool](/using/mcp#the-second-server-statistics-as-a-tool).
 
 ## What it is for
 
@@ -49,10 +44,14 @@ Three situations where it earns its keep:
   is [contextualization](/concepts/contextualization), how a finding here becomes part of
   the model rather than a note in a report.
 
-The console is not the only caller. The same analysis is offered to
-[AI agents](/value/ai-agents#how-an-agent-actually-connects) as a tool, and the console's
-assistant calls it when asked a cause or influence question, so an agent's answer rests on
-the statistics this page describes rather than on an estimate from raw numbers.
+The console is not the only caller. The same analysis is offered to AI agents as a tool of
+its own, `analysis_related_series`, so an agent asked a cause or influence question can rest
+its answer on the statistics this page describes rather than on an estimate from raw
+numbers. [The analysis server →](/using/mcp#the-second-server-statistics-as-a-tool)
+
+The console's [assistant](/using/mcp#the-console-assistant-mcp-with-nothing-to-set-up) also
+knows about this screen, and can offer a button that opens the Analyze tab on the same
+series and window it just discussed.
 
 ## Running it
 
@@ -190,6 +189,7 @@ warning. Without this, the same conclusion is weeks of exporting and correlating
 </References>
 
 <Deeper>
+- [What is machine learning?](/concepts/machine-learning): when a learned model is the better tool than a statistical one
 - [AI agents](/value/ai-agents#how-an-agent-actually-connects): the same analysis, offered to an agent as a tool
 - [Insights](/using/insights): charting and comparing the series you find
 - [Functions](/using/functions): turning a confirmed relationship into a computation that keeps running

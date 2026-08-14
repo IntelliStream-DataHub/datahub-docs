@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" class="fig-synthetic-measured" role="img" aria-label="Two timelines. The measured one holds three examples of a failure in ten years. The synthetic one holds hundreds, generated from a model of how the failure develops. Below, the two rules: train on both, test only on measured, and keep them in separate data sets.">
+<text class="fig-title" x="20" y="24">The failures you most want to predict are the ones you have barely seen</text>
+<text class="fig-sub" x="20" y="44">Nothing learns a pattern from three examples. Generating more is how that stops being a dead end.</text>
+<text class="fig-box-title" x="20" y="96">Measured</text>
+<text class="fig-box-sub" x="20" y="114">ten years of real history</text>
+<text class="fig-box-title" x="400" y="96">Synthetic</text>
+<text class="fig-box-sub" x="400" y="114">generated from how the failure develops</text>
+<line class="fig-track" x1="20" y1="152" x2="350" y2="152"/>
+<line class="fig-track" x1="400" y1="152" x2="740" y2="152"/>
+<circle class="fig-dot-b" cx="78" cy="152" r="6"/>
+<circle class="fig-dot-b" cx="191" cy="152" r="6"/>
+<circle class="fig-dot-b" cx="296" cy="152" r="6"/>
+<circle class="fig-dot-a" cx="406.0" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="414.0" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="415.0" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="426.4" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="429.5" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="434.4" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="444.9" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="445.3" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="455.0" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="461.1" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="463.3" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="474.9" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="476.5" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="483.4" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="492.5" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="493.0" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="503.9" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="508.1" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="511.9" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="523.0" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="523.7" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="532.4" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="539.7" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="541.1" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="552.6" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="555.1" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="560.7" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="570.8" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="571.2" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="581.4" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="586.8" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="589.5" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="601.0" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="602.2" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="609.8" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="618.2" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="619.0" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="630.2" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="633.7" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="638.2" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="649.0" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="649.5" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="658.8" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="665.4" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="667.2" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="678.8" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="680.7" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="687.1" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="696.6" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="697.1" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="707.7" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="712.4" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="715.7" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="727.0" cy="143" r="4"/>
+<circle class="fig-dot-a" cx="727.9" cy="161" r="4"/>
+<circle class="fig-dot-a" cx="736.2" cy="143" r="4"/>
+<text class="fig-box-sub" x="20" y="192">three examples, and two of them were logged differently</text>
+<text class="fig-box-sub" x="400" y="192">as many as the training needs, with the conditions varied</text>
+<rect class="fig-exit-box" x="20" y="228" width="720" height="72" rx="14"/><text class="fig-exit-title" x="40" y="254">Train on both. Test only on what was actually measured.</text><text class="fig-exit-sub" x="40" y="274">Keep the generated data in its own data set, labelled, so the two can never be confused later,</text><text class="fig-exit-sub" x="40" y="290">by a person, by a report, or by the next model that comes looking for training data.</text>
+</svg>

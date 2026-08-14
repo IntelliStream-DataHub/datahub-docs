@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" class="fig-feature-flywheel" role="img" aria-label="Four stages in a loop: the series you have, a candidate feature, a test against the events, and the feature kept as a new series. An arc returns from the last stage to the first, because a kept feature becomes an input for the next lap.">
+<text class="fig-title" x="20" y="24">Every kept feature makes the next one easier to find</text>
+<text class="fig-sub" x="20" y="44">A feature is a number that means something. Finding one used to be a specialist project.</text>
+<rect class="fig-box" x="20" y="96" width="172" height="68" rx="12"/><text class="fig-box-title" x="106" y="124" text-anchor="middle">The series you have</text><text class="fig-box-sub" x="106" y="142" text-anchor="middle">and every feature kept before</text>
+<path class="fig-exit-path fig-flow" d="M192 130 L221 130" fill="none"/>
+<path class="fig-centre" d="M221 125.0 L232 130.0 L221 135.0 z"/>
+<rect class="fig-box" x="232" y="96" width="168" height="68" rx="12"/><text class="fig-box-title" x="316" y="124" text-anchor="middle">A candidate feature</text><text class="fig-box-sub" x="316" y="142" text-anchor="middle">proposed and computed</text>
+<path class="fig-exit-path fig-flow" d="M400 130 L429 130" fill="none"/>
+<path class="fig-centre" d="M429 125.0 L440 130.0 L429 135.0 z"/>
+<rect class="fig-box" x="440" y="96" width="160" height="68" rx="12"/><text class="fig-box-title" x="520" y="124" text-anchor="middle">Does it predict?</text><text class="fig-box-sub" x="520" y="142" text-anchor="middle">tested against the events</text>
+<path class="fig-exit-path fig-flow" d="M600 130 L629 130" fill="none"/>
+<path class="fig-centre" d="M629 125.0 L640 130.0 L629 135.0 z"/>
+<rect class="fig-lit-box c-blue" x="640" y="96" width="100" height="68" rx="12"/><text class="fig-lit-title" x="690" y="124" text-anchor="middle">Kept</text><text class="fig-lit-sub" x="690" y="142" text-anchor="middle">as a new series</text>
+<path class="fig-exit-path fig-flow" d="M690 164 L690 228 L106 228 L106 175" fill="none"/>
+<path class="fig-centre" d="M101 175 L106 164 L111 175 z"/>
+<text class="fig-box-sub" x="390" y="248" text-anchor="middle">and the next lap starts with one more thing worth looking at</text>
+<text class="fig-sub" x="20" y="288">The test is the part that keeps it honest: a feature is kept because it predicted something,</text>
+<text class="fig-sub" x="20" y="306">not because it looked clever. The events are what it is tested against.</text>
+</svg>

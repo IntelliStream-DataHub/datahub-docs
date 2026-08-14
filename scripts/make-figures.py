@@ -1889,6 +1889,1697 @@ def aliasing_illusion():
 
 
 
+# ------------------------------------------------------------ mcp one protocol
+def mcp_one_protocol():
+    """Bespoke integrations against one shared protocol. THEMED.
+
+    Static, because the reader compares the two panels: the argument IS the
+    line count. The only motion is fig-flow on the right-hand connectors, the
+    same device subscription_flow uses to mark the lane that works.
+    """
+    bw, bh = 104, 34
+    rows = (100, 150, 200)                       # box tops, both panels
+    mids = [y + bh / 2 for y in rows]
+    clients = ("Assistant", "Agent", "Copilot")
+    systems = ("DataHub", "CMMS", "Historian")
+
+    def box(x, y, label, w=bw):
+        return (f'<rect class="fig-box" x="{x}" y="{y}" width="{w}" height="{bh}" rx="10"/>'
+                f'<text class="fig-box-sub" x="{x + w / 2:.0f}" y="{y + 21}" '
+                f'text-anchor="middle">{label}</text>')
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" '
+        'class="fig-mcp-one-protocol" role="img" aria-label="Two panels. On the '
+        'left, three AI clients each wired to three systems by a separate '
+        'integration, nine lines in total. On the right, the same three clients '
+        'and three systems connected through one shared protocol in the middle, '
+        'six connections and none of them bespoke.">',
+        '<text class="fig-title" x="20" y="24">One protocol instead of one integration per pair</text>',
+        '<text class="fig-sub" x="20" y="44">Any client that speaks MCP can use any system that '
+        'serves it. The system’s owner writes the server once.</text>',
+        '<text class="fig-box-title" x="185" y="78" text-anchor="middle">Before: bespoke each time</text>',
+        '<text class="fig-box-title" x="575" y="78" text-anchor="middle">With a shared protocol</text>',
+    ]
+
+    # ---- left panel: 3 x 3 bespoke connectors
+    lx_sys = 246                                  # 246 + 104 = 350, the panel edge
+    for cy in mids:
+        for sy in mids:
+            p.append(f'<line class="fig-track" x1="{bw + 20}" y1="{cy:.0f}" '
+                     f'x2="{lx_sys}" y2="{sy:.0f}"/>')
+    for y, label in zip(rows, clients):
+        p.append(box(20, y, label))
+    for y, label in zip(rows, systems):
+        p.append(box(lx_sys, y, label))
+    p.append('<text class="fig-box-sub" x="185" y="266" text-anchor="middle">'
+             '3 clients × 3 systems = 9 integrations to write and maintain</text>')
+    p.append('<text class="fig-box-sub" x="185" y="284" text-anchor="middle">'
+             'add a fourth system and you write three more</text>')
+
+    # ---- right panel: everything through one protocol
+    rx_cli, bar_x, bar_w, rx_sys = 410, 548, 68, 650
+    p.append(f'<rect class="fig-centre" x="{bar_x}" y="{rows[0]}" width="{bar_w}" '
+             f'height="{rows[-1] + bh - rows[0]}" rx="14"/>')
+    p.append(f'<text class="fig-centre-title" x="{bar_x + bar_w / 2:.0f}" y="{mids[1] + 5:.0f}" '
+             f'text-anchor="middle">MCP</text>')
+    for y, cy in zip(rows, mids):
+        p.append(f'<path class="fig-exit-path fig-flow" d="M{rx_cli + bw} {cy:.0f} '
+                 f'L{bar_x} {cy:.0f}" fill="none"/>')
+        p.append(f'<path class="fig-exit-path fig-flow" d="M{bar_x + bar_w} {cy:.0f} '
+                 f'L{rx_sys} {cy:.0f}" fill="none"/>')
+    for y, label in zip(rows, clients):
+        p.append(box(rx_cli, y, label))
+    for y, label in zip(rows, systems):
+        p.append(box(rx_sys, y, label, w=90))
+    p.append('<text class="fig-box-sub" x="575" y="266" text-anchor="middle">'
+             '3 clients + 3 systems = 6 connections, none of them bespoke</text>')
+    p.append('<text class="fig-box-sub" x="575" y="284" text-anchor="middle">'
+             'add a fourth system and it serves every client on day one</text>')
+
+    p.append('<text class="fig-sub" x="20" y="316">DataHub sits on the right-hand side: it '
+             'publishes its tools once, and an assistant, an agent</text>')
+    p.append('<text class="fig-sub" x="20" y="334">you wrote or a coding tool all reach them the '
+             'same way, with nothing written for any one of them.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ---------------------------------------------------------------- mcp call path
+def mcp_call_path():
+    """What one MCP call passes through. THEMED, animated.
+
+    Motion earns its place here: this is a request travelling, not a comparison.
+    fig-flow marches along every hop, and the four checks inside the gate reveal
+    in sequence because they happen in that order, before any tool body runs.
+    """
+    row_y, row_h = 96, 52
+    mid = row_y + row_h / 2
+    gate_x, gate_w, gate_y, gate_h = 344, 176, 64, 132
+    tool_x, tool_w, tool_h = 560, 180, 36
+    tool_rows = (64, 110, 156)
+
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" '
+        'class="fig-mcp-call-path" role="img" aria-label="A question travels from '
+        'a person to an agent, which makes an MCP call carrying the user’s token. '
+        'The call passes a gate that checks the token signature and issuer, the '
+        'DataHub access role, the organization claim that selects the tenant, and '
+        'the data set grants, before reaching the tools. The answer returns along '
+        'the bottom with the ids and timestamps it used.">',
+        '<text class="fig-title" x="20" y="24">An MCP call is an ordinary authenticated request</text>',
+        '<text class="fig-sub" x="20" y="44">There is no agent door and no agent key. The same '
+        'token, the same checks, in the same order.</text>',
+        f'<text class="fig-box-sub" x="140" y="88" text-anchor="middle">a question</text>',
+        f'<text class="fig-box-sub" x="333" y="88" text-anchor="end">MCP call, carrying your token</text>',
+        f'<text class="fig-box-title" x="650" y="52" text-anchor="middle">37 tools</text>',
+    ]
+
+    # ---- person -> agent -> gate
+    p.append(f'<rect class="fig-box" x="20" y="{row_y}" width="100" height="{row_h}" rx="12"/>'
+             f'<text class="fig-box-title" x="70" y="{row_y + 31}" text-anchor="middle">You</text>')
+    p.append(f'<path class="fig-exit-path fig-flow" d="M120 {mid:.0f} L149 {mid:.0f}" fill="none"/>')
+    p.append(arrow(149, mid))
+    p.append(f'<rect class="fig-lit-box c-blue" x="160" y="{row_y}" width="130" height="{row_h}" rx="12"/>'
+             f'<text class="fig-lit-title" x="225" y="{row_y + 23}" text-anchor="middle">Agent</text>'
+             f'<text class="fig-lit-sub" x="225" y="{row_y + 40}" text-anchor="middle">or assistant</text>')
+    p.append(f'<path class="fig-exit-path fig-flow" d="M290 {mid:.0f} L333 {mid:.0f}" fill="none"/>')
+    p.append(arrow(333, mid))
+
+    # ---- the gate: four checks, in the order they are applied
+    p.append(f'<rect class="fig-centre" x="{gate_x}" y="{gate_y}" width="{gate_w}" '
+             f'height="{gate_h}" rx="12"/>')
+    p.append(f'<text class="fig-centre-title" x="{gate_x + gate_w / 2:.0f}" y="{gate_y + 24}" '
+             f'text-anchor="middle">Before any tool runs</text>')
+    checks = ("signature and issuer", "DATAHUB_ACCESS role",
+              "organization → tenant", "data set grants")
+    for i, check in enumerate(checks):
+        cy = gate_y + 48 + i * 21
+        p.append(f'<g class="fig-seq fig-d{i + 1}">'
+                 f'<circle class="fig-dot-a" cx="{gate_x + 16}" cy="{cy - 4}" r="4"/>'
+                 f'<text class="fig-box-sub" x="{gate_x + 28}" y="{cy}">{check}</text></g>')
+
+    # ---- gate -> the three tools it fans out to
+    for y in tool_rows:
+        ty = y + tool_h / 2
+        p.append(f'<path class="fig-exit-path fig-flow" d="M{gate_x + gate_w} {mid:.0f} '
+                 f'L{tool_x - 11} {ty:.0f}" fill="none"/>')
+        p.append(arrow(tool_x - 11, ty))
+    for y, name in zip(tool_rows, ("resource_fetch_related", "timeseries_fetch_datapoints",
+                                   "event_filter")):
+        p.append(f'<rect class="fig-box" x="{tool_x}" y="{y}" width="{tool_w}" '
+                 f'height="{tool_h}" rx="10"/>'
+                 f'<text class="fig-box-sub" x="{tool_x + tool_w / 2:.0f}" y="{y + 22}" '
+                 f'text-anchor="middle">{name}</text>')
+
+    # ---- and back again, with the evidence attached
+    p.append(f'<path class="fig-exit-path fig-flow" d="M650 {tool_rows[-1] + tool_h} L650 236 '
+             f'L70 236 L70 {row_y + row_h + 11}" fill="none"/>')
+    p.append(f'<path class="fig-centre" d="M65 {row_y + row_h + 11} L70 {row_y + row_h} '
+             f'L75 {row_y + row_h + 11} z"/>')
+    p.append('<text class="fig-box-sub" x="360" y="256" text-anchor="middle">the answer, plus the '
+             'ids, timestamps and values behind it</text>')
+    p.append('<text class="fig-sub" x="20" y="288">A read-only agent is simply one holding a '
+             'read-only token, which is why scoping an agent is</text>')
+    p.append('<text class="fig-sub" x="20" y="306">the same administrative act as scoping any '
+             'other service account, in the same place.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------- agent guardrails
+def agent_guardrails():
+    """The four limits an agent's action passes through. THEMED, animated.
+
+    The boxes stay visible: a reader compares where each limit comes from. Only
+    the connectors march, because the thing that moves here is the proposal.
+    """
+    bw, bh, by = 150, 64, 96
+    xs = (20, 210, 400, 590)
+    mid = by + bh / 2
+    gates = (
+        ("Token scope", "reads only its data sets", "set in your identity provider"),
+        ("Step cap", "stops instead of churning", "set in the agent you build"),
+        ("Human gate", "drafts, never dispatches", "set in your own process"),
+        ("Event log", "every action recorded", "given by the platform"),
+    )
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" '
+        'class="fig-agent-guardrails" role="img" aria-label="A proposal passes '
+        'through four limits in order: the token scope, which lets it read only '
+        'its own data sets; a step cap, which stops it churning; a human gate, '
+        'where it drafts rather than dispatches; and the event log, which records '
+        'every action. The chain ends in autonomy you can audit.">',
+        '<text class="fig-title" x="20" y="24">Four limits between an agent and a mistake</text>',
+        '<text class="fig-sub" x="20" y="44">The first three you set, in three different places. '
+        'The fourth is what makes the other three checkable.</text>',
+    ]
+
+    for i, (x, (title, sub, source)) in enumerate(zip(xs, gates)):
+        if i:
+            p.append(f'<path class="fig-exit-path fig-flow" d="M{x - 40} {mid:.0f} '
+                     f'L{x - 11} {mid:.0f}" fill="none"/>')
+            p.append(f'<path class="fig-centre" d="M{x - 11} {mid - 5:.0f} L{x} {mid:.0f} '
+                     f'L{x - 11} {mid + 5:.0f} z"/>')
+        p.append(f'<rect class="fig-box" x="{x}" y="{by}" width="{bw}" height="{bh}" rx="12"/>'
+                 f'<text class="fig-box-title" x="{x + bw / 2:.0f}" y="{by + 26}" '
+                 f'text-anchor="middle">{title}</text>'
+                 f'<text class="fig-box-sub" x="{x + bw / 2:.0f}" y="{by + 45}" '
+                 f'text-anchor="middle">{sub}</text>')
+        p.append(f'<text class="fig-box-sub" x="{x + bw / 2:.0f}" y="{by + 94}" '
+                 f'text-anchor="middle">{source}</text>')
+
+    # the proposal entering the chain, and the outcome it earns by surviving it
+    p.append(f'<circle class="fig-token fig-pulse" cx="10" cy="{mid:.0f}" r="6"/>')
+    # Drop from the box's right edge, not its centre: the centre line would strike
+    # through the "given by the platform" caption sitting directly under the box.
+    p.append(f'<path class="fig-exit-path fig-flow" d="M{xs[-1] + bw} {by + bh} '
+             f'L{xs[-1] + bw} 249 L541 249" fill="none"/>')
+    p.append('<path class="fig-centre" d="M541 244 L530 249 L541 254 z"/>')
+    p.append('<rect class="fig-exit-box" x="230" y="222" width="300" height="54" rx="14"/>'
+             '<text class="fig-exit-title" x="380" y="246" text-anchor="middle">Autonomy you can '
+             'audit</text>'
+             '<text class="fig-exit-sub" x="380" y="264" text-anchor="middle">what it did, why, '
+             'and what happened next</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------- agent graph join
+def agent_graph_join():
+    """Series on the left, events on the right, joined only by the model. THEMED.
+
+    The point is the join, so the two outer columns are deliberately plain lists:
+    what makes them one story is which node each one hangs off. Motion is
+    fig-flow on the six connectors, the direction a question travels.
+    """
+    cw, ch = 170, 38
+    rows = (94, 150, 206)
+    mids = [y + ch / 2 for y in rows]
+    lx, rx = 20, 570                                # chip columns
+    # Gaps of 24px between the three nodes: the relationship labels sit in them, and
+    # at 16px the FEEDS label disappeared behind the centre box.
+    up_y, up_h = 88, 40
+    ce_y, ce_h = 152, 54
+    lo_y, lo_h = 230, 40
+    up_mid, ce_mid, lo_mid = up_y + up_h / 2, ce_y + ce_h / 2, lo_y + lo_h / 2
+
+    def chip(x, y, label):
+        return (f'<rect class="fig-box" x="{x}" y="{y}" width="{cw}" height="{ch}" rx="10"/>'
+                f'<text class="fig-box-sub" x="{x + cw / 2:.0f}" y="{y + 23}" '
+                f'text-anchor="middle">{label}</text>')
+
+    def node(x, w, y, h, title, sub):
+        return (f'<rect class="fig-box" x="{x}" y="{y}" width="{w}" height="{h}" rx="12"/>'
+                f'<text class="fig-box-title" x="{x + w / 2:.0f}" y="{y + 18}" '
+                f'text-anchor="middle">{title}</text>'
+                f'<text class="fig-box-sub" x="{x + w / 2:.0f}" y="{y + 33}" '
+                f'text-anchor="middle">{sub}</text>')
+
+    def link(x1, y1, x2, y2):
+        return (f'<path class="fig-exit-path fig-flow" d="M{x1:.0f} {y1:.0f} '
+                f'L{x2:.0f} {y2:.0f}" fill="none"/>')
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 344" '
+        'class="fig-agent-graph-join" role="img" aria-label="Three time series on '
+        'the left and three events on the right, with a small graph in the middle: '
+        'a compressor, its lube system and the export line it feeds. Every series '
+        'and every event connects to the node it belongs to, so the vibration '
+        'trace, the high-vibration alarm and the lube work order meet on the same '
+        'machine.">',
+        '<text class="fig-title" x="20" y="24">The model is what joins a number to something that '
+        'happened</text>',
+        '<text class="fig-sub" x="20" y="44">A reading and an event have nothing in common until '
+        'both hang off the same thing in the graph.</text>',
+        '<text class="fig-box-title" x="105" y="78" text-anchor="middle">Time series</text>',
+        '<text class="fig-box-title" x="390" y="78" text-anchor="middle">Your model</text>',
+        '<text class="fig-box-title" x="655" y="78" text-anchor="middle">Events</text>',
+    ]
+
+    # ---- the six connectors, drawn first so the boxes sit on top of them
+    p.append(link(lx + cw, mids[0], 290, ce_mid - 8))          # vibration -> compressor
+    p.append(link(lx + cw, mids[1], 290, ce_mid))              # bearing temp -> compressor
+    p.append(link(lx + cw, mids[2], 310, lo_mid))              # discharge -> export line
+    p.append(link(rx, mids[0], 470, up_mid))                   # work order -> lube system
+    p.append(link(rx, mids[1], 490, ce_mid + 8))               # alarm -> compressor
+    p.append(link(rx, mids[2], 470, lo_mid))                   # inspection -> export line
+
+    # ---- relationship edges inside the model
+    p.append(f'<line class="fig-track" x1="390" y1="{up_y + up_h}" x2="390" y2="{ce_y}"/>')
+    p.append(f'<line class="fig-track" x1="390" y1="{ce_y + ce_h}" x2="390" y2="{lo_y}"/>')
+    p.append(f'<text class="fig-box-sub" x="398" y="{ce_y - 8}">HAS_PART</text>')
+    p.append(f'<text class="fig-box-sub" x="398" y="{lo_y - 8}">FEEDS</text>')
+
+    # ---- the three columns
+    for y, label in zip(rows, ("21-VT-4013 · vibration", "21-TT-4015 · bearing temp",
+                               "21-PT-3105 · discharge")):
+        p.append(chip(lx, y, label))
+    for y, label in zip(rows, ("WO-4471 · lube service", "ALM-8823 · high vibration",
+                               "INSP-311 · flange check")):
+        p.append(chip(rx, y, label))
+    p.append(node(310, 160, up_y, up_h, "LUBE-12", "lube system"))
+    p.append(f'<rect class="fig-lit-box c-blue" x="290" y="{ce_y}" width="200" '
+             f'height="{ce_h}" rx="12"/>'
+             f'<text class="fig-lit-title" x="390" y="{ce_y + 23}" text-anchor="middle">K-401</text>'
+             f'<text class="fig-lit-sub" x="390" y="{ce_y + 40}" text-anchor="middle">export '
+             f'compressor</text>')
+    p.append(node(310, 160, lo_y, lo_h, "EXP-LINE", "export line"))
+
+    p.append('<text class="fig-sub" x="20" y="304">Without the model these are two lists that '
+             'happen to cover the same week. With it, one question</text>')
+    p.append('<text class="fig-sub" x="20" y="322">reaches all six, and the agent can say which '
+             'machine the story is about.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ---------------------------------------------------------- wind peer comparison
+def wind_peer_comparison():
+    """A07 against the turbines sharing its wind. THEMED.
+
+    Plotted as a percentage of the string's median rather than as raw power,
+    which is how the finding is actually visible: four per cent of a power curve
+    is five pixels, four per cent of a relative trace is the whole point. Static,
+    because the reader compares traces; the only motion is the string cable.
+    """
+    # ---- left: the string, which is what makes the peers peers
+    sub_x, sub_y, sub_w, sub_h = 20, 140, 92, 44
+    t_y = sub_y + sub_h / 2
+    t_xs = [148, 196, 244, 292, 340]
+    names = ["A05", "A06", "A07", "A08", "A09"]
+
+    # ---- right: nine days, each turbine as a percentage of the string median
+    x0, x1 = 452, 730
+    y_lo, y_hi = 94.0, 102.0          # axis range, chosen so A07 clears the baseline
+    py_bot, py_top = 252, 112
+
+    def to_y(pct):
+        return py_bot - (pct - y_lo) / (y_hi - y_lo) * (py_bot - py_top)
+
+    def trace(level, amp, phase):
+        pts = []
+        steps = 36
+        for i in range(steps + 1):
+            x = x0 + (x1 - x0) * i / steps
+            pct = level + amp * math.sin(2 * math.pi * (i / steps) * 1.7 + phase)
+            pts.append(f"{x:.1f} {to_y(pct):.1f}")
+        return "M" + " L".join(pts)
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" '
+        'class="fig-wind-peer" role="img" aria-label="On the left, five turbines on '
+        'one string running to a substation, with A07 highlighted. On the right, '
+        'nine days of production for each turbine as a percentage of the string '
+        'median: four traces sit around one hundred per cent and A07 sits steadily '
+        'near ninety-six.">',
+        '<text class="fig-title" x="20" y="24">Underperformance only exists as a comparison</text>',
+        '<text class="fig-sub" x="20" y="44">Against its own history A07 looks normal. Against '
+        'the turbines that shared its wind, it does not.</text>',
+        '<text class="fig-box-title" x="20" y="78">String B</text>',
+        '<text class="fig-box-sub" x="20" y="96">one cable, one wind, five comparable machines</text>',
+    ]
+    p.append(f'<path class="fig-exit-path fig-flow" d="M{t_xs[-1]} {t_y:.0f} '
+             f'L{sub_x + sub_w} {t_y:.0f}" fill="none"/>')
+    p.append(f'<rect class="fig-box" x="{sub_x}" y="{sub_y}" width="{sub_w}" '
+             f'height="{sub_h}" rx="12"/>'
+             f'<text class="fig-box-sub" x="{sub_x + sub_w / 2:.0f}" y="{sub_y + 27}" '
+             f'text-anchor="middle">substation</text>')
+    for x, name in zip(t_xs, names):
+        lit = name == "A07"
+        cls = "fig-lit-box c-orange" if lit else "fig-box"
+        p.append(f'<circle class="{cls}" cx="{x}" cy="{t_y:.0f}" r="15"/>')
+        p.append(f'<text class="fig-box-sub" x="{x}" y="{t_y + 34:.0f}" '
+                 f'text-anchor="middle">{name}</text>')
+    p.append(f'<text class="fig-box-sub" x="{t_xs[2]}" y="{t_y - 26:.0f}" '
+             f'text-anchor="middle">never faulted</text>')
+
+    # ---- the chart
+    p.append(f'<line class="fig-track" x1="{x0}" y1="{py_bot}" x2="{x1}" y2="{py_bot}"/>')
+    p.append(f'<line class="fig-track" x1="{x0}" y1="{to_y(100):.0f}" x2="{x1}" '
+             f'y2="{to_y(100):.0f}"/>')
+    p.append(f'<text class="fig-box-sub" x="{x0}" y="{py_top - 16}">production, as a percentage '
+             f'of the string median</text>')
+    p.append(f'<text class="fig-box-sub" x="{x0 - 8}" y="{to_y(100) + 4:.0f}" '
+             f'text-anchor="end">100%</text>')
+    for level, amp, phase in ((100.8, 0.45, 0.0), (100.2, 0.5, 1.9), (99.6, 0.4, 3.4),
+                              (100.4, 0.45, 5.1)):
+        p.append(f'<path class="fig-line-a" d="{trace(level, amp, phase)}" fill="none"/>')
+    p.append(f'<path class="fig-line-b" d="{trace(96.2, 0.3, 2.2)}" fill="none"/>')
+    p.append(f'<text class="fig-box-sub" x="{x0 + 4}" y="{to_y(96.2) - 12:.0f}">A07 · 4% down for '
+             f'nine days · 120 MWh</text>')
+    p.append(f'<text class="fig-box-sub" x="{x0}" y="{py_bot + 20}">nine days</text>')
+    p.append(f'<text class="fig-box-sub" x="{x1}" y="{py_bot + 20}" text-anchor="end">today</text>')
+
+    p.append('<text class="fig-sub" x="20" y="300">No alarm fired, because nothing was wrong '
+             'with A07 on its own terms. The graph supplies the</text>')
+    p.append('<text class="fig-sub" x="20" y="318">only thing that makes the loss visible: '
+             'which turbines were standing in the same wind.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# --------------------------------------------------------------- vessel sisters
+def vessel_sisters():
+    """Three sisters, one drifting, and the event that explains it. THEMED.
+
+    fig-draw on the three consumption traces: they are drifts over time, and
+    watching one climb away from the other two is the finding.
+    """
+    rows = (108, 176, 244)
+    lx, tx0, tx1 = 20, 210, 720
+    RISE = 34.0                       # pixels of fouling drift across a full year
+    # (name, note, line class, when it was last cleaned as a fraction of the axis,
+    #  caption). Fouling climbs, a cleaning drops it back to a clean hull, and it
+    #  climbs again: the vessel cleaned longest ago is the one riding highest now.
+    vessels = (
+        ("MV-Nord", "+6% per tonne-mile", "fig-line-b", 0.34, "cleaned 240 days ago"),
+        ("MV-Sør", "the reference", "fig-line-a", 0.84, "cleaned 60 days ago"),
+        ("MV-Vest", "+1%", "fig-line-a", 0.75, "cleaned 90 days ago"),
+    )
+
+    def drift(y, clean_at):
+        """Fouling climbs, the cleaning resets it, then it climbs again."""
+        pts = []
+        steps = 48
+        for i in range(steps + 1):
+            t = i / steps
+            grown = t if t < clean_at else t - clean_at
+            pts.append(f"{tx0 + (tx1 - tx0) * t:.1f} {y - grown * RISE:.1f}")
+        return "M" + " L".join(pts)
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" '
+        'class="fig-vessel-sisters" role="img" aria-label="Three sister vessels on '
+        'the same route. Each trace climbs as the hull fouls and drops back when the '
+        'hull is cleaned. The two cleaned recently sit low; MV-Nord, cleaned 240 '
+        'days ago, has been climbing ever since and now rides highest.">',
+        '<text class="fig-title" x="20" y="24">A sister ship is a control group you already own</text>',
+        '<text class="fig-sub" x="20" y="44">Same route, same season, same design. What differs '
+        'is one event in each vessel’s history.</text>',
+        '<text class="fig-box-sub" x="210" y="78">consumption per tonne-mile · the dot is a hull '
+        'cleaning · the dashed line is a clean hull</text>',
+    ]
+    for (name, note, line_cls, clean_at, caption), y in zip(vessels, rows):
+        base = y + 8
+        p.append(f'<text class="fig-box-title" x="{lx}" y="{y - 2}">{name}</text>')
+        p.append(f'<text class="fig-box-sub" x="{lx}" y="{y + 15}">{note}</text>')
+        p.append(f'<line class="fig-track" x1="{tx0}" y1="{base}" x2="{tx1}" y2="{base}"/>')
+        p.append(f'<path class="{line_cls} fig-draw" d="{drift(base, clean_at)}" fill="none"/>')
+        cx = tx0 + (tx1 - tx0) * clean_at
+        dot = "fig-dot-b" if line_cls == "fig-line-b" else "fig-dot-a"
+        p.append(f'<circle class="{dot}" cx="{cx:.0f}" cy="{base}" r="5"/>')
+        anchor = "end" if clean_at > 0.6 else "start"
+        dx = -10 if anchor == "end" else 10
+        p.append(f'<text class="fig-box-sub" x="{cx + dx:.0f}" y="{base + 18}" '
+                 f'text-anchor="{anchor}">{caption}</text>')
+    p.append(f'<text class="fig-box-sub" x="{tx0}" y="{rows[-1] + 48}">January</text>')
+    p.append(f'<text class="fig-box-sub" x="{tx1}" y="{rows[-1] + 48}" text-anchor="end">now</text>')
+    p.append('<text class="fig-sub" x="20" y="312">The gap is a number; the cleaning date is the '
+             'reason. One is a time series, the other is an event.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ---------------------------------------------------------- blast radius cooling
+def blast_radius_cooling():
+    """One chiller down, walked outward hop by hop. THEMED, animated.
+
+    The staggered reveal is the traversal itself, which is a thing that happens
+    in order, so the motion is the content rather than decoration.
+    """
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    rows = (84, 148, 212)
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 336" '
+        'class="fig-blast-radius" role="img" aria-label="A chiller at the left, '
+        'feeding a loop, which feeds three cooling units, which serve three groups '
+        'of racks. Two groups also have a second path from an unaffected loop; the '
+        'third group of six racks does not, and is highlighted.">',
+        '<text class="fig-title" x="20" y="24">One traversal answers what actually breaks</text>',
+        '<text class="fig-sub" x="20" y="44">Walking downstream from the failure reaches every '
+        'rack depending on it, and shows which have a way out.</text>',
+    ]
+    # level 0: the failure
+    p.append('<rect class="fig-lit-box c-orange" x="20" y="126" width="132" height="56" rx="12"/>'
+             '<text class="fig-lit-title" x="86" y="150" text-anchor="middle">CHILLER-02</text>'
+             '<text class="fig-lit-sub" x="86" y="168" text-anchor="middle">tripped 14:20</text>')
+    # level 1: the loop
+    p.append('<g class="fig-seq fig-d1">'
+             '<path class="fig-exit-path fig-flow" d="M152 154 L187 154" fill="none"/>'
+             + arrow(187, 154) +
+             '<rect class="fig-box" x="204" y="130" width="104" height="48" rx="12"/>'
+             '<text class="fig-box-title" x="256" y="152" text-anchor="middle">LOOP-B</text>'
+             '<text class="fig-box-sub" x="256" y="168" text-anchor="middle">chilled water</text>'
+             '</g>')
+    # level 2: the cooling units
+    for i, y in enumerate(rows):
+        p.append(f'<g class="fig-seq fig-d2">'
+                 f'<path class="fig-exit-path fig-flow" d="M308 154 L347 {y + 22}" fill="none"/>'
+                 + arrow(347, y + 22) +
+                 f'<rect class="fig-box" x="364" y="{y}" width="96" height="44" rx="12"/>'
+                 f'<text class="fig-box-title" x="412" y="{y + 27}" '
+                 f'text-anchor="middle">CRAH-{i + 1}</text>'
+                 f'</g>')
+    # level 3: the racks
+    racks = (("12 racks", "second path from LOOP-A", False),
+             ("20 racks", "second path from LOOP-A", False),
+             ("6 racks", "no second path", True))
+    for (title, note, at_risk), y in zip(racks, rows):
+        cls = "fig-lit-box c-orange" if at_risk else "fig-box"
+        t_cls = "fig-lit-title" if at_risk else "fig-box-title"
+        s_cls = "fig-lit-sub" if at_risk else "fig-box-sub"
+        p.append(f'<g class="fig-seq fig-d3">'
+                 f'<path class="fig-exit-path fig-flow" d="M460 {y + 22} L499 {y + 22}" fill="none"/>'
+                 + arrow(499, y + 22) +
+                 f'<rect class="{cls}" x="516" y="{y}" width="180" height="44" rx="12"/>'
+                 f'<text class="{t_cls}" x="606" y="{y + 20}" text-anchor="middle">{title}</text>'
+                 f'<text class="{s_cls}" x="606" y="{y + 35}" text-anchor="middle">{note}</text>'
+                 f'</g>')
+    p.append('<rect class="fig-exit-box" x="20" y="266" width="676" height="46" rx="14"/>'
+             '<text class="fig-exit-title" x="40" y="288">38 racks reached · 6 with no second '
+             'path · 2 of those already ran hot in July</text>'
+             '<text class="fig-exit-sub" x="40" y="304">the same walk, costed differently, is '
+             'where the stranded capacity is</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# --------------------------------------------------------------- readiness gate
+def readiness_gate():
+    """Fourteen airframes, three down, two of them for the same reason. THEMED.
+
+    The convergence is the whole figure: two edges arriving at one part node is
+    what turns a status report into a decision, and it is a fact about the graph
+    rather than about any single record.
+    """
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    cw, chh, gap = 30, 24, 6
+    gx, g_rows = 196, (86, 116)
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 356" '
+        'class="fig-readiness-gate" role="img" aria-label="A squadron of fourteen '
+        'airframes, eleven available and three gated. Below, the three gated tails '
+        'connect to what is holding them: two of them to the same hydraulic part '
+        'with a nine day lead time, and one to a scheduled inspection.">',
+        '<text class="fig-title" x="20" y="24">Readiness is a rollup, and the answer is which '
+        'nodes gate it</text>',
+        '<text class="fig-sub" x="20" y="44">Fourteen airframes is a number anyone can produce. '
+        'Which three, and why, is a traversal.</text>',
+    ]
+    # ---- the squadron and its fleet
+    p.append('<rect class="fig-box" x="20" y="82" width="130" height="52" rx="12"/>'
+             '<text class="fig-box-title" x="85" y="104" text-anchor="middle">SQN-4</text>'
+             '<text class="fig-box-sub" x="85" y="120" text-anchor="middle">14 airframes</text>')
+    p.append(f'<path class="fig-exit-path fig-flow" d="M150 108 L177 108" fill="none"/>')
+    p.append(arrow(177, 108))
+    down = {(0, 6), (1, 6), (1, 5)}
+    for r, y in enumerate(g_rows):
+        for c in range(7):
+            x = gx + c * (cw + gap)
+            cls = "fig-lit-box c-orange" if (r, c) in down else "fig-box"
+            p.append(f'<rect class="{cls}" x="{x}" y="{y}" width="{cw}" height="{chh}" rx="7"/>')
+    p.append('<text class="fig-box-title" x="510" y="104">11 available</text>')
+    p.append('<text class="fig-box-sub" x="510" y="122">3 gated, and not by three '
+             'different things</text>')
+
+    # ---- why the three are down
+    p.append('<text class="fig-box-title" x="20" y="176">What is holding the other three</text>')
+    tails = (("TAIL-07", 190), ("TAIL-11", 234), ("TAIL-03", 278))
+    for name, y in tails:
+        p.append(f'<rect class="fig-lit-box c-orange" x="190" y="{y}" width="110" height="36" '
+                 f'rx="10"/>'
+                 f'<text class="fig-lit-sub" x="245" y="{y + 22}" text-anchor="middle">{name}</text>')
+    for y in (208, 252):
+        p.append(f'<path class="fig-exit-path fig-flow" d="M300 {y} L419 214" fill="none"/>')
+    p.append(arrow(419, 214))
+    p.append('<path class="fig-exit-path fig-flow" d="M300 296 L419 298" fill="none"/>')
+    p.append(arrow(419, 298))
+    p.append('<rect class="fig-box" x="436" y="190" width="270" height="48" rx="12"/>'
+             '<text class="fig-box-title" x="571" y="211" text-anchor="middle">PN-4471 hydraulic '
+             'pack</text>'
+             '<text class="fig-box-sub" x="571" y="228" text-anchor="middle">9-day lead, none on '
+             'hand</text>')
+    p.append('<rect class="fig-box" x="436" y="274" width="270" height="48" rx="12"/>'
+             '<text class="fig-box-title" x="571" y="295" text-anchor="middle">50-hour '
+             'inspection</text>'
+             '<text class="fig-box-sub" x="571" y="312" text-anchor="middle">could be pulled '
+             'forward</text>')
+    p.append('<text class="fig-sub" x="20" y="346">One requisition returns two airframes. That is '
+             'a fact about the graph, not about any one record.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# -------------------------------------------------------- issuer neighbourhood
+def issuer_neighbourhood():
+    """One filing, and everything it reaches through the graph. THEMED.
+
+    The sparkline in each node is the point that a reader might otherwise miss:
+    every node the event reaches carries its own series, so one arrival turns
+    into five things worth reading.
+    """
+    def arrow(x, y, dx=11):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + dx} {y} L{x} {y + 5} z"/>'
+
+    def spark(x, y, seed, w=46, h=12):
+        pts = []
+        for i in range(9):
+            t = i / 8
+            v = math.sin(t * 5.4 + seed) * 0.5 + math.sin(t * 2.1 + seed * 1.7) * 0.5
+            pts.append(f"{x + w * t:.1f} {y - v * h / 2:.1f}")
+        return f'<path class="fig-line-a" d="M{" L".join(pts)}" fill="none"/>'
+
+    nodes = (
+        (40, 96, "Supplier B", "held in the portfolio", 0.4),
+        (40, 216, "Supplier C", "held in the portfolio", 2.3),
+        (550, 96, "Fund D", "holds both of them", 4.1),
+        (550, 216, "Peer E", "same end market", 5.6),
+    )
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" '
+        'class="fig-issuer-neighbourhood" role="img" aria-label="A results release '
+        'arrives as an event on Issuer A. From there the graph reaches two suppliers '
+        'held in the portfolio, a fund holding both, and a peer in the same end '
+        'market, each of which carries its own price and fundamentals series.">',
+        '<text class="fig-title" x="20" y="24">One filing, and everything it is allowed to '
+        'move</text>',
+        '<text class="fig-sub" x="20" y="44">The event lands on one issuer. What it means for '
+        'the book is a question about relationships.</text>',
+        '<rect class="fig-lit-box c-orange" x="310" y="76" width="150" height="30" rx="10"/>'
+        '<text class="fig-lit-sub" x="385" y="96" text-anchor="middle">results release, '
+        '06:59</text>',
+        '<path class="fig-exit-path fig-flow" d="M385 106 L385 129" fill="none"/>',
+        '<path class="fig-centre" d="M380 129 L385 140 L390 129 z"/>',
+        '<rect class="fig-lit-box c-blue" x="300" y="140" width="170" height="56" rx="12"/>'
+        '<text class="fig-lit-title" x="385" y="164" text-anchor="middle">Issuer A</text>'
+        '<text class="fig-lit-sub" x="385" y="182" text-anchor="middle">the one that just '
+        'reported</text>',
+    ]
+    # Labels ride the midpoint of their own edge: parked beside the nodes they were
+    # hidden behind them, since the gap either side of the issuer is only 80px.
+    edges = ((300, 168, 231, 120, "SUPPLIES"),
+             (300, 168, 231, 240, "SUPPLIES"),
+             (470, 168, 539, 120, "OWNED_BY"),
+             (470, 168, 539, 240, "COMPETES_WITH"))
+    for x1, y1, x2, y2, label in edges:
+        p.append(f'<path class="fig-exit-path fig-flow" d="M{x1} {y1} L{x2} {y2}" fill="none"/>')
+        p.append(arrow(x2, y2, 11 if x2 > x1 else -11))
+        p.append(f'<text class="fig-box-sub" x="{(x1 + x2) / 2:.0f}" y="{(y1 + y2) / 2 - 7:.0f}" '
+                 f'text-anchor="middle">{label}</text>')
+    for x, y, title, sub, seed in nodes:
+        p.append(f'<rect class="fig-box" x="{x}" y="{y}" width="{180}" height="48" rx="12"/>'
+                 f'<text class="fig-box-title" x="{x + 14}" y="{y + 21}">{title}</text>'
+                 f'<text class="fig-box-sub" x="{x + 14}" y="{y + 37}">{sub}</text>')
+        p.append(spark(x + 122, y + 28, seed))
+    p.append('<text class="fig-sub" x="20" y="298">Every node the walk reaches carries its own '
+             'series, which is why one arrival at 06:59 becomes</text>')
+    p.append('<text class="fig-sub" x="20" y="316">five things worth reading by 07:04 rather than '
+             'one headline worth repeating.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------------ ward devices
+def ward_devices():
+    """The ward outward to its devices, and the boundary that is deliberately absent.
+
+    THEMED. The unconnected patient node is the honest half, and its wording was
+    rewritten once: "traversal is gated on the starting node" means nothing to a
+    reader who does not already know the rule, so the figure says what the rule
+    does instead of naming it.
+    """
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    rows = ((96, "Infusion pumps ×12", "run hours", "12 calibrations due"),
+            (160, "Ventilator V-207", "self-test result", "3 warnings this week"),
+            (224, "MRI suite", "helium boil-off", "boil-off drift opened"))
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 384" '
+        'class="fig-ward-devices" role="img" aria-label="A ward node connected to '
+        'three device groups, each carrying a time series and an event. A patient '
+        'records node sits below, with no line connecting it to any of them, '
+        'deliberately.">',
+        '<text class="fig-title" x="20" y="24">The same walk as the compressor, on a different '
+        'kind of plant</text>',
+        '<text class="fig-sub" x="20" y="44">Resolve the ward, step out to what is deployed in '
+        'it, read the series and the events on each.</text>',
+        '<rect class="fig-lit-box c-blue" x="20" y="160" width="140" height="52" rx="12"/>'
+        '<text class="fig-lit-title" x="90" y="184" text-anchor="middle">WARD-3B</text>'
+        '<text class="fig-lit-sub" x="90" y="201" text-anchor="middle">where the question '
+        'starts</text>',
+    ]
+    for y, name, series, event in rows:
+        mid = y + 24
+        p.append(f'<path class="fig-exit-path fig-flow" d="M160 186 L189 {mid}" fill="none"/>')
+        p.append(arrow(189, mid))
+        p.append(f'<rect class="fig-box" x="206" y="{y}" width="186" height="48" rx="12"/>'
+                 f'<text class="fig-box-title" x="299" y="{mid + 5}" '
+                 f'text-anchor="middle">{name}</text>')
+        p.append(f'<line class="fig-track" x1="392" y1="{mid}" x2="422" y2="{mid}"/>')
+        p.append(f'<rect class="fig-box" x="422" y="{mid - 17}" width="140" height="34" rx="9"/>'
+                 f'<text class="fig-box-sub" x="492" y="{mid + 5}" '
+                 f'text-anchor="middle">{series}</text>')
+        p.append(f'<line class="fig-track" x1="562" y1="{mid}" x2="586" y2="{mid}"/>')
+        p.append(f'<rect class="fig-box" x="586" y="{mid - 17}" width="154" height="34" rx="9"/>'
+                 f'<text class="fig-box-sub" x="663" y="{mid + 5}" '
+                 f'text-anchor="middle">{event}</text>')
+    p.append('<text class="fig-box-sub" x="492" y="82" text-anchor="middle">time series</text>')
+    p.append('<text class="fig-box-sub" x="663" y="82" text-anchor="middle">events</text>')
+    p.append('<rect class="fig-box" x="20" y="284" width="150" height="40" rx="12"/>'
+             '<text class="fig-box-sub" x="95" y="308" text-anchor="middle">Patient records</text>')
+    p.append('<text class="fig-box-sub" x="186" y="303">Notice there is no line from here to '
+             'anything above.</text>')
+    p.append('<text class="fig-box-sub" x="186" y="319">That is deliberate, and it is the '
+             'point.</text>')
+    p.append('<text class="fig-sub" x="20" y="352">A question can reach whatever is linked to '
+             'where it started. So the dependable way</text>')
+    p.append('<text class="fig-sub" x="20" y="370">to keep two things apart is to leave the link '
+             'out, rather than to rely on a permission at the far end.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# --------------------------------------------------------------- agent anatomy
+def agent_anatomy():
+    """The six parts, and the self-loop that makes them an agent. THEMED, static.
+
+    Static by the house rule: a reader compares the parts, so all six must be
+    visible at once. The only mark that moves the eye is the loop glyph, reused
+    unchanged from revolution_contrast, because it is the one thing here that
+    means "and then it goes round again".
+    """
+    def loop_glyph(cx, cy):
+        """The house self-loop, perched on a node's top-right corner."""
+        r = 9
+        ccx, ccy = cx + 5, cy - 5
+        a0, a1 = math.radians(165), math.radians(105)
+        sx, sy = ccx + r * math.cos(a0), ccy + r * math.sin(a0)
+        ex, ey = ccx + r * math.cos(a1), ccy + r * math.sin(a1)
+        tx, ty = -math.sin(a1), math.cos(a1)
+        nx, ny = math.cos(a1), math.sin(a1)
+        tip = (ex + 5.5 * tx, ey + 5.5 * ty)
+        b1 = (ex - 2 * tx + 3.6 * nx, ey - 2 * ty + 3.6 * ny)
+        b2 = (ex - 2 * tx - 3.6 * nx, ey - 2 * ty - 3.6 * ny)
+        return (
+            f'<path class="fig-loop-arc" d="M{sx:.1f} {sy:.1f} A {r} {r} 0 1 1 '
+            f'{ex:.1f} {ey:.1f}"/>'
+            f'<path class="fig-loop-head" d="M{tip[0]:.1f} {tip[1]:.1f} L{b1[0]:.1f} '
+            f'{b1[1]:.1f} L{b2[0]:.1f} {b2[1]:.1f} z"/>'
+        )
+
+    bw, bh = 210, 50
+    rows = (86, 148, 210)
+    cx, cy, cw, chh = 292, 130, 176, 76        # the agent itself
+
+    left = (("A goal, and its sub-goals", "not an instruction to follow"),
+            ("Plain language in and out", "no query syntax to learn"),
+            ("Memory", "what it did, and how that went"))
+    right = (("Tools", "the graph, series, events, files"),
+             ("A planner", "picks the next step, not the plan"),
+             ("Judgement", "was that step any good?"))
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" '
+        'class="fig-agent-anatomy" role="img" aria-label="An agent in the middle, '
+        'with six parts around it: a goal and its sub-goals, a plain-language '
+        'interface and memory on the left; tools, a planner and judgement on the '
+        'right. A loop mark on the agent shows that it repeats.">',
+        '<text class="fig-title" x="20" y="24">Six parts, and the loop that makes them an '
+        'agent</text>',
+        '<text class="fig-sub" x="20" y="44">Remove any one and it stops being an agent. Remove '
+        'the loop and it is a very good search box.</text>',
+    ]
+    for (title, sub), y in zip(left, rows):
+        p.append(f'<rect class="fig-box" x="20" y="{y}" width="{bw}" height="{bh}" rx="12"/>'
+                 f'<text class="fig-box-title" x="34" y="{y + 22}">{title}</text>'
+                 f'<text class="fig-box-sub" x="34" y="{y + 39}">{sub}</text>')
+        p.append(f'<path class="fig-exit-path" d="M{20 + bw} {y + bh / 2:.0f} L{cx} '
+                 f'{cy + chh / 2:.0f}" fill="none"/>')
+    for (title, sub), y in zip(right, rows):
+        x = 760 - 20 - bw
+        p.append(f'<rect class="fig-box" x="{x}" y="{y}" width="{bw}" height="{bh}" rx="12"/>'
+                 f'<text class="fig-box-title" x="{x + 14}" y="{y + 22}">{title}</text>'
+                 f'<text class="fig-box-sub" x="{x + 14}" y="{y + 39}">{sub}</text>')
+        p.append(f'<path class="fig-exit-path" d="M{cx + cw} {cy + chh / 2:.0f} L{x} '
+                 f'{y + bh / 2:.0f}" fill="none"/>')
+    p.append(f'<rect class="fig-lit-box c-blue" x="{cx}" y="{cy}" width="{cw}" height="{chh}" '
+             f'rx="16"/>'
+             f'<text class="fig-lit-title" x="{cx + cw / 2:.0f}" y="{cy + 34}" '
+             f'text-anchor="middle">The agent</text>'
+             f'<text class="fig-lit-sub" x="{cx + cw / 2:.0f}" y="{cy + 52}" '
+             f'text-anchor="middle">decides what to do next</text>')
+    p.append(loop_glyph(cx + cw, cy))
+    p.append('<text class="fig-sub" x="20" y="290">A chatbot has the language interface and '
+             'nothing else. What an agent adds is the right-hand</text>')
+    p.append('<text class="fig-sub" x="20" y="308">column: it can act, decide the next move, and '
+             'tell whether the last one helped.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------- feature flywheel
+def feature_flywheel():
+    """A feature discovered, tested, kept, and then available to the next lap.
+
+    THEMED, animated: this is a cycle in time, and the return arc is the whole
+    argument, so the marching dashes are the content rather than decoration.
+    """
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    by, bh = 96, 68
+    mid = by + bh / 2
+    boxes = (
+        (20, 172, "The series you have", "and every feature kept before"),
+        (232, 168, "A candidate feature", "proposed and computed"),
+        (440, 160, "Does it predict?", "tested against the events"),
+        (640, 100, "Kept", "as a new series"),
+    )
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" '
+        'class="fig-feature-flywheel" role="img" aria-label="Four stages in a loop: '
+        'the series you have, a candidate feature, a test against the events, and '
+        'the feature kept as a new series. An arc returns from the last stage to the '
+        'first, because a kept feature becomes an input for the next lap.">',
+        '<text class="fig-title" x="20" y="24">Every kept feature makes the next one easier to '
+        'find</text>',
+        '<text class="fig-sub" x="20" y="44">A feature is a number that means something. Finding '
+        'one used to be a specialist project.</text>',
+    ]
+    for i, (x, w, title, sub) in enumerate(boxes):
+        if i:
+            prev_x, prev_w = boxes[i - 1][0], boxes[i - 1][1]
+            p.append(f'<path class="fig-exit-path fig-flow" d="M{prev_x + prev_w} {mid:.0f} '
+                     f'L{x - 11} {mid:.0f}" fill="none"/>')
+            p.append(arrow(x - 11, mid))
+        cls = "fig-lit-box c-blue" if i == 3 else "fig-box"
+        t_cls = "fig-lit-title" if i == 3 else "fig-box-title"
+        s_cls = "fig-lit-sub" if i == 3 else "fig-box-sub"
+        p.append(f'<rect class="{cls}" x="{x}" y="{by}" width="{w}" height="{bh}" rx="12"/>'
+                 f'<text class="{t_cls}" x="{x + w / 2:.0f}" y="{by + 28}" '
+                 f'text-anchor="middle">{title}</text>'
+                 f'<text class="{s_cls}" x="{x + w / 2:.0f}" y="{by + 46}" '
+                 f'text-anchor="middle">{sub}</text>')
+    p.append(f'<path class="fig-exit-path fig-flow" d="M690 {by + bh} L690 228 L106 228 '
+             f'L106 {by + bh + 11}" fill="none"/>')
+    p.append(f'<path class="fig-centre" d="M101 {by + bh + 11} L106 {by + bh} '
+             f'L111 {by + bh + 11} z"/>')
+    p.append('<text class="fig-box-sub" x="390" y="248" text-anchor="middle">and the next lap '
+             'starts with one more thing worth looking at</text>')
+    p.append('<text class="fig-sub" x="20" y="288">The test is the part that keeps it honest: a '
+             'feature is kept because it predicted something,</text>')
+    p.append('<text class="fig-sub" x="20" y="306">not because it looked clever. The events are '
+             'what it is tested against.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------- synthetic and measured
+def synthetic_and_measured():
+    """Three real failures against as many generated ones as you need. THEMED.
+
+    Static: the two panels are a comparison, and the whole point is how sparse
+    the left one is next to the right.
+    """
+    y = 152
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" '
+        'class="fig-synthetic-measured" role="img" aria-label="Two timelines. The '
+        'measured one holds three examples of a failure in ten years. The synthetic '
+        'one holds hundreds, generated from a model of how the failure develops. '
+        'Below, the two rules: train on both, test only on measured, and keep them '
+        'in separate data sets.">',
+        '<text class="fig-title" x="20" y="24">The failures you most want to predict are the ones '
+        'you have barely seen</text>',
+        '<text class="fig-sub" x="20" y="44">Nothing learns a pattern from three examples. '
+        'Generating more is how that stops being a dead end.</text>',
+        '<text class="fig-box-title" x="20" y="96">Measured</text>',
+        '<text class="fig-box-sub" x="20" y="114">ten years of real history</text>',
+        '<text class="fig-box-title" x="400" y="96">Synthetic</text>',
+        '<text class="fig-box-sub" x="400" y="114">generated from how the failure develops</text>',
+        f'<line class="fig-track" x1="20" y1="{y}" x2="350" y2="{y}"/>',
+        f'<line class="fig-track" x1="400" y1="{y}" x2="740" y2="{y}"/>',
+    ]
+    for x in (78, 191, 296):
+        p.append(f'<circle class="fig-dot-b" cx="{x}" cy="{y}" r="6"/>')
+    # Deterministic even spread with a small jitter, on two rows. A modulo stride
+    # was tried first and rendered as visible clumps, which read as a pattern in
+    # the data rather than as density.
+    n = 56
+    for i in range(n):
+        x = 406 + 330 * (i / (n - 1)) + 3 * math.sin(i * 2.4)
+        row = y - 9 if i % 2 else y + 9
+        p.append(f'<circle class="fig-dot-a" cx="{x:.1f}" cy="{row}" r="4"/>')
+    p.append(f'<text class="fig-box-sub" x="20" y="{y + 40}">three examples, and two of them '
+             f'were logged differently</text>')
+    p.append(f'<text class="fig-box-sub" x="400" y="{y + 40}">as many as the training needs, '
+             f'with the conditions varied</text>')
+    p.append('<rect class="fig-exit-box" x="20" y="228" width="720" height="72" rx="14"/>'
+             '<text class="fig-exit-title" x="40" y="254">Train on both. Test only on what was '
+             'actually measured.</text>'
+             '<text class="fig-exit-sub" x="40" y="274">Keep the generated data in its own data '
+             'set, labelled, so the two can never be confused later,</text>'
+             '<text class="fig-exit-sub" x="40" y="290">by a person, by a report, or by the next '
+             'model that comes looking for training data.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# -------------------------------------------------------------------- dirty data
+def dirty_data():
+    """The five defects that actually turn up, and the rule for handling them.
+
+    THEMED, static: five small panels a reader scans side by side. Orange is
+    always the defect, blue is the signal behaving, so the eye learns the code
+    once and reads the rest of the row without the captions.
+    """
+    pw, ph, gap = 140, 60, 8
+    top, ctr = 104, 134
+    xs = [20 + i * (pw + gap) for i in range(5)]
+
+    def wave(x0, x1, phase=0.0, amp=11.0, step=4, shift=0.0, slope=0.0):
+        pts = []
+        x = x0
+        while x <= x1:
+            t = (x - x0) / pw
+            y = ctr - amp * math.sin(2 * math.pi * t * 1.6 + phase) + shift + slope * t
+            pts.append(f"{x:.1f} {y:.1f}")
+            x += step
+        return "M" + " L".join(pts)
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 306" '
+        'class="fig-dirty-data" role="img" aria-label="Five small charts showing the '
+        'defects that turn up in industrial measurements: a frozen sensor, a spike, '
+        'a slow drift, a gap, and a unit change that looks like a step. Below them, '
+        'the rule: raw stays raw, a correction is a new series, and the correction '
+        'itself is an event.">',
+        '<text class="fig-title" x="20" y="24">What dirty data actually looks like</text>',
+        '<text class="fig-sub" x="20" y="44">None of these announce themselves. Four of the five '
+        'look like perfectly ordinary readings.</text>',
+    ]
+    titles = ("Frozen", "Spike", "Drift", "Gap", "Wrong unit")
+    caps = (("the sensor stopped,", "the plant did not"),
+            ("one impossible value,", "and every average moves"),
+            ("slowly wrong,", "and nobody notices"),
+            ("missing hours,", "quietly filled in later"),
+            ("bar became psi:", "a step, not a fault"))
+    for x, title, cap in zip(xs, titles, caps):
+        p.append(f'<rect class="fig-box" x="{x}" y="{top}" width="{pw}" height="{ph}" rx="10"/>')
+        p.append(f'<text class="fig-box-title" x="{x + pw / 2:.0f}" y="{top - 12}" '
+                 f'text-anchor="middle">{title}</text>')
+        p.append(f'<text class="fig-box-sub" x="{x + pw / 2:.0f}" y="{top + ph + 20}" '
+                 f'text-anchor="middle">{cap[0]}</text>')
+        p.append(f'<text class="fig-box-sub" x="{x + pw / 2:.0f}" y="{top + ph + 35}" '
+                 f'text-anchor="middle">{cap[1]}</text>')
+
+    # 1 frozen: fine, then flat while the world carries on
+    p.append(f'<path class="fig-line-a" d="{wave(xs[0] + 8, xs[0] + 58)}" fill="none"/>')
+    frozen_y = ctr - 11 * math.sin(2 * math.pi * (50 / pw) * 1.6)
+    p.append(f'<path class="fig-line-b" d="M{xs[0] + 58} {frozen_y:.1f} L{xs[0] + pw - 8} '
+             f'{frozen_y:.1f}" fill="none"/>')
+    # 2 spike
+    p.append(f'<path class="fig-line-a" d="{wave(xs[1] + 8, xs[1] + pw - 8, phase=1.1)}" '
+             f'fill="none"/>')
+    sx = xs[1] + 74
+    sy = ctr - 11 * math.sin(2 * math.pi * (66 / pw) * 1.6 + 1.1)
+    p.append(f'<path class="fig-line-b" d="M{sx - 6} {sy:.1f} L{sx} {top + 6} L{sx + 6} '
+             f'{sy:.1f}" fill="none"/>')
+    # 3 drift: the truth in ghost, the drifting reading in orange
+    p.append(f'<path class="fig-line-a fig-line--ghost" d="{wave(xs[2] + 8, xs[2] + pw - 8, phase=2.2)}" '
+             f'fill="none"/>')
+    p.append(f'<path class="fig-line-b" d="{wave(xs[2] + 8, xs[2] + pw - 8, phase=2.2, slope=-18)}" '
+             f'fill="none"/>')
+    # 4 gap
+    p.append(f'<path class="fig-line-a" d="{wave(xs[3] + 8, xs[3] + 52, phase=0.6)}" fill="none"/>')
+    p.append(f'<path class="fig-line-a" d="{wave(xs[3] + 92, xs[3] + pw - 8, phase=0.6)}" '
+             f'fill="none"/>')
+    p.append(f'<line class="fig-track" x1="{xs[3] + 52}" y1="{ctr}" x2="{xs[3] + 92}" '
+             f'y2="{ctr}"/>')
+    # 5 unit change: the same signal, suddenly on another scale
+    p.append(f'<path class="fig-line-a" d="{wave(xs[4] + 8, xs[4] + 66, phase=3.0, amp=7)}" '
+             f'fill="none"/>')
+    shifted = wave(xs[4] + 66, xs[4] + pw - 8, phase=3.0, amp=7, shift=-20)
+    p.append(f'<path class="fig-line-b" d="{shifted}" fill="none"/>')
+
+    p.append('<rect class="fig-exit-box" x="20" y="228" width="720" height="62" rx="14"/>'
+             '<text class="fig-exit-title" x="40" y="252">Raw stays raw. A correction is a new '
+             'series beside it, never an edit to the original.</text>'
+             '<text class="fig-exit-sub" x="40" y="274">And the correction is itself an event, so '
+             'anyone can see what was changed, when, and on what grounds.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ----------------------------------------------------------- rules vs learning
+def rules_vs_learning():
+    """Writing the rule against learning it from examples. THEMED, static."""
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" '
+        'class="fig-rules-learning" role="img" aria-label="On the left, a person '
+        'writes a threshold rule which then makes decisions. On the right, examples '
+        'of what happened are used to train a model, which works the rule out and '
+        'then makes decisions.">',
+        '<text class="fig-title" x="20" y="24">Two ways to get a decision out of a '
+        'measurement</text>',
+        '<text class="fig-sub" x="20" y="44">Both end in the same place. They differ entirely in '
+        'what you have to know beforehand.</text>',
+        '<text class="fig-box-title" x="20" y="82">You write the rule</text>',
+        '<text class="fig-box-title" x="400" y="82">The rule is learned from examples</text>',
+    ]
+    # left lane
+    p.append('<rect class="fig-box" x="20" y="100" width="150" height="56" rx="12"/>'
+             '<text class="fig-box-title" x="95" y="124" text-anchor="middle">An expert</text>'
+             '<text class="fig-box-sub" x="95" y="141" text-anchor="middle">who knows the '
+             'threshold</text>')
+    p.append('<path class="fig-exit-path fig-flow" d="M170 128 L199 128" fill="none"/>')
+    p.append(arrow(199, 128))
+    p.append('<rect class="fig-box" x="216" y="100" width="144" height="56" rx="12"/>'
+             '<text class="fig-box-sub" x="288" y="124" text-anchor="middle">if vibration '
+             '&gt; 4.5</text>'
+             '<text class="fig-box-sub" x="288" y="141" text-anchor="middle">then raise an '
+             'alarm</text>')
+    p.append('<text class="fig-box-sub" x="20" y="186">Readable by anyone, and wrong the moment '
+             'the</text>')
+    p.append('<text class="fig-box-sub" x="20" y="202">machine, the duty or the season '
+             'changes.</text>')
+    # right lane
+    p.append('<rect class="fig-box" x="400" y="100" width="164" height="56" rx="12"/>'
+             '<text class="fig-box-title" x="482" y="124" text-anchor="middle">What happened '
+             'before</text>'
+             '<text class="fig-box-sub" x="482" y="141" text-anchor="middle">readings, and how '
+             'each ended</text>')
+    p.append('<path class="fig-exit-path fig-flow" d="M564 128 L593 128" fill="none"/>')
+    p.append(arrow(593, 128))
+    p.append('<rect class="fig-lit-box c-blue" x="610" y="100" width="130" height="56" rx="12"/>'
+             '<text class="fig-lit-title" x="675" y="124" text-anchor="middle">A model</text>'
+             '<text class="fig-lit-sub" x="675" y="141" text-anchor="middle">the rule, worked '
+             'out</text>')
+    p.append('<text class="fig-box-sub" x="400" y="186">Nobody had to know the threshold, and it '
+             'can be</text>')
+    p.append('<text class="fig-box-sub" x="400" y="202">relearned when the plant changes. Harder '
+             'to read.</text>')
+    p.append('<rect class="fig-exit-box" x="20" y="226" width="720" height="56" rx="14"/>'
+             '<text class="fig-exit-title" x="40" y="250">Machine learning is the right-hand '
+             'lane, and that is the whole of it.</text>'
+             '<text class="fig-exit-sub" x="40" y="270">Everything below is a different answer to '
+             'one question: what shape is the rule allowed to be?</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------- ml progression
+def ml_progression():
+    """Linear regression to logistic regression to a support vector machine.
+
+    THEMED, static. One chart, three panels, because the point is that they are
+    the same idea answering harder questions: fit a line, bend it into an S so it
+    can express a probability, then use it as a boundary with the widest gap it
+    can find.
+
+    History, so nobody repeats it: this was rebuilt once as a single animated
+    scatter that refitted itself three times, and it was worse. The three
+    questions need three different pictures (a value read off a line, a
+    probability between no and yes, a boundary with a margin), and forcing them
+    onto one set of axes made all three harder to read. It was reverted.
+
+    The two ringed points in panel three sit exactly on the margins, because a
+    support vector that is not touching the margin argues against its own caption.
+    """
+    px, pw = (20, 270, 520), 220
+    ct, cb = 116, 252                      # chart top and bottom
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 344" '
+        'class="fig-ml-progression" role="img" aria-label="Three panels. First, '
+        'linear regression fits a straight line through scattered points to predict '
+        'a number. Second, logistic regression bends that line into an S-curve '
+        'between no and yes, to predict a probability. Third, a support vector '
+        'machine separates two groups of points with the line that leaves the '
+        'widest margin, resting on a few points at the edges.">',
+        '<text class="fig-title" x="20" y="24">The same idea, answering three harder '
+        'questions</text>',
+        '<text class="fig-sub" x="20" y="44">Fit a line. Bend it into a probability. Then use it '
+        'as a boundary, and make the gap as wide as possible.</text>',
+    ]
+    heads = (("Linear regression", "how much?", "days until service"),
+             ("Logistic regression", "how likely?", "chance it fails this month"),
+             ("Support vector machine", "which side?", "healthy or failing"))
+    for x, (title, q, sub) in zip(px, heads):
+        p.append(f'<text class="fig-box-title" x="{x}" y="{78}">{title}</text>')
+        p.append(f'<text class="fig-box-sub" x="{x}" y="{96}">{q} · {sub}</text>')
+        p.append(f'<line class="fig-track" x1="{x}" y1="{cb}" x2="{x + pw}" y2="{cb}"/>')
+    for x in (px[0] + pw + 8, px[1] + pw + 8):
+        p.append(f'<path class="fig-centre" d="M{x} {178} L{x + 12} {184} L{x} {190} z"/>')
+
+    # ---- 1: a straight line through a rising scatter
+    x0 = px[0]
+    for i in range(9):
+        dx = 16 + i * 23
+        wob = (-6, 5, -3, 7, -5, 4, -7, 3, -2)[i]
+        p.append(f'<circle class="fig-dot-a" cx="{x0 + dx}" cy="{cb - 14 - i * 13 + wob}" r="4"/>')
+    p.append(f'<path class="fig-line-a" d="M{x0 + 14} {cb - 16} L{x0 + 200} {cb - 118}" '
+             f'fill="none"/>')
+    p.append(f'<text class="fig-box-sub" x="{x0}" y="{cb + 22}">the line is the prediction: read '
+             f'it off</text>')
+    p.append(f'<text class="fig-box-sub" x="{x0}" y="{cb + 38}">anywhere along the bottom '
+             f'axis</text>')
+
+    # ---- 2: the same line bent into an S between no and yes
+    x1 = px[1]
+    p.append(f'<text class="fig-box-sub" x="{x1 - 4}" y="{ct + 8}" text-anchor="end">yes</text>')
+    p.append(f'<text class="fig-box-sub" x="{x1 - 4}" y="{cb + 4}" text-anchor="end">no</text>')
+    pts = []
+    for i in range(41):
+        t = i / 40
+        y = cb - (cb - ct - 6) / (1 + math.exp(-(t - 0.5) * 11))
+        pts.append(f"{x1 + 10 + t * 200:.1f} {y:.1f}")
+    p.append(f'<path class="fig-line-b" d="M{" L".join(pts)}" fill="none"/>')
+    for dx in (18, 40, 62, 88):
+        p.append(f'<circle class="fig-dot-a" cx="{x1 + dx}" cy="{cb - 4}" r="4"/>')
+    for dx in (128, 152, 176, 200):
+        p.append(f'<circle class="fig-dot-b" cx="{x1 + dx}" cy="{ct + 2}" r="4"/>')
+    mid_y = (ct + cb) / 2
+    p.append(f'<line class="fig-track" x1="{x1}" y1="{mid_y:.0f}" x2="{x1 + pw}" '
+             f'y2="{mid_y:.0f}"/>')
+    p.append(f'<text class="fig-box-sub" x="{x1}" y="{cb + 22}">above the middle line, act on '
+             f'it;</text>')
+    p.append(f'<text class="fig-box-sub" x="{x1}" y="{cb + 38}">below it, keep watching</text>')
+
+    # ---- 3: two groups, the widest gap, and the points holding it up
+    #
+    # The boundary bends. A support vector machine is not limited to a straight
+    # line, and drawing one straight was the single thing wrong with an earlier
+    # version of this panel: it made the third method look like the second.
+    x2 = px[2]
+
+    def bound(dx):
+        """Boundary in panel coordinates: a shallow diagonal with real waves in it.
+
+        A support vector machine with a kernel does not draw a line, it draws
+        whatever shape separates the groups with the most room. Earlier versions
+        of this panel drew a straight line and then a barely perceptible bow, and
+        both made the third method look like the second.
+        """
+        return 68 + 0.12 * (dx - 8) + 26 * math.sin(3 * math.pi * (dx - 8) / 200)
+
+    def bound_path(off=0.0, step=4):
+        pts = [f"{x2 + dx} {ct + bound(dx) + off:.1f}" for dx in range(8, 209, step)]
+        return "M" + " L".join(pts)
+
+    # Points are derived from the boundary rather than hand-placed, so the two
+    # bands wave with it and nothing can end up on the wrong side of the curve.
+    blues = [(dx, bound(dx) + 16 + extra)
+             for dx, extra in ((12, 26), (55, 10), (96, 0), (124, 22), (200, 8))]
+    oranges = [(dx, bound(dx) - 16 - extra)
+               for dx, extra in ((28, 8), (68, 24), (108, 22), (145, 0), (182, 12), (208, 22))]
+    supports = ((96, bound(96) + 16), (145, bound(145) - 16))
+    p.append(f'<path class="fig-line-a" d="{bound_path()}" fill="none"/>')
+    for off in (-16, 16):
+        p.append(f'<path class="fig-track" d="{bound_path(off)}" fill="none"/>')
+    # rings before the dots: fig-box fills with the surface colour and would
+    # otherwise hide the very points it is meant to single out
+    for dx, dy in supports:
+        p.append(f'<circle class="fig-box" cx="{x2 + dx}" cy="{ct + dy:.1f}" r="9"/>')
+    for dx, dy in blues:
+        p.append(f'<circle class="fig-dot-a" cx="{x2 + dx}" cy="{ct + dy:.1f}" r="4"/>')
+    for dx, dy in oranges:
+        p.append(f'<circle class="fig-dot-b" cx="{x2 + dx}" cy="{ct + dy:.1f}" r="4"/>')
+    p.append(f'<text class="fig-box-sub" x="{x2}" y="{cb + 22}">the ringed points are the only '
+             f'ones that</text>')
+    p.append(f'<text class="fig-box-sub" x="{x2}" y="{cb + 38}">matter: move them and the '
+             f'boundary moves</text>')
+
+    p.append('<text class="fig-sub" x="20" y="312">Start at the left. Move right only when the '
+             'question demands it, because everything you gain</text>')
+    p.append('<text class="fig-sub" x="20" y="330">going right is paid for in how easily you can '
+             'explain the answer afterwards.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------------- clustering
+def clustering():
+    """The same points, before and after a machine grouped them. THEMED, static."""
+    pts = ((44, 62), (68, 48), (58, 86), (86, 70), (36, 92), (74, 100),
+           (168, 150), (196, 132), (180, 176), (206, 166), (150, 168), (214, 190),
+           (250, 54), (272, 78), (292, 52), (266, 40), (296, 84), (240, 76))
+    # Radii are generous: the vertical compression below turns each round cluster
+    # into a slight ellipse, and a tight circle then cuts a corner point.
+    rings = ((62, 76, 50), (186, 158, 54), (270, 62, 48))
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 326" '
+        'class="fig-clustering" role="img" aria-label="The same scatter of points '
+        'twice. On the left it is unlabelled. On the right, three rings mark the '
+        'groups a clustering method found without being told what to look for.">',
+        '<text class="fig-title" x="20" y="24">Learning without being told the answer</text>',
+        '<text class="fig-sub" x="20" y="44">Nobody labelled these points. The grouping is the '
+        'output, not the input.</text>',
+        '<text class="fig-box-title" x="20" y="80">What you have</text>',
+        '<text class="fig-box-sub" x="20" y="98">every pump, described by how it behaves</text>',
+        '<text class="fig-box-title" x="400" y="80">What clustering found</text>',
+        '<text class="fig-box-sub" x="400" y="98">three groups, and no idea what they mean</text>',
+    ]
+    # Compressed vertically and lifted: at full spread the lowest ring ran into the
+    # closing text underneath it.
+    sc, base = 0.74, 106
+
+    def py(dy):
+        return base + 40 + (dy - 40) * sc
+
+    for dx, dy in pts:
+        p.append(f'<circle class="fig-dot-a" cx="{20 + dx}" cy="{py(dy):.0f}" r="4.5"/>')
+    for cx, cy, r in rings:
+        p.append(f'<circle class="fig-track" cx="{400 + cx}" cy="{py(cy):.0f}" '
+                 f'r="{r * sc:.0f}" fill="none"/>')
+    for dx, dy in pts:
+        p.append(f'<circle class="fig-dot-a" cx="{400 + dx}" cy="{py(dy):.0f}" r="4.5"/>')
+    p.append('<text class="fig-sub" x="20" y="296">Useful when you do not know what you are '
+             'looking for: which machines behave alike, which readings sit</text>')
+    p.append('<text class="fig-sub" x="20" y="314">outside every group. Naming the groups is a '
+             'job for somebody who knows the plant.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# --------------------------------------------------------------- neural network
+def neural_network():
+    """Layers, connections, and one signal's route through them. THEMED.
+
+    The single highlighted path is animated: it is the only thing here that
+    happens in an order, and it saves the reader from tracing 32 grey lines.
+    """
+    cols = (150, 330, 500, 670)
+    ins = (120, 175, 230)
+    h1 = (100, 155, 210, 265)
+    h2 = (100, 155, 210, 265)
+    out = 175
+    r = 13
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" '
+        'class="fig-neural-network" role="img" aria-label="Three input features on '
+        'the left, two middle layers of four nodes each, and one output on the '
+        'right, with every node connected to every node in the next layer. One '
+        'route through the network is highlighted.">',
+        '<text class="fig-title" x="20" y="24">When the rule is a shape nobody can write '
+        'down</text>',
+        '<text class="fig-sub" x="20" y="44">Every connection is a number. Training adjusts them '
+        'until the answers come out right.</text>',
+        '<text class="fig-box-sub" x="150" y="76" text-anchor="middle">what you feed in</text>',
+        '<text class="fig-box-sub" x="415" y="76" text-anchor="middle">layers that combine '
+        'them</text>',
+        '<text class="fig-box-sub" x="670" y="76" text-anchor="middle">the answer</text>',
+    ]
+    for a in ins:
+        for b in h1:
+            p.append(f'<line class="fig-track" x1="{cols[0] + r}" y1="{a}" x2="{cols[1] - r}" '
+                     f'y2="{b}"/>')
+    for a in h1:
+        for b in h2:
+            p.append(f'<line class="fig-track" x1="{cols[1] + r}" y1="{a}" x2="{cols[2] - r}" '
+                     f'y2="{b}"/>')
+    for a in h2:
+        p.append(f'<line class="fig-track" x1="{cols[2] + r}" y1="{a}" x2="{cols[3] - r}" '
+                 f'y2="{out}"/>')
+    # one route, so the eye has something to follow
+    route = ((cols[0] + r, ins[1], cols[1] - r, h1[2]),
+             (cols[1] + r, h1[2], cols[2] - r, h2[1]),
+             (cols[2] + r, h2[1], cols[3] - r, out))
+    for x1, y1, x2, y2 in route:
+        p.append(f'<path class="fig-exit-path fig-flow" d="M{x1} {y1} L{x2} {y2}" fill="none"/>')
+    for y, label in zip(ins, ("vibration", "temperature", "hours since start")):
+        p.append(f'<circle class="fig-box" cx="{cols[0]}" cy="{y}" r="{r}"/>')
+        p.append(f'<text class="fig-box-sub" x="{cols[0] - r - 8}" y="{y + 4}" '
+                 f'text-anchor="end">{label}</text>')
+    for col, ys in ((cols[1], h1), (cols[2], h2)):
+        for y in ys:
+            p.append(f'<circle class="fig-box" cx="{col}" cy="{y}" r="{r}"/>')
+    p.append(f'<circle class="fig-lit-box c-blue" cx="{cols[3]}" cy="{out}" r="{r + 3}"/>')
+    p.append(f'<text class="fig-box-sub" x="{cols[3]}" y="{out + 36}" '
+             f'text-anchor="middle">chance it fails</text>')
+    p.append('<text class="fig-sub" x="20" y="298">Nobody chooses what the middle layers stand '
+             'for. That is why a network can learn a pattern you could</text>')
+    p.append('<text class="fig-sub" x="20" y="316">never have described, and why it cannot '
+             'explain itself the way a straight line can.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------- lstm sequence anomaly
+def lstm_sequence_anomaly():
+    """What a sequence model sees that a threshold cannot. THEMED, animated.
+
+    The first version of this figure drew four boxes with words in them and
+    explained nothing, because the thing worth showing is not "there is a memory",
+    it is what the memory buys: a prediction of what should come next, and
+    therefore a way to notice that the shape is wrong while every single value is
+    still comfortably in range.
+
+    fig-draw on the actual trace, so it draws itself and visibly peels away from
+    the prediction rather than the reader having to find the divergence.
+    """
+    x0, x1 = 120, 730
+    mid, amp, period = 190, 54, 150
+    split = 470                                  # where the behaviour changes
+    hi, lo = 112, 268                            # the limits, never crossed
+
+    def normal(x):
+        return mid - amp * math.sin(2 * math.pi * (x - x0) / period)
+
+    def actual(x):
+        """Same range, wrong shape: the cycle collapses and drifts."""
+        if x <= split:
+            return normal(x)
+        t = (x - split) / (x1 - split)
+        decay = 1 - 0.72 * min(1.0, t * 1.6)
+        return mid - amp * decay * math.sin(2 * math.pi * (x - x0) / period) - 26 * t
+
+    def path(fn, a, b, step=3):
+        pts = [f"{x} {fn(x):.1f}" for x in range(a, b + 1, step)]
+        return "M" + " L".join(pts)
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 350" '
+        'class="fig-lstm-anomaly" role="img" aria-label="A signal cycling regularly '
+        'between a high and a low limit. Two thirds of the way along, the actual '
+        'trace stops matching the prediction: the cycle flattens and drifts. Every '
+        'value stays inside the limits, so no threshold fires, but the shape has '
+        'changed and that is what a sequence model detects.">',
+        '<text class="fig-title" x="20" y="24">An anomaly that never crosses a limit</text>',
+        '<text class="fig-sub" x="20" y="44">A sequence model predicts what should come next. '
+        'The gap between that and what arrives is the finding.</text>',
+        f'<line class="fig-track" x1="{x0}" y1="{hi}" x2="{x1}" y2="{hi}"/>',
+        f'<line class="fig-track" x1="{x0}" y1="{lo}" x2="{x1}" y2="{lo}"/>',
+        f'<text class="fig-box-sub" x="{x0}" y="{hi - 8}">high limit, never reached</text>',
+        f'<text class="fig-box-sub" x="{x0}" y="{lo + 18}">low limit, never reached</text>',
+        f'<line class="fig-track" x1="{split}" y1="96" x2="{split}" y2="{lo + 4}"/>',
+        f'<text class="fig-box-sub" x="{split + 8}" y="96">the shape changes here</text>',
+    ]
+    # what the model expected, from everything it had seen before
+    p.append(f'<path class="fig-line-a fig-line--ghost" d="{path(normal, split, x1)}" '
+             f'fill="none"/>')
+    # Parked above the ghost's last peak: at the right-hand edge all three labels
+    # piled into the same corner.
+    p.append(f'<text class="fig-box-sub" x="682" y="124" text-anchor="middle">what the model '
+             f'expected</text>')
+    # what actually arrived
+    p.append(f'<path class="fig-line-a" d="{path(normal, x0, split)}" fill="none"/>')
+    p.append(f'<path class="fig-line-b fig-draw" d="{path(actual, split, x1)}" fill="none"/>')
+    p.append(f'<text class="fig-box-sub" x="{x1}" y="192" text-anchor="end">what '
+             f'arrived</text>')
+    # the surprise, which is the thing worth raising an event about
+    # A trough of the prediction, where the two are furthest apart. The first
+    # attempt marked x=640, where they happen to cross and there is no gap to see.
+    gap_x = 608
+    p.append(f'<line class="fig-track" x1="{gap_x}" y1="{normal(gap_x):.1f}" x2="{gap_x}" '
+             f'y2="{actual(gap_x):.1f}"/>')
+    p.append(f'<circle class="fig-token fig-pulse" cx="{gap_x}" cy="{actual(gap_x):.1f}" r="7"/>')
+    p.append(f'<text class="fig-box-sub" x="{gap_x}" y="256" text-anchor="middle">the '
+             f'surprise, and it is growing</text>')
+
+    p.append('<text class="fig-sub" x="20" y="316">Every reading is in range, so no threshold '
+             'fires and no snapshot model has anything to say.</text>')
+    p.append('<text class="fig-sub" x="20" y="334">What changed is the pattern, and a pattern '
+             'only exists across time.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------ text as sequence
+def text_sequence_intent():
+    """Three requests built from almost the same words, meaning three things.
+
+    THEMED, static: the reader compares three rows, so nothing may be hidden.
+    The chips are sized from the text, because hand-tuned widths drift the moment
+    a word is edited.
+    """
+    rows = (
+        (["can", "you", "close", "my", "credit card"], (2, 4), "close · my own card"),
+        (["can", "you", "open", "my wife’s", "credit card"], (2, 3), "open · somebody else’s"),
+        # No shared verb at all with row one, which is the point of the third row
+        (["I", "no longer need", "my", "mastercard"], (1, 3), "close · my own card"),
+    )
+    y0, dy, ch = 116, 62, 34
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 336" '
+        'class="fig-text-sequence" role="img" aria-label="Three requests written as '
+        'rows of word chips. The first and third share an intent but not their '
+        'words; the first and second share nearly all their words but not their '
+        'intent. The words that decide the meaning are highlighted.">',
+        '<text class="fig-title" x="20" y="24">Almost the same words, three different '
+        'requests</text>',
+        '<text class="fig-sub" x="20" y="44">Counting words cannot separate these. Reading them '
+        'in order can.</text>',
+        '<text class="fig-box-sub" x="20" y="92">what was asked</text>',
+        '<text class="fig-box-sub" x="530" y="92">what it means</text>',
+    ]
+    for i, (words, lit, intent) in enumerate(rows):
+        y = y0 + i * dy
+        x = 20
+        for j, w in enumerate(words):
+            cw = len(w) * 6.4 + 20
+            hot = j in lit
+            cls = "fig-lit-box c-orange" if hot else "fig-box"
+            t_cls = "fig-lit-sub" if hot else "fig-box-sub"
+            p.append(f'<rect class="{cls}" x="{x:.0f}" y="{y}" width="{cw:.0f}" height="{ch}" '
+                     f'rx="9"/>'
+                     f'<text class="{t_cls}" x="{x + cw / 2:.0f}" y="{y + 22}" '
+                     f'text-anchor="middle">{w}</text>')
+            x += cw + 7
+        p.append(f'<path class="fig-exit-path fig-flow" d="M{x + 6:.0f} {y + ch / 2:.0f} '
+                 f'L520 {y + ch / 2:.0f}" fill="none"/>')
+        p.append(f'<rect class="fig-box" x="530" y="{y}" width="210" height="{ch}" rx="9"/>'
+                 f'<text class="fig-box-sub" x="635" y="{y + 22}" '
+                 f'text-anchor="middle">{intent}</text>')
+    p.append('<text class="fig-sub" x="20" y="300">Rows one and three mean the same thing and '
+             'share only the word “my”. Rows one and two share nearly</text>')
+    p.append('<text class="fig-sub" x="20" y="318">every word and mean different things. Order '
+             'and context are the whole difference.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# -------------------------------------------------------- measured vs generated
+def measured_vs_generated():
+    """What a generated reading is, for a reader still new to datapoints.
+
+    THEMED, static. Deliberately plain: two lanes that differ in one box, because
+    the point being made is that they differ in one box.
+    """
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    lanes = (
+        (104, "Measured", "A sensor on the pump", "71.2 °C at 09:14",
+         "one datapoint, stored", False),
+        (196, "Generated", "A model of the pump", "71.4 °C at 09:14",
+         "one datapoint, stored, marked generated", True),
+    )
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" '
+        'class="fig-measured-generated" role="img" aria-label="Two lanes. In the '
+        'first a sensor produces a reading which is stored as a datapoint. In the '
+        'second a model of the same pump produces a reading of the same kind, '
+        'stored the same way, and marked as generated.">',
+        '<text class="fig-title" x="20" y="24">The only difference is where the number came '
+        'from</text>',
+        '<text class="fig-sub" x="20" y="44">A reading with a time on it is a datapoint. Both '
+        'lanes end with one, and they look alike.</text>',
+    ]
+    for y, lane, source, reading, stored, gen in lanes:
+        mid = y + 26
+        p.append(f'<text class="fig-box-title" x="20" y="{y - 8}">{lane}</text>')
+        p.append(f'<rect class="fig-box" x="20" y="{y}" width="186" height="52" rx="12"/>'
+                 f'<text class="fig-box-sub" x="113" y="{mid + 4}" '
+                 f'text-anchor="middle">{source}</text>')
+        p.append(f'<path class="fig-exit-path fig-flow" d="M206 {mid} L235 {mid}" fill="none"/>')
+        p.append(arrow(235, mid))
+        p.append(f'<rect class="fig-box" x="252" y="{y}" width="150" height="52" rx="12"/>'
+                 f'<text class="fig-box-title" x="327" y="{mid + 5}" '
+                 f'text-anchor="middle">{reading}</text>')
+        p.append(f'<path class="fig-exit-path fig-flow" d="M402 {mid} L431 {mid}" fill="none"/>')
+        p.append(arrow(431, mid))
+        cls = "fig-lit-box c-orange" if gen else "fig-box"
+        t_cls = "fig-lit-sub" if gen else "fig-box-sub"
+        p.append(f'<rect class="{cls}" x="448" y="{y}" width="292" height="52" rx="12"/>'
+                 f'<text class="{t_cls}" x="594" y="{mid + 4}" '
+                 f'text-anchor="middle">{stored}</text>')
+    p.append('<text class="fig-sub" x="20" y="286">Nothing in the number itself says which lane '
+             'it came from. The mark on the second one is the</text>')
+    p.append('<text class="fig-sub" x="20" y="304">only thing keeping the two apart, which is '
+             'why it is not optional.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ---------------------------------------------------------- robot learning loop
+def robot_learning_loop():
+    """How a robot is taught, and where the data comes from. THEMED, animated.
+
+    The return arc is the argument: the loop runs continuously, and the middle
+    stage, which produces almost all of the data, is generated rather than
+    measured.
+    """
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    by, bh = 104, 72
+    mid = by + bh / 2
+    stages = (
+        (20, 158, "A person shows it", "a few hundred demonstrations", False),
+        (206, 168, "It copies", "imitation learning", False),
+        (402, 158, "It practises", "millions of tries, in simulation", True),
+        (588, 152, "It works", "and records everything", False),
+    )
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" '
+        'class="fig-robot-learning" role="img" aria-label="Four stages in a loop: a '
+        'person demonstrates the task, the robot copies the demonstrations, the '
+        'robot practises millions of times in simulation, and then it works for '
+        'real and records everything. The practice stage is highlighted because '
+        'almost all of the data comes from there, and it is generated.">',
+        '<text class="fig-title" x="20" y="24">Where a robot’s training data comes from</text>',
+        '<text class="fig-sub" x="20" y="44">A person can demonstrate a task a few hundred '
+        'times. Learning it takes millions of attempts.</text>',
+    ]
+    for i, (x, w, title, sub, lit) in enumerate(stages):
+        if i:
+            px_prev = stages[i - 1][0] + stages[i - 1][1]
+            p.append(f'<path class="fig-exit-path fig-flow" d="M{px_prev} {mid:.0f} '
+                     f'L{x - 11} {mid:.0f}" fill="none"/>')
+            p.append(arrow(x - 11, mid))
+        cls = "fig-lit-box c-orange" if lit else "fig-box"
+        t_cls = "fig-lit-title" if lit else "fig-box-title"
+        s_cls = "fig-lit-sub" if lit else "fig-box-sub"
+        p.append(f'<rect class="{cls}" x="{x}" y="{by}" width="{w}" height="{bh}" rx="12"/>'
+                 f'<text class="{t_cls}" x="{x + w / 2:.0f}" y="{by + 30}" '
+                 f'text-anchor="middle">{title}</text>'
+                 f'<text class="{s_cls}" x="{x + w / 2:.0f}" y="{by + 50}" '
+                 f'text-anchor="middle">{sub}</text>')
+    p.append(f'<path class="fig-exit-path fig-flow" d="M664 {by + bh} L664 214 L99 214 '
+             f'L99 {by + bh + 11}" fill="none"/>')
+    p.append(f'<path class="fig-centre" d="M94 {by + bh + 11} L99 {by + bh} '
+             f'L104 {by + bh + 11} z"/>')
+    p.append('<text class="fig-box-sub" x="380" y="234" text-anchor="middle">what it learns in '
+             'the world becomes the next round of demonstrations</text>')
+    p.append('<text class="fig-sub" x="20" y="268">Nearly all of the training data comes from '
+             'the highlighted stage, and none of it was measured.</text>')
+    p.append('<text class="fig-sub" x="20" y="286">The real robot is where the result is tested, '
+             'not where the practice happens.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------- features on image
+def features_on_image():
+    """The same idea as a computed feature, on a photograph. THEMED.
+
+    Four panels, static, because a reader compares them. The point of the figure
+    is that only the last panel has a name a person would use: everything before
+    it is a feature built out of the panel to its left.
+    """
+    def arrow(x, y):
+        return f'<path class="fig-centre" d="M{x} {y - 5} L{x + 11} {y} L{x} {y + 5} z"/>'
+
+    pw = 150
+    xs = (20, 205, 390, 575)
+    mid_y = 146
+    heads = ("Pixels", "Edges", "Shapes", "An object")
+    caps = (("brightness at a point,", "and nothing else"),
+            ("where the brightness", "changes, and which way"),
+            ("edges that keep company:", "a ring, a pointer, ticks"),
+            ("a name, and how sure", "the model is of it"))
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 322" '
+        'class="fig-features-image" role="img" aria-label="Four panels. A grid of '
+        'pixels, then the edges found in it, then the shapes those edges form, a '
+        'ring with a pointer and tick marks, and finally the object itself, '
+        'recognised as a pressure gauge with a confidence score.">',
+        '<text class="fig-title" x="20" y="24">The same idea, on a photograph</text>',
+        '<text class="fig-sub" x="20" y="44">Nobody writes down what a gauge looks like. Each '
+        'panel is built out of the one to its left.</text>',
+    ]
+    for i, (x, head, cap) in enumerate(zip(xs, heads, caps)):
+        p.append(f'<text class="fig-box-title" x="{x + pw / 2:.0f}" y="82" '
+                 f'text-anchor="middle">{head}</text>')
+        # Captions clear of the confidence chip in the last panel, which sits at 218
+        p.append(f'<text class="fig-box-sub" x="{x + pw / 2:.0f}" y="240" '
+                 f'text-anchor="middle">{cap[0]}</text>')
+        p.append(f'<text class="fig-box-sub" x="{x + pw / 2:.0f}" y="256" '
+                 f'text-anchor="middle">{cap[1]}</text>')
+        if i:
+            p.append(f'<path class="fig-exit-path fig-flow" d="M{x - 35} {mid_y} '
+                     f'L{x - 11} {mid_y}" fill="none"/>')
+            p.append(arrow(x - 11, mid_y))
+
+    # 1: a grid of cells, lit roughly where the gauge is
+    cell, cols = 15, 6
+    gx = xs[0] + (pw - cols * (cell + 1)) / 2
+    for r in range(6):
+        for c in range(cols):
+            d = math.hypot(r - 2.5, c - 2.5)
+            cls = "fig-lit-box c-blue" if d < 2.7 else "fig-box"
+            p.append(f'<rect class="{cls}" x="{gx + c * (cell + 1):.0f}" '
+                     f'y="{98 + r * (cell + 1)}" width="{cell}" height="{cell}" rx="2"/>')
+
+    # 2: short segments where the brightness changes, tangent to the ring
+    cx2, r2 = xs[1] + pw / 2, 32
+    for k in range(12):
+        a = 2 * math.pi * k / 12
+        ox, oy = cx2 + r2 * math.cos(a), mid_y + r2 * math.sin(a)
+        tx, ty = -math.sin(a) * 9, math.cos(a) * 9
+        p.append(f'<path class="fig-line-a" d="M{ox - tx:.1f} {oy - ty:.1f} L{ox + tx:.1f} '
+                 f'{oy + ty:.1f}" fill="none"/>')
+    p.append(f'<path class="fig-line-a" d="M{cx2:.0f} {mid_y} L{cx2 + 18:.0f} {mid_y - 14}" '
+             f'fill="none"/>')
+
+    # 3: the shapes those edges add up to
+    cx3 = xs[2] + pw / 2
+    p.append(f'<circle class="fig-line-a" cx="{cx3:.0f}" cy="{mid_y}" r="34" fill="none"/>')
+    for k in range(8):
+        a = 2 * math.pi * k / 8
+        p.append(f'<path class="fig-line-a" d="M{cx3 + 27 * math.cos(a):.1f} '
+                 f'{mid_y + 27 * math.sin(a):.1f} L{cx3 + 33 * math.cos(a):.1f} '
+                 f'{mid_y + 33 * math.sin(a):.1f}" fill="none"/>')
+    p.append(f'<path class="fig-line-b" d="M{cx3:.0f} {mid_y} L{cx3 + 22:.0f} {mid_y - 17}" '
+             f'fill="none"/>')
+
+    # 4: the object, named
+    cx4 = xs[3] + pw / 2
+    p.append(f'<rect class="fig-centre" x="{cx4 - 44:.0f}" y="{mid_y - 44}" width="88" '
+             f'height="88" rx="10"/>')
+    p.append(f'<circle class="fig-line-a" cx="{cx4:.0f}" cy="{mid_y}" r="30" fill="none"/>')
+    p.append(f'<path class="fig-line-b" d="M{cx4:.0f} {mid_y} L{cx4 + 20:.0f} {mid_y - 15}" '
+             f'fill="none"/>')
+    p.append(f'<rect class="fig-lit-box c-blue" x="{cx4 - 62:.0f}" y="{mid_y + 48}" width="124" '
+             f'height="24" rx="8"/>'
+             f'<text class="fig-lit-sub" x="{cx4:.0f}" y="{mid_y + 64}" '
+             f'text-anchor="middle">pressure gauge · 0.94</text>')
+
+    p.append('<text class="fig-sub" x="20" y="292">Only the last panel has a name a person would '
+             'use. The two in the middle are features the model</text>')
+    p.append('<text class="fig-sub" x="20" y="310">worked out for itself, and they are what the '
+             'answer is actually built from.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------- events from series
+def events_from_series():
+    """Three different reasons the same trace produces an event. THEMED.
+
+    Static: the reader compares the three moments. The trace is one continuous
+    signal on purpose, because the point is that nothing about the series
+    changes, only what somebody decided was worth recording.
+    """
+    x_l, x_r = 120, 730
+    base, limit = 172, 112
+    marks = (255, 440, 600)
+
+    def trace(x):
+        y = base - 8 * math.sin(x / 22)
+        if 205 < x < 315:                      # the excursion that breaks the limit
+            y -= 74 * math.exp(-(((x - 255) / 26) ** 2))
+        if 390 < x < 500:                      # same range, unfamiliar rhythm
+            y -= 15 * math.sin((x - 390) / 6.5)
+        if x > 545:                            # settles into a different regime
+            y += 34 / (1 + math.exp(-(x - 585) / 7))
+        return y
+
+    pts = [f"{x} {trace(x):.1f}" for x in range(x_l, x_r + 1, 3)]
+    chips = (
+        (170, "ALARM", "pressure over the limit"),
+        (350, "ANOMALY", "shape nothing like normal"),
+        (520, "NEW CONDITION", "pump switched to standby"),
+    )
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" '
+        'class="fig-events-series" role="img" aria-label="One pressure trace with '
+        'three moments marked. The first crosses a limit and raises an alarm. The '
+        'second stays inside the limit but changes shape, and raises an anomaly. '
+        'The third settles at a new level and records a change of condition. Each '
+        'becomes an event underneath the chart.">',
+        '<text class="fig-title" x="20" y="24">Three reasons the same trace becomes an '
+        'event</text>',
+        '<text class="fig-sub" x="20" y="44">The series keeps every reading. An event records '
+        'the moment something decided a reading mattered.</text>',
+        f'<line class="fig-track" x1="{x_l}" y1="{limit}" x2="{x_r}" y2="{limit}"/>',
+        f'<text class="fig-box-sub" x="{x_l}" y="{limit - 8}">high limit</text>',
+        f'<text class="fig-box-sub" x="20" y="{base + 4}">21-PT-3105</text>',
+        f'<path class="fig-line-a" d="M{" L".join(pts)}" fill="none"/>',
+    ]
+    for mx, (cx, title, sub) in zip(marks, chips):
+        my = trace(mx)
+        p.append(f'<circle class="fig-token" cx="{mx}" cy="{my:.1f}" r="7"/>')
+        p.append(f'<line class="fig-track" x1="{mx}" y1="{my + 10:.1f}" x2="{cx + 80}" '
+                 f'y2="240"/>')
+        p.append(f'<rect class="fig-lit-box c-orange" x="{cx}" y="240" width="160" height="46" '
+                 f'rx="12"/>'
+                 f'<text class="fig-lit-title" x="{cx + 80}" y="{262}" '
+                 f'text-anchor="middle">{title}</text>'
+                 f'<text class="fig-lit-sub" x="{cx + 80}" y="{278}" '
+                 f'text-anchor="middle">{sub}</text>')
+    p.append('<text class="fig-sub" x="20" y="316">All three hang off the same pump, so they sit '
+             'alongside the work orders, the inspections and</text>')
+    p.append('<text class="fig-sub" x="20" y="334">everything else recorded against it, and '
+             'against the equipment around it.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
 THEMED_OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                           "src", "figures")
 
@@ -1917,6 +3608,7 @@ THEMED_FIGURES = (
     ("feature-extraction.svg", feature_extraction),
     ("windowing.svg", windowing),
     ("event-detection.svg", event_detection),
+    ("events-from-series.svg", events_from_series),
     ("function-wiring.svg", function_wiring),
     ("detection-to-action.svg", detection_to_action),
     ("revolution-contrast.svg", revolution_contrast),
@@ -1927,6 +3619,29 @@ THEMED_FIGURES = (
     ("digital-twin-mirror.svg", digital_twin_mirror),
     ("agent-organisation.svg", agent_organisation),
     ("aliasing-illusion.svg", aliasing_illusion),
+    ("mcp-one-protocol.svg", mcp_one_protocol),
+    ("mcp-call-path.svg", mcp_call_path),
+    ("agent-guardrails.svg", agent_guardrails),
+    ("agent-graph-join.svg", agent_graph_join),
+    ("wind-peer-comparison.svg", wind_peer_comparison),
+    ("vessel-sisters.svg", vessel_sisters),
+    ("blast-radius-cooling.svg", blast_radius_cooling),
+    ("readiness-gate.svg", readiness_gate),
+    ("issuer-neighbourhood.svg", issuer_neighbourhood),
+    ("ward-devices.svg", ward_devices),
+    ("agent-anatomy.svg", agent_anatomy),
+    ("dirty-data.svg", dirty_data),
+    ("feature-flywheel.svg", feature_flywheel),
+    ("features-on-image.svg", features_on_image),
+    ("synthetic-and-measured.svg", synthetic_and_measured),
+    ("measured-vs-generated.svg", measured_vs_generated),
+    ("robot-learning-loop.svg", robot_learning_loop),
+    ("rules-vs-learning.svg", rules_vs_learning),
+    ("ml-progression.svg", ml_progression),
+    ("clustering.svg", clustering),
+    ("neural-network.svg", neural_network),
+    ("lstm-sequence-anomaly.svg", lstm_sequence_anomaly),
+    ("text-sequence-intent.svg", text_sequence_intent),
 )
 
 if __name__ == "__main__":
