@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 384" class="fig-shortfall-attribution" role="img" aria-label="An afternoon demand curve with delivered output falling below it between two and six in the afternoon, and three rows underneath on the same time axis showing which units were unavailable and what was raised against them.">
+<text class="fig-title" x="20" y="24">A shortfall is a number. Which assets made it is a traversal.</text>
+<text class="fig-sub" x="20" y="44">One afternoon, one axis: the gap on top, and what was happening underneath it.</text>
+<path class="fig-centre" d="M366.7 105.2 L378.3 103.3 L390.0 101.5 L401.7 99.9 L413.3 98.5 L425.0 97.2 L436.7 96.1 L448.3 95.2 L460.0 94.4 L471.7 93.8 L483.3 93.3 L495.0 93.1 L506.7 93.0 L518.3 93.1 L530.0 93.3 L541.7 93.8 L553.3 94.4 L565.0 95.2 L567.3 95.3 L555.7 104.0 L544.0 112.5 L532.3 120.5 L520.7 127.8 L509.0 134.2 L497.3 139.3 L485.7 143.1 L474.0 145.4 L462.3 146.1 L450.7 145.3 L439.0 143.0 L427.3 139.3 L415.7 134.3 L404.0 128.3 L392.3 121.5 L380.7 114.2 L369.0 106.7 L366.7 105.2 z"/>
+<path class="fig-line-b" d="M180.0 152.9 L191.7 149.2 L203.3 145.5 L215.0 142.0 L226.7 138.5 L238.3 135.1 L250.0 131.8 L261.7 128.6 L273.3 125.5 L285.0 122.5 L296.7 119.7 L308.3 116.9 L320.0 114.3 L331.7 111.8 L343.3 109.5 L355.0 107.3 L366.7 105.2 L378.3 112.7 L390.0 120.1 L401.7 127.0 L413.3 133.2 L425.0 138.4 L436.7 142.3 L448.3 145.0 L460.0 146.1 L471.7 145.6 L483.3 143.7 L495.0 140.2 L506.7 135.3 L518.3 129.2 L530.0 122.0 L541.7 114.1 L553.3 105.7 L565.0 97.1 L576.7 96.1 L588.3 97.2 L600.0 98.5 L611.7 99.9 L623.3 101.5 L635.0 103.3 L646.7 105.2 L658.3 107.3 L670.0 109.5 L681.7 111.8 L693.3 114.3 L705.0 116.9 L716.7 119.7 L728.3 122.5 L740.0 125.5" fill="none"/>
+<path class="fig-line-a fig-line--ghost" d="M180.0 152.9 L191.7 149.2 L203.3 145.5 L215.0 142.0 L226.7 138.5 L238.3 135.1 L250.0 131.8 L261.7 128.6 L273.3 125.5 L285.0 122.5 L296.7 119.7 L308.3 116.9 L320.0 114.3 L331.7 111.8 L343.3 109.5 L355.0 107.3 L366.7 105.2 L378.3 103.3 L390.0 101.5 L401.7 99.9 L413.3 98.5 L425.0 97.2 L436.7 96.1 L448.3 95.2 L460.0 94.4 L471.7 93.8 L483.3 93.3 L495.0 93.1 L506.7 93.0 L518.3 93.1 L530.0 93.3 L541.7 93.8 L553.3 94.4 L565.0 95.2 L576.7 96.1 L588.3 97.2 L600.0 98.5 L611.7 99.9 L623.3 101.5 L635.0 103.3 L646.7 105.2 L658.3 107.3 L670.0 109.5 L681.7 111.8 L693.3 114.3 L705.0 116.9 L716.7 119.7 L728.3 122.5 L740.0 125.5" fill="none"/>
+<text class="fig-box-sub" x="20" y="86">Demand against delivered</text>
+<text class="fig-box-sub" x="467" y="82" text-anchor="middle">demand</text>
+<text class="fig-box-sub" x="467" y="166" text-anchor="middle">delivered</text>
+<text class="fig-box-title" x="586" y="120">the shortfall</text>
+<text class="fig-box-title" x="20" y="240">What the model says was underneath it</text>
+<text class="fig-box-title" x="20" y="275">GT-2</text>
+<line class="fig-track" x1="180" y1="270" x2="740" y2="270"/>
+<rect class="fig-lit-box c-orange" x="367" y="258" width="201" height="24" rx="7"/>
+<text class="fig-lit-sub" x="377" y="274">tripped 13:58, back at 18:20</text>
+<text class="fig-box-title" x="20" y="311">GT-5</text>
+<line class="fig-track" x1="180" y1="306" x2="740" y2="306"/>
+<rect class="fig-box" x="273" y="294" width="373" height="24" rx="7"/>
+<text class="fig-box-sub" x="283" y="310">derated to 60% on ambient</text>
+<text class="fig-box-title" x="20" y="347">BESS-1</text>
+<line class="fig-track" x1="180" y1="342" x2="740" y2="342"/>
+<rect class="fig-lit-box c-orange" x="427" y="330" width="126" height="24" rx="7"/>
+<text class="fig-lit-sub" x="437" y="346">fully discharged 15:20</text>
+<text class="fig-box-sub" x="273" y="374" text-anchor="middle">12:00</text>
+<text class="fig-box-sub" x="413" y="374" text-anchor="middle">15:00</text>
+<text class="fig-box-sub" x="553" y="374" text-anchor="middle">18:00</text>
+<text class="fig-box-sub" x="693" y="374" text-anchor="middle">21:00</text>
+</svg>

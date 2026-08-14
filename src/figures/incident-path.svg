@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 362" class="fig-incident-path" role="img" aria-label="A latency trace that steps up at twenty past two, with a marker at two o clock for a deploy, and beneath it a chain from the degraded service through its host, a storage array with rising errors, a switch dropping packets, to that deploy.">
+<text class="fig-title" x="20" y="24">Twenty minutes apart, and four hops away</text>
+<text class="fig-sub" x="20" y="44">The chart says when. The chain says what, and it is the same walk every time.</text>
+<text class="fig-box-sub" x="20" y="88">Checkout latency</text>
+<path class="fig-line-a" d="M150 148 L160 151 L170 152 L180 149 L189 150 L199 152 L209 148 L219 151 L229 151 L238 148 L248 150 L258 152 L268 148 L278 151 L288 152 L298 149 L307 150 L317 152 L327 148 L337 151 L347 151 L356 148 L366 150 L376 152 L386 148 L396 151 L406 152 L416 149 L425 150 L435 152 L445 148 L455 151 L465 151 L474 106 L484 108 L494 110 L504 106 L514 109 L524 110 L534 107 L543 108 L553 110 L563 106 L573 109 L583 109 L592 106 L602 108 L612 110 L622 106 L632 109 L642 110 L652 107 L661 108 L671 110 L681 106 L691 109 L701 109 L710 106 L720 108 L730 110 L740 106" fill="none"/>
+<line class="fig-line-b" x1="392" y1="96" x2="392" y2="176"/>
+<text class="fig-box-sub" x="386" y="92" text-anchor="end">deploy 918, 14:00</text>
+<line class="fig-track" x1="470" y1="96" x2="470" y2="176"/>
+<text class="fig-box-sub" x="476" y="92">latency steps up, 14:20</text>
+<rect class="fig-lit-box c-blue" x="20" y="234" width="128" height="54" rx="12"/>
+<text class="fig-lit-title" x="84" y="258" text-anchor="middle">Checkout</text>
+<text class="fig-lit-sub" x="84" y="276" text-anchor="middle">degraded</text>
+<path class="fig-exit-path fig-flow" d="M148 261 L166 261" fill="none"/>
+<rect class="fig-box" x="166" y="234" width="128" height="54" rx="12"/>
+<text class="fig-box-title" x="230" y="258" text-anchor="middle">host-14</text>
+<text class="fig-box-sub" x="230" y="276" text-anchor="middle">hosting it</text>
+<path class="fig-exit-path fig-flow" d="M294 261 L312 261" fill="none"/>
+<rect class="fig-box" x="312" y="234" width="128" height="54" rx="12"/>
+<text class="fig-box-title" x="376" y="258" text-anchor="middle">array-3</text>
+<text class="fig-box-sub" x="376" y="276" text-anchor="middle">errors climbing</text>
+<path class="fig-exit-path fig-flow" d="M440 261 L458 261" fill="none"/>
+<rect class="fig-box" x="458" y="234" width="128" height="54" rx="12"/>
+<text class="fig-box-title" x="522" y="258" text-anchor="middle">sw-04</text>
+<text class="fig-box-sub" x="522" y="276" text-anchor="middle">dropping packets</text>
+<path class="fig-exit-path fig-flow" d="M586 261 L604 261" fill="none"/>
+<rect class="fig-box" x="604" y="234" width="128" height="54" rx="12"/>
+<text class="fig-box-title" x="668" y="258" text-anchor="middle">deploy 918</text>
+<text class="fig-box-sub" x="668" y="276" text-anchor="middle">went out at 14:00</text>
+<text class="fig-box-sub" x="20" y="216">start at the symptom</text>
+<text class="fig-sub" x="20" y="326">Every hop is a relationship somebody recorded once. The alternative is four people in a call, each</text>
+<text class="fig-sub" x="20" y="344">holding one hop of it in their head.</text>
+</svg>

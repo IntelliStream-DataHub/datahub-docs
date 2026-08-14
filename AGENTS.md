@@ -234,6 +234,14 @@ every animation is disabled under `prefers-reduced-motion`.
 - **Mermaid renders client-side.** Static HTML holds an empty placeholder, so diagrams being
   absent from the build output is expected. A malformed diagram fails silently in the browser
   rather than breaking the build, so check diagrams visually.
+- **A colon in a front-matter value breaks the page's title, silently.** An unquoted YAML
+  scalar containing `: ` is a parse error, and Docusaurus responds by falling back to the
+  file id: the page appears in the left menu as `stream-processing` rather than
+  "Stream processing", and loses its meta description with it. Nothing else complains, the
+  build succeeds, and the page body looks perfect because the `# Heading` is markdown rather
+  than front matter. `scripts/check-docs.py` now parses every front-matter block as real YAML
+  (strictly when PyYAML is importable, otherwise checking for the unquoted colon) and requires
+  a `title`. House style is to rephrase with a comma rather than to quote the value.
 - **Punctuation in headings changes their slug.** Removing em dashes from headings silently
   broke four internal anchors. Run `scripts/check-docs.py` after any bulk text change.
 - **Editing `make-figures.py` by slicing between markers is dangerous.** One such edit left
@@ -623,6 +631,179 @@ content sits on its own lines gets that content wrapped in a second `<p>`, which
 HTML and a React hydration warning visible only in a browser console. Keep the text on the
 same line as the opening tag. The warning is still present on `start/what-is-datahub.mdx`,
 `value/industry-examples.mdx` and `value/ai-agents.mdx`, which use the raw form.
+
+### Trees, k-means and policy agents, 2026-08-14
+
+`concepts/machine-learning.mdx` gained a **tree family** section (decision tree, random
+forest, gradient boosting and XGBoost) sitting between the support vector machine and the
+sequence material, and a **k-means** subsection under clustering. The sequences heading was
+promoted from H3 to H2 so the new H2 could go between them; heading level does not change a
+slug, so `#sequences-lstm-and-why-time-series-need-it`, linked from `using/events.mdx`, still
+resolves. The claims worth preserving: trees **cannot extrapolate**, because a tree answers by
+averaging examples it has seen, so outside its training range it returns the edge of what it
+knows and plain linear regression is the better tool; trees have **no sense of time**, so
+order has to be engineered into the features; **feature importance describes the model, not
+the process**; k-means needs **scaled features** or the column with the biggest units decides
+every group on its own; and once the clusters are named as labels, **the distance to the
+nearest centre is an anomaly score nobody had to define**.
+
+`concepts/data-governance.mdx` gained "Rules that act, not just rules that are recorded": the
+four moments a rule can act (at the write, while it sits, at the read, at the end of life),
+which of them acts today (only naming; note that reads *are* gated, but by organization groups
+rather than by anything a policy says, so the honest framing is that the policy is not what
+enforces it), how to write a rule something could enforce, and **the policy agent**, one agent
+given one rule. That last idea is the one to keep intact: it is a **detective control, not a
+preventive one**, it proposes but must never close its own finding, and the rule stays the
+artefact so the agent hands it over when platform enforcement ships. The argument for an agent
+rather than a scheduled query is the *judgement* class of rule: whether a description says
+anything, whether a data set's membership still matches its stated purpose.
+
+Three new themed figures: `tree-ensembles`, `k-means-steps` and `policy-agents`. Two new CSS
+primitives, both general: `.fig-dot-c` (a third series dot, stroke-green, matching how
+`.fig-dot-b` uses stroke-orange) and `.fig-edge` (**the solid twin of `fig-track`**; at glyph
+scale a dashed line breaks into two or three marks and a mini tree stops reading as a tree).
+
+**How to look at a themed figure without starting the site.** Wrap the SVG in an HTML page
+that inlines `src/css/custom.css`, then screenshot it with headless chromium; add
+`data-theme="dark"` on `<html>` for the dark pass. Snap chromium cannot write into `/tmp`, so
+put both the HTML and the PNG under `$HOME`. Worth the two minutes: every defect in this batch
+was found by looking and none by a checker, namely dashed branches that read as debris, a
+label crossing the cluster it was not about, an agent rail running past its last tick, and a
+starting centre parked inside the wrong blob.
+
+### Decision tempo, defence and the guided tutorial, 2026-08-14
+
+`concepts/lineage-and-quality.mdx` gained the business argument it was missing. The page was
+written as a compliance story; it now opens the case for **decision speed** before the
+mechanism: the slow part of a fast decision is trusting the number, not producing it, so the
+two failure modes are deciding late and deciding confidently on something unverified. Then a
+worked **Strait of Hormuz** example, forward lineage ("what of ours depends on this?", which
+is the direction a crisis needs and the one lineage writing usually ignores), and the
+compounding point that cheap revision is what lets you commit on an incomplete picture. New
+figure `decision-tempo`.
+
+Two things to preserve there. First, the honesty split: the page-level `<Roadmap>` covers the
+whole page, and the new section closes with an explicit "what of this works today" paragraph,
+because the forward question is genuinely cheaper today (one queryable model) while the
+end-to-end trace and quality flags are not built. Second, **the Hormuz material is deliberately
+structural, not topical**: a fifth of the world's petroleum liquids and a comparable share of
+its LNG, about 33 km at the narrowest, bypass pipelines that carry only part of the flow. It
+is written so it holds whatever is in the news, because this environment cannot verify the
+current state of that situation, and a docs page pinned to a specific week's events ages
+badly. If someone wants dates and prices in there, they have to supply them.
+
+The same page gained a **"Where agents help"** on lineage: an agent walks the trail backwards
+before answering and forwards when an input changes, and the three limits are that it must
+never invent a trail, that its own answer is itself a derived value, and that a person still
+decides.
+
+`value/industry-examples.mdx` gained **a defence organisation** as the sixth deployment
+(readiness computed rather than assembled, sustainment against usage rather than the calendar,
+spares and thin supply, the estate as an industrial site, trials data that stays comparable).
+Register matters here and was chosen deliberately: **sustainment, readiness and logistics,
+never targeting or weapon employment**, the same register as the defence example on
+`using/ai-agents.mdx`. It also carries the honest separation note, that classification domains
+are a **deployment** boundary rather than a data set one, because tenants share one graph in
+the reference stack. The page's "five deployments" counts were updated to six.
+
+**`value/industry-examples.mdx` now carries a figure per example**, which it previously had
+none of: `chemical-accounting` (a purchased total against a metered one, the same height,
+with the only coloured band being the dose nobody needed), `shortfall-attribution` (the gap
+on top, the units and their events underneath, on one axis), `excursion-upstream` (five
+stages against a morning, the cause upstream and five hours earlier), `defect-attribution`
+(defects clustering where one station meets one material lot), `incident-path` (a latency
+step at 14:20 over the chain back to the deploy at 14:00) and `usage-vs-calendar` (two
+identical vehicles, one deployed, four calendar services that fit neither). The coda section
+reuses `liberation-translate` rather than growing a near-duplicate. Keep the one-per-example
+rule if a seventh deployment is added, the same rule `using/ai-agents.mdx` follows.
+
+Four defects in that batch, all found by rendering and none by a checker, and all of a kind
+seen before: a label parked on top of the bar it was annotating; two chart labels colliding
+because both were anchored inward from their own marks; a demand line hidden underneath the
+delivered line everywhere they agreed (fixed by drawing the reference line last and ghosted,
+so agreement reads as agreement); and calendar-service ticks drawn in the orange that the
+figure had already spent on vehicle B, which silently assigned them to one vehicle. **A
+colour that means something elsewhere in the same figure cannot be reused for scenery.**
+
+**New page: `using/guided-tutorial.mdx`** at position 2, with everything from 2 upward
+renumbered. The console has carried a guided tutorial for a while and the docs mentioned it
+only in a table row. Written from the console code, not the i18n bundle, with the platform
+checkout dated `2026-08-14` first. Where it lives:
+`datahub-console/src/main/resources/static/js/tutorial-{core,dom,engine-ui,context,page-ui}.js`
+plus `static/js/tutorials/datasets.js`, with the modal shells in `templates/layout/main.html`.
+The facts worth keeping: one tour exists (`datasets`) with six chapters (datasets, resources,
+timeseries, correlation, events, buildout, the last labelled "Build a network"); four industry
+scenarios (oil_gas the default, tech, manufacturing, energy) which change vocabulary only;
+steps are guarded (a click or a minimum-length input) and everything outside the highlight is
+blocked; the tour navigates across pages and resumes silently, or offers a Resume/Restart/Quit
+banner; **it writes real objects into the tenant**, a new run deletes the previous run's first,
+and the final step offers "Keep it" or "Remove tutorial data" (best effort); chapter one needs
+the all-data-sets grant, since creating a data set does; and `tutorial.enabled=false` in the
+console configuration removes it everywhere.
+
+### Stream processing, 2026-08-14
+
+New concepts page `concepts/stream-processing.mdx` at position 15, sitting after the
+clean, featurise, learn, generate run and opening on the observation that all four of those
+pages assumed the data was sitting still. Three figures: `answer-age` (a sawtooth, because
+the quantity that separates batch from streaming is **the age of the answer** rather than the
+answer), `window-shapes` (tumbling, sliding and session side by side; `windowing` on the
+functions page still draws tumbling properly, and this one exists to make the *choice*
+legible) and `event-time-arrival`.
+
+The claims worth preserving: batch is not obsolete, it is **periodically right**, and what it
+costs is that nobody knows how much of today is missing from the number; a window's length is
+a claim about the process, set by how fast the watched thing can change; **state rather than
+volume is what makes a stream computation hard**, because state has to survive a restart. And
+the one that earns the page its place: **event time against arrival time is the industrial
+half of stream processing that web-shaped writing never covers.** Links drop, a vessel sails,
+a handheld syncs at end of shift, so a window computed on arrival invents a quiet morning and
+a violent afternoon. The three rules that follow (compute on the carried timestamp, decide how
+long a window stays open, assume a reading can arrive twice) should survive editing.
+
+**The SDK section is written from `../datahub-sdk-docs`, checkout dated 2026-08-14,
+`docs/guides/realtime-subscriptions.mdx`, which is itself written from the code.** The facts
+used: SDKs for **Java, Python and Rust**; a subscription names a set of series and a live
+connection delivers each datapoint as it lands, with no polling; the consumer acks what it
+handled, unacked messages are redelivered and a nack re-queues, so delivery is **at least
+once** and handlers have to be idempotent; the interest set can be changed on a live listener
+without reconnecting; reconnection is transparent. That last one is why the burst in
+`event-time-arrival` is normal operation rather than a fault, which is the join between the
+concept half of the page and the SDK half. The deep link used is
+`/sdk-documentation/guides/realtime-subscriptions`, following the `/sdk-documentation/mcp-server`
+pattern already on `value/ai-agents.mdx`; `check-docs.py` does not validate those, so they
+need a manual look if the SDK site is ever reorganised.
+
+`using/subscriptions.mdx` then gained a **worked sliding-window example** on the back of it,
+because the page had been all mechanism and no problem: a pump's limit alarm firing four
+hundred times a month, suppressed years ago, useless on the one occasion it mattered. The
+argument for a sliding rather than a tumbling window is the load-bearing part, and it is
+concrete: a twenty-five minute excursion straddling two fifteen-minute slices shows as two
+partial slices and neither is sustained, so a tumbling rule stays quiet through the event it
+was built for. The figure `sustained-exceedance` draws the four nuisance spikes **higher**
+than the real excursion on purpose, because duration rather than severity is what the rule
+judges, and a picture where the real one is also the tallest would argue the opposite.
+
+Everything in that example's "survive contact with reality" list is tied to a verified SDK
+fact rather than to general streaming advice: at-least-once delivery means dedupe inside your
+own window (the platform collapses duplicates you *write*, since datapoints are keyed by
+series and timestamp and events by id, but the window is yours); evict on the carried
+timestamp; fill the window from the ordinary API on start-up instead of being blind for the
+first twenty minutes; a window with holes is not a quiet window; ack after acting, never
+before. Also worth keeping: a subscription's service account must be able to read **every**
+series bound to it, and a series it cannot read is refused explicitly rather than arriving as
+silence.
+
+Keep code samples on this site to about **70 characters a line**. The first version of that
+snippet ran to 90 and the trailing comments were clipped at the edge of the code block, which
+the checkers cannot see; the fix was moving comments onto their own lines rather than
+shortening the code.
+
+`drafts/streams.mdx` stays parked and none of it was resurrected: that draft is a **product**
+page (namespaces, topics, backlog quotas, console screens) waiting on a rework of how
+streaming will work, while this is a concepts page about the idea. The one place they touch is
+backpressure, which the new page states as a principle (drop, buffer or slow the producer, and
+the only mistake is not knowing which) without documenting any console screen.
 
 ### The lesson
 

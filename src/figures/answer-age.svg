@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 366" class="fig-answer-age" role="img" aria-label="The age of an answer over two days. A nightly batch job produces a sawtooth: the answer is fresh just after midnight and a full day old just before the next run. A streaming computation holds a nearly flat line close to zero. At four in the afternoon the batch answer is sixteen hours old and the streamed one is seconds old.">
+<text class="fig-title" x="20" y="24">The nightly answer is only fresh at breakfast</text>
+<text class="fig-sub" x="20" y="44">Same question, same data. What differs is how old the answer is at the moment somebody acts on it.</text>
+<text class="fig-box-sub" x="20" y="86">Age of the answer</text>
+<line class="fig-track" x1="90" y1="280" x2="668" y2="280"/>
+<line class="fig-track" x1="90" y1="110" x2="668" y2="110"/>
+<text class="fig-box-sub" x="674" y="114">a day</text>
+<text class="fig-box-sub" x="674" y="284">current</text>
+<path class="fig-line-b" d="M90 280 L379 110 L379 280 L668 110" fill="none"/>
+<line class="fig-line-a" x1="90" y1="274" x2="668" y2="274"/>
+<text class="fig-box-title" x="102" y="100">Nightly batch</text>
+<text class="fig-box-title" x="102" y="264">Streamed</text>
+<line class="fig-track" x1="572" y1="104" x2="572" y2="286"/>
+<text class="fig-box-sub" x="572" y="96" text-anchor="middle">somebody asks, 16:00</text>
+<circle class="fig-dot-b" cx="572" cy="167" r="6"/>
+<text class="fig-box-sub" x="560" y="171" text-anchor="end">16 hours old</text>
+<circle class="fig-dot-a" cx="572" cy="274" r="6"/>
+<text class="fig-box-sub" x="584" y="268">seconds old</text>
+<text class="fig-box-sub" x="90" y="304" text-anchor="middle">midnight</text>
+<text class="fig-box-sub" x="379" y="304" text-anchor="middle">midnight</text>
+<text class="fig-box-sub" x="668" y="304" text-anchor="middle">midnight</text>
+<text class="fig-sub" x="20" y="338">A nightly job is not wrong, it is periodically right. The cost is that nobody in the room knows</text>
+<text class="fig-sub" x="20" y="356">how much of today the number in front of them is missing.</text>
+</svg>

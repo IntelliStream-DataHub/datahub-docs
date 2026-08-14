@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 396" class="fig-sustained-exceedance" role="img" aria-label="A pressure trace over six hours crossing its limit four times in brief spikes and once in a long excursion. The raw limit alarm fires five times. The windowed rule fires once, twenty minutes into the long excursion, and not at all for the spikes.">
+<text class="fig-title" x="20" y="24">Four of these are noise. One of them is the pump.</text>
+<text class="fig-sub" x="20" y="44">The same readings and the same limit, judged on one reading at a time and then on the last twenty minutes.</text>
+<text class="fig-box-sub" x="20" y="92">Discharge pressure</text>
+<line class="fig-track" x1="90" y1="175" x2="730" y2="175"/>
+<text class="fig-box-sub" x="94" y="169">limit</text>
+<path class="fig-line-a" d="M90.0 205.0 L93.6 203.4 L97.1 201.9 L100.7 200.6 L104.2 199.5 L107.8 198.6 L111.3 198.0 L114.9 197.7 L118.4 197.8 L122.0 198.1 L125.6 198.4 L129.1 197.8 L132.7 191.6 L136.2 171.4 L139.8 139.3 L143.3 122.2 L146.9 140.4 L150.4 173.5 L154.0 194.6 L157.6 201.3 L161.1 202.2 L164.7 201.7 L168.2 201.0 L171.8 200.1 L175.3 199.3 L178.9 198.6 L182.4 198.0 L186.0 197.5 L189.6 197.4 L193.1 197.5 L196.7 198.0 L200.2 198.7 L203.8 199.8 L207.3 201.0 L210.9 201.4 L214.4 195.4 L218.0 171.2 L221.6 138.4 L225.1 139.8 L228.7 175.4 L232.2 202.1 L235.8 210.4 L239.3 211.8 L242.9 211.9 L246.4 211.8 L250.0 211.3 L253.6 210.7 L257.1 210.0 L260.7 209.2 L264.2 208.5 L267.8 207.8 L271.3 207.3 L274.9 207.0 L278.4 207.0 L282.0 207.1 L285.6 207.5 L289.1 208.1 L292.7 208.9 L296.2 209.7 L299.8 210.6 L303.3 211.4 L306.9 212.1 L310.4 212.6 L314.0 212.9 L317.6 212.8 L321.1 212.4 L324.7 210.3 L328.2 202.0 L331.8 178.5 L335.3 142.2 L338.9 121.9 L342.4 139.1 L346.0 172.5 L349.6 193.3 L353.1 199.4 L356.7 199.8 L360.2 199.1 L363.8 198.6 L367.3 198.4 L370.9 198.5 L374.4 198.8 L378.0 199.3 L381.6 200.0 L385.1 200.7 L388.7 201.5 L392.2 202.1 L395.8 202.7 L399.3 203.0 L402.9 203.1 L406.4 203.0 L410.0 202.6 L413.6 202.1 L417.1 201.3 L420.7 200.5 L424.2 199.6 L427.8 198.7 L431.3 197.6 L434.9 193.8 L438.4 177.4 L442.0 141.6 L445.6 119.0 L449.1 142.3 L452.7 178.8 L456.2 195.9 L459.8 200.4 L463.3 202.2 L466.9 203.7 L470.4 205.3 L474.0 206.8 L477.6 208.2 L481.1 209.3 L484.7 210.2 L488.2 210.9 L491.8 211.2 L495.3 211.2 L498.9 211.0 L502.4 210.5 L506.0 209.9 L509.6 209.2 L513.1 208.5 L516.7 207.9 L520.2 207.3 L523.8 207.0 L527.3 199.6 L530.9 185.1 L534.4 170.9 L538.0 157.0 L541.6 150.4 L545.1 151.3 L548.7 152.2 L552.2 153.2 L555.8 154.0 L559.3 154.7 L562.9 155.2 L566.4 155.4 L570.0 155.4 L573.6 155.0 L577.1 154.3 L580.7 153.4 L584.2 152.1 L587.8 150.7 L591.3 149.2 L594.9 147.6 L598.4 146.1 L602.0 144.7 L605.6 143.5 L609.1 142.5 L612.7 141.7 L616.2 141.3 L619.8 141.1 L623.3 141.3 L626.9 141.6 L630.4 142.2 L634.0 142.8 L637.6 143.5 L641.1 144.1 L644.7 144.7 L648.2 145.1 L651.8 145.3 L655.3 145.3 L658.9 145.0 L662.4 144.5 L666.0 143.8 L669.6 143.0 L673.1 149.3 L676.7 162.8 L680.2 176.4 L683.8 190.1 L687.3 196.7 L690.9 196.4 L694.4 196.3 L698.0 196.5 L701.6 197.1 L705.1 198.0 L708.7 199.1 L712.2 200.4 L715.8 201.9 L719.3 203.4 L722.9 205.0 L726.4 206.4 L730.0 207.7" fill="none"/>
+<text class="fig-box-sub" x="90" y="264" text-anchor="start">08:00</text>
+<text class="fig-box-sub" x="303" y="264" text-anchor="middle">10:00</text>
+<text class="fig-box-sub" x="517" y="264" text-anchor="middle">12:00</text>
+<text class="fig-box-sub" x="730" y="264" text-anchor="end">14:00</text>
+<text class="fig-box-title" x="20" y="293">Limit alarm</text>
+<rect class="fig-lit-box c-orange" x="141" y="280" width="5" height="17" rx="2"/>
+<rect class="fig-lit-box c-orange" x="221" y="280" width="5" height="17" rx="2"/>
+<rect class="fig-lit-box c-orange" x="337" y="280" width="5" height="17" rx="2"/>
+<rect class="fig-lit-box c-orange" x="444" y="280" width="5" height="17" rx="2"/>
+<rect class="fig-lit-box c-orange" x="532" y="280" width="5" height="17" rx="2"/>
+<text class="fig-box-sub" x="550" y="293">four cleared before anybody looked</text>
+<text class="fig-box-title" x="20" y="331">Windowed</text>
+<line class="fig-track" x1="534" y1="326" x2="570" y2="326"/>
+<text class="fig-box-sub" x="522" y="330" text-anchor="end">the window has to fill first</text>
+<rect class="fig-lit-box c-green" x="570" y="314" width="104" height="26" rx="8"/>
+<text class="fig-lit-sub" x="622" y="331" text-anchor="middle">event raised</text>
+<text class="fig-sub" x="20" y="368">The window costs twenty minutes on the excursion that mattered. It buys the four that did not, and an</text>
+<text class="fig-sub" x="20" y="386">alarm the control room has not quietly switched off.</text>
+</svg>

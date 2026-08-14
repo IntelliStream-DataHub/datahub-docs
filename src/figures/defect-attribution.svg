@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 362" class="fig-defect-attribution" role="img" aria-label="A grid of five stations against six shifts, with defects as dots. Dots are scattered thinly everywhere except where the fourth station meets the two shifts that ran material lot B, where they cluster.">
+<text class="fig-title" x="20" y="24">The same defects, plotted against what made them</text>
+<text class="fig-sub" x="20" y="44">A defect count says there is a problem. Attached to a station and a material lot, the dots say whose.</text>
+<rect class="fig-centre" x="346" y="112" width="196" height="188" rx="10"/>
+<text class="fig-centre-sub" x="444" y="130" text-anchor="middle">material lot B</text>
+<text class="fig-box-sub" x="199" y="320" text-anchor="middle">Mon A</text>
+<text class="fig-box-sub" x="297" y="320" text-anchor="middle">Mon B</text>
+<text class="fig-box-sub" x="395" y="320" text-anchor="middle">Tue A</text>
+<text class="fig-box-sub" x="493" y="320" text-anchor="middle">Tue B</text>
+<text class="fig-box-sub" x="591" y="320" text-anchor="middle">Wed A</text>
+<text class="fig-box-sub" x="689" y="320" text-anchor="middle">Wed B</text>
+<text class="fig-box-title" x="20" y="144">ST-1</text>
+<line class="fig-track" x1="150" y1="140" x2="738" y2="140"/>
+<text class="fig-box-title" x="20" y="179">ST-2</text>
+<line class="fig-track" x1="150" y1="175" x2="738" y2="175"/>
+<text class="fig-box-title" x="20" y="214">ST-3</text>
+<line class="fig-track" x1="150" y1="210" x2="738" y2="210"/>
+<text class="fig-box-title" x="20" y="249">ST-4</text>
+<line class="fig-track" x1="150" y1="245" x2="738" y2="245"/>
+<text class="fig-box-title" x="20" y="284">ST-5</text>
+<line class="fig-track" x1="150" y1="280" x2="738" y2="280"/>
+<circle class="fig-dot-a" cx="172" cy="140" r="4"/>
+<circle class="fig-dot-a" cx="505" cy="140" r="4"/>
+<circle class="fig-dot-a" cx="288" cy="175" r="4"/>
+<circle class="fig-dot-a" cx="560" cy="175" r="4"/>
+<circle class="fig-dot-a" cx="224" cy="210" r="4"/>
+<circle class="fig-dot-a" cx="673" cy="210" r="4"/>
+<circle class="fig-dot-a" cx="206" cy="245" r="4"/>
+<circle class="fig-dot-a" cx="710" cy="245" r="4"/>
+<circle class="fig-dot-a" cx="275" cy="280" r="4"/>
+<circle class="fig-dot-a" cx="412" cy="280" r="4"/>
+<circle class="fig-dot-a" cx="586" cy="280" r="4"/>
+<circle class="fig-dot-a" cx="652" cy="140" r="4"/>
+<circle class="fig-dot-b" cx="358" cy="245" r="4"/>
+<circle class="fig-dot-b" cx="377" cy="245" r="4"/>
+<circle class="fig-dot-b" cx="404" cy="245" r="4"/>
+<circle class="fig-dot-b" cx="432" cy="245" r="4"/>
+<circle class="fig-dot-b" cx="452" cy="245" r="4"/>
+<circle class="fig-dot-b" cx="464" cy="245" r="4"/>
+<circle class="fig-dot-b" cx="491" cy="245" r="4"/>
+<circle class="fig-dot-b" cx="522" cy="245" r="4"/>
+<text class="fig-box-sub" x="554" y="239">one station, one lot</text>
+<text class="fig-sub" x="20" y="336">On a weekly report these are one defect rate. Against the station that made each unit, and the lot it</text>
+<text class="fig-sub" x="20" y="354">came from, they are a question with an answer.</text>
+</svg>

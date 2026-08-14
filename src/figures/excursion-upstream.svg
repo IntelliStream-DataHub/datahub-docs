@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 334" class="fig-excursion-upstream" role="img" aria-label="Five treatment stages as rows against a morning time axis. A blower swap on the aeration stage at ten past six, a rising sludge blanket on the clarifier at half past nine, and a turbidity excursion at the outfall at twenty to twelve, joined by a path running down the stages and forward in time.">
+<text class="fig-title" x="20" y="24">The reading that fails is downstream, and late</text>
+<text class="fig-sub" x="20" y="44">Same morning, five stages. What the model adds is the chain and the delay between them.</text>
+<text class="fig-box-sub" x="20" y="108">Intake</text>
+<line class="fig-track" x1="190" y1="104" x2="730" y2="104"/>
+<text class="fig-box-sub" x="20" y="146">Primary settling</text>
+<line class="fig-track" x1="190" y1="142" x2="730" y2="142"/>
+<text class="fig-box-sub" x="20" y="184">Aeration</text>
+<line class="fig-track" x1="190" y1="180" x2="730" y2="180"/>
+<text class="fig-box-sub" x="20" y="222">Clarifier</text>
+<line class="fig-track" x1="190" y1="218" x2="730" y2="218"/>
+<text class="fig-box-sub" x="20" y="260">Outfall</text>
+<line class="fig-track" x1="190" y1="256" x2="730" y2="256"/>
+<path class="fig-exit-path fig-flow" d="M202 180 L400 218 L532 256" fill="none"/>
+<circle class="fig-lit-box c-orange" cx="202" cy="180" r="6"/>
+<text class="fig-box-sub" x="218" y="168">blower B swapped, 06:10</text>
+<circle class="fig-lit-box c-orange" cx="400" cy="218" r="6"/>
+<text class="fig-box-sub" x="416" y="206">sludge blanket rising, 09:30</text>
+<circle class="fig-lit-box c-orange" cx="532" cy="256" r="9"/>
+<text class="fig-box-sub" x="548" y="244">turbidity above limit, 11:40</text>
+<text class="fig-box-sub" x="370" y="292" text-anchor="middle">five and a half hours, and three stages, between cause and reading</text>
+<text class="fig-box-sub" x="190" y="276" text-anchor="middle">06:00</text>
+<text class="fig-box-sub" x="310" y="276" text-anchor="middle">08:00</text>
+<text class="fig-box-sub" x="430" y="276" text-anchor="middle">10:00</text>
+<text class="fig-box-sub" x="550" y="276" text-anchor="middle">12:00</text>
+<text class="fig-box-sub" x="670" y="276" text-anchor="middle">14:00</text>
+<text class="fig-sub" x="20" y="324">Without the chain, the excursion belongs to the outfall, which is the one place it did not come from.</text>
+</svg>

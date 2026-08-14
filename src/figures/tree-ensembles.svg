@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 388" class="fig-tree-ensembles" role="img" aria-label="Three panels. First, a single decision tree of yes-or-no questions ending in fails or fine. Second, a random forest of six small trees each casting a vote, five of six saying it fails. Third, gradient boosting: four trees in sequence with a bar under each showing the error still left, shrinking from tree to tree.">
+<text class="fig-title" x="20" y="24">One tree, a crowd of them, then a queue of them</text>
+<text class="fig-sub" x="20" y="44">The same questions asked of the same table. What changes is how many trees, and how they are combined.</text>
+<text class="fig-box-title" x="20" y="78">One decision tree</text>
+<text class="fig-box-sub" x="20" y="96">questions it worked out itself</text>
+<line class="fig-edge" x1="130" y1="140" x2="76" y2="168"/>
+<line class="fig-edge" x1="130" y1="140" x2="188" y2="168"/>
+<text class="fig-box-sub" x="86" y="160">yes</text>
+<text class="fig-box-sub" x="166" y="160">no</text>
+<rect class="fig-box" x="55" y="112" width="150" height="28" rx="8"/>
+<text class="fig-box-sub" x="130" y="130" text-anchor="middle">vibration above 4.5?</text>
+<line class="fig-edge" x1="76" y1="196" x2="56" y2="224"/>
+<line class="fig-edge" x1="76" y1="196" x2="132" y2="224"/>
+<rect class="fig-box" x="24" y="168" width="104" height="28" rx="8"/>
+<text class="fig-box-sub" x="76" y="186" text-anchor="middle">over 900 hours run?</text>
+<rect class="fig-lit-box c-blue" x="144" y="168" width="88" height="28" rx="8"/>
+<text class="fig-lit-sub" x="188" y="186" text-anchor="middle">fine</text>
+<rect class="fig-lit-box c-orange" x="22" y="224" width="68" height="28" rx="8"/>
+<text class="fig-lit-sub" x="56" y="242" text-anchor="middle">fails</text>
+<rect class="fig-lit-box c-blue" x="98" y="224" width="68" height="28" rx="8"/>
+<text class="fig-lit-sub" x="132" y="242" text-anchor="middle">fine</text>
+<text class="fig-box-sub" x="20" y="272">you can read it out loud, which</text>
+<text class="fig-box-sub" x="20" y="288">is why people trust it,</text>
+<text class="fig-box-sub" x="20" y="304">but move a few examples and the</text>
+<text class="fig-box-sub" x="20" y="320">whole tree redraws itself</text>
+<text class="fig-box-title" x="270" y="78">A random forest</text>
+<text class="fig-box-sub" x="270" y="96">hundreds of trees, one vote each</text>
+<line class="fig-edge" x1="306" y1="124" x2="292" y2="144"/>
+<line class="fig-edge" x1="306" y1="124" x2="320" y2="144"/>
+<circle class="fig-box" cx="306" cy="124" r="5"/>
+<circle class="fig-box" cx="292" cy="144" r="4"/>
+<circle class="fig-box" cx="320" cy="144" r="4"/>
+<circle class="fig-dot-b" cx="306" cy="160" r="5.5"/>
+<line class="fig-edge" x1="380" y1="124" x2="366" y2="144"/>
+<line class="fig-edge" x1="380" y1="124" x2="394" y2="144"/>
+<circle class="fig-box" cx="380" cy="124" r="5"/>
+<circle class="fig-box" cx="366" cy="144" r="4"/>
+<circle class="fig-box" cx="394" cy="144" r="4"/>
+<circle class="fig-dot-b" cx="380" cy="160" r="5.5"/>
+<line class="fig-edge" x1="454" y1="124" x2="440" y2="144"/>
+<line class="fig-edge" x1="454" y1="124" x2="468" y2="144"/>
+<circle class="fig-box" cx="454" cy="124" r="5"/>
+<circle class="fig-box" cx="440" cy="144" r="4"/>
+<circle class="fig-box" cx="468" cy="144" r="4"/>
+<circle class="fig-dot-a" cx="454" cy="160" r="5.5"/>
+<line class="fig-edge" x1="306" y1="186" x2="292" y2="206"/>
+<line class="fig-edge" x1="306" y1="186" x2="320" y2="206"/>
+<circle class="fig-box" cx="306" cy="186" r="5"/>
+<circle class="fig-box" cx="292" cy="206" r="4"/>
+<circle class="fig-box" cx="320" cy="206" r="4"/>
+<circle class="fig-dot-b" cx="306" cy="222" r="5.5"/>
+<line class="fig-edge" x1="380" y1="186" x2="366" y2="206"/>
+<line class="fig-edge" x1="380" y1="186" x2="394" y2="206"/>
+<circle class="fig-box" cx="380" cy="186" r="5"/>
+<circle class="fig-box" cx="366" cy="206" r="4"/>
+<circle class="fig-box" cx="394" cy="206" r="4"/>
+<circle class="fig-dot-b" cx="380" cy="222" r="5.5"/>
+<line class="fig-edge" x1="454" y1="186" x2="440" y2="206"/>
+<line class="fig-edge" x1="454" y1="186" x2="468" y2="206"/>
+<circle class="fig-box" cx="454" cy="186" r="5"/>
+<circle class="fig-box" cx="440" cy="206" r="4"/>
+<circle class="fig-box" cx="468" cy="206" r="4"/>
+<circle class="fig-dot-b" cx="454" cy="222" r="5.5"/>
+<text class="fig-box-sub" x="270" y="256">each tree sees a random slice of</text>
+<text class="fig-box-sub" x="270" y="272">the rows and of the columns, so</text>
+<text class="fig-box-sub" x="270" y="288">they make different mistakes;</text>
+<text class="fig-box-sub" x="270" y="304">five of these six say it fails,</text>
+<text class="fig-box-sub" x="270" y="320">and the majority is the answer</text>
+<text class="fig-box-title" x="520" y="78">Gradient boosting</text>
+<text class="fig-box-sub" x="520" y="96">in sequence, not in parallel: XGBoost</text>
+<line class="fig-edge" x1="550" y1="124" x2="536" y2="144"/>
+<line class="fig-edge" x1="550" y1="124" x2="564" y2="144"/>
+<circle class="fig-box" cx="550" cy="124" r="5"/>
+<circle class="fig-box" cx="536" cy="144" r="4"/>
+<circle class="fig-box" cx="564" cy="144" r="4"/>
+<rect class="fig-lit-box c-orange" x="543" y="174" width="14" height="46" rx="3"/>
+<path class="fig-centre" d="M571 118 L581 124 L571 130 z"/>
+<line class="fig-edge" x1="608" y1="124" x2="594" y2="144"/>
+<line class="fig-edge" x1="608" y1="124" x2="622" y2="144"/>
+<circle class="fig-box" cx="608" cy="124" r="5"/>
+<circle class="fig-box" cx="594" cy="144" r="4"/>
+<circle class="fig-box" cx="622" cy="144" r="4"/>
+<rect class="fig-lit-box c-orange" x="601" y="193" width="14" height="27" rx="3"/>
+<path class="fig-centre" d="M629 118 L639 124 L629 130 z"/>
+<line class="fig-edge" x1="666" y1="124" x2="652" y2="144"/>
+<line class="fig-edge" x1="666" y1="124" x2="680" y2="144"/>
+<circle class="fig-box" cx="666" cy="124" r="5"/>
+<circle class="fig-box" cx="652" cy="144" r="4"/>
+<circle class="fig-box" cx="680" cy="144" r="4"/>
+<rect class="fig-lit-box c-orange" x="659" y="206" width="14" height="14" rx="3"/>
+<path class="fig-centre" d="M687 118 L697 124 L687 130 z"/>
+<line class="fig-edge" x1="724" y1="124" x2="710" y2="144"/>
+<line class="fig-edge" x1="724" y1="124" x2="738" y2="144"/>
+<circle class="fig-box" cx="724" cy="124" r="5"/>
+<circle class="fig-box" cx="710" cy="144" r="4"/>
+<circle class="fig-box" cx="738" cy="144" r="4"/>
+<rect class="fig-lit-box c-orange" x="717" y="214" width="14" height="6" rx="3"/>
+<line class="fig-track" x1="532" y1="220" x2="738" y2="220"/>
+<text class="fig-box-sub" x="630" y="236" text-anchor="middle">what is still wrong</text>
+<text class="fig-box-sub" x="520" y="272">each new tree is trained on what</text>
+<text class="fig-box-sub" x="520" y="288">the ones before it got wrong,</text>
+<text class="fig-box-sub" x="520" y="304">which makes it the most accurate</text>
+<text class="fig-box-sub" x="520" y="320">and the hardest to argue with</text>
+<text class="fig-sub" x="20" y="352">A tree explains itself and moves with every new example. A forest averages that away. Boosting, built</text>
+<text class="fig-sub" x="20" y="370">on the leftovers, usually wins on a table of numbers, and each step costs you a little readability.</text>
+</svg>

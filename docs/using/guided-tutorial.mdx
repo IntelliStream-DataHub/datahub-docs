@@ -1,0 +1,148 @@
+---
+sidebar_position: 2
+title: Guided tutorial
+description: The console teaches itself. Where to start the built-in guided tutorial, the six chapters it walks you through, the four industry scenarios it can speak in, what it creates in your tenant and how to remove it afterwards.
+---
+
+# Guided tutorial
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Domain experts</Persona>
+  <Persona>Administrators</Persona>
+</Personas>
+
+<KeyIdea>
+The console carries a **guided tutorial** that teaches the platform from inside the platform.
+It highlights the real buttons on the real screens, waits while you click them, and leaves
+you holding <span className="hl">a small working model you built yourself</span> rather than
+a demo somebody showed you.
+
+It is the fastest way to take a new colleague from "what is this" to a data set, a resource
+network, a measurement and an event, in about the time a presentation would have taken.
+</KeyIdea>
+
+## Starting it
+
+Two entry points, both leading to the same flow:
+
+- **The user menu, top right.** The entry marked **Guided Tutorial**, available on every
+  page of the console.
+- **The home screen.** The "New to DataHub?" bar, for anyone who has just signed in for the
+  first time.
+
+Either one opens **Start guided tutorial?**, which offers two ways in:
+
+- **From the beginning**, the full tour.
+- **Or jump to a chapter**, which plays from the chapter you pick through to the end. If the
+  chapter you choose needs something an earlier one would have built, the tutorial creates
+  that first rather than leaving you stuck.
+
+## Pick the industry it speaks in
+
+Before the first step you choose a scenario: **Oil & Gas** (the default), **Tech / IoT**,
+**Manufacturing** or **Energy**.
+
+The choice changes the vocabulary rather than the mechanics. The data set you create, the
+resources you connect and the measurement you add are all named for the industry you picked,
+so the model you finish with reads like a small piece of your own operation. That matters
+more than it sounds: <span className="t-brand">the point of the tour is to recognise your own
+plant in it</span>, and generic example names are what usually stop people doing that.
+
+## The six chapters
+
+Each chapter opens with a short panel explaining why the thing exists before anything gets
+clicked, then walks you through building it.
+
+| Chapter | What you do | What you are left with |
+| --- | --- | --- |
+| **Datasets** | Create a [data set](/using/datasets), name it, give it an external id | The boundary everything else in the tour lands inside |
+| **Resources** | Build a small network of [resources](/using/resources) and connect them | The graph, in miniature, with your own relationships on it |
+| **Timeseries** | Add a [measurement](/using/timeseries) and attach it to a resource | A series that hangs off a thing rather than floating alone |
+| **Correlation** | Look at your series alongside two siblings in [Insights](/using/insights) | The point that one signal is rarely the story |
+| **Events** | Record what happened to the asset as [events](/using/events) | Readings and happenings tied to the same network |
+| **Build a network** | A larger network is built for you, highlighted and explained, then handed over for you to extend | A model you can keep and carry on with |
+
+The order is deliberate and it is the same order the rest of this section is written in:
+a container, the things in it, what they measure, how those measurements relate, what
+happened to them, and then the whole shape at once.
+
+## How it behaves while it runs
+
+- **It waits for you.** A step with an action does not advance until you actually perform it,
+  clicking the highlighted button or typing a name of at least a few characters. Nothing is
+  filled in on your behalf where the point of the step is to do it yourself.
+- **It blocks everything else.** While a step is live, clicks outside the highlighted area
+  are swallowed, so it is difficult to wander off mid-step and end up lost. Where a step
+  deliberately hands you the canvas, the canvas becomes clickable again.
+- **It follows you across screens.** Chapters run on the data sets, resources, time series,
+  insights and events pages, and the tutorial navigates between them and picks up where it
+  left off.
+- **Progress is a chapter strip** at the top of each bubble, so you can see how much of the
+  journey is behind you rather than counting steps.
+- **You can leave and come back.** Every bubble carries **Back**, **Quit** and **Next**, and
+  some carry **Skip**. If you quit or navigate away mid-tour, the next page you open offers a
+  banner with **Resume**, **Restart** and **Quit**.
+- **It speaks the console's language.** English and Norwegian Bokmål, following the
+  [language setting](/using/console-tour#things-in-the-top-bar) rather than a separate
+  control.
+
+## It creates real data, and tidies up after itself
+
+This is the part worth knowing before turning a team loose on a production tenant.
+
+<span className="t-accent">What the tutorial creates is real.</span> A data set, resources,
+a time series with datapoints, a couple of events, and two extra series for the correlation
+chapter, all ordinary objects in your tenant, visible to anybody who can read that data set.
+Nothing is a simulation or a sandbox mode.
+
+Three behaviours follow from that, and they are all deliberate:
+
+- **The last step asks.** It offers **Keep it**, which leaves the network in place to inspect
+  or carry on with, or **Remove tutorial data**, which deletes the data set, resources,
+  series and events this run created.
+- **Starting again cleans up first.** A fresh run deletes the previous run's objects before
+  it begins, so repeated runs by the same person do not pile up.
+- **Each run gets its own identifiers.** A run stamps a token so the things it creates get
+  unique [external ids](/concepts/naming-and-standards#external-ids-are-promises) rather than
+  colliding with the last run's.
+
+Deletion is best effort: if something cannot be removed, the tutorial carries on rather than
+stopping to complain. In a shared tenant it is worth a glance at the data set list afterwards.
+
+:::tip Where to run it
+A test tenant if you have one. If you do not, it is safe enough in a real one provided people
+know to finish with **Remove tutorial data**, and provided the tutorial data set is not left
+sitting in a list of production data sets long enough for somebody to mistake it for real.
+:::
+
+## What it needs
+
+- **Permission to create a data set**, which is the all-data-sets grant rather than a grant
+  on individual data sets, because a data set is the unit access is granted on. Without it
+  the first chapter cannot complete.
+  [How permissions work →](/administration/dataset-permissions)
+- **The feature enabled in the deployment.** It is on by default; an operator can turn it off
+  everywhere with `tutorial.enabled=false` in the console's configuration, which also removes
+  the menu entry and the home-screen bar.
+
+## When to reach for it, and when not
+
+**Reach for it** on somebody's first day, for a team that has read about the platform and not
+touched it, and as the fastest way to answer "what does this actually look like" without
+booking a demonstration.
+
+**Read [your first hour](/start/first-hour) instead** if you would rather work from written
+steps you can read ahead in, skim, or follow while building something of your own. It covers
+the same journey in the same order, which means the two can be mixed: take the tour, then use
+the written version when you build the real thing.
+
+<Deeper>
+- [Console tour](/using/console-tour): what each screen is for, read rather than walked
+- [Your first hour](/start/first-hour): the same journey in written form
+- [Data sets](/using/datasets): the container the tutorial starts with
+- [The resource graph](/using/resources): the chapter that does the most work
+- [Time series](/using/timeseries) and [Events](/using/events): what the model produces
+- [Insights](/using/insights): where the correlation chapter takes you
+</Deeper>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 374" class="fig-decision-tempo" role="img" aria-label="One shock, two lanes. In the first, finding the figures, finding who built them and checking they are current push the decision past the point where acting was still possible. In the second, the figures name their own inputs, so the decision lands inside the window and is revised twice afterwards as more becomes known.">
+<text class="fig-title" x="20" y="24">The shock is the same. The time to trust a number is not.</text>
+<text class="fig-sub" x="20" y="44">Nobody in either lane saw it coming. Only one of them can tell which of its figures still hold.</text>
+<text class="fig-box-sub" x="140" y="68" text-anchor="middle">the shock lands</text>
+<rect class="fig-centre" x="140" y="76" width="330" height="26" rx="10"/>
+<text class="fig-centre-sub" x="305" y="94" text-anchor="middle">while the option is still open</text>
+<line class="fig-line-b" x1="140" y1="140" x2="140" y2="200"/>
+<line class="fig-track" x1="470" y1="140" x2="470" y2="200"/>
+<line class="fig-line-b" x1="140" y1="244" x2="140" y2="288"/>
+<line class="fig-track" x1="470" y1="244" x2="470" y2="288"/>
+<text class="fig-box-sub" x="470" y="316" text-anchor="middle">the window closes</text>
+<text class="fig-box-title" x="20" y="130">Without a trail, every figure has to be chased down by hand</text>
+<rect class="fig-box" x="140" y="140" width="118" height="34" rx="10"/><text class="fig-box-sub" x="199" y="161" text-anchor="middle">find the figures</text>
+<rect class="fig-box" x="264" y="140" width="132" height="34" rx="10"/><text class="fig-box-sub" x="330" y="161" text-anchor="middle">find who built them</text>
+<rect class="fig-box" x="402" y="140" width="140" height="34" rx="10"/><text class="fig-box-sub" x="472" y="161" text-anchor="middle">check they are current</text>
+<rect class="fig-lit-box c-orange" x="556" y="140" width="110" height="34" rx="10"/><text class="fig-lit-title" x="611" y="162" text-anchor="middle">decide</text>
+<text class="fig-box-sub" x="611" y="192" text-anchor="middle">after the option has gone</text>
+<text class="fig-box-title" x="20" y="236">With lineage, each figure already names its inputs and their condition</text>
+<rect class="fig-box" x="140" y="246" width="140" height="34" rx="10"/><text class="fig-box-sub" x="210" y="267" text-anchor="middle">verify from the trail</text>
+<rect class="fig-lit-box c-green" x="288" y="246" width="110" height="34" rx="10"/><text class="fig-lit-title" x="343" y="268" text-anchor="middle">decide</text>
+<rect class="fig-lit-box c-green" x="490" y="250" width="96" height="26" rx="10"/><text class="fig-lit-title" x="538" y="268" text-anchor="middle">revise</text>
+<rect class="fig-lit-box c-green" x="610" y="250" width="96" height="26" rx="10"/><text class="fig-lit-title" x="658" y="268" text-anchor="middle">revise</text>
+<text class="fig-box-sub" x="140" y="298">and again, as more becomes known, because each revision costs minutes rather than days</text>
+<text class="fig-sub" x="20" y="344">Forecasting the shock is not the advantage on offer, and nobody sells it. Knowing which of your own</text>
+<text class="fig-sub" x="20" y="362">numbers still hold, in minutes, is what lets you decide while it still matters and change your mind after.</text>
+</svg>

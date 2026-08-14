@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 372" class="fig-usage-vs-calendar" role="img" aria-label="Cumulative running hours over a year for two identical vehicles. The deployed one climbs steeply and crosses two service intervals; the one held in reserve barely climbs and crosses none. Along the bottom, four calendar services fall on both of them alike.">
+<text class="fig-title" x="20" y="24">Two identical vehicles. One of them deployed.</text>
+<text class="fig-sub" x="20" y="44">A calendar cannot tell them apart. Hours, cycles and conditions can.</text>
+<text class="fig-box-sub" x="20" y="86">Cumulative running hours</text>
+<line class="fig-track" x1="90" y1="288" x2="720" y2="288"/>
+<line class="fig-track" x1="90" y1="213" x2="720" y2="213"/>
+<text class="fig-box-sub" x="726" y="217">600 h</text>
+<line class="fig-track" x1="90" y1="138" x2="720" y2="138"/>
+<text class="fig-box-sub" x="726" y="142">1200 h</text>
+<path class="fig-line-a" d="M90 288.0 L142 275.1 L195 261.5 L248 247.6 L300 233.5 L352 219.3 L405 204.9 L458 190.4 L510 175.9 L562 161.3 L615 146.6 L668 131.9 L720 117.1" fill="none"/>
+<path class="fig-line-b" d="M90 288.0 L142 285.0 L195 281.9 L248 278.7 L300 275.5 L352 272.2 L405 269.0 L458 265.6 L510 262.3 L562 259.0 L615 255.6 L668 252.2 L720 248.8" fill="none"/>
+<text class="fig-box-title" x="716" y="105" text-anchor="end">Vehicle A, deployed</text>
+<text class="fig-box-title" x="716" y="237" text-anchor="end">Vehicle B, in reserve</text>
+<circle class="fig-box" cx="375" cy="213" r="9"/>
+<circle class="fig-dot-a" cx="375" cy="213" r="4.5"/>
+<text class="fig-box-sub" x="361" y="199" text-anchor="end">A crosses it here</text>
+<circle class="fig-box" cx="644" cy="138" r="9"/>
+<circle class="fig-dot-a" cx="644" cy="138" r="4.5"/>
+<text class="fig-box-sub" x="658" y="158" text-anchor="start">and again here</text>
+<line class="fig-edge" x1="248" y1="294" x2="248" y2="308"/>
+<line class="fig-edge" x1="405" y1="294" x2="405" y2="308"/>
+<line class="fig-edge" x1="562" y1="294" x2="562" y2="308"/>
+<line class="fig-edge" x1="720" y1="294" x2="720" y2="308"/>
+<text class="fig-box-sub" x="90" y="326">calendar service, four times, both vehicles, whatever they did</text>
+<text class="fig-sub" x="20" y="348">A was serviced on neither occasion that mattered, B four times without needing it, and on paper</text>
+<text class="fig-sub" x="20" y="366">they are the same vehicle with the same maintenance record.</text>
+</svg>

@@ -1,0 +1,254 @@
+---
+sidebar_position: 15
+title: Stream processing
+description: Computing on data as it arrives rather than after it has piled up, what a window is and how to choose one, why when a reading happened is not when it turned up, what a computation has to remember, and how a subscription and the SDK do this on the platform today.
+---
+import AnswerAge from '@site/src/figures/answer-age.svg';
+import WindowShapes from '@site/src/figures/window-shapes.svg';
+import EventTimeArrival from '@site/src/figures/event-time-arrival.svg';
+
+# Stream processing
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Domain experts</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+The four pages before this one quietly assumed the data was sitting still. It is not.
+Readings arrive every second of every day, and the choice is whether your computation waits
+for them to pile up or meets them as they land.
+
+**Stream processing is computing on data as it arrives.** The shift it asks for is not really
+about speed: it is that <span className="hl">the question is asked once and keeps
+answering</span>, instead of being asked again every time somebody wants a current number.
+</KeyIdea>
+
+## Batch and stream, and why the difference is not speed
+
+<Lead>Batch collects the data and then computes. A stream computes as the data lands. Both
+are legitimate, and the honest difference is how old the answer is when somebody reads
+it.</Lead>
+
+Batch is not obsolete and nothing here suggests replacing it. A monthly close, a model
+trained on three years of history, an annual emissions submission: all of these want the
+whole set, and there is no advantage in computing them continuously.
+<span className="t-brand">Batch is periodically right.</span> What it costs is that between
+runs, nobody knows how much of the story is missing from the number in front of them.
+
+<Figure
+  caption="The quantity plotted is the age of the answer rather than the answer itself, because that is where the difference lives. Nothing about the nightly figure is wrong at the moment it is produced. The question is what it is worth at four in the afternoon, when somebody is deciding something on it."
+  wide
+>
+  <AnswerAge />
+</Figure>
+
+A rule of thumb that survives contact with real operations:
+
+- **If a decision waits on the number, stream it.** Anything feeding an alarm, an
+  intervention, a dispatch decision or a control-room screen.
+- **If the number is read once a month, batch it** and enjoy the simplicity. Streaming
+  machinery has running costs, and a stream nobody watches is an expensive way to store data.
+
+The trap in between is assuming a streamed answer is a *better* answer. It is the same
+answer, sooner, and sooner is only worth something if somebody or something can act on it.
+
+## A stream has no end, so a window manufactures one
+
+You cannot take the average of a stream, because it has not finished. Every continuous
+computation therefore cuts time into pieces, and the piece is called a **window**.
+
+<Figure
+  caption="Three ways to cut the same readings, and they answer three different questions. Tumbling gives one clean answer per slice, which is what a report wants. Sliding keeps an answer that is always current, which is what a watchdog wants. Session lets the process decide where the boundaries are, which is what you want when the thing being measured happens in bursts."
+  wide
+>
+  <WindowShapes />
+</Figure>
+
+**Choosing the length is a claim about the process, not a preference.** Too short and the
+window reports noise as though it were news; too long and it reports late, and both failures
+look like the method not working. The length that is right is set by how fast the thing being
+watched can actually change, which is the same reasoning that decides
+[how often you sample it](/using/timeseries#how-often-should-you-sample).
+
+[The same idea drawn as a computation →](/using/functions#windowing-drawn)
+
+## When it happened is not when it turned up
+
+Here is the part that generic streaming advice, most of it written for web traffic, will not
+prepare you for. In an industrial setting <span className="hl">a reading's timestamp and its
+arrival are two different facts</span>, and they can be hours apart.
+
+Links drop. A vessel sails out of coverage and reports when it is back. A rig batches uploads
+to save bandwidth. A technician's handheld syncs at the end of the shift. None of this is a
+fault, it is normal operation, and it wrecks any computation that treats arrival as time.
+
+<Figure
+  caption="The same nine readings on both lanes. Nothing is lost, nothing is late in the sense of being wrong, and the process behaved perfectly evenly all morning. Windowed by arrival, that morning disappears and an afternoon that never happened takes its place."
+  wide
+>
+  <EventTimeArrival />
+</Figure>
+
+Three rules follow, and they are worth writing into whatever you build:
+
+- **Compute on the timestamp the reading carries.** Arrival time is a fact about the network,
+  not about the process, and it belongs in the record as such rather than in the calculation.
+- **Decide how long a window stays open.** Late data forces a trade with no clean answer:
+  hold the window and the result is more correct but later, close it early and you will
+  sometimes have to correct a number you already published. The industry's name for where
+  you draw that line is a
+  [watermark](https://en.wikipedia.org/wiki/Stream_processing).
+- **Assume a reading can arrive twice.** A consumer restarts, a source replays, a connection
+  is re-established mid-delivery. The cheapest defence is to make the computation give the
+  same result whether it sees a reading once or twice, which is worth designing for rather
+  than discovering. This is not hypothetical here, and the section on the SDK below says why.
+
+## What a computation has to remember
+
+The dividing line that decides how hard a piece of stream processing will be is not the
+volume. It is whether the answer depends on anything other than the reading in hand.
+
+| The question | What it has to remember |
+| --- | --- |
+| Is this reading above 4.5? | Nothing. Each reading answers on its own |
+| Convert this to another unit | Nothing |
+| What is the average over 15 minutes? | The readings in the current window |
+| Has this been above 4.5 for 20 minutes? | When it first went above, and whether it has dropped since |
+| Did a start follow an alarm within 5 minutes? | The alarm, until either the start arrives or the five minutes pass |
+| How does this shift compare with the last one? | A summary of the previous shift |
+
+Everything genuinely worth detecting is in the lower half of that table.
+<span className="t-accent">State is what makes stream processing valuable and it is also what
+makes it hard</span>, because state has to survive a restart. A rolling average that resets
+every time a process is redeployed is not a rolling average, it is a rumour.
+
+## When the stream outruns the reader
+
+If data arrives faster than something can handle it, one of three things must give: readings
+are dropped, they queue up somewhere, or the producer is slowed down. Every streaming system
+picks one, and <span className="hl">the only real mistake is not knowing which one yours
+picked</span>. In practice the failure is rarely a heroic flood. It is one consumer that
+quietly stopped reading days ago while its backlog grew.
+
+## How the platform supports this today
+
+Data arrives continuously, is stored in one queryable model, and can be read continuously.
+The delivery mechanism is a [subscription](/using/subscriptions): push rather than poll, with
+a position that survives a reconnect. The console's
+[live mode](/using/insights#live-mode) is the same machinery with a chart on the end of it,
+which is a useful thing to know, because it means anything you can watch live you can also
+consume in code.
+
+The computing part, today, is yours to run, and the SDK is what makes that a short job rather
+than a project.
+
+### What a subscription gives you through the SDK
+
+There are SDKs for **Java, Python and Rust**, and the shape is the same in all three. A
+subscription names a set of time series; a live connection then delivers each new datapoint
+as it lands, with no polling anywhere in the loop.
+
+Four properties matter more than the syntax:
+
+- **You acknowledge what you have handled.** Anything unacknowledged is redelivered, so a
+  crash cannot lose data. If a downstream system is unavailable you can decline a message
+  instead, and it comes back later rather than disappearing.
+- **Which means delivery is at least once, not exactly once.** That is the honest guarantee,
+  and it is why the rule above about a reading arriving twice is a design constraint rather
+  than a caution: <span className="t-accent">make the handler idempotent</span>.
+- **The interest set can change while it runs.** Series can be added to or removed from a
+  live listener without reconnecting, so a standing question can be re-aimed at new equipment
+  as the model grows.
+- **Reconnection is handled for you**, which is exactly the case that produces the burst in
+  the figure above. The data is not lost, it arrives together, carrying the timestamps it had
+  all along.
+
+The whole consumption loop is about this long, and it is here to show how little there is
+rather than because you have to write it:
+
+```python
+with client.subscriptions.listen(["engine_room"]) as listener:
+    for msg in listener:
+        handle(msg.payload)             # your computation goes here
+        listener.ack([msg.message_id])
+```
+
+<a href="/sdk-documentation/guides/realtime-subscriptions">Consuming live data, in the SDK documentation →</a>
+<br /><a href="/sdk-documentation/advanced/sustained-alarm-window">A windowed rule, seeded and verified end to end →</a>
+
+### The loop that works today
+
+<Steps>
+  <Step title="Subscribe to the series the computation needs">
+    A subscription is the boundary of what your computation sees, so it is worth scoping the
+    way a [data set](/using/datasets) is: narrowly, and for one purpose.
+  </Step>
+  <Step title="Compute in your own process">
+    Windowing, filtering, feature extraction, scoring a model. This is ordinary code in an
+    ordinary process, and it can run wherever you like as long as it can reach the platform.
+  </Step>
+  <Step title="Write the result back as a series or an event">
+    A rolling average becomes a [time series](/using/timeseries); a crossing, a pattern change
+    or a detection becomes an [event](/using/events) attached to the equipment it concerns.
+  </Step>
+  <Step title="And from then on it is ordinary data">
+    The derived signal is a first-class series in the model. Whoever charts it, subscribes to
+    it or trains on it need not know it was computed outside, which is what keeps this a
+    sound arrangement rather than a workaround.
+  </Step>
+</Steps>
+
+The [soft sensor in the oil and gas example](/value/industry-examples#measuring-what-cannot-be-measured-directly)
+is exactly this loop, running against a real process today.
+
+<Roadmap>
+**Running the computation inside the platform is the roadmap part.** Windowed streaming
+computation, defined once and executed by the platform rather than by your process, is what
+[functions](/using/functions) will add. Until then the loop above is the supported answer, and
+it produces the same data in the same model, so nothing has to be redone when execution
+arrives.
+</Roadmap>
+
+## Where agents help
+
+The obvious idea, an agent subscribed to a stream, is the wrong shape economically. A
+language model called once per reading is absurd at any real data rate, and the cost is not
+the only problem: a model asked the same question a thousand times an hour will eventually
+answer it differently.
+
+The arrangement that works is two-tier. <span className="t-brand">A cheap detector runs on
+every reading; the expensive reasoner runs on the finding.</span> The threshold, the window
+or the small model decides that something deserves attention, and only then does an agent
+gather the context around it: what this equipment is, what happened to it recently, which
+similar units did the same thing last quarter, and whether anybody is already looking at it.
+
+That division is also what makes the agent's output reviewable, because the trigger is a rule
+somebody can read. [Building AI agents →](/using/ai-agents)
+
+<References>
+
+- [Stream processing](https://en.wikipedia.org/wiki/Stream_processing)
+- [Event-driven architecture](https://en.wikipedia.org/wiki/Event-driven_architecture)
+- [Complex event processing](https://en.wikipedia.org/wiki/Complex_event_processing)
+- [Publish and subscribe](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern)
+- [Real-time computing](https://en.wikipedia.org/wiki/Real-time_computing)
+- [Idempotence](https://en.wikipedia.org/wiki/Idempotence)
+- [Lambda architecture, batch and speed together](https://en.wikipedia.org/wiki/Lambda_architecture)
+- [Apache Pulsar](https://en.wikipedia.org/wiki/Apache_Pulsar)
+- [Apache Kafka](https://en.wikipedia.org/wiki/Apache_Kafka)
+
+</References>
+
+<Deeper>
+- [Data subscriptions](/using/subscriptions): the delivery mechanism, in the console and in code
+- [Time series](/using/timeseries): what arrives, and how often it should
+- [Events](/using/events): what a detection becomes once it is worth recording
+- [Functions](/using/functions): windowed computation inside the platform, on the roadmap
+- [Feature extraction](/concepts/feature-extraction): the computations most worth streaming
+- [What is machine learning?](/concepts/machine-learning#sequences-lstm-and-why-time-series-need-it): models that watch a sequence rather than a reading
+- [Change data capture](/using/cdc-integrations): getting a source system's changes onto a stream in the first place
+- [Architecture](/administration/architecture): where the streaming platform sits in the stack
+</Deeper>

@@ -1,9 +1,10 @@
 ---
 sidebar_position: 9
 title: What is data governance?
-description: The rules and accountabilities for how an organisation's data is managed, and how data sets, policies, functions and the knowledge graph each carry a piece of it.
+description: The rules and accountabilities for how an organisation's data is managed, how data sets, policies, functions and the knowledge graph each carry a piece of it, and the four moments where a rule can be enforced rather than merely recorded.
 ---
 import DataGovernance from '@site/src/figures/data-governance.svg';
+import PolicyAgents from '@site/src/figures/policy-agents.svg';
 
 
 # What is data governance?
@@ -112,6 +113,96 @@ like it:
   an unlinked one; connecting data to what it describes is what brings it under governance
   at all.
 
+## Rules that act, not just rules that are recorded
+
+<Lead>A governance rule earns its keep at the moment somebody would otherwise break it,
+which means enforcement, and enforcement has four moments where it can happen.</Lead>
+
+Every rule has a cheap moment and an expensive one. Refusing a badly formed identifier as it
+is written costs nothing. Finding twelve thousand of them two years later, after they have
+been quoted in reports and wired into interfaces, costs a project.
+<span className="hl">The whole value of putting rules on the data is that it makes the cheap
+moment available.</span>
+
+<Figure
+  caption="The same policy, read at four different moments. Only the first acts on its own today. The read is genuinely gated, but by group membership in your identity provider rather than by anything a policy says, which is why it is drawn as one of the outstanding three."
+  wide
+>
+  <PolicyAgents />
+</Figure>
+
+| Moment | What a rule can do there | Where that stands |
+| --- | --- | --- |
+| **At the write** | Check the identifier against the convention, refuse it or raise a finding | Enforced today: [naming policies](/using/policies#naming) run on every write |
+| **While it sits** | Check the data is still fit: owner named, description filled, review not overdue | Recorded as a requirement policy; nothing checks it |
+| **At the read** | Decide who may see it, and on what terms | Reads are gated, but by [organization groups](/administration/dataset-permissions), not by a policy record |
+| **At the end of life** | Expire what is past its retention, keep what is still owed to an auditor | [Retention](/administration/data-lifecycle) is recorded; nothing expires yet |
+
+<Roadmap>
+**Only the first row acts on its own today.** Lifecycle, access and requirement policies are
+declarative records, and enforcement is planned alongside measurement expiry.
+[What is enforced and what is recorded →](/using/policies)
+</Roadmap>
+
+### Write the rule so that something could enforce it
+
+Whatever enforces a rule in the end, a platform feature or an agent or a person with a
+checklist, all three need the same thing from it. A rule has to say **what to check, on what,
+and what happens when it fails.**
+
+- **Name the field, not the intention.** "Descriptions must be meaningful" cannot be checked
+  by anything at all. "Every resource of type Pump carries a description and a named owner"
+  can be checked by anything, including a person in ten minutes.
+- **Give it a consequence.** Refuse, flag for review, or notify a named role. A rule with no
+  stated consequence is an opinion, and it will be treated as one.
+- **Keep the obligation next to it**, so a successor can revisit the rule safely when the
+  obligation changes. [Writing a policy worth having →](/using/policies#writing-a-policy-worth-having)
+
+The pleasant surprise is that a rule written this way is enforceable *now*, by something the
+platform did not have to ship.
+
+### The policy agent
+
+A rule that names its subject, its test and its consequence is a rule an
+<span className="t-brand">agent</span> can carry out. So give it one: a **policy agent** is a
+single agent handed a single rule, with the tools to read that policy off the data set, walk
+the [knowledge graph](/concepts/knowledge-graph) for everything the rule governs, compare
+each one against it, and raise a finding on whatever fails with a drafted correction
+attached.
+
+One rule per agent, rather than one agent for governance, is what makes it reviewable. You
+can point at the rule it enforces, at the findings it raised, and at the ones it was wrong
+about, and change any of the three independently.
+
+What makes this more than a scheduled query is the class of rule it can carry. A script can
+check that a description exists. <span className="hl">An agent can judge whether the
+description says anything</span>, whether a data set's membership still matches the purpose
+written on it, whether an owner who left the company is still named, whether two resources
+are the same pump entered twice. Those are the governance failures that actually accumulate,
+and every one of them is a judgement rather than a test.
+
+Four things to hold on to before you point one at your data:
+
+- **It is a detective control, not a preventive one.** An agent finds a breach after the
+  fact; it cannot stand in front of a write the way a naming policy does. That is fine for
+  most of governance, where finding out within the hour is a transformation on finding out
+  next quarter, and it is not fine for anything where the damage is done at the moment of
+  writing.
+- **It proposes, a person disposes.** A policy agent must never close its own finding. The
+  control *is* that somebody looked, so an agent that quietly resolves findings has removed
+  the control rather than satisfied it.
+- **It runs inside the ordinary limits.** Scope of data, tools it may call, actions it may
+  take, and a log of what it did.
+  [The four limits worth setting →](/using/ai-agents#the-four-limits-worth-setting)
+- **The rule stays the artefact, the agent is only the enforcer.** When platform enforcement
+  ships, the rules are already written and reviewed, and the agent hands that rule over
+  rather than being rewritten around it.
+
+Because both the policy and whatever enforces it are nodes in the model, "which rule governs
+this series, what enforces it, and when did it last run?" is a traversal rather than an
+email. That is the same structure the [policies page](/using/policies) draws, with an agent
+standing in the enforcer's place.
+
 ## What this changes in practice
 
 | The usual version | The version where rules live with the data |
@@ -147,9 +238,12 @@ continuously instead of quarterly: resources with no owner, data sets whose memb
 from their stated purpose, series that stopped reporting, documents attached to equipment that
 no longer exists.
 
-It produces a queue of findings, each attached to the thing it concerns, and a person decides
-what to do about them. That division matters, because governance decisions are political as
-often as they are technical.
+The shape that suits this work is one agent per rule rather than one agent for governance,
+which is worth reading before building either. [The policy agent →](#the-policy-agent)
+
+Whichever way it is scoped, it produces a queue of findings, each attached to the thing it
+concerns, and a person decides what to do about them. That division matters, because
+governance decisions are political as often as they are technical.
 [Building AI agents →](/using/ai-agents)
 
 <References>
@@ -169,4 +263,5 @@ often as they are technical.
 - [Lineage and data quality](/concepts/lineage-and-quality): the trust question, and what is planned
 - [Who does what](/start/who-does-what): the steward role that carries this
 - [Data lifecycle](/administration/data-lifecycle): retention and expiry, the "how long" question
+- [Building AI agents](/using/ai-agents): what a policy agent is built out of, and the limits any agent runs inside
 </Deeper>

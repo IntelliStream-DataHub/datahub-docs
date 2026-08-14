@@ -84,11 +84,63 @@ problems = []
 link_re = re.compile(r"\]\((/[^)\s]*)\)")
 to_re = re.compile(r'\bto=["\'](/[^"\']*)["\']')
 
+
+def check_frontmatter(src, rel):
+    """Front matter has to be valid YAML, and it has to carry a title.
+
+    This exists because the failure is silent and expensive: an unquoted value
+    containing a colon and a space is a YAML error, Docusaurus falls back to the
+    file id for the sidebar label, and the page quietly appears in the menu as
+    `stream-processing` with no meta description. Nothing else in the toolchain
+    complains, including the parser above, which splits on the first colon and is
+    therefore blind to exactly this mistake.
+    """
+    if not src.startswith("---"):
+        problems.append(f"{rel}: no front matter block")
+        return
+    end = src.find("\n---", 3)
+    if end == -1:
+        problems.append(f"{rel}: front matter block is not closed")
+        return
+    raw = src[3:end]
+    try:
+        import yaml                                     # optional, better when present
+        try:
+            parsed = yaml.safe_load(raw)
+        except yaml.YAMLError as exc:
+            problems.append(f"{rel}: front matter is not valid YAML: "
+                            f"{str(exc).splitlines()[0]}")
+            return
+        if not isinstance(parsed, dict) or "title" not in parsed:
+            problems.append(f"{rel}: front matter has no title, so the sidebar will "
+                            f"fall back to the file name")
+        return
+    except ImportError:
+        pass
+    # No PyYAML: catch the one mistake that actually happens, an unquoted value
+    # with a colon and a space in it.
+    has_title = False
+    for line in raw.splitlines():
+        if not line.strip() or line.startswith((" ", "\t", "#")) or ":" not in line:
+            continue
+        key, _, value = line.partition(":")
+        has_title = has_title or key.strip() == "title"
+        value = value.strip()
+        if value[:1] in "\"'":
+            continue
+        if ": " in value:
+            problems.append(f"{rel}: front matter value for '{key.strip()}' contains "
+                            f"a colon and is unquoted, which is a YAML error")
+    if not has_title:
+        problems.append(f"{rel}: front matter has no title, so the sidebar will fall "
+                        f"back to the file name")
+
 for path in files:
     with open(path, encoding="utf-8") as fh:
         src = fh.read()
     body = re.sub(r"```.*?```", "", src, flags=re.S)
     rel = os.path.relpath(path, DOCS)
+    check_frontmatter(src, rel)
 
     targets = [m.group(1) for m in link_re.finditer(body)]
     targets += [m.group(1) for m in to_re.finditer(body)]

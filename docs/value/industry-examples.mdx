@@ -1,8 +1,15 @@
 ---
 sidebar_position: 9
 title: Industry examples
-description: The same platform and the same four building blocks, modelled five different ways, led by a worked oil-and-gas example on cutting chemical use at a processing facility.
+description: The same platform and the same four building blocks, modelled six different ways, led by a worked oil-and-gas example on cutting chemical use at a processing facility.
 ---
+import ChemicalAccounting from '@site/src/figures/chemical-accounting.svg';
+import ShortfallAttribution from '@site/src/figures/shortfall-attribution.svg';
+import ExcursionUpstream from '@site/src/figures/excursion-upstream.svg';
+import DefectAttribution from '@site/src/figures/defect-attribution.svg';
+import IncidentPath from '@site/src/figures/incident-path.svg';
+import UsageVsCalendar from '@site/src/figures/usage-vs-calendar.svg';
+import LiberationTranslate from '@site/src/figures/liberation-translate.svg';
 
 # Industry examples
 
@@ -17,7 +24,7 @@ DataHub has no vertical editions. The same four building blocks and the same pla
 every industry, <span className="hl">the difference between deployments is the model you load
 into it</span>, and how much of one you need on day one.
 
-Five deployments that share nothing but the platform. The first is worked through in
+Six deployments that share nothing but the platform. The first is worked through in
 detail, because it shows the whole arc, from a number nobody can defend, to a measured
 one, to a process that costs less and discharges less.
 </KeyIdea>
@@ -61,6 +68,13 @@ Two consequences follow, and they point in opposite directions:
   reporting obligations tighten.
 - **You cannot find the waste**, because a figure derived from purchase records is
   structurally incapable of showing that a particular pump has been over-dosing for a year.
+
+<Figure
+  caption="Both bars carry the same quantity, and the invoices behind the left one are accurate. The difference is that only the right one is attached to the pumps, the process stages and the discharge routes, which is what turns a reported total into something you can act on rather than only defend."
+  wide
+>
+  <ChemicalAccounting />
+</Figure>
 
 ### The environmental classification makes it sharper
 
@@ -220,6 +234,13 @@ submitted to the regulator is reproducible today, and once
 [lineage](/concepts/lineage-and-quality) ships it traces back to individual generating
 units with data-quality flags attached, an auditable artefact rather than a claim.
 
+<Figure
+  caption="The gap in the top chart is what a shortfall report contains. The rows underneath are the same afternoon read off the model: which units were unavailable, for how long, and what was raised against each. An outage and a derate cost different amounts, which is why they are drawn differently."
+  wide
+>
+  <ShortfallAttribution />
+</Figure>
+
 **Starting play:** [audit-ready reporting](/value/value-paths#audit-ready-reporting), because
 the regulated submission already exists and already costs real effort.
 
@@ -241,6 +262,13 @@ maintenance history. Compliance submissions stop being spreadsheets assembled by
 become queries against the model, each number reproducible, and carrying its full audit
 trail once [lineage](/concepts/lineage-and-quality) lands.
 
+<Figure
+  caption="The excursion is recorded at the outfall, which is the one stage it did not come from. The model supplies both missing pieces at once: the chain of stages upstream of it, and the hours between the cause and the reading that finally failed."
+  wide
+>
+  <ExcursionUpstream />
+</Figure>
+
 **Starting play:** [faster investigations](/value/value-paths#faster-investigations), then
 audit-ready reporting once the model covers the treatment train.
 
@@ -260,6 +288,13 @@ audit-ready reporting once the model covers the treatment train.
 and material that produced it. Energy per unit compared across lines, with the differences
 attributable to specific equipment rather than assumed. Downtime attributed to cause rather
 than to a category somebody picked from a dropdown.
+
+<Figure
+  caption="The same defects, twice over. Counted by week they are a rate somebody has to explain. Attached to the station that made each unit and the lot the material came from, they land in one row and two shifts, and the explanation is already in the picture."
+  wide
+>
+  <DefectAttribution />
+</Figure>
 
 **Starting play:** [data liberation](/value/value-paths#data-liberation) across the MES,
 maintenance system and energy meters, the fastest route to a visible win on a shop floor.
@@ -282,11 +317,78 @@ service, to host, to the array showing elevated error rates, to the switch that 
 packets, to the deploy that went out twenty minutes earlier. *"What is the blast radius of
 taking down this switch?"* is a relationship query rather than tribal knowledge.
 
+<Figure
+  caption="Two facts that are useless apart. The chart knows something changed at 14:20 but not why; the graph knows what the service depends on but not when. Together they close the question, and the walk is the same one every time: start at the symptom and step outward."
+  wide
+>
+  <IncidentPath />
+</Figure>
+
 This one is not hypothetical, IntelliStream runs DataHub on its own infrastructure this way.
 
 **Starting play:** [faster investigations](/value/value-paths#faster-investigations). The
 data is already accessible and the relationships are already known, so the model comes
 together unusually fast.
+
+---
+
+## A defence organisation
+
+Defence is the clearest case of an operation judged on **availability** rather than output.
+The questions are the ones any fleet operator asks, with the consequences of a wrong answer
+rearranged, and there are several distinct applications sitting on one model.
+
+| Layer | Modelled as |
+| --- | --- |
+| **Assets** | Platforms (vessels, vehicles, aircraft, radar and communications installations), their sub-systems, and the bases and depots supporting them |
+| **Functions** | Sustainment, maintenance and overhaul cycles, supply and resupply, training and trials |
+| **Business knowledge** | Unit ownership, readiness definitions, maintenance doctrine, support contracts |
+| **Time series** | Platform and sub-system telemetry, engine and generator hours, fuel and power consumption, conditions recorded during trials |
+| **Events** | Faults, defects and rectifications, sorties and sailings, exercises, inspections, part replacements |
+
+**What it makes possible**, in five directions that share the same model:
+
+- **Readiness computed rather than assembled.** How much of a fleet is available now, and what
+  is holding the remainder back, taken from maintenance events, usage hours and spares on hand
+  rather than from a week of staff work reconciling returns. The value is not the number, it is
+  that it can be recomputed on the morning somebody needs it.
+  [The same question, answered by an agent →](/using/ai-agents#defence-a-readiness-answer-in-minutes-rather-than-a-week-of-staff-work)
+- **Sustainment against usage instead of the calendar.** Military platforms are used in bursts.
+  A hull, an airframe or a vehicle that spent the quarter alongside has not aged like one that
+  deployed, and once hours, cycles and conditions hang off the platform itself, maintenance can
+  be planned against what was actually done to it.
+  [Condition monitoring →](/value/value-paths#condition-monitoring)
+- **Spares, and where the supply is thin.** Which parts each platform consumes under which
+  usage, so demand comes from the fleet's real profile rather than from an average. The same
+  model answers the uncomfortable version of the question: which critical items depend on a
+  single supplier, a single factory or a single shipping lane.
+  [Why that question got harder →](/concepts/lineage-and-quality#the-world-stopped-being-slow)
+- **The estate, not only the platforms.** Bases are industrial sites: power and backup
+  generation, fuel storage, water, cooling, runways and quaysides. They fail the way any
+  facility fails, and they carry exactly the same monitoring case as a processing plant.
+- **Trials and exercise data that stays comparable.** Telemetry linked to the configuration it
+  ran with and the conditions it ran in, so this year's result can be set against last year's
+  instead of being a folder of files somebody has to interpret. Reproducibility is what turns
+  exercise data into evidence, and it is also what makes a
+  [digital twin](/concepts/digital-twin) usable for rehearsal rather than decoration.
+
+<Figure
+  caption="Cumulative hours, because that is the quantity the decision lives in. Both vehicles were serviced on the same four dates; only one of them crossed the interval that actually governs wear, and it crossed it twice. On a calendar-based record the two are indistinguishable."
+  wide
+>
+  <UsageVsCalendar />
+</Figure>
+
+**On sovereignty and separation, stated plainly.** The platform is open source and runs on
+infrastructure you control, which is normally the first requirement in this sector. Separation
+between classification domains, though, is a **deployment** boundary rather than a data set
+one: in the reference stack every tenant shares one graph, so material that must not mix
+belongs in separate deployments.
+[What the shipped deployment actually isolates →](/administration/organizations)
+
+**Starting play:** [condition monitoring](/value/value-paths#condition-monitoring) on one
+platform class, or [data liberation](/value/value-paths#data-liberation) where the maintenance
+and supply systems already disagree with each other.
 
 ---
 
@@ -300,6 +402,13 @@ by simplifying it: whatever arrives from a silo becomes one of a few primitives.
 permit opening or closing, a new purchase order, a sensor alarm, a system state change, all
 become events. Signals become time series. The things they describe become resources.
 
+<Figure
+  caption="Four vendor record shapes, three primitives, one interface. Liberation is a simplification rather than a copy: the historian tag, the permit and the purchase order keep their meaning while losing the schema you had to learn to read them."
+  wide
+>
+  <LiberationTranslate />
+</Figure>
+
 You never need to understand a source system's schema to use its data, and there is one
 interface for querying and reading all of it. Lineage, the knowledge graph and everything
 above can be layered on later. Having every silo readable through one simple model is worth
@@ -310,9 +419,9 @@ moved into a newer cage.
 
 ## The common thread
 
-Same platform, same building blocks, no vertical editions. What changes between these five
+Same platform, same building blocks, no vertical editions. What changes between these six
 is the vocabulary in the model, and that vocabulary comes from your own people rather than
-from a taxonomy anybody imposed on you. Each of the five, grown to whatever size its first
+from a taxonomy anybody imposed on you. Each of the six, grown to whatever size its first
 question needed, is a [digital twin](/concepts/digital-twin) of a different operation.
 
 The starting plays differ, but the sequence rarely does: **liberate the data, model one
@@ -327,6 +436,9 @@ area, answer one question, then widen.**
 - [Produced water](https://en.wikipedia.org/wiki/Produced_water)
 - [Clathrate hydrates, what glycol prevents](https://en.wikipedia.org/wiki/Clathrate_hydrate)
 - [Corrosion inhibitor](https://en.wikipedia.org/wiki/Corrosion_inhibitor)
+- [Operational readiness](https://en.wikipedia.org/wiki/Operational_readiness)
+- [Integrated logistics support](https://en.wikipedia.org/wiki/Integrated_logistics_support)
+- [Condition-based maintenance](https://en.wikipedia.org/wiki/Condition-based_maintenance)
 
 </References>
 

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 376" class="fig-k-means" role="img" aria-label="Two panels. On the left, three cross-shaped centres start at arbitrary positions and are joined by dashed lines to where they settle, in the middle of three groups of points. On the right, the same three groups carry the names a person gave them, and one point sits far from every centre.">
+<text class="fig-title" x="20" y="24">k-means: the whole method, and what it leaves you</text>
+<text class="fig-sub" x="20" y="44">You choose how many groups. Everything after that is repetition until nothing moves.</text>
+<text class="fig-box-title" x="20" y="78">How it works</text>
+<text class="fig-box-sub" x="20" y="96">the centres move to where the points are</text>
+<text class="fig-box-title" x="400" y="78">What you get</text>
+<text class="fig-box-sub" x="400" y="96">three groups, named afterwards by somebody who knows the plant</text>
+<line class="fig-track" x1="130" y1="144" x2="77" y2="169"/>
+<line class="fig-track" x1="140" y1="198" x2="191" y2="233"/>
+<line class="fig-track" x1="256" y1="242" x2="288" y2="168"/>
+<circle class="fig-dot-a" cx="60" cy="154" r="4.5"/>
+<circle class="fig-dot-a" cx="86" cy="140" r="4.5"/>
+<circle class="fig-dot-a" cx="74" cy="176" r="4.5"/>
+<circle class="fig-dot-a" cx="102" cy="162" r="4.5"/>
+<circle class="fig-dot-a" cx="50" cy="188" r="4.5"/>
+<circle class="fig-dot-a" cx="90" cy="194" r="4.5"/>
+<path class="fig-line-a fig-line--ghost" d="M123 144 L137 144 M130 137 L130 151" fill="none"/>
+<path class="fig-line-a" d="M68 169 L86 169 M77 160 L77 178" fill="none"/>
+<circle class="fig-dot-b" cx="170" cy="228" r="4.5"/>
+<circle class="fig-dot-b" cx="198" cy="214" r="4.5"/>
+<circle class="fig-dot-b" cx="182" cy="250" r="4.5"/>
+<circle class="fig-dot-b" cx="216" cy="236" r="4.5"/>
+<circle class="fig-dot-b" cx="156" cy="250" r="4.5"/>
+<circle class="fig-dot-b" cx="226" cy="220" r="4.5"/>
+<path class="fig-line-b fig-line--ghost" d="M133 198 L147 198 M140 191 L140 205" fill="none"/>
+<path class="fig-line-b" d="M182 233 L200 233 M191 224 L191 242" fill="none"/>
+<circle class="fig-dot-c" cx="268" cy="158" r="4.5"/>
+<circle class="fig-dot-c" cx="296" cy="182" r="4.5"/>
+<circle class="fig-dot-c" cx="312" cy="152" r="4.5"/>
+<circle class="fig-dot-c" cx="278" cy="190" r="4.5"/>
+<circle class="fig-dot-c" cx="320" cy="192" r="4.5"/>
+<circle class="fig-dot-c" cx="256" cy="136" r="4.5"/>
+<path class="fig-line-c fig-line--ghost" d="M249 242 L263 242 M256 235 L256 249" fill="none"/>
+<path class="fig-line-c" d="M279 168 L297 168 M288 159 L288 177" fill="none"/>
+<circle class="fig-dot-b" cx="180" cy="132" r="4.5"/>
+<text class="fig-box-sub" x="142" y="148">where they started</text>
+<text class="fig-box-sub" x="20" y="270">1 · drop k centres anywhere; k is your choice</text>
+<text class="fig-box-sub" x="20" y="286">2 · every point joins the centre nearest to it</text>
+<text class="fig-box-sub" x="20" y="302">3 · each centre moves to the middle of its points</text>
+<text class="fig-box-sub" x="20" y="318">then repeat 2 and 3 until nothing moves</text>
+<circle class="fig-dot-a" cx="440" cy="154" r="4.5"/>
+<circle class="fig-dot-a" cx="466" cy="140" r="4.5"/>
+<circle class="fig-dot-a" cx="454" cy="176" r="4.5"/>
+<circle class="fig-dot-a" cx="482" cy="162" r="4.5"/>
+<circle class="fig-dot-a" cx="430" cy="188" r="4.5"/>
+<circle class="fig-dot-a" cx="470" cy="194" r="4.5"/>
+<path class="fig-line-a" d="M448 169 L466 169 M457 160 L457 178" fill="none"/>
+<circle class="fig-dot-b" cx="550" cy="228" r="4.5"/>
+<circle class="fig-dot-b" cx="578" cy="214" r="4.5"/>
+<circle class="fig-dot-b" cx="562" cy="250" r="4.5"/>
+<circle class="fig-dot-b" cx="596" cy="236" r="4.5"/>
+<circle class="fig-dot-b" cx="536" cy="250" r="4.5"/>
+<circle class="fig-dot-b" cx="606" cy="220" r="4.5"/>
+<path class="fig-line-b" d="M562 233 L580 233 M571 224 L571 242" fill="none"/>
+<circle class="fig-dot-c" cx="648" cy="158" r="4.5"/>
+<circle class="fig-dot-c" cx="676" cy="182" r="4.5"/>
+<circle class="fig-dot-c" cx="692" cy="152" r="4.5"/>
+<circle class="fig-dot-c" cx="658" cy="190" r="4.5"/>
+<circle class="fig-dot-c" cx="700" cy="192" r="4.5"/>
+<circle class="fig-dot-c" cx="636" cy="136" r="4.5"/>
+<path class="fig-line-c" d="M659 168 L677 168 M668 159 L668 177" fill="none"/>
+<line class="fig-track" x1="560" y1="132" x2="571" y2="233"/>
+<circle class="fig-box" cx="560" cy="132" r="10"/>
+<circle class="fig-dot-b" cx="560" cy="132" r="4.5"/>
+<path class="fig-line-a" d="M402 270 L414 270 M408 264 L408 276" fill="none"/>
+<text class="fig-box-sub" x="420" y="274">start-up</text>
+<path class="fig-line-b" d="M518 270 L530 270 M524 264 L524 276" fill="none"/>
+<text class="fig-box-sub" x="536" y="274">steady load</text>
+<path class="fig-line-c" d="M628 270 L640 270 M634 264 L634 276" fill="none"/>
+<text class="fig-box-sub" x="646" y="274">recirculating</text>
+<circle class="fig-box" cx="408" cy="294" r="9"/>
+<circle class="fig-dot-b" cx="408" cy="294" r="4.5"/>
+<text class="fig-box-sub" x="422" y="298">filed under its nearest group, and nowhere near it</text>
+<text class="fig-sub" x="20" y="344">k-means finds the groups and nothing else. Naming them is human work, and the name is worth keeping as a</text>
+<text class="fig-sub" x="20" y="362">label, because from then on the distance to the nearest centre is an anomaly score you got for free.</text>
+</svg>

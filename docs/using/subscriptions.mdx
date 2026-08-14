@@ -1,9 +1,10 @@
 ---
-sidebar_position: 8
+sidebar_position: 9
 title: Data subscriptions
-description: Subscribing to data so it is pushed to you the moment it arrives, millisecond-scale delivery, and the use cases that only exist once latency stops being a schedule.
+description: Subscribing to data so it is pushed to you the moment it arrives, millisecond-scale delivery, the use cases that only exist once latency stops being a schedule, and a worked sliding-window example that turns four hundred nuisance alarms into one event.
 ---
 import SubscriptionFlow from '@site/src/figures/subscription-flow.svg';
+import SustainedExceedance from '@site/src/figures/sustained-exceedance.svg';
 
 # Data subscriptions
 
@@ -110,6 +111,121 @@ credentials like any other integration's, a
 [service account](/administration/users-and-access#service-accounts) with the narrowest
 access that works.
 
+## A worked example: handling a noisy alarm
+
+<Lead>Subscriptions deliver readings. The first thing most teams want to do with them is not
+store them, it is to stop reacting to every single one.</Lead>
+
+**The problem.** A pump's discharge pressure carries a high limit, and the limit alarm fires
+on every start-up, every slug of gas and every transient the process throws at it. Four
+hundred alarms a month, almost all of them clear within seconds. Somebody suppressed it two
+years ago, and on the one occasion it mattered nobody was watching. Moving the limit does not
+help: higher and it misses the slow drift, lower and it fires more.
+
+What the control room actually wants is not *is it above 4.5* but
+<span className="hl">has it stayed above 4.5</span>, and that is a question about a stretch of
+time rather than about a reading.
+
+### Why the window has to slide
+
+[Tumbling windows](/concepts/stream-processing#a-stream-has-no-end-so-a-window-manufactures-one)
+cut time into fixed slices, which is right for reporting and wrong here. A twenty-five minute
+excursion straddling two fifteen-minute slices looks like two partial slices, neither of them
+sustained, so the rule stays quiet through exactly the event it was built for. A **sliding
+window** always has the last twenty minutes in view, whatever the clock happens to say.
+
+<Figure
+  caption="The four spikes are drawn higher than the real excursion deliberately, because severity is not what the rule is judging. Duration is. The window costs twenty minutes of delay on the one that mattered, which is the honest price, and it is worth paying at four hundred nuisance alarms a month."
+  wide
+>
+  <SustainedExceedance />
+</Figure>
+
+### The design
+
+<Steps>
+  <Step title="Subscribe to the series, and nothing else">
+    Filtering happens platform-side, so the consumer receives only what it asked for. The
+    service account needs read access to *every* series bound to the subscription; a series it
+    cannot read is refused explicitly rather than arriving as silence, which is the failure
+    mode worth knowing about when somebody adds a series later.
+    [Service accounts →](/administration/users-and-access#service-accounts)
+  </Step>
+  <Step title="Keep the last twenty minutes, and evict on the carried timestamp">
+    A short buffer of readings, trimmed against the newest reading's own time rather than the
+    wall clock. That one choice is what makes the rule behave correctly when a reconnect
+    delivers four hours at once.
+    [Why arrival time is the wrong clock →](/concepts/stream-processing#when-it-happened-is-not-when-it-turned-up)
+  </Step>
+  <Step title="Decide on every delivery, with different thresholds for raising and clearing">
+    Raise when the whole window has been above the limit; clear only after ten minutes below
+    it. <span className="t-accent">Raise and clear thresholds must differ</span>, or the rule
+    flaps at the boundary and you have reinvented the nuisance alarm with extra steps.
+  </Step>
+  <Step title="Write the answer back as an event, not as a message">
+    One [event](/using/events) on the pump, carrying the window it was judged over, how long
+    the condition held and the peak value. The next person to open that pump sees the finding
+    and its evidence together, and every later question can count these events.
+  </Step>
+</Steps>
+
+The whole loop is smaller than the discussion around it:
+
+```python
+WINDOW = timedelta(minutes=20)
+recent = deque()                      # (timestamp, value), oldest first
+
+with client.subscriptions.listen(["pump_p101_discharge"]) as listener:
+    for msg in listener:
+        # the payload carries the action and the datapoints it affected
+        for ts, value in datapoints(msg.payload):
+            if any(t == ts for t, _ in recent):
+                continue              # a redelivery, not a new reading
+            recent.append((ts, value))
+
+        # evict on the carried timestamp, never on the wall clock
+        while recent and recent[0][0] < recent[-1][0] - WINDOW:
+            recent.popleft()
+
+        evaluate(recent)              # raise, clear, or stay quiet
+        listener.ack([msg.message_id])
+```
+
+<a href="/sdk-documentation/advanced/sustained-alarm-window">The same example, runnable, in the SDK documentation →</a>
+
+### The four things that make it survive contact with reality
+
+- **A reading can arrive twice.** Delivery is at least once, so a reconnect can replay what
+  you already handled. The deduplication above is what stops a redelivery counting twice
+  toward a sustained condition. Writing back is safer than reading: datapoints are keyed by
+  series and timestamp, and events by id, so the platform collapses the duplicates you send
+  it. Your own window is the part nobody protects for you.
+- **Fill the window before you trust it.** On start-up, read the last twenty minutes through
+  the ordinary API rather than waiting twenty minutes to become useful. A rule that is blind
+  for its first twenty minutes is blind precisely when somebody has just restarted it during
+  an incident.
+- **A window with holes is not a quiet window.** If three of the twenty expected readings
+  arrived, the honest output is not "no exceedance", it is that the instrument or the link
+  needs looking at. Raise that as its own quiet finding rather than letting missing data read
+  as good news.
+- **Acknowledge after you have acted, not before.** The ack is a promise that the reading has
+  been durably handled. Acking first turns a crash into a silent gap in the very rule you
+  built to be trustworthy.
+
+### What it is worth, and where it goes next
+
+One event a month instead of four hundred alarms, and an alarm the control room has not
+switched off. The shape generalises further than it looks:
+<span className="t-brand">sustained above, sustained below, rate of change across the window,
+the ratio between two series over the window</span> are all the same loop with a different
+`evaluate`.
+
+When no threshold over any window can express the thing you are looking for, because the
+readings never leave their limits and it is the *shape* that changed, that is where a
+[sequence model](/concepts/machine-learning#sequences-lstm-and-why-time-series-need-it) starts
+earning its keep. And when [functions](/using/functions) ship, this loop becomes a definition
+the platform runs rather than a process you keep alive, without changing what it produces.
+
 ## Where to start
 
 - **See it without writing code**: open a series in [Insights](/using/insights#live-mode)
@@ -131,6 +247,7 @@ access that works.
 </References>
 
 <Deeper>
+- [Stream processing](/concepts/stream-processing): what to do with the data once it is arriving continuously
 - [Insights Live mode](/using/insights#live-mode): the no-code way to watch a subscription
 - [Events](/using/events): the discrete occurrences worth subscribing to
 - [AI agents](/value/ai-agents): what continuous watching makes possible
