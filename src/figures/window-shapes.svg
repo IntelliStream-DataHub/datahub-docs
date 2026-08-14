@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 312" class="fig-window-shapes" role="img" aria-label="Three panels of the same stream. Tumbling windows are equal boxes that do not overlap. Sliding windows overlap, stepping along so a reading falls in several. Session windows hug bursts of readings and are ended by the quiet between them.">
+<text class="fig-title" x="20" y="24">A stream has no end, so a window manufactures one</text>
+<text class="fig-sub" x="20" y="44">Three ways to cut the same readings, answering three different questions.</text>
+<text class="fig-box-title" x="20" y="80">Tumbling</text>
+<text class="fig-box-sub" x="20" y="98">what happened in each 15 minutes</text>
+<text class="fig-box-title" x="270" y="80">Sliding</text>
+<text class="fig-box-sub" x="270" y="98">what has happened in the last 15, now</text>
+<text class="fig-box-title" x="520" y="80">Session</text>
+<text class="fig-box-sub" x="520" y="98">one box per burst, ended by the quiet</text>
+<rect class="fig-centre" x="22" y="146" width="50" height="52" rx="8"/>
+<rect class="fig-centre" x="76" y="146" width="50" height="52" rx="8"/>
+<rect class="fig-centre" x="130" y="146" width="50" height="52" rx="8"/>
+<rect class="fig-centre" x="184" y="146" width="50" height="52" rx="8"/>
+<circle class="fig-dot-a" cx="34" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="50" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="66" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="90" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="116" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="138" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="160" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="178" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="202" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="220" cy="172" r="4"/>
+<text class="fig-box-sub" x="20" y="228">every reading in exactly one box,</text>
+<text class="fig-box-sub" x="20" y="244">one answer per box, no overlap</text>
+<rect class="fig-centre" x="272" y="134" width="86" height="56" rx="8"/>
+<rect class="fig-centre" x="306" y="140" width="86" height="56" rx="8"/>
+<rect class="fig-centre" x="340" y="146" width="86" height="56" rx="8"/>
+<rect class="fig-centre" x="374" y="152" width="86" height="56" rx="8"/>
+<circle class="fig-dot-a" cx="284" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="300" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="316" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="340" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="366" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="388" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="410" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="428" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="452" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="470" cy="172" r="4"/>
+<text class="fig-box-sub" x="270" y="228">boxes overlap, so a reading counts</text>
+<text class="fig-box-sub" x="270" y="244">in several: the answer is always current</text>
+<rect class="fig-centre" x="528" y="146" width="54" height="52" rx="8"/>
+<rect class="fig-centre" x="606" y="146" width="46" height="52" rx="8"/>
+<rect class="fig-centre" x="676" y="146" width="52" height="52" rx="8"/>
+<circle class="fig-dot-a" cx="534" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="546" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="558" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="574" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="614" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="626" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="642" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="684" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="698" cy="172" r="4"/>
+<circle class="fig-dot-a" cx="716" cy="172" r="4"/>
+<text class="fig-box-sub" x="520" y="228">boxes of unequal length, because the</text>
+<text class="fig-box-sub" x="520" y="244">process decides when one ends</text>
+<text class="fig-sub" x="20" y="286">The window is a claim about the process. Too short and it reports noise, too long and it reports late,</text>
+<text class="fig-sub" x="20" y="304">and the right length is set by how fast the thing being watched can actually change.</text>
+</svg>

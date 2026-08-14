@@ -444,6 +444,80 @@ def lineage_trace():
     return "\n".join(p)
 
 
+# --------------------------------------------------------------- decision tempo
+def decision_tempo():
+    """Two organisations meeting the same shock. THEMED, static.
+
+    Static because the reader compares the lanes, and the comparison IS the
+    argument. The point is not that the second lane decides earlier: it is that
+    it decides *again*, twice, because re-verifying is cheap. A version that
+    showed only an earlier decision made the weaker of the two claims.
+    """
+    shock, close = 140, 470
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 374" '
+        'class="fig-decision-tempo" role="img" aria-label="One shock, two lanes. In '
+        'the first, finding the figures, finding who built them and checking they are '
+        'current push the decision past the point where acting was still possible. In '
+        'the second, the figures name their own inputs, so the decision lands inside '
+        'the window and is revised twice afterwards as more becomes known.">',
+        '<text class="fig-title" x="20" y="24">The shock is the same. The time to trust a number '
+        'is not.</text>',
+        '<text class="fig-sub" x="20" y="44">Nobody in either lane saw it coming. Only one of '
+        'them can tell which of its figures still hold.</text>',
+        f'<text class="fig-box-sub" x="{shock}" y="68" text-anchor="middle">the shock lands</text>',
+        f'<rect class="fig-centre" x="{shock}" y="76" width="{close - shock}" height="26" '
+        f'rx="10"/>',
+        f'<text class="fig-centre-sub" x="{(shock + close) // 2}" y="94" '
+        f'text-anchor="middle">while the option is still open</text>',
+    ]
+    # Both verticals are drawn in two segments, skipping the rows the lane titles
+    # sit on. Run through them and the titles read as struck through.
+    for y0, y1 in ((140, 200), (244, 288)):
+        p.append(f'<line class="fig-line-b" x1="{shock}" y1="{y0}" x2="{shock}" y2="{y1}"/>')
+        p.append(f'<line class="fig-track" x1="{close}" y1="{y0}" x2="{close}" y2="{y1}"/>')
+    p.append(f'<text class="fig-box-sub" x="{close}" y="316" text-anchor="middle">the window '
+             f'closes</text>')
+
+    def step(x, w, y, label):
+        return (f'<rect class="fig-box" x="{x}" y="{y}" width="{w}" height="34" rx="10"/>'
+                f'<text class="fig-box-sub" x="{x + w // 2}" y="{y + 21}" '
+                f'text-anchor="middle">{label}</text>')
+
+    def call(x, w, y, label, colour, h=34):
+        return (f'<rect class="fig-lit-box {colour}" x="{x}" y="{y}" width="{w}" '
+                f'height="{h}" rx="10"/>'
+                f'<text class="fig-lit-title" x="{x + w // 2}" y="{y + h // 2 + 5}" '
+                f'text-anchor="middle">{label}</text>')
+
+    # ---- lane 1: the verification is the work
+    p.append('<text class="fig-box-title" x="20" y="130">Without a trail, every figure has to be '
+             'chased down by hand</text>')
+    for x, w, label in ((140, 118, "find the figures"), (264, 132, "find who built them"),
+                        (402, 140, "check they are current")):
+        p.append(step(x, w, 140, label))
+    p.append(call(556, 110, 140, "decide", "c-orange"))
+    p.append('<text class="fig-box-sub" x="611" y="192" text-anchor="middle">after the option has '
+             'gone</text>')
+
+    # ---- lane 2: the figures answer for themselves
+    p.append('<text class="fig-box-title" x="20" y="236">With lineage, each figure already names '
+             'its inputs and their condition</text>')
+    p.append(step(140, 140, 246, "verify from the trail"))
+    p.append(call(288, 110, 246, "decide", "c-green"))
+    for x in (490, 610):
+        p.append(call(x, 96, 250, "revise", "c-green", h=26))
+    p.append('<text class="fig-box-sub" x="140" y="298">and again, as more becomes known, because '
+             'each revision costs minutes rather than days</text>')
+
+    p.append('<text class="fig-sub" x="20" y="344">Forecasting the shock is not the advantage on '
+             'offer, and nobody sells it. Knowing which of your own</text>')
+    p.append('<text class="fig-sub" x="20" y="362">numbers still hold, in minutes, is what lets '
+             'you decide while it still matters and change your mind after.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
 # ------------------------------------------------------------ policy enforcement
 def policy_enforcement():
     """A data set governed by a policy, enforced by a function, in the graph.
@@ -1105,6 +1179,85 @@ def data_governance():
         '<rect class="fig-box" x="220" y="304" width="14" height="14" rx="4"/>'
         '<text class="fig-box-sub" x="242" y="315">recording works today; acting on it is on the roadmap</text>'
     )
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ------------------------------------------------------------------ policy agent
+def policy_agents():
+    """The four moments a rule can act, and the agent covering the gap. THEMED.
+
+    Filled means the platform enforces it today, outlined means the rule is
+    recorded and enforcement is on the roadmap, the same convention as the
+    data-governance map. The only motion is `fig-flow` on the agent's rail,
+    because "checks it continuously" is the whole claim being made.
+    """
+    gw, gap, gy, gh = 168, 16, 104, 84
+    gates = (
+        ("At the write", ("the id must match the", "convention, so a write is",
+                          "refused or flagged"), True),
+        ("While it sits", ("owner named, description", "filled, review not overdue"), False),
+        ("At the read", ("who may see it, and", "on what terms"), False),
+        ("At the end of life", ("kept ten years, then", "expired on schedule"), False),
+    )
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 372" '
+        'class="fig-policy-agents" role="img" aria-label="Four moments where a '
+        'policy can act: at the write, while the data sits, at the read, and at the '
+        'end of its life. Only the first is filled in, meaning the platform enforces '
+        'it today. A policy agent underneath feeds a rail up to the other three, '
+        'checking them continuously and passing findings to a person who decides.">',
+        '<text class="fig-title" x="20" y="24">A rule that acts, and what acts on it</text>',
+        '<text class="fig-sub" x="20" y="44">One policy, four moments where it can bite. The '
+        'platform enforces the first today.</text>',
+    ]
+    for i, (title, subs, shipped) in enumerate(gates):
+        x = 20 + i * (gw + gap)
+        cx = x + gw / 2
+        box = "fig-lit-box c-blue" if shipped else "fig-box"
+        t = "fig-lit-title" if shipped else "fig-box-title"
+        sub = "fig-lit-sub" if shipped else "fig-box-sub"
+        p.append(f'<rect class="{box}" x="{x}" y="{gy}" width="{gw}" height="{gh}" rx="12"/>')
+        p.append(f'<text class="{t}" x="{cx:.0f}" y="{gy + 28}" text-anchor="middle">{title}'
+                 f'</text>')
+        for j, line in enumerate(subs):
+            p.append(f'<text class="{sub}" x="{cx:.0f}" y="{gy + 50 + j * 16}" '
+                     f'text-anchor="middle">{line}</text>')
+        if i < 3:
+            p.append(f'<path class="fig-centre" d="M{x + gw + 3} {gy + 36} L{x + gw + 12} '
+                     f'{gy + 42} L{x + gw + 3} {gy + 48} z"/>')
+
+    # the agent's rail: one continuous check, feeding the three gates the
+    # platform does not enforce yet
+    p.append('<path class="fig-exit-path fig-flow" d="M120 248 L120 210 L656 210" '
+             'fill="none"/>')
+    for cx in (288, 472, 656):
+        p.append(f'<line class="fig-exit-path" x1="{cx}" y1="210" x2="{cx}" y2="196"/>')
+        p.append(f'<path class="fig-lit-box c-green" d="M{cx - 6} 198 L{cx} 188 L{cx + 6} '
+                 f'198 z"/>')
+    p.append('<text class="fig-box-sub" x="238" y="232">checks continuously what the platform '
+             'does not enforce yet</text>')
+
+    p.append('<rect class="fig-exit-box" x="20" y="248" width="330" height="76" rx="14"/>')
+    p.append('<text class="fig-exit-title" x="185" y="276" text-anchor="middle">Policy '
+             'agent</text>')
+    p.append('<text class="fig-exit-sub" x="185" y="296" text-anchor="middle">reads the rule off '
+             'the data set, watches</text>')
+    p.append('<text class="fig-exit-sub" x="185" y="312" text-anchor="middle">for what breaks it, '
+             'drafts the correction</text>')
+    p.append('<path class="fig-exit-path fig-flow" d="M350 286 L430 286" fill="none"/>')
+    p.append('<rect class="fig-box" x="430" y="248" width="310" height="76" rx="14"/>')
+    p.append('<text class="fig-box-title" x="585" y="276" text-anchor="middle">A person '
+             'decides</text>')
+    p.append('<text class="fig-box-sub" x="585" y="296" text-anchor="middle">closes the finding, '
+             'fixes the data, changes</text>')
+    p.append('<text class="fig-box-sub" x="585" y="312" text-anchor="middle">the rule, or records '
+             'the exception</text>')
+    p.append('<rect class="fig-lit-box c-blue" x="20" y="342" width="14" height="14" rx="4"/>'
+             '<text class="fig-box-sub" x="42" y="353">enforced by the platform today</text>'
+             '<rect class="fig-box" x="260" y="342" width="14" height="14" rx="4"/>'
+             '<text class="fig-box-sub" x="282" y="353">recorded today, enforced when the '
+             'feature ships</text>')
     p.append("</svg>")
     return "\n".join(p)
 
@@ -3071,6 +3224,126 @@ def ml_progression():
     return "\n".join(p)
 
 
+# --------------------------------------------------------------- tree ensembles
+def tree_ensembles():
+    """One decision tree, a random forest, then gradient boosting. THEMED, static.
+
+    Static, because the reader compares the three panels. Each panel shows what
+    its method buys rather than how it is implemented: a tree you can read out
+    loud, a crowd whose vote stops swinging with every new example, and a
+    sequence where each tree is trained on what is still wrong.
+    """
+    px, pw = (20, 270, 520), 220
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 388" '
+        'class="fig-tree-ensembles" role="img" aria-label="Three panels. First, a '
+        'single decision tree of yes-or-no questions ending in fails or fine. '
+        'Second, a random forest of six small trees each casting a vote, five of '
+        'six saying it fails. Third, gradient boosting: four trees in sequence '
+        'with a bar under each showing the error still left, shrinking from tree '
+        'to tree.">',
+        '<text class="fig-title" x="20" y="24">One tree, a crowd of them, then a queue of '
+        'them</text>',
+        '<text class="fig-sub" x="20" y="44">The same questions asked of the same table. What '
+        'changes is how many trees, and how they are combined.</text>',
+    ]
+
+    def mini_tree(cx, cy, spread=16, drop=22):
+        """The three-node glyph that stands for a whole tree.
+
+        Solid branches, not `fig-track`: at this length a dashed line breaks
+        into two or three marks and the glyph stops reading as a tree.
+        """
+        return [
+            f'<line class="fig-edge" x1="{cx}" y1="{cy}" x2="{cx - spread}" y2="{cy + drop}"/>',
+            f'<line class="fig-edge" x1="{cx}" y1="{cy}" x2="{cx + spread}" y2="{cy + drop}"/>',
+            f'<circle class="fig-box" cx="{cx}" cy="{cy}" r="5"/>',
+            f'<circle class="fig-box" cx="{cx - spread}" cy="{cy + drop}" r="4"/>',
+            f'<circle class="fig-box" cx="{cx + spread}" cy="{cy + drop}" r="4"/>',
+        ]
+
+    # ---- 1: one tree, small enough to read
+    x = px[0]
+    p += [
+        f'<text class="fig-box-title" x="{x}" y="78">One decision tree</text>',
+        f'<text class="fig-box-sub" x="{x}" y="96">questions it worked out itself</text>',
+        f'<line class="fig-edge" x1="{x + 110}" y1="140" x2="{x + 56}" y2="168"/>',
+        f'<line class="fig-edge" x1="{x + 110}" y1="140" x2="{x + 168}" y2="168"/>',
+        f'<text class="fig-box-sub" x="{x + 66}" y="160">yes</text>',
+        f'<text class="fig-box-sub" x="{x + 146}" y="160">no</text>',
+        f'<rect class="fig-box" x="{x + 35}" y="112" width="150" height="28" rx="8"/>',
+        f'<text class="fig-box-sub" x="{x + 110}" y="130" text-anchor="middle">vibration above '
+        f'4.5?</text>',
+        f'<line class="fig-edge" x1="{x + 56}" y1="196" x2="{x + 36}" y2="224"/>',
+        f'<line class="fig-edge" x1="{x + 56}" y1="196" x2="{x + 112}" y2="224"/>',
+        f'<rect class="fig-box" x="{x + 4}" y="168" width="104" height="28" rx="8"/>',
+        f'<text class="fig-box-sub" x="{x + 56}" y="186" text-anchor="middle">over 900 hours '
+        f'run?</text>',
+        f'<rect class="fig-lit-box c-blue" x="{x + 124}" y="168" width="88" height="28" rx="8"/>',
+        f'<text class="fig-lit-sub" x="{x + 168}" y="186" text-anchor="middle">fine</text>',
+        f'<rect class="fig-lit-box c-orange" x="{x + 2}" y="224" width="68" height="28" rx="8"/>',
+        f'<text class="fig-lit-sub" x="{x + 36}" y="242" text-anchor="middle">fails</text>',
+        f'<rect class="fig-lit-box c-blue" x="{x + 78}" y="224" width="68" height="28" rx="8"/>',
+        f'<text class="fig-lit-sub" x="{x + 112}" y="242" text-anchor="middle">fine</text>',
+    ]
+    for i, line in enumerate(("you can read it out loud, which",
+                              "is why people trust it,",
+                              "but move a few examples and the",
+                              "whole tree redraws itself")):
+        p.append(f'<text class="fig-box-sub" x="{x}" y="{272 + i * 16}">{line}</text>')
+
+    # ---- 2: many trees, each on its own slice, voting
+    x = px[1]
+    p += [
+        f'<text class="fig-box-title" x="{x}" y="78">A random forest</text>',
+        f'<text class="fig-box-sub" x="{x}" y="96">hundreds of trees, one vote each</text>',
+    ]
+    votes = ("b", "b", "a", "b", "b", "b")      # b = fails, a = fine
+    for i, vote in enumerate(votes):
+        cx = x + (36, 110, 184)[i % 3]
+        cy = 124 + (i // 3) * 62
+        p += mini_tree(cx, cy, spread=14, drop=20)
+        cls = "fig-dot-b" if vote == "b" else "fig-dot-a"
+        p.append(f'<circle class="{cls}" cx="{cx}" cy="{cy + 36}" r="5.5"/>')
+    for i, line in enumerate(("each tree sees a random slice of",
+                              "the rows and of the columns, so",
+                              "they make different mistakes;",
+                              "five of these six say it fails,",
+                              "and the majority is the answer")):
+        p.append(f'<text class="fig-box-sub" x="{x}" y="{256 + i * 16}">{line}</text>')
+
+    # ---- 3: trees in sequence, each on what is still wrong
+    x = px[2]
+    p += [
+        f'<text class="fig-box-title" x="{x}" y="78">Gradient boosting</text>',
+        f'<text class="fig-box-sub" x="{x}" y="96">in sequence, not in parallel: XGBoost</text>',
+    ]
+    bars, base = (46, 27, 14, 6), 220
+    for i, h in enumerate(bars):
+        cx = x + (30, 88, 146, 204)[i]
+        p += mini_tree(cx, 124, spread=14, drop=20)
+        p.append(f'<rect class="fig-lit-box c-orange" x="{cx - 7}" y="{base - h}" width="14" '
+                 f'height="{h}" rx="3"/>')
+        if i < 3:
+            p.append(f'<path class="fig-centre" d="M{cx + 21} 118 L{cx + 31} 124 L{cx + 21} '
+                     f'130 z"/>')
+    p.append(f'<line class="fig-track" x1="{x + 12}" y1="{base}" x2="{x + 218}" y2="{base}"/>')
+    p.append(f'<text class="fig-box-sub" x="{x + 110}" y="{base + 16}" text-anchor="middle">what '
+             f'is still wrong</text>')
+    for i, line in enumerate(("each new tree is trained on what",
+                              "the ones before it got wrong,",
+                              "which makes it the most accurate",
+                              "and the hardest to argue with")):
+        p.append(f'<text class="fig-box-sub" x="{x}" y="{272 + i * 16}">{line}</text>')
+
+    p.append('<text class="fig-sub" x="20" y="352">A tree explains itself and moves with every '
+             'new example. A forest averages that away. Boosting, built</text>')
+    p.append('<text class="fig-sub" x="20" y="370">on the leftovers, usually wins on a table of '
+             'numbers, and each step costs you a little readability.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
 # ------------------------------------------------------------------- clustering
 def clustering():
     """The same points, before and after a machine grouped them. THEMED, static."""
@@ -3111,6 +3384,102 @@ def clustering():
              'looking for: which machines behave alike, which readings sit</text>')
     p.append('<text class="fig-sub" x="20" y="314">outside every group. Naming the groups is a '
              'job for somebody who knows the plant.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ---------------------------------------------------------------------- k-means
+def k_means_steps():
+    """How k-means works, and what the result is worth. THEMED, static.
+
+    Two panels rather than three: the left one is the whole algorithm (assign,
+    move, repeat), the right one is what you are left with, which is the part a
+    reader can act on. The crosses on the left start off the blobs and are
+    joined to where they end up, because the movement IS the method.
+
+    The lone point is deliberately far from all three centres: k-means still
+    files it under its nearest one, and that distance is the anomaly score.
+    """
+    lx, rx, base = 20, 400, 124
+    groups = (
+        ("fig-dot-a", "fig-line-a", ((40, 30), (66, 16), (54, 52), (82, 38), (30, 64), (70, 70)),
+         (57, 45), "start-up"),
+        ("fig-dot-b", "fig-line-b", ((150, 104), (178, 90), (162, 126), (196, 112), (136, 126),
+                                     (206, 96)), (171, 109), "steady load"),
+        ("fig-dot-c", "fig-line-c", ((248, 34), (276, 58), (292, 28), (258, 66), (300, 68),
+                                     (236, 12)), (268, 44), "recirculating"),
+    )
+    # Where the centres were dropped. The third sits below the green blob rather
+    # than inside the orange one, where it read as an orange member.
+    starts = ((110, 20), (120, 74), (236, 118))
+    odd = (160, 8)                                  # belongs to no group
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 376" '
+        'class="fig-k-means" role="img" aria-label="Two panels. On the left, three '
+        'cross-shaped centres start at arbitrary positions and are joined by dashed '
+        'lines to where they settle, in the middle of three groups of points. On the '
+        'right, the same three groups carry the names a person gave them, and one '
+        'point sits far from every centre.">',
+        '<text class="fig-title" x="20" y="24">k-means: the whole method, and what it leaves '
+        'you</text>',
+        '<text class="fig-sub" x="20" y="44">You choose how many groups. Everything after that '
+        'is repetition until nothing moves.</text>',
+        f'<text class="fig-box-title" x="{lx}" y="78">How it works</text>',
+        f'<text class="fig-box-sub" x="{lx}" y="96">the centres move to where the points '
+        'are</text>',
+        f'<text class="fig-box-title" x="{rx}" y="78">What you get</text>',
+        f'<text class="fig-box-sub" x="{rx}" y="96">three groups, named afterwards by somebody '
+        'who knows the plant</text>',
+    ]
+
+    def cross(x0, dx, dy, cls, size=9):
+        return (f'<path class="{cls}" d="M{x0 + dx - size} {base + dy} L{x0 + dx + size} '
+                f'{base + dy} M{x0 + dx} {base + dy - size} L{x0 + dx} {base + dy + size}" '
+                f'fill="none"/>')
+
+    # ---- left: the centres start badly placed and walk to the middle
+    for (dot, line, pts, centre, _), start in zip(groups, starts):
+        p.append(f'<line class="fig-track" x1="{lx + start[0]}" y1="{base + start[1]}" '
+                 f'x2="{lx + centre[0]}" y2="{base + centre[1]}"/>')
+    for (dot, line, pts, centre, _), start in zip(groups, starts):
+        for dx, dy in pts:
+            p.append(f'<circle class="{dot}" cx="{lx + dx}" cy="{base + dy}" r="4.5"/>')
+        p.append(cross(lx, start[0], start[1], f"{line} fig-line--ghost", size=7))
+        p.append(cross(lx, centre[0], centre[1], line))
+    p.append(f'<circle class="fig-dot-b" cx="{lx + odd[0]}" cy="{base + odd[1]}" r="4.5"/>')
+    p.append(f'<text class="fig-box-sub" x="{lx + starts[0][0] + 12}" '
+             f'y="{base + starts[0][1] + 4}">where they started</text>')
+    for i, line in enumerate(("1 · drop k centres anywhere; k is your choice",
+                              "2 · every point joins the centre nearest to it",
+                              "3 · each centre moves to the middle of its points",
+                              "then repeat 2 and 3 until nothing moves")):
+        p.append(f'<text class="fig-box-sub" x="{lx}" y="{270 + i * 16}">{line}</text>')
+
+    # ---- right: the same groups, named, plus the point that belongs to none
+    for dot, line, pts, centre, _ in groups:
+        for dx, dy in pts:
+            p.append(f'<circle class="{dot}" cx="{rx + dx}" cy="{base + dy}" r="4.5"/>')
+        p.append(cross(rx, centre[0], centre[1], line))
+    p.append(f'<line class="fig-track" x1="{rx + odd[0]}" y1="{base + odd[1]}" '
+             f'x2="{rx + groups[1][3][0]}" y2="{base + groups[1][3][1]}"/>')
+    # ring before the dot: fig-box fills with the surface colour and would hide it
+    p.append(f'<circle class="fig-box" cx="{rx + odd[0]}" cy="{base + odd[1]}" r="10"/>')
+    p.append(f'<circle class="fig-dot-b" cx="{rx + odd[0]}" cy="{base + odd[1]}" r="4.5"/>')
+    # The odd point's explanation goes in the legend, not beside it: every
+    # position next to that point runs over one of the three clusters.
+    for i, (dot, line, pts, centre, name) in enumerate(groups):
+        gx = rx + (0, 116, 226)[i]
+        p.append(cross(gx + 8, 0, 146, line, size=6))
+        p.append(f'<text class="fig-box-sub" x="{gx + 20}" y="{base + 150}">{name}</text>')
+    p.append(f'<circle class="fig-box" cx="{rx + 8}" cy="{base + 170}" r="9"/>')
+    p.append(f'<circle class="fig-dot-b" cx="{rx + 8}" cy="{base + 170}" r="4.5"/>')
+    p.append(f'<text class="fig-box-sub" x="{rx + 22}" y="{base + 174}">filed under its nearest '
+             f'group, and nowhere near it</text>')
+
+    p.append('<text class="fig-sub" x="20" y="344">k-means finds the groups and nothing else. '
+             'Naming them is human work, and the name is worth keeping as a</text>')
+    p.append('<text class="fig-sub" x="20" y="362">label, because from then on the distance to '
+             'the nearest centre is an anomaly score you got for free.</text>')
     p.append("</svg>")
     return "\n".join(p)
 
@@ -3580,6 +3949,647 @@ def events_from_series():
     return "\n".join(p)
 
 
+# ================================================================ stream processing
+def answer_age():
+    """How old the answer is at the moment somebody needs it. THEMED, static.
+
+    The quantity plotted is the age of the answer rather than the answer, because
+    that is where the finding lives: a nightly job is not wrong, it is
+    periodically right, and the sawtooth is what that costs.
+    """
+    x0, x1, base, top = 90, 668, 280, 110
+    day = (x1 - x0) / 2                       # two midnights to midnight spans
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 366" '
+        'class="fig-answer-age" role="img" aria-label="The age of an answer over two '
+        'days. A nightly batch job produces a sawtooth: the answer is fresh just after '
+        'midnight and a full day old just before the next run. A streaming computation '
+        'holds a nearly flat line close to zero. At four in the afternoon the batch '
+        'answer is sixteen hours old and the streamed one is seconds old.">',
+        '<text class="fig-title" x="20" y="24">The nightly answer is only fresh at '
+        'breakfast</text>',
+        '<text class="fig-sub" x="20" y="44">Same question, same data. What differs is how old '
+        'the answer is at the moment somebody acts on it.</text>',
+        '<text class="fig-box-sub" x="20" y="86">Age of the answer</text>',
+        f'<line class="fig-track" x1="{x0}" y1="{base}" x2="{x1}" y2="{base}"/>',
+        f'<line class="fig-track" x1="{x0}" y1="{top}" x2="{x1}" y2="{top}"/>',
+        f'<text class="fig-box-sub" x="{x1 + 6}" y="{top + 4}">a day</text>',
+        f'<text class="fig-box-sub" x="{x1 + 6}" y="{base + 4}">current</text>',
+    ]
+    # the batch sawtooth: two runs, each ageing for a full day
+    saw = (f'M{x0} {base} L{x0 + day:.0f} {top} L{x0 + day:.0f} {base} '
+           f'L{x1} {top}')
+    p.append(f'<path class="fig-line-b" d="{saw}" fill="none"/>')
+    p.append(f'<line class="fig-line-a" x1="{x0}" y1="{base - 6}" x2="{x1}" y2="{base - 6}"/>')
+    p.append(f'<text class="fig-box-title" x="{x0 + 12}" y="{top - 10}">Nightly batch</text>')
+    p.append(f'<text class="fig-box-title" x="{x0 + 12}" y="{base - 16}">Streamed</text>')
+    # the moment of asking: 16:00 on the second day
+    ask = x0 + day + day * 16 / 24
+    ask_y = base - (base - top) * 16 / 24
+    p.append(f'<line class="fig-track" x1="{ask:.0f}" y1="{top - 6}" x2="{ask:.0f}" '
+             f'y2="{base + 6}"/>')
+    p.append(f'<text class="fig-box-sub" x="{ask:.0f}" y="{top - 14}" '
+             f'text-anchor="middle">somebody asks, 16:00</text>')
+    p.append(f'<circle class="fig-dot-b" cx="{ask:.0f}" cy="{ask_y:.0f}" r="6"/>')
+    p.append(f'<text class="fig-box-sub" x="{ask - 12:.0f}" y="{ask_y + 4:.0f}" '
+             f'text-anchor="end">16 hours old</text>')
+    p.append(f'<circle class="fig-dot-a" cx="{ask:.0f}" cy="{base - 6}" r="6"/>')
+    p.append(f'<text class="fig-box-sub" x="{ask + 12:.0f}" y="{base - 12}">seconds old</text>')
+    for i, label in ((0, "midnight"), (1, "midnight"), (2, "midnight")):
+        p.append(f'<text class="fig-box-sub" x="{x0 + i * day:.0f}" y="{base + 24}" '
+                 f'text-anchor="middle">{label}</text>')
+    p.append('<text class="fig-sub" x="20" y="338">A nightly job is not wrong, it is '
+             'periodically right. The cost is that nobody in the room knows</text>')
+    p.append('<text class="fig-sub" x="20" y="356">how much of today the number in front of '
+             'them is missing.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def window_shapes():
+    """Tumbling, sliding and session windows, side by side. THEMED, static.
+
+    `windowing` on the functions page draws tumbling properly; this one exists to
+    make the choice between the three legible, so it stays compact.
+    """
+    px, pw = (20, 270, 520), 220
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 312" '
+        'class="fig-window-shapes" role="img" aria-label="Three panels of the same '
+        'stream. Tumbling windows are equal boxes that do not overlap. Sliding windows '
+        'overlap, stepping along so a reading falls in several. Session windows hug '
+        'bursts of readings and are ended by the quiet between them.">',
+        '<text class="fig-title" x="20" y="24">A stream has no end, so a window '
+        'manufactures one</text>',
+        '<text class="fig-sub" x="20" y="44">Three ways to cut the same readings, answering '
+        'three different questions.</text>',
+    ]
+    heads = (("Tumbling", "what happened in each 15 minutes"),
+             ("Sliding", "what has happened in the last 15, now"),
+             ("Session", "one box per burst, ended by the quiet"))
+    for x, (title, sub) in zip(px, heads):
+        p.append(f'<text class="fig-box-title" x="{x}" y="80">{title}</text>')
+        p.append(f'<text class="fig-box-sub" x="{x}" y="98">{sub}</text>')
+
+    lane = 172
+    # ---- tumbling: four equal boxes, nothing shared
+    x = px[0]
+    for i in range(4):
+        p.append(f'<rect class="fig-centre" x="{x + i * 54 + 2}" y="146" width="50" '
+                 f'height="52" rx="8"/>')
+    for dx in (14, 30, 46, 70, 96, 118, 140, 158, 182, 200):
+        p.append(f'<circle class="fig-dot-a" cx="{x + dx}" cy="{lane}" r="4"/>')
+    p.append(f'<text class="fig-box-sub" x="{x}" y="228">every reading in exactly one box,</text>')
+    p.append(f'<text class="fig-box-sub" x="{x}" y="244">one answer per box, no overlap</text>')
+
+    # ---- sliding: the same boxes stepped, drawn as a staircase so overlap shows
+    x = px[1]
+    for i in range(4):
+        p.append(f'<rect class="fig-centre" x="{x + i * 34 + 2}" y="{134 + i * 6}" width="86" '
+                 f'height="56" rx="8"/>')
+    for dx in (14, 30, 46, 70, 96, 118, 140, 158, 182, 200):
+        p.append(f'<circle class="fig-dot-a" cx="{x + dx}" cy="{lane}" r="4"/>')
+    p.append(f'<text class="fig-box-sub" x="{x}" y="228">boxes overlap, so a reading counts</text>')
+    p.append(f'<text class="fig-box-sub" x="{x}" y="244">in several: the answer is always '
+             f'current</text>')
+
+    # ---- session: boxes hug the bursts, and the gaps end them
+    x = px[2]
+    bursts = ((8, 62), (86, 132), (156, 208))
+    for a, b in bursts:
+        p.append(f'<rect class="fig-centre" x="{x + a}" y="146" width="{b - a}" height="52" '
+                 f'rx="8"/>')
+    for dx in (14, 26, 38, 54, 94, 106, 122, 164, 178, 196):
+        p.append(f'<circle class="fig-dot-a" cx="{x + dx}" cy="{lane}" r="4"/>')
+    p.append(f'<text class="fig-box-sub" x="{x}" y="228">boxes of unequal length, because the</text>')
+    p.append(f'<text class="fig-box-sub" x="{x}" y="244">process decides when one ends</text>')
+
+    p.append('<text class="fig-sub" x="20" y="286">The window is a claim about the process. '
+             'Too short and it reports noise, too long and it reports late,</text>')
+    p.append('<text class="fig-sub" x="20" y="304">and the right length is set by how fast the '
+             'thing being watched can actually change.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def event_time_arrival():
+    """When it happened against when it turned up. THEMED, static.
+
+    The industrial case that web-shaped streaming advice never covers: the link
+    goes down, and four hours of readings land in one burst. Windowed on arrival
+    they invent a quiet morning and a violent afternoon.
+    """
+    x0, x1 = 150, 720
+    t0, t1 = 8.0, 15.0
+    top_y, bot_y = 138, 258
+
+    def tx(t):
+        return x0 + (t - t0) * (x1 - x0) / (t1 - t0)
+
+    events = [8.0 + 0.75 * i for i in range(9)]      # 08:00 to 14:00, every 45 minutes
+
+    def arrival(t):
+        # everything from the outage onward lands together once the link returns,
+        # spread only far enough to be counted
+        return t + 0.05 if t < 10.25 else 14.08 + (t - 10.25) * 0.22
+
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 366" '
+        'class="fig-event-time-arrival" role="img" aria-label="Two lanes sharing a time '
+        'axis. On the top lane nine readings are evenly spaced from eight to two. On '
+        'the bottom lane the first three arrive immediately, then nothing arrives for '
+        'four hours while the link is down, and the remaining six land together just '
+        'after two. '
+        'Connecting lines fan from the top lane into that burst.">',
+        '<text class="fig-title" x="20" y="24">When it happened is not when it turned '
+        'up</text>',
+        '<text class="fig-sub" x="20" y="44">The same nine readings, once by the time they '
+        'carry and once by the time they landed.</text>',
+        f'<text class="fig-box-title" x="20" y="{top_y + 4}">When it</text>',
+        f'<text class="fig-box-title" x="20" y="{top_y + 20}">happened</text>',
+        f'<text class="fig-box-title" x="20" y="{bot_y + 4}">When it</text>',
+        f'<text class="fig-box-title" x="20" y="{bot_y + 20}">arrived</text>',
+        f'<line class="fig-track" x1="{x0}" y1="{top_y}" x2="{x1}" y2="{top_y}"/>',
+        f'<line class="fig-track" x1="{x0}" y1="{bot_y}" x2="{x1}" y2="{bot_y}"/>',
+    ]
+    # the two windows, drawn under the dots
+    p.append(f'<rect class="fig-centre" x="{tx(10):.0f}" y="{top_y - 22}" '
+             f'width="{tx(14) - tx(10):.0f}" height="44" rx="8"/>')
+    p.append(f'<rect class="fig-centre" x="{tx(14):.0f}" y="{bot_y - 22}" '
+             f'width="{tx(15) - tx(14):.0f}" height="44" rx="8"/>')
+    for t in events:
+        p.append(f'<line class="fig-edge" x1="{tx(t):.0f}" y1="{top_y + 8}" '
+                 f'x2="{tx(arrival(t)):.0f}" y2="{bot_y - 8}"/>')
+    for t in events:
+        p.append(f'<circle class="fig-dot-a" cx="{tx(t):.0f}" cy="{top_y}" r="5"/>')
+        cls = "fig-dot-b" if t >= 10.0 else "fig-dot-a"
+        p.append(f'<circle class="{cls}" cx="{tx(arrival(t)):.0f}" cy="{bot_y}" r="5"/>')
+    p.append(f'<text class="fig-box-sub" x="{tx(12):.0f}" y="{top_y - 30}" '
+             f'text-anchor="middle">four hours of readings, spread across four hours</text>')
+    p.append(f'<text class="fig-box-sub" x="{tx(14.9):.0f}" y="{bot_y - 30}" '
+             f'text-anchor="end">the same four hours, inside one window</text>')
+    p.append(f'<text class="fig-box-sub" x="{tx(12):.0f}" y="{bot_y + 26}" '
+             f'text-anchor="middle">nothing arriving: the link is down</text>')
+    for t, label in ((8, "08:00"), (10, "10:00"), (12, "12:00"), (14, "14:00")):
+        p.append(f'<text class="fig-box-sub" x="{tx(t):.0f}" y="{bot_y + 52}" '
+                 f'text-anchor="middle">{label}</text>')
+    p.append('<text class="fig-sub" x="20" y="338">Window on the time a reading carries and '
+             'the morning is where it belongs. Window on the time it</text>')
+    p.append('<text class="fig-sub" x="20" y="356">arrived and you have invented a quiet morning '
+             'and a violent afternoon, out of data containing neither.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def sustained_exceedance():
+    """Four spikes and one real excursion, through a limit and through a window.
+
+    THEMED, static. The spikes are drawn HIGHER than the sustained excursion on
+    purpose: severity is not what the window is judging, duration is, and a
+    figure where the real one is also the tallest would make the wrong argument.
+    """
+    x0, x1, span = 90, 730, 360.0            # six hours across the axis
+    limit_y = 175
+
+    def tx(t):
+        return x0 + t * (x1 - x0) / span
+
+    def ty(t):
+        v = 205 - 6 * math.sin(t / 23.0) - 4 * math.sin(t / 7.5)
+        for ts, h, w in ((30, 80, 4.0), (75, 75, 3.4), (140, 85, 4.0), (200, 78, 3.4)):
+            v -= h * math.exp(-(((t - ts) / w) ** 2))
+        if 245 < t < 335:
+            v -= 58 * min(1.0, (t - 245) / 8.0, (335 - t) / 8.0)
+        return v
+
+    trace = "M" + " L".join(f"{tx(t):.1f} {ty(t):.1f}" for t in [i * 2 for i in range(181)])
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 396" '
+        'class="fig-sustained-exceedance" role="img" aria-label="A pressure trace over '
+        'six hours crossing its limit four times in brief spikes and once in a long '
+        'excursion. The raw limit alarm fires five times. The windowed rule fires once, '
+        'twenty minutes into the long excursion, and not at all for the spikes.">',
+        '<text class="fig-title" x="20" y="24">Four of these are noise. One of them is the '
+        'pump.</text>',
+        '<text class="fig-sub" x="20" y="44">The same readings and the same limit, judged on '
+        'one reading at a time and then on the last twenty minutes.</text>',
+        '<text class="fig-box-sub" x="20" y="92">Discharge pressure</text>',
+        f'<line class="fig-track" x1="{x0}" y1="{limit_y}" x2="{x1}" y2="{limit_y}"/>',
+        f'<text class="fig-box-sub" x="{x0 + 4}" y="{limit_y - 6}">limit</text>',
+        f'<path class="fig-line-a" d="{trace}" fill="none"/>',
+    ]
+    for t, label, anchor in ((0, "08:00", "start"), (120, "10:00", "middle"),
+                             (240, "12:00", "middle"), (360, "14:00", "end")):
+        p.append(f'<text class="fig-box-sub" x="{tx(t):.0f}" y="264" '
+                 f'text-anchor="{anchor}">{label}</text>')
+
+    # ---- what a bare limit does with it
+    p.append('<text class="fig-box-title" x="20" y="293">Limit alarm</text>')
+    for t in (30, 75, 140, 200, 250):
+        p.append(f'<rect class="fig-lit-box c-orange" x="{tx(t) - 2:.0f}" y="280" width="5" '
+                 f'height="17" rx="2"/>')
+    p.append(f'<text class="fig-box-sub" x="{tx(250) + 16:.0f}" y="293">four cleared before '
+             f'anybody looked</text>')
+
+    # ---- what the window does with it
+    p.append('<text class="fig-box-title" x="20" y="331">Windowed</text>')
+    p.append(f'<line class="fig-track" x1="{tx(250):.0f}" y1="326" x2="{tx(270):.0f}" '
+             f'y2="326"/>')
+    p.append(f'<text class="fig-box-sub" x="{tx(250) - 12:.0f}" y="330" text-anchor="end">the '
+             f'window has to fill first</text>')
+    p.append(f'<rect class="fig-lit-box c-green" x="{tx(270):.0f}" y="314" width="104" '
+             f'height="26" rx="8"/>')
+    p.append(f'<text class="fig-lit-sub" x="{tx(270) + 52:.0f}" y="331" '
+             f'text-anchor="middle">event raised</text>')
+    p.append('<text class="fig-sub" x="20" y="368">The window costs twenty minutes on the '
+             'excursion that mattered. It buys the four that did not, and an</text>')
+    p.append('<text class="fig-sub" x="20" y="386">alarm the control room has not quietly '
+             'switched off.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+# ================================================================ industry examples
+# One figure per example on value/industry-examples.mdx. Each shows the finding that
+# example's model makes available, not the architecture underneath it: a total that
+# has structure against one that has none, a gap resolved into the units that caused
+# it, a reading explained by something upstream and earlier, and so on.
+
+def chemical_accounting():
+    """Purchased against metered: the same total, only one of them actionable.
+
+    THEMED, static. The argument of the oil and gas example is that a figure built
+    from purchase records is structurally incapable of showing which pump
+    over-doses, so the two bars are deliberately the same height.
+    """
+    base, top = 290, 120
+    lx, rx, bw = 60, 260, 110
+    # (label, height, class, extra note)
+    segs = [
+        ("Glycol", 56, None),
+        ("Scale inhibitor", 34, None),
+        ("Oxygen scavenger", 20, None),
+        ("Demulsifier", 30, None),
+        ("Biocide", 30, 18),          # 18px of it is dose the process never needed
+    ]
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 366" '
+        'class="fig-chemical-accounting" role="img" aria-label="Two bars of identical '
+        'height. The left one is a single block, the annual chemical figure taken from '
+        'purchase records. The right one is the same quantity split by chemical and by '
+        'injection point, and the topmost band is marked as dose above what the process '
+        'needs.">',
+        '<text class="fig-title" x="20" y="24">The same total, twice. Only one of them can be '
+        'acted on.</text>',
+        '<text class="fig-sub" x="20" y="44">A figure assembled from what was bought cannot show '
+        'that one pump has been over-dosing for a year.</text>',
+        f'<text class="fig-box-title" x="20" y="78">What was purchased</text>',
+        f'<text class="fig-box-sub" x="20" y="96">invoiced, accurate, and silent</text>',
+        f'<text class="fig-box-title" x="260" y="78">What was metered</text>',
+        f'<text class="fig-box-sub" x="260" y="96">the same quantity, with structure</text>',
+        f'<rect class="fig-lit-box c-blue" x="{lx}" y="{top}" width="{bw}" '
+        f'height="{base - top}" rx="10"/>',
+        f'<text class="fig-box-sub" x="{lx + bw // 2}" y="310" text-anchor="middle">one number, '
+        f'no structure</text>',
+        f'<text class="fig-sep" x="200" y="215" text-anchor="middle">=</text>',
+        f'<text class="fig-box-sub" x="{rx + bw // 2}" y="310" text-anchor="middle">per chemical, '
+        f'per injection point</text>',
+    ]
+    y = base
+    for label, h, waste in segs:
+        y -= h
+        p.append(f'<rect class="fig-box" x="{rx}" y="{y}" width="{bw}" height="{h}" rx="4"/>')
+        if waste:
+            # the only coloured band in the figure is the part nobody needed
+            p.append(f'<rect class="fig-lit-box c-orange" x="{rx}" y="{y}" width="{bw}" '
+                     f'height="{waste}" rx="4"/>')
+        mid = y + (waste // 2 if waste else h // 2)
+        p.append(f'<line class="fig-edge" x1="{rx + bw}" y1="{mid}" x2="{rx + bw + 24}" '
+                 f'y2="{mid}"/>')
+        if waste:
+            p.append(f'<text class="fig-box-title" x="{rx + bw + 32}" y="{mid - 2}">{label}'
+                     f'</text>')
+            p.append(f'<text class="fig-box-sub" x="{rx + bw + 32}" y="{mid + 14}">the shaded '
+                     f'band is dose the process never needed</text>')
+        else:
+            p.append(f'<text class="fig-box-sub" x="{rx + bw + 32}" y="{mid + 4}">{label}</text>')
+    p.append('<text class="fig-sub" x="20" y="338">Both bars are the same height and both are '
+             'honest. Only the right-hand one says where any of it</text>')
+    p.append('<text class="fig-sub" x="20" y="356">went, which is the difference between a number '
+             'you can defend and one you can improve.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def shortfall_attribution():
+    """Yesterday's capacity gap, resolved into the units that caused it. THEMED.
+
+    Two things share one time axis: the gap on top, the units and their events
+    underneath. The alignment IS the claim, so nothing here animates.
+    """
+    x0, x1 = 180, 740
+    hours = 12.0                     # 10:00 to 22:00 across the axis
+
+    def tx(h):
+        return x0 + (h - 10.0) * (x1 - x0) / hours
+
+    def demand(h):
+        return 210 - 1.3 * (20 + 70 * math.sin(math.pi * (h - 8.0) / 18.0))
+
+    def delivered(h):
+        y = demand(h)
+        if 14.0 <= h <= 18.3:
+            y += 1.3 * 40 * math.sin(math.pi * (h - 14.0) / 4.3)
+        return y
+
+    def curve(fn, lo=10.0, hi=22.0):
+        pts = []
+        h = lo
+        while h <= hi + 0.01:
+            pts.append(f"{tx(h):.1f} {fn(h):.1f}")
+            h += 0.25
+        return "M" + " L".join(pts)
+
+    # the gap itself, drawn first so both lines sit on top of it
+    gap = (curve(demand, 14.0, 18.3)
+           + " L" + " L".join(f"{tx(h):.1f} {delivered(h):.1f}"
+                              for h in [18.3 - i * 0.25 for i in range(18)] + [14.0])
+           + " z")
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 384" '
+        'class="fig-shortfall-attribution" role="img" aria-label="An afternoon demand '
+        'curve with delivered output falling below it between two and six in the '
+        'afternoon, and three rows underneath on the same time axis showing which units '
+        'were unavailable and what was raised against them.">',
+        '<text class="fig-title" x="20" y="24">A shortfall is a number. Which assets made it is a '
+        'traversal.</text>',
+        '<text class="fig-sub" x="20" y="44">One afternoon, one axis: the gap on top, and what was '
+        'happening underneath it.</text>',
+        f'<path class="fig-centre" d="{gap}"/>',
+        f'<path class="fig-line-b" d="{curve(delivered)}" fill="none"/>',
+        # demand drawn last and dashed: where the two coincide you can see that they do
+        f'<path class="fig-line-a fig-line--ghost" d="{curve(demand)}" fill="none"/>',
+        '<text class="fig-box-sub" x="20" y="86">Demand against delivered</text>',
+        f'<text class="fig-box-sub" x="{tx(16.15):.0f}" y="{demand(16.15) - 12:.0f}" '
+        f'text-anchor="middle">demand</text>',
+        f'<text class="fig-box-sub" x="{tx(16.15):.0f}" y="{delivered(16.15) + 20:.0f}" '
+        f'text-anchor="middle">delivered</text>',
+        f'<text class="fig-box-title" x="{tx(18.7):.0f}" y="{(demand(16.15) + delivered(16.15)) / 2:.0f}">'
+        f'the shortfall</text>',
+        '<text class="fig-box-title" x="20" y="240">What the model says was underneath it</text>',
+    ]
+    rows = (
+        ("GT-2", "tripped 13:58, back at 18:20", 14.0, 18.3, 258, True),
+        ("GT-5", "derated to 60% on ambient", 12.0, 20.0, 294, False),
+        ("BESS-1", "fully discharged 15:20", 15.3, 18.0, 330, True),
+    )
+    for name, note, hs, he, y, out in rows:
+        p.append(f'<text class="fig-box-title" x="20" y="{y + 17}">{name}</text>')
+        p.append(f'<line class="fig-track" x1="{x0}" y1="{y + 12}" x2="{x1}" y2="{y + 12}"/>')
+        # a filled bar is an outage, an outlined one a derate: they cost different amounts
+        cls = "fig-lit-box c-orange" if out else "fig-box"
+        t_cls = "fig-lit-sub" if out else "fig-box-sub"
+        p.append(f'<rect class="{cls}" x="{tx(hs):.0f}" y="{y}" '
+                 f'width="{tx(he) - tx(hs):.0f}" height="24" rx="7"/>')
+        p.append(f'<text class="{t_cls}" x="{tx(hs) + 10:.0f}" y="{y + 16}">{note}</text>')
+    for h, label in ((12, "12:00"), (15, "15:00"), (18, "18:00"), (21, "21:00")):
+        p.append(f'<text class="fig-box-sub" x="{tx(h):.0f}" y="374" '
+                 f'text-anchor="middle">{label}</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def excursion_upstream():
+    """An effluent excursion explained by a stage upstream and hours earlier.
+
+    THEMED. The only motion is `fig-flow` along the propagation path, which is the
+    house exception: it shows direction continuously without hiding anything.
+    """
+    x0, x1 = 190, 730
+    t0, t1 = 6.0, 15.0
+
+    def tx(h):
+        return x0 + (h - t0) * (x1 - x0) / (t1 - t0)
+
+    stages = (("Intake", 104), ("Primary settling", 142), ("Aeration", 180),
+              ("Clarifier", 218), ("Outfall", 256))
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 334" '
+        'class="fig-excursion-upstream" role="img" aria-label="Five treatment stages as '
+        'rows against a morning time axis. A blower swap on the aeration stage at ten '
+        'past six, a rising sludge blanket on the clarifier at half past nine, and a '
+        'turbidity excursion at the outfall at twenty to twelve, joined by a path '
+        'running down the stages and forward in time.">',
+        '<text class="fig-title" x="20" y="24">The reading that fails is downstream, and '
+        'late</text>',
+        '<text class="fig-sub" x="20" y="44">Same morning, five stages. What the model adds is '
+        'the chain and the delay between them.</text>',
+    ]
+    for name, y in stages:
+        p.append(f'<text class="fig-box-sub" x="20" y="{y + 4}">{name}</text>')
+        p.append(f'<line class="fig-track" x1="{x0}" y1="{y}" x2="{x1}" y2="{y}"/>')
+    # the propagation path: down the stages, forward in time
+    p.append(f'<path class="fig-exit-path fig-flow" d="M{tx(6.2):.0f} 180 '
+             f'L{tx(9.5):.0f} 218 L{tx(11.7):.0f} 256" fill="none"/>')
+    marks = (
+        (6.2, 180, "blower B swapped, 06:10", "fig-lit-box c-orange", False),
+        (9.5, 218, "sludge blanket rising, 09:30", "fig-lit-box c-orange", False),
+        (11.7, 256, "turbidity above limit, 11:40", "fig-lit-box c-orange", True),
+    )
+    for h, y, label, cls, big in marks:
+        r = 9 if big else 6
+        p.append(f'<circle class="{cls}" cx="{tx(h):.0f}" cy="{y}" r="{r}"/>')
+        p.append(f'<text class="fig-box-sub" x="{tx(h) + 16:.0f}" y="{y - 12}">{label}</text>')
+    p.append(f'<text class="fig-box-sub" x="{tx(9.0):.0f}" y="{292}" text-anchor="middle">'
+             f'five and a half hours, and three stages, between cause and reading</text>')
+    for h, label in ((6, "06:00"), (8, "08:00"), (10, "10:00"), (12, "12:00"), (14, "14:00")):
+        p.append(f'<text class="fig-box-sub" x="{tx(h):.0f}" y="{276}" '
+                 f'text-anchor="middle">{label}</text>')
+    p.append('<text class="fig-sub" x="20" y="324">Without the chain, the excursion belongs to '
+             'the outfall, which is the one place it did not come from.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def defect_attribution():
+    """Defects plotted against the station and the material lot. THEMED, static.
+
+    The cluster only exists once each defect is attached to what made it: the same
+    dots against a calendar are a defect rate, and against the model they are one
+    machine and one delivery.
+    """
+    cols = ("Mon A", "Mon B", "Tue A", "Tue B", "Wed A", "Wed B")
+    x0, cw = 150, 98
+    rows = ("ST-1", "ST-2", "ST-3", "ST-4", "ST-5")
+    ry0, rh = 140, 35
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 362" '
+        'class="fig-defect-attribution" role="img" aria-label="A grid of five stations '
+        'against six shifts, with defects as dots. Dots are scattered thinly everywhere '
+        'except where the fourth station meets the two shifts that ran material lot B, '
+        'where they cluster.">',
+        '<text class="fig-title" x="20" y="24">The same defects, plotted against what made '
+        'them</text>',
+        '<text class="fig-sub" x="20" y="44">A defect count says there is a problem. Attached to '
+        'a station and a material lot, the dots say whose.</text>',
+        f'<rect class="fig-centre" x="{x0 + 2 * cw}" y="112" width="{2 * cw}" height="188" '
+        f'rx="10"/>',
+        f'<text class="fig-centre-sub" x="{x0 + 3 * cw}" y="130" text-anchor="middle">material '
+        f'lot B</text>',
+    ]
+    for i, c in enumerate(cols):
+        p.append(f'<text class="fig-box-sub" x="{x0 + i * cw + cw // 2}" y="320" '
+                 f'text-anchor="middle">{c}</text>')
+    for r, name in enumerate(rows):
+        y = ry0 + r * rh
+        p.append(f'<text class="fig-box-title" x="20" y="{y + 4}">{name}</text>')
+        p.append(f'<line class="fig-track" x1="{x0}" y1="{y}" x2="{x0 + 6 * cw}" y2="{y}"/>')
+    # background defects: thin and everywhere
+    bg = ((0, 0, 22), (0, 3, 61), (1, 1, 40), (1, 4, 18), (2, 0, 74), (2, 5, 33),
+          (3, 0, 56), (3, 5, 70), (4, 1, 27), (4, 2, 66), (4, 4, 44), (0, 5, 12))
+    for r, c, off in bg:
+        p.append(f'<circle class="fig-dot-a" cx="{x0 + c * cw + off}" cy="{ry0 + r * rh}" '
+                 f'r="4"/>')
+    # The cluster: one station, the two shifts that ran lot B. Spacing is uneven on
+    # purpose; a perfectly regular row of dots reads as a pattern somebody drew.
+    cluster = ((2, 12), (2, 31), (2, 58), (2, 86), (3, 8), (3, 20), (3, 47), (3, 78))
+    for c, off in cluster:
+        p.append(f'<circle class="fig-dot-b" cx="{x0 + c * cw + off}" cy="{ry0 + 3 * rh}" '
+                 f'r="4"/>')
+    p.append(f'<text class="fig-box-sub" x="{x0 + 4 * cw + 12}" y="{ry0 + 3 * rh - 6}">one '
+             f'station, one lot</text>')
+    p.append('<text class="fig-sub" x="20" y="336">On a weekly report these are one defect '
+             'rate. Against the station that made each unit, and the lot it</text>')
+    p.append('<text class="fig-sub" x="20" y="354">came from, they are a question with an '
+             'answer.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def incident_path():
+    """A degradation at 14:20, and the deploy twenty minutes before it. THEMED.
+
+    The chart carries the timing and the chain carries the explanation; either
+    alone is what an operations team already has.
+    """
+    x0, x1 = 150, 740
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 362" '
+        'class="fig-incident-path" role="img" aria-label="A latency trace that steps up '
+        'at twenty past two, with a marker at two o clock for a deploy, and beneath it a '
+        'chain from the degraded service through its host, a storage array with rising '
+        'errors, a switch dropping packets, to that deploy.">',
+        '<text class="fig-title" x="20" y="24">Twenty minutes apart, and four hops '
+        'away</text>',
+        '<text class="fig-sub" x="20" y="44">The chart says when. The chain says what, and it is '
+        'the same walk every time.</text>',
+        '<text class="fig-box-sub" x="20" y="88">Checkout latency</text>',
+    ]
+    # latency: flat, then a step up that stays up
+    step = 470
+    pts = []
+    for i in range(61):
+        x = x0 + i * (x1 - x0) / 60
+        wob = (-2, 1, 2, -1, 0, 2, -2, 1, 1, -2, 0, 2)[i % 12]
+        y = 150 + wob if x < step else 108 + wob
+        pts.append(f"{x:.0f} {y}")
+    p.append(f'<path class="fig-line-a" d="M{" L".join(pts)}" fill="none"/>')
+    p.append(f'<line class="fig-line-b" x1="{step - 78}" y1="96" x2="{step - 78}" y2="176"/>')
+    p.append(f'<text class="fig-box-sub" x="{step - 84}" y="{92}" text-anchor="end">deploy 918, '
+             f'14:00</text>')
+    p.append(f'<line class="fig-track" x1="{step}" y1="96" x2="{step}" y2="176"/>')
+    p.append(f'<text class="fig-box-sub" x="{step + 6}" y="{92}">latency steps up, 14:20</text>')
+
+    chain = (("Checkout", "degraded"), ("host-14", "hosting it"), ("array-3", "errors climbing"),
+             ("sw-04", "dropping packets"), ("deploy 918", "went out at 14:00"))
+    bw, gap, cy = 128, 18, 234
+    for i, (title, sub) in enumerate(chain):
+        x = 20 + i * (bw + gap)
+        cls = "fig-lit-box c-blue" if i == 0 else "fig-box"
+        t = "fig-lit-title" if i == 0 else "fig-box-title"
+        s = "fig-lit-sub" if i == 0 else "fig-box-sub"
+        p.append(f'<rect class="{cls}" x="{x}" y="{cy}" width="{bw}" height="54" rx="12"/>')
+        p.append(f'<text class="{t}" x="{x + bw // 2}" y="{cy + 24}" '
+                 f'text-anchor="middle">{title}</text>')
+        p.append(f'<text class="{s}" x="{x + bw // 2}" y="{cy + 42}" '
+                 f'text-anchor="middle">{sub}</text>')
+        if i < len(chain) - 1:
+            p.append(f'<path class="fig-exit-path fig-flow" d="M{x + bw} {cy + 27} '
+                     f'L{x + bw + gap} {cy + 27}" fill="none"/>')
+    p.append('<text class="fig-box-sub" x="20" y="216">start at the symptom</text>')
+    p.append('<text class="fig-sub" x="20" y="326">Every hop is a relationship somebody recorded '
+             'once. The alternative is four people in a call, each</text>')
+    p.append('<text class="fig-sub" x="20" y="344">holding one hop of it in their head.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def usage_vs_calendar():
+    """Two identical vehicles, one deployed, both serviced on the same calendar.
+
+    THEMED, static. The finding lives in the gap between the two lines, so the
+    quantity plotted is cumulative running hours rather than anything prettier.
+    """
+    x0, x1, base, top = 90, 720, 288, 110
+    p = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 372" '
+        'class="fig-usage-vs-calendar" role="img" aria-label="Cumulative running hours '
+        'over a year for two identical vehicles. The deployed one climbs steeply and '
+        'crosses two service intervals; the one held in reserve barely climbs and '
+        'crosses none. Along the bottom, four calendar services fall on both of them '
+        'alike.">',
+        '<text class="fig-title" x="20" y="24">Two identical vehicles. One of them '
+        'deployed.</text>',
+        '<text class="fig-sub" x="20" y="44">A calendar cannot tell them apart. Hours, cycles and '
+        'conditions can.</text>',
+        '<text class="fig-box-sub" x="20" y="86">Cumulative running hours</text>',
+        f'<line class="fig-track" x1="{x0}" y1="{base}" x2="{x1}" y2="{base}"/>',
+    ]
+    # two service thresholds
+    for level, label in ((0.42, "600 h"), (0.84, "1200 h")):
+        y = base - (base - top) * level
+        p.append(f'<line class="fig-track" x1="{x0}" y1="{y:.0f}" x2="{x1}" y2="{y:.0f}"/>')
+        p.append(f'<text class="fig-box-sub" x="{x1 + 6}" y="{y + 4:.0f}">{label}</text>')
+
+    def line(frac_end, cls):
+        pts = []
+        for i in range(13):
+            x = x0 + i * (x1 - x0) / 12
+            v = frac_end * (i / 12) ** 1.04
+            pts.append(f"{x:.0f} {base - (base - top) * v:.1f}")
+        return f'<path class="{cls}" d="M{" L".join(pts)}" fill="none"/>'
+
+    p.append(line(0.96, "fig-line-a"))
+    p.append(line(0.22, "fig-line-b"))
+    p.append(f'<text class="fig-box-title" x="{x1 - 4}" y="{base - (base - top) * 0.96 - 12:.0f}" '
+             f'text-anchor="end">Vehicle A, deployed</text>')
+    p.append(f'<text class="fig-box-title" x="{x1 - 4}" y="{base - (base - top) * 0.22 - 12:.0f}" '
+             f'text-anchor="end">Vehicle B, in reserve</text>')
+    # where A actually crosses each threshold
+    for level, label, dx, dy, anchor in ((0.42, "A crosses it here", -14, -14, "end"),
+                                         (0.84, "and again here", 14, 20, "start")):
+        frac = (level / 0.96) ** (1 / 1.04)
+        x = x0 + frac * (x1 - x0)
+        y = base - (base - top) * level
+        p.append(f'<circle class="fig-box" cx="{x:.0f}" cy="{y:.0f}" r="9"/>')
+        p.append(f'<circle class="fig-dot-a" cx="{x:.0f}" cy="{y:.0f}" r="4.5"/>')
+        p.append(f'<text class="fig-box-sub" x="{x + dx:.0f}" y="{y + dy:.0f}" '
+                 f'text-anchor="{anchor}">{label}</text>')
+    # the calendar, applied to both regardless
+    for i in (3, 6, 9, 12):
+        x = x0 + i * (x1 - x0) / 12
+        p.append(f'<line class="fig-edge" x1="{x:.0f}" y1="{base + 6}" x2="{x:.0f}" '
+                 f'y2="{base + 20}"/>')
+    p.append(f'<text class="fig-box-sub" x="{x0}" y="{base + 38}">calendar service, four times, '
+             f'both vehicles, whatever they did</text>')
+    p.append('<text class="fig-sub" x="20" y="348">A was serviced on neither occasion that '
+             'mattered, B four times without needing it, and on paper</text>')
+    p.append('<text class="fig-sub" x="20" y="366">they are the same vehicle with the same '
+             'maintenance record.</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
 THEMED_OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                           "src", "figures")
 
@@ -3599,11 +4609,13 @@ THEMED_FIGURES = (
     ("industrial-revolutions.svg", industrial_revolutions),
     ("tag-anatomy.svg", tag_anatomy),
     ("lineage-trace.svg", lineage_trace),
+    ("decision-tempo.svg", decision_tempo),
     ("board-gates.svg", board_gates),
     ("value-plays.svg", value_plays),
     ("subscription-flow.svg", subscription_flow),
     ("data-governance.svg", data_governance),
     ("policy-enforcement.svg", policy_enforcement),
+    ("policy-agents.svg", policy_agents),
     ("cleaning-by-correlation.svg", cleaning_by_correlation),
     ("feature-extraction.svg", feature_extraction),
     ("windowing.svg", windowing),
@@ -3638,10 +4650,22 @@ THEMED_FIGURES = (
     ("robot-learning-loop.svg", robot_learning_loop),
     ("rules-vs-learning.svg", rules_vs_learning),
     ("ml-progression.svg", ml_progression),
+    ("tree-ensembles.svg", tree_ensembles),
     ("clustering.svg", clustering),
+    ("k-means-steps.svg", k_means_steps),
     ("neural-network.svg", neural_network),
     ("lstm-sequence-anomaly.svg", lstm_sequence_anomaly),
     ("text-sequence-intent.svg", text_sequence_intent),
+    ("answer-age.svg", answer_age),
+    ("sustained-exceedance.svg", sustained_exceedance),
+    ("window-shapes.svg", window_shapes),
+    ("event-time-arrival.svg", event_time_arrival),
+    ("chemical-accounting.svg", chemical_accounting),
+    ("shortfall-attribution.svg", shortfall_attribution),
+    ("excursion-upstream.svg", excursion_upstream),
+    ("defect-attribution.svg", defect_attribution),
+    ("incident-path.svg", incident_path),
+    ("usage-vs-calendar.svg", usage_vs_calendar),
 )
 
 if __name__ == "__main__":

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 366" class="fig-chemical-accounting" role="img" aria-label="Two bars of identical height. The left one is a single block, the annual chemical figure taken from purchase records. The right one is the same quantity split by chemical and by injection point, and the topmost band is marked as dose above what the process needs.">
+<text class="fig-title" x="20" y="24">The same total, twice. Only one of them can be acted on.</text>
+<text class="fig-sub" x="20" y="44">A figure assembled from what was bought cannot show that one pump has been over-dosing for a year.</text>
+<text class="fig-box-title" x="20" y="78">What was purchased</text>
+<text class="fig-box-sub" x="20" y="96">invoiced, accurate, and silent</text>
+<text class="fig-box-title" x="260" y="78">What was metered</text>
+<text class="fig-box-sub" x="260" y="96">the same quantity, with structure</text>
+<rect class="fig-lit-box c-blue" x="60" y="120" width="110" height="170" rx="10"/>
+<text class="fig-box-sub" x="115" y="310" text-anchor="middle">one number, no structure</text>
+<text class="fig-sep" x="200" y="215" text-anchor="middle">=</text>
+<text class="fig-box-sub" x="315" y="310" text-anchor="middle">per chemical, per injection point</text>
+<rect class="fig-box" x="260" y="234" width="110" height="56" rx="4"/>
+<line class="fig-edge" x1="370" y1="262" x2="394" y2="262"/>
+<text class="fig-box-sub" x="402" y="266">Glycol</text>
+<rect class="fig-box" x="260" y="200" width="110" height="34" rx="4"/>
+<line class="fig-edge" x1="370" y1="217" x2="394" y2="217"/>
+<text class="fig-box-sub" x="402" y="221">Scale inhibitor</text>
+<rect class="fig-box" x="260" y="180" width="110" height="20" rx="4"/>
+<line class="fig-edge" x1="370" y1="190" x2="394" y2="190"/>
+<text class="fig-box-sub" x="402" y="194">Oxygen scavenger</text>
+<rect class="fig-box" x="260" y="150" width="110" height="30" rx="4"/>
+<line class="fig-edge" x1="370" y1="165" x2="394" y2="165"/>
+<text class="fig-box-sub" x="402" y="169">Demulsifier</text>
+<rect class="fig-box" x="260" y="120" width="110" height="30" rx="4"/>
+<rect class="fig-lit-box c-orange" x="260" y="120" width="110" height="18" rx="4"/>
+<line class="fig-edge" x1="370" y1="129" x2="394" y2="129"/>
+<text class="fig-box-title" x="402" y="127">Biocide</text>
+<text class="fig-box-sub" x="402" y="143">the shaded band is dose the process never needed</text>
+<text class="fig-sub" x="20" y="338">Both bars are the same height and both are honest. Only the right-hand one says where any of it</text>
+<text class="fig-sub" x="20" y="356">went, which is the difference between a number you can defend and one you can improve.</text>
+</svg>

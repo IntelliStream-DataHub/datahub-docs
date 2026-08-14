@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 372" class="fig-policy-agents" role="img" aria-label="Four moments where a policy can act: at the write, while the data sits, at the read, and at the end of its life. Only the first is filled in, meaning the platform enforces it today. A policy agent underneath feeds a rail up to the other three, checking them continuously and passing findings to a person who decides.">
+<text class="fig-title" x="20" y="24">A rule that acts, and what acts on it</text>
+<text class="fig-sub" x="20" y="44">One policy, four moments where it can bite. The platform enforces the first today.</text>
+<rect class="fig-lit-box c-blue" x="20" y="104" width="168" height="84" rx="12"/>
+<text class="fig-lit-title" x="104" y="132" text-anchor="middle">At the write</text>
+<text class="fig-lit-sub" x="104" y="154" text-anchor="middle">the id must match the</text>
+<text class="fig-lit-sub" x="104" y="170" text-anchor="middle">convention, so a write is</text>
+<text class="fig-lit-sub" x="104" y="186" text-anchor="middle">refused or flagged</text>
+<path class="fig-centre" d="M191 140 L200 146 L191 152 z"/>
+<rect class="fig-box" x="204" y="104" width="168" height="84" rx="12"/>
+<text class="fig-box-title" x="288" y="132" text-anchor="middle">While it sits</text>
+<text class="fig-box-sub" x="288" y="154" text-anchor="middle">owner named, description</text>
+<text class="fig-box-sub" x="288" y="170" text-anchor="middle">filled, review not overdue</text>
+<path class="fig-centre" d="M375 140 L384 146 L375 152 z"/>
+<rect class="fig-box" x="388" y="104" width="168" height="84" rx="12"/>
+<text class="fig-box-title" x="472" y="132" text-anchor="middle">At the read</text>
+<text class="fig-box-sub" x="472" y="154" text-anchor="middle">who may see it, and</text>
+<text class="fig-box-sub" x="472" y="170" text-anchor="middle">on what terms</text>
+<path class="fig-centre" d="M559 140 L568 146 L559 152 z"/>
+<rect class="fig-box" x="572" y="104" width="168" height="84" rx="12"/>
+<text class="fig-box-title" x="656" y="132" text-anchor="middle">At the end of life</text>
+<text class="fig-box-sub" x="656" y="154" text-anchor="middle">kept ten years, then</text>
+<text class="fig-box-sub" x="656" y="170" text-anchor="middle">expired on schedule</text>
+<path class="fig-exit-path fig-flow" d="M120 248 L120 210 L656 210" fill="none"/>
+<line class="fig-exit-path" x1="288" y1="210" x2="288" y2="196"/>
+<path class="fig-lit-box c-green" d="M282 198 L288 188 L294 198 z"/>
+<line class="fig-exit-path" x1="472" y1="210" x2="472" y2="196"/>
+<path class="fig-lit-box c-green" d="M466 198 L472 188 L478 198 z"/>
+<line class="fig-exit-path" x1="656" y1="210" x2="656" y2="196"/>
+<path class="fig-lit-box c-green" d="M650 198 L656 188 L662 198 z"/>
+<text class="fig-box-sub" x="238" y="232">checks continuously what the platform does not enforce yet</text>
+<rect class="fig-exit-box" x="20" y="248" width="330" height="76" rx="14"/>
+<text class="fig-exit-title" x="185" y="276" text-anchor="middle">Policy agent</text>
+<text class="fig-exit-sub" x="185" y="296" text-anchor="middle">reads the rule off the data set, watches</text>
+<text class="fig-exit-sub" x="185" y="312" text-anchor="middle">for what breaks it, drafts the correction</text>
+<path class="fig-exit-path fig-flow" d="M350 286 L430 286" fill="none"/>
+<rect class="fig-box" x="430" y="248" width="310" height="76" rx="14"/>
+<text class="fig-box-title" x="585" y="276" text-anchor="middle">A person decides</text>
+<text class="fig-box-sub" x="585" y="296" text-anchor="middle">closes the finding, fixes the data, changes</text>
+<text class="fig-box-sub" x="585" y="312" text-anchor="middle">the rule, or records the exception</text>
+<rect class="fig-lit-box c-blue" x="20" y="342" width="14" height="14" rx="4"/><text class="fig-box-sub" x="42" y="353">enforced by the platform today</text><rect class="fig-box" x="260" y="342" width="14" height="14" rx="4"/><text class="fig-box-sub" x="282" y="353">recorded today, enforced when the feature ships</text>
+</svg>

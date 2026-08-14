@@ -1,9 +1,10 @@
 ---
 sidebar_position: 8
 title: Lineage and data quality
-description: The planned lineage capability, why every derived number will be traceable back to the raw measurements it came from, and what that changes about reporting.
+description: The planned lineage capability, why every derived number will be traceable back to the raw measurements it came from, why that sets how fast an organisation can decide when the world moves, and what it changes about reporting.
 ---
 import LineageTrace from '@site/src/figures/lineage-trace.svg';
+import DecisionTempo from '@site/src/figures/decision-tempo.svg';
 
 # Lineage and data quality
 
@@ -46,6 +47,116 @@ nobody documented. Every link is plausible. None is verifiable.
 
 The number is not necessarily wrong. It is <span className="t-accent">unfalsifiable</span>, which
 in a regulated context is the same problem.
+
+## Why this decides how fast you can act
+
+<Lead>The slow part of a fast decision is almost never producing the number. It is trusting
+it.</Lead>
+
+In a settled world an unverifiable figure is survivable, because the decisions resting on it
+are slow ones and there is time to go and ask. The moment something moves, the same figure
+becomes a liability. Somebody asks whether it still holds, the honest answer is that finding
+out will take two days, and the meeting does one of two things.
+
+- **It decides late.** The option that existed on the first morning, re-routing the cargo,
+  repricing the contract, holding the shipment, releasing the berth, has gone by the third.
+- **It decides confidently on a number nobody checked.** This is the worse of the two,
+  because a figure presented without its provenance carries no signal that it should be
+  questioned, so the discomfort that would have made somebody check never arrives.
+
+Both are the same failure in different clothes: <span className="hl">the organisation could
+not tell, quickly, which of its own figures still held.</span>
+
+<Figure
+  caption="Neither lane saw the shock coming, and foresight is not what separates them. The first spends the window establishing whether its own numbers can be believed. The second spends it deciding, and then keeps revising, because a figure that names its inputs can be re-checked in minutes. The second decision and the third are where the advantage compounds."
+  wide
+>
+  <DecisionTempo />
+</Figure>
+
+### The world stopped being slow
+
+Political risk has become an operating condition rather than a tail event: export controls,
+sanctions, tariffs, insurance repricing, and the handful of maritime chokepoints that most of
+the world's freight actually passes through. None of it is forecastable in a way that helps
+you plan, which is exactly why the response time matters more than the forecast.
+
+These shocks all arrive in the same shape. <span className="t-accent">A shock does not turn up
+labelled with the reports it invalidates.</span> It arrives as a change to an assumption
+sitting inside a dozen models: a freight rate, a delivery date, a fuel price, an exchange
+rate, an insurance premium. Everything computed from that assumption has just become
+provisional, and nothing in a landscape of spreadsheets says which figures those are.
+
+### A worked example: the Strait of Hormuz
+
+Roughly a fifth of the world's petroleum liquids, and a comparable share of its liquefied
+natural gas, leave the Gulf through a strait about 33 kilometres across at its narrowest,
+whose usable lanes are a couple of miles wide in each direction. The pipelines that bypass it
+can carry only part of that flow. This is why a disruption there is not an oil-industry
+story: within days it moves war-risk insurance, charter and freight rates, bunker and
+feedstock costs, fertiliser and plastics prices, and the cost of gas-fired power, in
+businesses that never buy a barrel of anything.
+
+So the route comes into question on a Monday. By Tuesday the questions in the room are:
+
+1. Which of our commitments assume a cargo coming through there?
+2. What does a delay of a week, a month, a quarter do to the production plan?
+3. Which of the figures in front of us already reflect the new situation, and which were
+   computed under the old one?
+4. What are we contractually exposed to if we simply wait?
+
+<span className="t-accent">The third question decides the meeting</span>, and it is the one
+nobody can answer. The plan on the table is a mixture: some numbers refreshed this morning,
+some carried forward from the last planning cycle, and no way to tell them apart. So the plan
+gets treated as uniformly solid or uniformly suspect, and both are wrong. The organisation
+that can separate the two is not better informed about the strait. It is better informed
+about itself.
+
+With lineage, most of that meeting is traversals rather than a week of archaeology:
+
+| The question | What it becomes, once figures carry their ancestry |
+| --- | --- |
+| What is this margin figure made of? | A walk backwards to its inputs, with the time each was last read |
+| What depends on the freight assumption? | A walk forwards from the assumption to every figure resting on it |
+| Which numbers are stale? | The ones whose inputs have not been re-read since the shock |
+| Who acted on the old figure? | The reports and commitments that consumed it, listed rather than remembered |
+
+### Lineage runs forwards, and a crisis needs that direction
+
+Most talk about lineage looks backwards, because most of its history is in audit: where did
+this number come from. In a shock the urgent question is the opposite one. **What of ours
+depends on this?** It is the same edges walked the other way, and it is the same traversal
+that answers ["what is the blast radius of taking this out?"](/concepts/knowledge-graph) about
+physical equipment.
+
+An assumption is a node like any other. Once figures record what they were computed from, the
+things resting on a shipping route, a supplier, an exchange rate or one instrument can be
+listed instead of recalled.
+
+### Deciding faster is not the same as deciding sooner
+
+The compounding advantage is not in the first decision. It is in the second and the third. An
+organisation that can re-verify cheaply can revise cheaply, and one that can revise cheaply
+can afford to commit while the picture is still incomplete, because being wrong is
+recoverable. <span className="t-brand">The advantage on offer is not better foresight, it is a
+shorter loop between the world changing and your own numbers reflecting it</span>, which is
+the same argument the
+[OODA loop](https://en.wikipedia.org/wiki/OODA_loop) makes about competing under uncertainty.
+It is also why the [cost of a slow answer](/value/cost-of-doing-nothing#4--decisions-that-arrive-too-late-to-matter)
+is so badly underestimated: the answer is not worth less when it is late, it is frequently
+worth nothing.
+
+The same trail is what lets you defend the decision afterwards, to a board, an insurer or a
+regulator. Not "we exercised judgement", but here is what each figure was computed from and
+when we knew it.
+[Audit-ready reporting →](/value/value-paths#audit-ready-reporting)
+
+**What of this works today.** The forward question is already far cheaper than it was, because
+one queryable model answers "what is connected to what" in seconds where eleven systems
+answered it in a fortnight. What is not built yet is the end-to-end trace through
+transformations and the quality flags, so a figure's ancestry currently reaches exactly as far
+as the derivations you have modelled in the platform.
+[What that asks of you →](#what-it-asks-of-you)
 
 ## Version control, but for data
 
@@ -166,10 +277,47 @@ That is a real change in working practice, and it is the main thing organisation
 underestimate when adopting a platform like this. The upside is that it only has to be done
 once per calculation, and the calculation becomes reusable and explainable in the process.
 
+## Where agents help
+
+An [agent](/using/ai-agents) is the natural consumer of a lineage trail, and not for
+convenience. It is that <span className="hl">an agent's answer is only worth having if it can
+be checked</span>, and a trail is what makes checking cheap enough to actually happen.
+
+- **Before it answers, walking backwards.** An agent can trace the figure it is about to
+  quote, and say what it is made of and whether anything underneath it is stale, gap-filled or
+  flagged. An answer that arrives with its trail is falsifiable. The same answer without one
+  is a claim, and a fluent model produces those at a rate no reviewer can keep up with.
+- **When an input changes, walking forwards.** A rate moves, a sensor is flagged, a
+  measurement is revised: the agent walks outward to every figure that consumed it and tells
+  the people who acted on the old one. That is the crisis question from further up this page,
+  asked continuously rather than in a meeting.
+- **While nobody is looking.** Quality signals are only worth recording if somebody reads
+  them. An agent can watch for the combination that matters, an input feeding a regulated
+  report quietly dropping to gap-filled, and raise it while there is still time to correct
+  the submission rather than to explain it.
+
+Three limits matter more here than almost anywhere else on this site:
+
+- **It must never invent a trail.** Where a figure was computed outside the platform and
+  pasted back in, the correct answer is that it has no ancestry. An agent that supplies a
+  plausible one has done more damage than the missing trail ever did.
+- **Its own answer is a derived value.** What it read, when it read it and which version it
+  used belong in the record the same way any other derivation does. An agent that cannot show
+  its work is the unfalsifiable number from the top of this page, wearing a newer coat.
+- **A person still decides.** The trail is what makes that person's role real rather than
+  ceremonial, because it gives them something to disagree with.
+
+[Building AI agents →](/using/ai-agents)
+
 <References>
 
 - [Data lineage](https://en.wikipedia.org/wiki/Data_lineage)
 - [Data quality, and its dimensions](https://en.wikipedia.org/wiki/Data_quality)
+- [Strait of Hormuz](https://en.wikipedia.org/wiki/Strait_of_Hormuz)
+- [World oil transit chokepoints, US EIA](https://www.eia.gov/international/analysis/special-topics/World_Oil_Transit_Chokepoints)
+- [War risk insurance](https://en.wikipedia.org/wiki/War_risk_insurance)
+- [OODA loop, deciding inside the other side's cycle](https://en.wikipedia.org/wiki/OODA_loop)
+- [Change impact analysis](https://en.wikipedia.org/wiki/Change_impact_analysis)
 - [Provenance](https://en.wikipedia.org/wiki/Provenance)
 - [PROV-O, the W3C provenance ontology](https://www.w3.org/TR/prov-o/)
 - [Audit trail](https://en.wikipedia.org/wiki/Audit_trail)

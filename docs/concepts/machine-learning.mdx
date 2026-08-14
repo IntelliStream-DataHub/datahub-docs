@@ -1,11 +1,13 @@
 ---
 sidebar_position: 13
 title: What is machine learning?
-description: Machine learning in plain language for people who will never write any, the five methods worth recognising by name, what each one is actually good for, and how to tell which one a supplier is really selling you.
+description: Machine learning in plain language for people who will never write any, the methods worth recognising by name, from linear regression through random forests and XGBoost to k-means and neural networks, what each one is actually good for, and how to tell which one a supplier is really selling you.
 ---
 import RulesVsLearning from '@site/src/figures/rules-vs-learning.svg';
 import MlProgression from '@site/src/figures/ml-progression.svg';
+import TreeEnsembles from '@site/src/figures/tree-ensembles.svg';
 import Clustering from '@site/src/figures/clustering.svg';
+import KMeansSteps from '@site/src/figures/k-means-steps.svg';
 import NeuralNetwork from '@site/src/figures/neural-network.svg';
 import LstmAnomaly from '@site/src/figures/lstm-sequence-anomaly.svg';
 import TextSequence from '@site/src/figures/text-sequence-intent.svg';
@@ -24,8 +26,9 @@ Normally you tell a computer the rule: *if vibration goes above 4.5, raise an al
 learning turns that around. You show it <span className="hl">examples of what happened</span>
 and it works out the rule itself.
 
-That is the entire idea. Everything with a name, regression, clustering, neural networks, is
-a different answer to one follow-up question: **what shape is the rule allowed to be?**
+That is the entire idea. Everything with a name, regression, random forests, clustering,
+neural networks, is a different answer to one follow-up question: **what shape is the rule
+allowed to be?**
 </KeyIdea>
 
 ## Why turn it around at all
@@ -123,7 +126,98 @@ too, if you feed it features that bend, such as a squared term. The difference i
 work goes. With logistic regression you have to know which curve to supply; with a support
 vector machine the shape is part of what gets fitted.
 
-### Sequences: LSTM, and why time series need it
+## Trees, forests and boosting: what people actually run
+
+<Lead>Ask what is inside a working model built on a table of numbers, and this family is
+the answer more often than everything else on this page put together.</Lead>
+
+The table in question is the ordinary kind: one row per pump per day, or per turbine per
+hour, with a column for each [feature](/concepts/feature-extraction) and a column holding
+what happened, taken from the [event log](/using/events). Nearly every operational question
+arrives in that shape.
+
+<Figure
+  caption="The same table, three arrangements. The first is a model you could follow by hand, and its trouble is that a few different examples redraw it. The second grows hundreds of trees on random slices so their mistakes disagree and cancel out. The third keeps a queue rather than a crowd: each tree is trained on the error the ones before it left behind, which is the bar shrinking along the bottom."
+  wide
+>
+  <TreeEnsembles />
+</Figure>
+
+### A decision tree: questions it wrote itself
+
+A [decision tree](https://en.wikipedia.org/wiki/Decision_tree_learning) is a flowchart of
+yes-or-no questions, except that nobody wrote the questions. Training picks, at each step,
+the question that best separates the examples it has left, and keeps going until the groups
+are clean enough or too small to split further.
+
+The result is <span className="hl">the most readable model there is</span>. You can print it,
+hand it to a control room, and somebody can follow it without knowing what a model is. In a
+plant where a prediction has to be believed before it is acted on, that is not a small thing.
+
+Its weakness is that it is **unstable**. Change a handful of examples and the tree can redraw
+itself completely, because one different question near the root changes everything beneath
+it. Let it grow deep and it stops finding patterns and starts memorising, which is
+overfitting in its purest form.
+
+### Random forest: hundreds of trees, voting
+
+The fix sounds too simple to work. Train hundreds of trees; give each one a random sample of
+the rows, and let each split choose from only a random handful of the columns. Then take the
+majority vote, or the average when the answer is a number.
+
+Because every tree grew on a different slice, they make **different** mistakes, and different
+mistakes cancel when you average them, while the pattern they all found survives. That is why
+a [random forest](https://en.wikipedia.org/wiki/Random_forest) built out of an unstable
+component is one of the most dependable models in practice.
+
+Three reasons it is often the right first model:
+
+- **It works without tuning.** The defaults are usually close to the best you will do, so
+  there is very little room to get it wrong.
+- **It takes your table as it is.** Mixed units, no scaling needed, a few gaps, and several
+  columns that turn out to be useless: none of that derails it.
+- **It tells you what it leant on.** A forest reports **feature importance**, which inputs it
+  relied on most. <span className="t-accent">Read that as a description of the model, not of
+  the process:</span> importance is not causation, and two features that move together split
+  the credit between them arbitrarily.
+
+### Gradient boosting: a queue, each tree fixing the last
+
+[Gradient boosting](https://en.wikipedia.org/wiki/Gradient_boosting) keeps the trees and
+changes the arrangement. Rather than hundreds of trees in parallel, it builds them one at a
+time, and each new tree is trained on what the ones before it are still getting wrong. The
+error left over shrinks with every tree added.
+
+On a table of numbers this is usually the most accurate model available, which is why
+[XGBoost](https://en.wikipedia.org/wiki/XGBoost) and its relatives LightGBM and CatBoost win
+most competitions decided on tabular data, and why they sit behind a great many production
+models in credit, insurance, demand forecasting and industrial prediction.
+
+The price is attention. Boosting has far more settings than a forest and will cheerfully
+overfit if you let it keep adding trees, so it needs held-out data and somebody watching the
+score on it. <span className="t-brand">Reach for a forest when you want a good answer with
+few ways to get it wrong, and for boosting when the last few percentage points are worth the
+tuning.</span>
+
+### The two limits worth knowing before you rely on either
+
+Both inherit the same blind spots from the trees inside them, and both bite in exactly the
+situations an industrial user cares about.
+
+**They cannot extrapolate.** A tree answers by averaging examples it has seen, so it can
+never return a value outside the range it was trained on. Ask what happens at a load 20 per
+cent above anything ever run, and it will answer, confidently, with the edge of what it
+knows. Linear regression, for all its simplicity, at least keeps going in the right
+direction. That gap matters most when equipment is being pushed somewhere new, which is
+often precisely when a prediction is wanted.
+
+**They have no sense of time.** A boosted tree sees rows, not a sequence: shuffle them and
+nothing changes for it. Order has to be put into the features by hand, as lags, rolling
+averages, time since the last start, rate of change. When the shape over time *is* the
+finding, the next section is what you want instead.
+[Where features come from →](/concepts/feature-extraction)
+
+## Sequences: LSTM, and why time series need it
 
 Everything so far judges a reading on its own merits, and industrial data rarely works that
 way. <span className="hl">The interesting failures are changes of shape, not changes of
@@ -253,6 +347,44 @@ is "pumps approaching cavitation". Somebody who knows the plant has to look and 
 that naming is worth capturing in the model as a
 [label](/concepts/taxonomy) rather than losing in a slide deck.
 
+### k-means: the one to know by name
+
+[k-means](https://en.wikipedia.org/wiki/K-means_clustering) is the clustering method you will
+meet first and the one a supplier most likely means by "we cluster the data". The whole
+procedure fits in four lines: choose how many groups you want, drop that many centres
+anywhere at all, let every point join the centre nearest to it, then move each centre to the
+middle of the points that joined it. Repeat the last two steps until nothing moves, which
+normally takes seconds.
+
+<Figure
+  caption="Left, the method: the centres start in arbitrary places and are dragged to the middle of whatever gathered around them, over and over, until they stop moving. Right, what that leaves you: three groups a person can name, and one reading that k-means still files under its nearest group while sitting nowhere near it."
+  wide
+>
+  <KMeansSteps />
+</Figure>
+
+Three things decide whether it works on your data:
+
+- **You pick k, and the data will not tell you.** Run it across a range of values and watch
+  how much tighter the groups get with each extra one. The point where the improvement
+  flattens is the usual choice, known as the
+  [elbow](https://en.wikipedia.org/wiki/Elbow_method_(clustering)). Ask the plant too: people
+  who run the equipment usually know roughly how many ways it runs.
+- **Distance has to mean something, so scale the features first.** This is the trap.
+  A column measured in thousands of running hours and one measured in tenths of a millimetre
+  are not comparable, and left unscaled the bigger number decides every group on its own.
+- **It assumes roughly round groups of similar size.** Where the real groups are long, curved
+  or nested, it will cut straight through them.
+  [DBSCAN](https://en.wikipedia.org/wiki/DBSCAN) finds shapes instead, and has the useful
+  habit of leaving genuine outliers in no group at all.
+
+The payoff is larger than the grouping itself. Once the centres exist,
+<span className="hl">the distance from a new reading to the nearest centre is an anomaly
+score nobody had to define</span>, and the groups usually turn out to be operating modes:
+start-up, steady load, recirculating. Name them with somebody who knows the plant, keep the
+names as [labels](/concepts/taxonomy), and every later question can be asked per mode, which
+is most of what makes a comparison fair.
+
 ## Neural networks: when the rule is a shape nobody can describe
 
 A neural network stacks many simple calculations in layers, and each connection carries a
@@ -286,7 +418,9 @@ Two things to keep in view before reaching for one in an industrial setting:
 | How much, how long, how many? | **Linear regression** | Fast, honest, and readable by the people who will be held to it |
 | Will this happen, and how sure are we? | **Logistic regression** | A probability lets you choose the threshold per decision |
 | Which of these two is it? | **Support vector machine** | Optimises the boundary itself, and copes with few examples |
-| I do not know what I am looking for | **Clustering** | Needs no labels at all, which is where most operations begin |
+| I have a table of numbers and a deadline | **Random forest** | Close to the best answer with almost no tuning, and it survives messy columns |
+| The same table, and the last few per cent matter | **Gradient boosting**, meaning [XGBoost](https://en.wikipedia.org/wiki/XGBoost) or a relative | Usually the most accurate model on tabular data, in exchange for tuning and vigilance |
+| I do not know what I am looking for | **Clustering**, usually [k-means](https://en.wikipedia.org/wiki/K-means_clustering) | Needs no labels at all, which is where most operations begin |
 | The pattern is complicated and I have lots of data | **Neural network** | Expresses shapes nothing else can, at the cost of explaining itself |
 | The answer depends on what came before | **LSTM**, or [xLSTM](https://arxiv.org/abs/2405.04517) | Carries a memory along the sequence, which is what time series, event chains and sentences need |
 
@@ -326,7 +460,13 @@ tools, and decides what to do next, and it may call several models along the way
 - [Linear regression](https://en.wikipedia.org/wiki/Linear_regression)
 - [Logistic regression](https://en.wikipedia.org/wiki/Logistic_regression)
 - [Support vector machine](https://en.wikipedia.org/wiki/Support_vector_machine)
+- [Decision tree learning](https://en.wikipedia.org/wiki/Decision_tree_learning)
+- [Random forest](https://en.wikipedia.org/wiki/Random_forest)
+- [Gradient boosting](https://en.wikipedia.org/wiki/Gradient_boosting)
+- [XGBoost](https://en.wikipedia.org/wiki/XGBoost)
 - [Cluster analysis](https://en.wikipedia.org/wiki/Cluster_analysis)
+- [k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering)
+- [DBSCAN](https://en.wikipedia.org/wiki/DBSCAN)
 - [Artificial neural network](https://en.wikipedia.org/wiki/Artificial_neural_network)
 - [Long short-term memory](https://en.wikipedia.org/wiki/Long_short-term_memory)
 - [xLSTM: Extended Long Short-Term Memory](https://arxiv.org/abs/2405.04517)
