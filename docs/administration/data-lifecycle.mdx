@@ -86,6 +86,11 @@ Two questions decide the number for any given domain:
   [retention versus traceability](#retention-versus-traceability) below, this is the one
   that catches organisations out.
 
+Until expiry ships, deleting is the only thing that shrinks the measurement store, and it does
+shrink it. Deleting a series takes its measurements with it, and a single time window of one
+series can be cleared on its own. Both complete shortly after the request returns rather than
+during it, so the freed space shows up a moment later. Neither can be undone.
+
 ## Lever 3 · Housekeeping
 
 The platform's housekeeping service runs scheduled sweeps:
