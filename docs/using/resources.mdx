@@ -162,22 +162,33 @@ Two relationships are constrained, because data sets are the access boundary:
 
 ## Using the network view
 
-The graph is for exploring and explaining, and it has a few controls worth knowing:
+The graph is for exploring and explaining. Selecting a node raises a small toolbar above it;
+that toolbar, plus the two controls in the sub-nav, is the whole set:
 
 | Control | What it does |
 | --- | --- |
 | **Click a node** | Centres the view on it and shows what it connects to |
-| **Add from a node** | The + on a node creates a connected resource. On a data set it first asks what to add: a resource, a time series, a sub-data set or a policy, each created already connected under the data set |
-| **Trace a path** | Dims everything else so one dependency chain stands out |
+| **Expand relations** | On the node's toolbar. Pulls that node's neighbours into view, and hides them again on a second click |
+| **Add a connected node** | The + on a node creates a resource already connected to it. On a data set it first asks what to add: a resource, a time series, a sub-data set or a policy |
+| **Create relation to** | Connects this node to another that already exists |
+| **Edit** and **Clone** | Change a node, or copy its labels and relationships as the starting point for the next one |
 | **Stabilise network layout** | Freezes a dense area that will not settle |
-| **Filters** | Narrows the graph by label, data set or name, essential above a few hundred nodes |
-| **Related resources** | Lists everything connected to the selected node, in both directions |
+| **Filters** | Narrows the graph by label, relationship type or name, essential above a few hundred nodes |
 
-Tracing is the feature people find most useful in practice. It answers *"which assets does
-this sensor feed?"* and *"what would a change here ripple into?"* visually, in seconds,
-without anybody writing a query. This traces **structure**, what connects to what. Tracing
-a *number* back through the computations that produced it is
-[lineage](/concepts/lineage-and-quality), a separate and planned capability.
+**Expanding is how you follow a dependency chain.** Start at the symptom, pull in its
+neighbours, and step outward a hop at a time. It answers *"which assets does this sensor
+feed?"* and *"what would a change here ripple into?"* without anybody writing a query, and
+because each hop is a deliberate click you can see where the chain widens.
+
+**Filtering is how you isolate one.** Unchecking every relationship type except the one that
+carries flow leaves the process route lit and fades the containment hierarchy, which is what
+makes a large graph readable. Labels work the same way: tag the resources along a route with
+a cross-cutting label, filter to it, and only that route stays bright. Filtered elements are
+dimmed rather than removed, so the surrounding shape stays as context.
+
+Both of these follow **structure**, what connects to what. Tracing a *number* back through
+the computations that produced it is [lineage](/concepts/lineage-and-quality), a separate
+and planned capability.
 
 ## Editing and deleting
 
