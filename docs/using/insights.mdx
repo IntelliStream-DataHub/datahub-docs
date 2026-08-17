@@ -81,6 +81,13 @@ Live mode is genuinely live, readings appear as the platform receives them,
 commissioning, for watching a machine through a start-up sequence, or for following an
 incident as it develops.
 
+<Figure
+  src="/img/screenshots/insights-live-mode.png"
+  alt="Insights streaming two series over the last five minutes, motor current and condensate export flow, each on its own axis. The range control reads Last 5 minutes and the button beside it now reads Stop rather than Live."
+  caption="The control reading Stop rather than Live is the only part of a still image that shows this is streaming. The axis keeps advancing as readings land, which is why a short preset suits Live and a long one does not: at an hour's width the newest point is a pixel from the last one."
+  wide
+/>
+
 Under the hood this is a [data subscription](/using/subscriptions), the same push-not-poll
 machinery your systems and agents can consume directly, with millisecond delivery and a
 position that survives reconnects.

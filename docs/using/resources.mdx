@@ -186,6 +186,13 @@ makes a large graph readable. Labels work the same way: tag the resources along 
 a cross-cutting label, filter to it, and only that route stays bright. Filtered elements are
 dimmed rather than removed, so the surrounding shape stays as context.
 
+<Figure
+  src="/img/screenshots/resource-graph-export-route.png"
+  alt="The resource graph filtered to a single cross-cutting label. Seven nodes stay bright and joined by labelled relationships: a pressure transmitter monitors a separator, which feeds a valve, then a pump, then a metering skid, then the export riser, which contributes to an export availability KPI. Every other node is faded to a pale outline."
+  caption="Read the bright chain as a sentence and it runs from one instrument all the way up to the business measure that depends on it. The faded nodes are the rest of the plant, still drawn: dimming rather than hiding is what stops a filtered graph from losing the shape you were navigating."
+  wide
+/>
+
 Both of these follow **structure**, what connects to what. Tracing a *number* back through
 the computations that produced it is [lineage](/concepts/lineage-and-quality), a separate
 and planned capability.
