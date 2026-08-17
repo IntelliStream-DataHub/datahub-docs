@@ -32,10 +32,16 @@ series**, **events** and **files**.
 | Creating, updating, deleting | Write on the entity's data set |
 | Adding datapoints, uploading files | Write on the target data set |
 | Moving an entity to another data set | Write on **both** the source and the destination |
+| Reading a relationship | Read on the data sets of **both** connected entities |
+| Creating, re-pointing or deleting a relationship | Write on the data sets of **both** connected entities |
 
-That last row is the one people trip over. Moving something between data sets is
+The moving row is the one people trip over. Moving something between data sets is
 simultaneously a delete and a create as far as access is concerned, so it **needs both
 sides**.
+
+The relationship rows follow the same both-sides logic. A relationship has no data set of
+its own, so it is checked on the two things it connects, and because it necessarily reveals
+both of them, <span className="hl">read on one side alone is not enough to see it</span>.
 
 ## How a grant is expressed
 
@@ -162,10 +168,12 @@ The practical consequence for support: <span className="t-brand">"I cannot see t
 colleague can see" is almost always a permission, not a bug.</span> Check the group
 membership before investigating anything else.
 
-**Direct reads of a single item return a clear denial, except for files.** Fetching a
-specific resource by id, or starting a graph traversal at one, returns an explicit forbidden
-response. **Files deliberately return "not found" instead**, so that a denial cannot be used
-to confirm that a particular file exists.
+**Direct reads of a single item return a clear denial, except for files and
+relationships.** Fetching a specific resource by id, or starting a graph traversal at one,
+returns an explicit forbidden response. **Files and relationships deliberately return "not
+found" instead**, so that a denial cannot be used to confirm that a file exists or that two
+things are connected. For a relationship, missing read on either end is enough to hide it:
+an unreadable relationship is indistinguishable from one that does not exist.
 
 **Writes fail loudly.** Create, update, delete, datapoint insertion and file upload all
 return an explicit forbidden response naming the data set and the permission that was
@@ -184,6 +192,8 @@ Worth knowing before you rely on data sets to separate sensitive equipment.
 from.</span> The connected network returned
 from there is not itself filtered by data set, so a caller who can read one resource can see
 resources it connects to even where those sit in data sets the caller cannot read directly.
+Fetching a single relationship directly needs read on both of its ends, but a traversal does
+not go through that check, so the boundary still leaks along connections.
 
 <span className="t-accent">Do not treat a data set boundary as a barrier inside a connected
 graph.</span> If two areas must be genuinely separate, separate them in the model, or put
