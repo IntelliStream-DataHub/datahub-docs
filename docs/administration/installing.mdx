@@ -12,7 +12,8 @@ description: Standing up a DataHub evaluation stack, what it contains, and what 
 </Personas>
 
 <KeyIdea>
-An evaluation stack is one command and needs only a container runtime, no Java, no build
+An evaluation stack is one command from a source checkout. The services are compiled inside
+the containers, so a container runtime is the only thing you install, no Java and no build
 tools. It brings up the four DataHub services plus every backing store, seeded with demo
 tenants.
 
@@ -23,34 +24,41 @@ production are listed at the bottom of this page.
 
 ## What you need
 
-- **A container runtime**, Docker with the `docker compose` plugin, or Podman. Nothing else.
-- **Access to the image registry.** The application images are private; authenticate before
-  installing.
+- **A container runtime**, Docker with the `docker compose` plugin, or Podman.
+- **Git**, to get the source. DataHub is built from source: there are no published
+  application images to pull, so there is nothing to authenticate to and nothing to obtain
+  in advance.
 - **At least 16 GB of RAM.** The stack starts on less, but the backing stores compete for
   memory and evaluation becomes misleadingly slow. Plus a few GB of disk for images and
   volumes.
 
 ## Installing the evaluation stack
 
-Obtain the release bundle through your internal channel, then:
-
 ```bash
-podman login git.intellistream.ai      # or: docker login git.intellistream.ai
-tar -xzf datahub-<version>.tar.gz && cd datahub
+git clone https://github.com/IntelliStream-DataHub/datahub-platform.git
+cd datahub-platform
 
-./scripts/datahub up          # pulls images and starts everything
-./scripts/datahub logs -f     # watch it come up
+./scripts/up.sh --build       # builds the images, then starts everything
+podman compose logs -f        # watch it come up
 ```
+
+The first run compiles the platform and pulls the backing-store images, so expect it to take
+several minutes. Later runs reuse both, and plain `./scripts/up.sh` starts the stack without
+rebuilding.
 
 Two more commands worth knowing:
 
 ```bash
-./scripts/datahub down        # stop, keeping all data
-./scripts/datahub down -v     # stop and wipe all data
+podman compose down           # stop, keeping all data
+podman compose down -v        # stop and wipe all data
 ```
 
-The bundle is self-contained: the compose file, the backing-service initialisation config,
-the bootstrap scripts, and a pinned environment file naming the registry and version.
+Substitute `docker compose` for `podman compose` if that is your runtime; the launcher
+detects which one you have and uses it either way.
+
+By default the stack comes up with a small demo dataset already loaded, so the console shows
+something real on the first visit. Use `./scripts/up.sh --no-demo` for an empty stack
+instead.
 
 ## Reaching it
 
@@ -84,7 +92,7 @@ machine's routable IP automatically. When auto-detection gets it wrong, or when 
 plain `docker compose`, set it explicitly:
 
 ```bash
-KC_ADDR=192.168.1.50 ./scripts/datahub up
+KC_ADDR=192.168.1.50 ./scripts/up.sh
 ```
 
 This is by far the most common installation problem. If the console loads but signing in
@@ -105,18 +113,15 @@ Plus the backing stores, a relational database, a streaming platform, a columnar
 measurements, a graph database, two key-value stores, a secret store and an identity
 provider. [What each one does →](/administration/architecture)
 
-## Building from source
+## About the build
 
-For contributors, or when you need to build the images yourself rather than pull them:
+`./scripts/up.sh --build` compiles the services inside a build container, so nothing beyond
+the container runtime has to be installed on the host. The Gradle wrapper provisions its own
+toolchain, and the console's assets are built on the JVM with no Node.js required.
 
-```bash
-git clone <repo> && cd datahub-platform
-./gradlew bootJar
-podman compose -f docker-compose.yml -f docker-compose.apps.yml up -d --build
-```
-
-The build needs only a JDK-capable machine, the Gradle wrapper provisions everything else,
-and the console's assets are built on the JVM with no Node.js required.
+Contributors who would rather run the services directly on the host, from an IDE or the
+Gradle wrapper, will want a JDK installed; that workflow is documented in the repository
+rather than here.
 
 ## Before production
 
@@ -168,8 +173,12 @@ must change.
 
 DataHub runs entirely disconnected from the internet. Nothing in the platform requires an
 outbound connection at runtime, no licence check, no telemetry callback, no hosted
-dependency. What you need is a way to bring the images and the bundle across the boundary,
-which is a normal artefact-transfer problem rather than a platform one.
+dependency.
+
+The build is the part that needs network access, because it resolves its dependencies. The
+usual approach is to build on a connected machine and carry the resulting container images
+across the boundary, together with the backing-store images. That is a normal
+artefact-transfer problem rather than a platform one.
 
 This is a common requirement in regulated and critical-infrastructure environments, and it
 is one of the practical consequences of the platform being open source.
