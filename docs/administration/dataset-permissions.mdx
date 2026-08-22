@@ -162,10 +162,13 @@ The practical consequence for support: <span className="t-brand">"I cannot see t
 colleague can see" is almost always a permission, not a bug.</span> Check the group
 membership before investigating anything else.
 
-**Direct reads of a single item return a clear denial, except for files.** Fetching a
-specific resource by id, or starting a graph traversal at one, returns an explicit forbidden
-response. **Files deliberately return "not found" instead**, so that a denial cannot be used
-to confirm that a particular file exists.
+**Direct reads of a single item return a clear denial, except for files and relationships.**
+Fetching a specific resource by id, or starting a graph traversal at one, returns an explicit
+forbidden response. **Files deliberately return "not found" instead**, so that a denial cannot
+be used to confirm that a particular file exists. **A relationship read by its own id needs
+read access to both resources it connects**, because the relationship reveals both ends; one
+the caller may not read is reported as "not found" as well, so a denial cannot confirm that
+two resources are linked.
 
 **Writes fail loudly.** Create, update, delete, datapoint insertion and file upload all
 return an explicit forbidden response naming the data set and the permission that was
