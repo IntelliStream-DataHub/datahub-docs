@@ -161,10 +161,12 @@ must change.
     [Data lifecycle →](/administration/data-lifecycle)
   </Step>
   <Step title="Review the per-tenant limits">
-    Every tenant arrives with a request rate, a daily ingest allowance, a lifetime ceiling
-    and a cap on live connections. The defaults are sized for an evaluation tenant, so a
-    production one usually needs them raised, which is one database update per tenant and no
-    restart. [Limits and quotas →](/administration/limits-and-quotas)
+    Every tenant arrives with a request rate, a daily ingest allowance and a cap on live
+    connections. The defaults are sized for an evaluation tenant, so a production one usually
+    needs them raised, which is one database update per tenant and no restart. The ceilings
+    on a tenant's total size are a separate switch and ship turned off; read the order of
+    operations before turning them on.
+    [Limits and quotas →](/administration/limits-and-quotas)
   </Step>
   <Step title="Establish backups per tenant">
     Every store is database-per-tenant, so backup is per-database and restore can be scoped

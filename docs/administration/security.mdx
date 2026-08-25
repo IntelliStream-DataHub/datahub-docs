@@ -217,9 +217,10 @@ The evaluation stack is deliberately convenient and deliberately insecure. Befor
     [The wildcard groups →](/administration/dataset-permissions#access-to-everything-is-a-wildcard-group)
   </Step>
   <Step title="Limits sized to each tenant">
-    Request rate, daily ingest, lifetime size and live connections are all charged to the
-    tenant and all overridable per tenant. The proxy in front needs a per-IP limit of its
-    own, because it sees the traffic that arrives before any caller has been identified.
+    Request rate, daily ingest and live connections are all charged to the tenant and all
+    overridable per tenant, with ceilings on total size available on top. The proxy in front
+    needs a per-IP limit of its own, because it sees the traffic that arrives before any
+    caller has been identified.
     [Limits and quotas →](/administration/limits-and-quotas)
   </Step>
   <Step title="Backups, tested">

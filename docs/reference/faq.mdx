@@ -268,10 +268,11 @@ caller's token, and the context is cleared at the end of every request.
 
 ### Can one tenant overload the platform?
 
-Only up to its budget. Every tenant has its own request rate, daily ingest allowance,
-lifetime size ceiling and cap on live connections, with a per-user backstop inside each
-tenant. Any of them can be raised, or removed entirely, for one tenant without restarting
-anything. [→ Limits and quotas](/administration/limits-and-quotas)
+Only up to its budget. Every tenant has its own request rate, daily ingest allowance and cap
+on live connections, with a per-user backstop inside each tenant, and a deployment can switch
+on ceilings for total size as well. Any of them can be raised, or removed entirely, for one
+tenant without restarting anything.
+[→ Limits and quotas](/administration/limits-and-quotas)
 
 ### Can different tenants live on different servers?
 

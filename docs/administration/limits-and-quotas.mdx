@@ -14,8 +14,8 @@ description: The request, ingest and connection budgets DataHub enforces per ten
 
 <KeyIdea>
 Every tenant has a budget: how large one request may be, how many requests a minute it may
-send, how much it may ingest in a day, how large it may grow in total, and how many live
-connections it may hold open.
+send, how much it may ingest in a day, how many live connections it may hold open, and, once
+you switch it on, how large it may grow in total.
 
 The defaults ship with the API and apply to every tenant. Any single tenant can be raised, or
 made unlimited, with <span className="t-brand">one database update that takes effect within
@@ -30,7 +30,7 @@ for their limit to be lifted".
 | **Request size** | How large one request body may be | Too large, `413` | On a smaller request |
 | **Rate** | Requests a minute, per tenant and per user | Too many requests, `429`, with a `Retry-After` header | At the end of the current minute |
 | **Daily quota** | How much may be ingested in one day | Too many requests, `429`, `Retry-After` pointing at midnight | 00:00 UTC |
-| **Lifetime ceiling** | How large the tenant may grow in total | Refused, `403`, saying the limit has to be raised | Never, waiting does not help |
+| **Lifetime ceiling** | How large the tenant may grow in total, off until switched on | Refused, `403`, saying the limit has to be raised | Never, waiting does not help |
 | **Live connections** | Open connections, and subscriptions on each | An error message naming the limit. Over the connection cap the connection is closed; over the per-connection subscription cap only that subscription is refused | When a connection is released |
 
 The distinction that matters when a support ticket arrives: **a "too many requests" refusal
@@ -65,10 +65,18 @@ be overridden for a single tenant by setting the matching column in that tenant'
 | `websocket.max-sockets-per-user` | 10 | `max_ws_sockets_per_user` | Live connections open for one identity |
 | `websocket.max-subscriptions-per-socket` | 10 | deployment-wide only | Subscriptions multiplexed onto one connection |
 
-Each group also has an on/off switch, `rate.enabled`, `quota.enabled`, `lifetime.enabled` and
-`websocket.enabled`, all on by default. A deployment with no need for lifetime ceilings, a
-single-tenant installation on your own hardware, say, turns the whole group off with
-`lifetime.enabled: false` rather than clearing each column.
+Each group has an on/off switch. `rate.enabled`, `quota.enabled` and `websocket.enabled` are
+all **on** by default. <span className="t-accent">`lifetime.enabled` is off by default</span>,
+because those figures size a small evaluation tenant rather than a real deployment.
+
+:::caution Grant the exemptions before switching lifetime ceilings on
+Enabling them applies them to **every tenant that has no override**, which is every tenant you
+have not already touched. One already holding more than `max-resources` starts refusing writes
+at the next restart, with no warning beforehand.
+
+The order that avoids that: put a `0` in the `tenant_limits` row of every tenant that should
+keep growing **first**, then set `lifetime.enabled: true`.
+:::
 
 Four things about that table are easy to read wrong:
 
@@ -78,11 +86,13 @@ Four things about that table are easy to read wrong:
 - **A lifetime ceiling is a size, not a rate.** Entities are counted live, so deleting one
   frees room again. Events and measurements accumulate, so <span className="t-accent">deleting
   them does not</span>. Create-and-delete churn cannot reset those two.
-- **Read and write are told apart by the request method alone.** Some read operations are
-  submitted as writes, a filter or a bulk fetch carrying a long list of ids, and those are
-  charged to the smaller write budget. A dashboard polling that way spends the write
-  allowance, not the read one, which is the usual explanation for a rate limit nobody
-  expected.
+- **Read and write are not simply fetching and posting.** Plenty of operations that only read
+  are submitted as posts, because they carry a filter or a long list of ids in the body. Those
+  are charged to the **read** budget, recognised by the last part of the address: `filter`,
+  `search`, `list`, `byids`, `count`, `check`, `aggregate`, `latest`, `fetch-related` and
+  `fetch-nearest`. Everything else that is not a plain fetch counts as a write, deletions
+  included. So a person browsing the console spends the read allowance, which is the larger of
+  the two.
 - **Nothing is exempt.** The administrator role, the console's own traffic and the agent
   tools are all charged the same way, and the console spends the signed-in user's budget
   rather than a budget of its own.
