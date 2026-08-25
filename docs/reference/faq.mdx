@@ -266,6 +266,13 @@ one shared graph database. The tenant is resolved from the organisation claim in
 caller's token, and the context is cleared at the end of every request.
 [→ What the reference deployment actually does](/administration/organizations#what-the-reference-deployment-actually-does)
 
+### Can one tenant overload the platform?
+
+Only up to its budget. Every tenant has its own request rate, daily ingest allowance,
+lifetime size ceiling and cap on live connections, with a per-user backstop inside each
+tenant. Any of them can be raised, or removed entirely, for one tenant without restarting
+anything. [→ Limits and quotas](/administration/limits-and-quotas)
+
 ### Can different tenants live on different servers?
 
 Yes. Each tenant carries its own connection details, so tenants can be placed independently,
@@ -343,6 +350,16 @@ Three places, in order: the [value types](/using/timeseries#value-types) chosen 
 highest-rate series, the retention set on your highest-volume data domains, and any recently
 connected source ingesting faster than expected.
 [→ Data lifecycle](/administration/data-lifecycle)
+
+### A request came back refused as too many, or too large. What now?
+
+Three different limits produce three different refusals, and the difference is what to do
+next. **Too many requests** clears on its own, at the next minute for a rate limit or at
+midnight UTC for a daily allowance, and the response says when to retry. **Request too
+large** means one request body exceeded the accepted size, so send it as several smaller
+batches. A refusal saying the limit must be **raised** is a lifetime ceiling, and waiting
+will not clear it: ask your administrator to lift it.
+[→ Limits and quotas](/administration/limits-and-quotas)
 
 ### Sign-in loops or errors after installing. What is wrong?
 

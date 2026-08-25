@@ -110,6 +110,10 @@ description: Every term used on this site, defined in one line, with a link to w
 | **`DATAHUB_ACCESS`** | The baseline role required to use the platform at all. [→](/administration/users-and-access) |
 | **`DATAHUB_ADMIN`** | The escape-hatch role granting read and write on every data set in every tenant. [→](/administration/dataset-permissions) |
 | **Wildcard data set group** | `/datasets/*/read` or `/datasets/*/write`: an organization group granting read or write on all of that tenant's data sets. [→](/administration/dataset-permissions#access-to-everything-is-a-wildcard-group) |
+| **Rate limit** | The per-minute request budget a tenant, and each identity inside it, may spend. Over it is refused until the next minute. [→](/administration/limits-and-quotas) |
+| **Ingest quota** | The daily allowance for events, entities, relationships, measurements and bytes written, reset at midnight UTC. [→](/administration/limits-and-quotas) |
+| **Lifetime ceiling** | How large a tenant may grow in total rather than how fast. Raised on request; waiting does not clear it. [→](/administration/limits-and-quotas) |
+| **`tenant_limits`** | The one-row table in each tenant's schema that overrides any deployment default limit, live and without a restart. [→](/administration/limits-and-quotas#raising-a-limit-for-one-tenant) |
 | **Identity provider** | The external system holding user accounts and issuing tokens. [→](/administration/users-and-access) |
 | **Air-gapped** | Running with no internet connection at all, fully supported. [→](/administration/security) |
 

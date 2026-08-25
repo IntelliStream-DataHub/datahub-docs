@@ -1,0 +1,179 @@
+---
+sidebar_position: 8
+title: Limits and quotas
+description: The request, ingest and connection budgets DataHub enforces per tenant, what a caller sees when one is hit, and how to raise one for a single tenant without a restart.
+---
+
+# Limits and quotas
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT operations</Persona>
+  <Persona>Support</Persona>
+</Personas>
+
+<KeyIdea>
+Every tenant has a budget: how large one request may be, how many requests a minute it may
+send, how much it may ingest in a day, how large it may grow in total, and how many live
+connections it may hold open.
+
+The defaults ship with the API and apply to every tenant. Any single tenant can be raised, or
+made unlimited, with <span className="t-brand">one database update that takes effect within
+five minutes and needs no restart</span>. That is the mechanism behind "a customer has asked
+for their limit to be lifted".
+</KeyIdea>
+
+## The five kinds of limit
+
+| Kind | Bounds | What the caller gets back | Clears |
+| --- | --- | --- | --- |
+| **Request size** | How large one request body may be | Too large, `413` | On a smaller request |
+| **Rate** | Requests a minute, per tenant and per user | Too many requests, `429`, with a `Retry-After` header | At the end of the current minute |
+| **Daily quota** | How much may be ingested in one day | Too many requests, `429`, `Retry-After` pointing at midnight | 00:00 UTC |
+| **Lifetime ceiling** | How large the tenant may grow in total | Refused, `403`, saying the limit has to be raised | Never, waiting does not help |
+| **Live connections** | Open connections, and subscriptions on each | An error message naming the limit. Over the connection cap the connection is closed; over the per-connection subscription cap only that subscription is refused | When a connection is released |
+
+The distinction that matters when a support ticket arrives: **a "too many requests" refusal
+clears on its own, a "raise the limit" refusal does not.** The first is a customer sending
+faster than their budget allows, the second is a customer who has outgrown it.
+
+## The defaults, and the column that overrides each one
+
+Deployment-wide defaults live under `datahub.limits` in the API's configuration. Each one can
+be overridden for a single tenant by setting the matching column in that tenant's
+`tenant_limits` table.
+
+| Setting under `datahub.limits` | Default | Per-tenant column | What it bounds |
+| --- | --- | --- | --- |
+| `max-body-bytes` | 4 MiB | deployment-wide only | The largest accepted request body |
+| `max-body-bytes-datapoints` | 16 MiB | deployment-wide only | The same, for measurement writes, which are legitimately larger |
+| `cache-ttl` | 5m | deployment-wide only | How long an override takes to reach every instance |
+| `rate.write-per-minute-per-tenant` | 2,000 | `write_per_minute_per_tenant` | Writes a minute for the whole tenant |
+| `rate.read-per-minute-per-tenant` | 6,000 | `read_per_minute_per_tenant` | Reads a minute for the whole tenant |
+| `rate.write-per-minute-per-user` | 600 | `write_per_minute_per_user` | Writes a minute for one identity |
+| `rate.read-per-minute-per-user` | 1,200 | `read_per_minute_per_user` | Reads a minute for one identity |
+| `quota.events-per-day` | 100,000 | `events_per_day` | Events created in a day |
+| `quota.nodes-per-day` | 50,000 | `nodes_per_day` | Entities created in a day, see the note below |
+| `quota.edges-per-day` | 100,000 | `edges_per_day` | Relationships created in a day |
+| `quota.datapoints-per-day` | 10,000,000 | `datapoints_per_day` | Measurements written in a day |
+| `quota.ingest-bytes-per-day` | 1 GiB | `ingest_bytes_per_day` | Bytes of write traffic in a day |
+| `lifetime.max-resources` | 1,000 | `max_resources` | Entities held at once, see the note below |
+| `lifetime.max-events-total` | 25,000 | `max_events_total` | Events ever created |
+| `lifetime.max-datapoints-total` | 1,000,000,000 | `max_datapoints_total` | Measurements ever written |
+| `lifetime.max-text-datapoints-total` | 100,000 | `max_text_datapoints_total` | Text measurements ever written |
+| `websocket.max-sockets-per-tenant` | 10 | `max_ws_sockets_per_tenant` | Live connections open for the tenant |
+| `websocket.max-sockets-per-user` | 10 | `max_ws_sockets_per_user` | Live connections open for one identity |
+| `websocket.max-subscriptions-per-socket` | 10 | deployment-wide only | Subscriptions multiplexed onto one connection |
+
+Each group also has an on/off switch, `rate.enabled`, `quota.enabled`, `lifetime.enabled` and
+`websocket.enabled`, all on by default. A deployment with no need for lifetime ceilings, a
+single-tenant installation on your own hardware, say, turns the whole group off with
+`lifetime.enabled: false` rather than clearing each column.
+
+Four things about that table are easy to read wrong:
+
+- **"Entities" is broader than "resources".** Resources, time series, data sets, labels,
+  policies and functions are all rows in the same table, so `nodes-per-day` and
+  `max-resources` cover all of them together rather than resources alone.
+- **A lifetime ceiling is a size, not a rate.** Entities are counted live, so deleting one
+  frees room again. Events and measurements accumulate, so <span className="t-accent">deleting
+  them does not</span>. Create-and-delete churn cannot reset those two.
+- **Read and write are told apart by the request method alone.** Some read operations are
+  submitted as writes, a filter or a bulk fetch carrying a long list of ids, and those are
+  charged to the smaller write budget. A dashboard polling that way spends the write
+  allowance, not the read one, which is the usual explanation for a rate limit nobody
+  expected.
+- **Nothing is exempt.** The administrator role, the console's own traffic and the agent
+  tools are all charged the same way, and the console spends the signed-in user's budget
+  rather than a budget of its own.
+
+Quotas are counted per instance and reconciled continuously, so a tenant can overshoot a
+daily allowance slightly on a multi-instance deployment. They are ceilings, not invoices.
+
+## Raising a limit for one tenant
+
+Each tenant's schema holds a `tenant_limits` table with a single row, created and seeded when
+the tenant is provisioned. Every limit column starts empty, meaning *inherit the deployment
+default*. Setting one to **0 or a negative number means unlimited**.
+
+Run this in that tenant's own schema:
+
+```sql
+UPDATE tenant_limits
+   SET max_resources = 0,
+       note = 'paid plan, ticket 1234'
+ WHERE id = 1;
+```
+
+Within `cache-ttl`, five minutes by default, every API instance picks the change up. No
+restart, no redeployment and nothing to coordinate across instances. There is also no way to
+make it happen sooner, so tell the customer their limit is lifted in five minutes rather than
+immediately.
+
+:::tip Always fill in the note
+The `note` column is free text and exists for exactly this purpose: **who asked, and why it
+was granted**. A limit lifted a year ago with no note is a limit nobody can review, and the
+`updated_at` column beside it only tells you when.
+:::
+
+The table is created by the platform's own database migrations, once per tenant schema, so
+there is nothing to install and a tenant starts out inheriting every default.
+
+## When the cache store is unavailable
+
+Rate limits, daily quotas and the running totals behind the event and measurement ceilings
+are all counted in the key-value store. <span className="hl">If it cannot be reached, they
+fail open</span>: traffic is allowed through and a warning is logged, rather than the
+platform refusing requests it cannot account for.
+
+Two things keep working regardless, because neither needs anything but the request and the
+database: the request size limits, and the lifetime ceiling on entities, which is counted
+live in the tenant's own database.
+
+Two consequences worth planning for:
+
+- An outage of that store is not a security event, but a tenant can exceed its budget for the
+  duration of it, and the overage is not recovered afterwards.
+- The event and measurement totals live only in that store, so **flushing it resets them**.
+  The entity count, being read from the database, is unaffected.
+
+## At the reverse proxy
+
+Two settings on the proxy in front of the API matter, and both are in the reverse-proxy
+examples that ship with the platform:
+
+- **A per-IP request limit**, 20 requests a second with a burst of 40. The platform's own
+  limits are charged to a tenant or a user, so they can only act once a caller has been
+  identified. Sign-in, token validation and connection handshakes all happen before that
+  point, and the per-IP limit is what bounds them.
+- **A body size ceiling of 20 MB**, deliberately set *above* the API's own 4 MiB and 16 MiB
+  caps. The point of the gap is that an oversized request should reach the application and
+  come back as a readable message naming the limit, rather than as the proxy's bare error
+  page. File uploads are exempt from it and stream without a ceiling.
+
+## What is not limited
+
+<span className="t-accent">There is no per-tenant quota on file storage.</span> Uploads and
+downloads stream, so they sit outside the request size limit and outside the daily byte
+allowance as well, and nothing here refuses the upload that fills the disk. Until such a
+quota exists, file volume is bounded only by capacity planning, the housekeeping sweeps, and
+whatever ceiling the storage itself has.
+[Data lifecycle →](/administration/data-lifecycle)
+
+<References>
+
+- [Rate limiting](https://en.wikipedia.org/wiki/Rate_limiting)
+- [RFC 6585, additional HTTP status codes, including 429](https://datatracker.ietf.org/doc/html/rfc6585)
+- [RFC 9110, the Retry-After header](https://datatracker.ietf.org/doc/html/rfc9110#name-retry-after)
+- [RFC 6455, the WebSocket protocol and its close codes](https://datatracker.ietf.org/doc/html/rfc6455)
+- [Fail-safe designs](https://en.wikipedia.org/wiki/Fail-safe)
+
+</References>
+
+<Deeper>
+- [Data lifecycle](/administration/data-lifecycle): the levers that control what a tenant keeps
+- [Organisations and tenants](/administration/organizations): the boundary every limit is charged to
+- [Architecture](/administration/architecture#load-balancing): where the reverse proxy sits
+- [Subscriptions](/using/subscriptions#the-two-kinds): the live connections the last group caps
+- [Security and compliance](/administration/security): the rest of the production hardening
+</Deeper>

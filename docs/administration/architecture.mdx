@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 9
 title: Architecture, without the jargon
 description: What the moving parts of DataHub are, what each one does, and why there are several, explained for administrators rather than developers.
 ---
@@ -177,6 +177,13 @@ reconnect can land on any instance and resume.
 
 So the load balancer can simply round-robin everything.
 
+Two settings on it are still worth getting right, and both are in the reverse-proxy examples
+that ship with the platform: a **per-IP request limit**, which bounds the traffic arriving
+before any caller has been identified, and a **body size ceiling set above** the API's own,
+so that an oversized request comes back as the platform's own readable message rather than
+the proxy's error page.
+[Limits and quotas →](/administration/limits-and-quotas#at-the-reverse-proxy)
+
 ## What runs where, at minimum
 
 For a small production installation:
@@ -214,6 +221,7 @@ For a small production installation:
 
 <Deeper>
 - [Installing](/administration/installing): standing this up
+- [Limits and quotas](/administration/limits-and-quotas): the per-tenant budgets, and what the proxy in front should enforce
 - [Data lifecycle](/administration/data-lifecycle): capacity planning and backups
 - [Organisations and tenants](/administration/organizations): how multi-tenancy maps onto these stores
 - [Frequently asked questions](/reference/faq): the reasoning behind these architecture choices

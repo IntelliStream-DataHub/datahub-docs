@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 10
 title: Security and compliance
 description: DataHub's security posture, the isolation guarantees, and answers to the questions a risk committee will ask.
 ---
@@ -215,6 +215,12 @@ The evaluation stack is deliberately convenient and deliberately insecure. Befor
     The wildcard all-data-sets groups and the `DATAHUB_ADMIN` role should have a short,
     reviewed list of holders.
     [The wildcard groups →](/administration/dataset-permissions#access-to-everything-is-a-wildcard-group)
+  </Step>
+  <Step title="Limits sized to each tenant">
+    Request rate, daily ingest, lifetime size and live connections are all charged to the
+    tenant and all overridable per tenant. The proxy in front needs a per-IP limit of its
+    own, because it sees the traffic that arrives before any caller has been identified.
+    [Limits and quotas →](/administration/limits-and-quotas)
   </Step>
   <Step title="Backups, tested">
     Per tenant, with a restore actually exercised rather than assumed.

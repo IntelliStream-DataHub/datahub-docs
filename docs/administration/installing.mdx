@@ -152,11 +152,19 @@ must change.
     and long connection timeouts, but <strong>no session affinity</strong>, because nothing
     holds unrecoverable per-instance state, a [subscription's](/using/subscriptions)
     position lives on the platform, so a reconnect resumes on any instance.
-    [Why →](/administration/architecture#load-balancing)
+    Give it a per-IP request limit as well, and keep its body size ceiling above the API's
+    own. [Why →](/administration/architecture#load-balancing) ·
+    [The proxy settings →](/administration/limits-and-quotas#at-the-reverse-proxy)
   </Step>
   <Step title="Set retention deliberately">
     Defaults are for evaluation. Storage grows with ingestion whether or not anyone reads it.
     [Data lifecycle →](/administration/data-lifecycle)
+  </Step>
+  <Step title="Review the per-tenant limits">
+    Every tenant arrives with a request rate, a daily ingest allowance, a lifetime ceiling
+    and a cap on live connections. The defaults are sized for an evaluation tenant, so a
+    production one usually needs them raised, which is one database update per tenant and no
+    restart. [Limits and quotas →](/administration/limits-and-quotas)
   </Step>
   <Step title="Establish backups per tenant">
     Every store is database-per-tenant, so backup is per-database and restore can be scoped
@@ -177,6 +185,7 @@ is one of the practical consequences of the platform being open source.
 
 <Deeper>
 - [Architecture, without the jargon](/administration/architecture): what each component does
+- [Limits and quotas](/administration/limits-and-quotas): the per-tenant budgets, and raising one
 - [Organisations and tenants](/administration/organizations): planning tenant boundaries before onboarding
 - [Data lifecycle](/administration/data-lifecycle): retention, backups and cost
 - [Security and compliance](/administration/security): the production posture
