@@ -639,7 +639,7 @@ build.</span>
 
 ## Being honest about what is not here yet
 
-Two capabilities would make several of the examples above easier, and both are planned
+Several capabilities would make the examples above easier, and all of them are planned
 rather than shipped. It is worth knowing which parts of a design lean on them.
 
 <Roadmap>
@@ -651,6 +651,15 @@ rather than shipped. It is worth knowing which parts of a design lean on them.
   values it used but not, automatically, where those values came from. For regulated
   reporting that matters, and it is the qualifier to keep in mind when an agent's output is
   destined for a submission. [Lineage and data quality →](/concepts/lineage-and-quality)
+- **Agent hosting.** Your agents run outside the platform, on whichever framework you
+  prefer, reaching the model through [MCP](/using/mcp). Running your functions and hosting
+  your agents inside the platform is the framework being built.
+- **Run history.** The platform records what an agent changed, not that it ran, what it was
+  trying to do, or whether it finished. Until it does, keep that record in your agent's own
+  logging, and write significant actions to the [event log](/using/events) as a habit.
+- **Sequencing.** Two agents can work the same asset at once and neither will know.
+  Ordering a fleet is your responsibility today, and the coordination layer that takes it
+  over is part of the same framework.
 </Roadmap>
 
 Everything else on this page, the tools, the permissions, the live input, the event log, is
