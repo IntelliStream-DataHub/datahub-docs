@@ -12,10 +12,12 @@ description: The Prometheus metrics every DataHub service exposes, which ports t
 </Personas>
 
 <KeyIdea>
-Every DataHub service publishes [Prometheus](https://prometheus.io/) metrics at
-`/actuator/prometheus` on a **port of its own**, with no login. Point your existing
-Prometheus at those ports and the dashboards you already have for JVM services apply
-unchanged.
+Every DataHub service can publish [Prometheus](https://prometheus.io/) metrics at
+`/actuator/prometheus` on a **port of its own**. Point your existing Prometheus at those ports
+and the dashboards you already have for JVM services apply unchanged.
+
+**Metrics ship switched off**, because the endpoint carries no login. Turn them on per service,
+then decide who may read them: see [Securing the endpoint](#securing-the-endpoint).
 
 Nothing is pushed anywhere: the services only answer when scraped, and only on a port you
 open to the Prometheus host.
@@ -33,12 +35,10 @@ open to the Prometheus host.
 | **Cleanup** | none | 9085 |
 
 The API, console and analysis serve their metrics on a **second port next to the application
-port**, so the load balancer in front of them never reaches the endpoint and no token is
-involved. The three consumer and housekeeping services listen on nothing else.
+port**, so the load balancer in front of them never reaches the endpoint. The three consumer and
+housekeeping services listen on nothing else.
 
-<span className="hl">Open the metrics ports to the Prometheus host only.</span> They are not
-protected by a login; the firewall is the protection. Every instance of a service is scraped
-individually, so a scrape job lists each host.
+Every instance of a service is scraped individually, so a scrape job lists each host.
 
 ```yaml
 scrape_configs:
@@ -54,8 +54,61 @@ scrape_configs:
 ```
 
 In the evaluation stack from [Installing](/administration/installing) the same ports are
-published on the host, so `curl http://localhost:9081/actuator/prometheus` shows the API's
-metrics straight away.
+published on the host, so once metrics are enabled `curl http://localhost:9081/actuator/prometheus`
+shows the API's metrics.
+
+## Turning them on
+
+Metrics are off until you ask for them. Per service, in that service's configuration file:
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+```
+
+Leave it out and the endpoint answers `404`, which is what a fresh installation does.
+
+## Securing the endpoint
+
+The endpoint has no login, so anything that can reach the port can read it. It holds no customer
+data, and never a record, a name or anything a dataset contains. It does show how the platform is
+used: how many requests of each kind arrive, how many fail, which operations exist and how the
+servers are sized. That is worth protecting, both because it is commercially informative and
+because it helps someone planning an attack.
+
+Two controls, best combined:
+
+| Control | What it gives you |
+| --- | --- |
+| Restrict the port to the Prometheus host | Keeps ordinary traffic away from it |
+| Require a **client certificate** (mutual TLS) | Only a Prometheus holding a certificate you issued can read it, whatever else reaches the port |
+
+<span className="hl">Prefer the certificate over the firewall rule alone.</span> A firewall rule
+is one change away from being wrong, and a new host, a move between hosting environments or a
+mistyped address can expose the port without anyone noticing. A certificate requirement fails
+closed instead, and it uses the same mechanism as the secret store, so the private certificate
+authority you already run covers this too.
+
+```yaml
+management:
+  server:
+    ssl:
+      enabled: true
+      client-auth: need
+      key-store: /etc/datahub/metrics-server.p12
+      trust-store: /etc/datahub/metrics-ca.p12
+```
+
+For the three services without an application port, the same settings live under `server.ssl`
+rather than `management.server.ssl`. Prometheus then scrapes with `scheme: https` and a
+`tls_config` naming its client certificate and the same authority.
+
+Metrics never carry an organisation identifier. That is deliberate: were a figure broken down per
+organisation, this endpoint would publish your customer list and each customer's usage.
+Per-organisation figures stay behind the authenticated API.
 
 ## What to watch
 
