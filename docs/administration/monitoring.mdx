@@ -1,0 +1,150 @@
+---
+sidebar_position: 7.5
+title: Monitoring
+description: The Prometheus metrics every DataHub service exposes, which ports to scrape, and what to watch.
+---
+
+# Monitoring
+
+<Personas>
+  <Persona primary>IT operations</Persona>
+  <Persona primary>Administrators</Persona>
+</Personas>
+
+<KeyIdea>
+Every DataHub service can publish [Prometheus](https://prometheus.io/) metrics at
+`/actuator/prometheus` on a **port of its own**. Point your existing Prometheus at those ports
+and the dashboards you already have for JVM services apply unchanged.
+
+**Metrics ship switched off**, because the endpoint carries no login. Turn them on per service,
+then decide who may read them: see [Securing the endpoint](#securing-the-endpoint).
+
+Nothing is pushed anywhere: the services only answer when scraped, and only on a port you
+open to the Prometheus host.
+</KeyIdea>
+
+## The ports
+
+| Service | Application port | Metrics port |
+| --- | --- | --- |
+| **API** | 8081 | 9081 |
+| **Console** | 8080 | 9080 |
+| **Analysis** | 8082 | 9082 |
+| **Stateless consumer** (ingestion) | none | 9083 |
+| **Stateful consumer** (graph) | none | 9084 |
+| **Cleanup** | none | 9085 |
+
+The API, console and analysis serve their metrics on a **second port next to the application
+port**, so the load balancer in front of them never reaches the endpoint. The three consumer and
+housekeeping services listen on nothing else.
+
+Every instance of a service is scraped individually, so a scrape job lists each host.
+
+```yaml
+scrape_configs:
+  - job_name: datahub
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["app-1.internal:9081", "app-2.internal:9081"]
+        labels: { service: api }
+      - targets: ["app-1.internal:9080", "app-2.internal:9080"]
+        labels: { service: console }
+      - targets: ["app-3.internal:9083"]
+        labels: { service: ingestion }
+```
+
+In the evaluation stack from [Installing](/administration/installing) the same ports are
+published on the host, so once metrics are enabled `curl http://localhost:9081/actuator/prometheus`
+shows the API's metrics.
+
+## Turning them on
+
+Metrics are off until you ask for them. Per service, in that service's configuration file:
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+```
+
+Leave it out and the endpoint answers `404`, which is what a fresh installation does.
+
+## Securing the endpoint
+
+The endpoint has no login, so anything that can reach the port can read it. It holds no customer
+data, and never a record, a name or anything a dataset contains. It does show how the platform is
+used: how many requests of each kind arrive, how many fail, which operations exist and how the
+servers are sized. That is worth protecting, both because it is commercially informative and
+because it helps someone planning an attack.
+
+Two controls, best combined:
+
+| Control | What it gives you |
+| --- | --- |
+| Restrict the port to the Prometheus host | Keeps ordinary traffic away from it |
+| Require a **client certificate** (mutual TLS) | Only a Prometheus holding a certificate you issued can read it, whatever else reaches the port |
+
+<span className="hl">Prefer the certificate over the firewall rule alone.</span> A firewall rule
+is one change away from being wrong, and a new host, a move between hosting environments or a
+mistyped address can expose the port without anyone noticing. A certificate requirement fails
+closed instead, and it uses the same mechanism as the secret store, so the private certificate
+authority you already run covers this too.
+
+The certificates and their passwords go in the same secret store entry that already holds the
+identity provider's address, rather than in a file on each application host. A password sitting in
+a configuration file on every server is most of the way to no password at all.
+
+| Setting | What it is |
+| --- | --- |
+| `metrics.keystore` | the server's own certificate and key |
+| `metrics.keystore-password` | its password |
+| `metrics.truststore` | the authority that signed the collector's certificate |
+| `metrics.truststore-password` | its password |
+| `metrics.client-auth` | optional; certificates are required unless you say otherwise |
+
+Each service reads those when it starts. Leave `metrics.keystore` unset and the port stays plain
+HTTP, which is what an installation that has not set this up gets. Prometheus then scrapes with
+`scheme: https` and a `tls_config` naming its client certificate and the same authority.
+
+Metrics never carry an organisation identifier. That is deliberate: were a figure broken down per
+organisation, this endpoint would publish your customer list and each customer's usage.
+Per-organisation figures stay behind the authenticated API.
+
+## What to watch
+
+| Question | Metric |
+| --- | --- |
+| Is the heap filling up? | `jvm_memory_used_bytes{area="heap"}`, and `jvm_memory_usage_after_gc` for the trend that matters |
+| Are garbage collections hurting latency? | `jvm_gc_pause_seconds` (count, sum and max) |
+| Is a service saturating? | `process_cpu_usage`, `tomcat_threads_busy_threads`, `tomcat_connections_current_connections` |
+| How fast is the API, per endpoint? | `http_server_requests_seconds` by `uri`, `method` and `status` |
+| Are requests failing? | `http_server_requests_seconds_count{status=~"5.."}` |
+| Are logins or tokens being rejected? | `spring_security_authentications_seconds` by `authentication.result` |
+| Did a service restart? | `process_start_time_seconds` |
+
+The heap of every service is **fixed at start**, so memory use as seen by the operating
+system tells you nothing: a service at 5 % heap and one about to run out look identical
+from outside.
+The JVM metrics are the only place the difference shows.
+
+## What is not there
+
+- **No health endpoint.** The load balancer's own checks cover upstream health; a health
+  page that probed the databases would need a tenant to probe them as, and there is none
+  outside a request.
+- **No business metrics.** Ingestion rates, queue depth and per-tenant counts are not
+  exported today; what is there is the service-level view.
+- **No tracing.** Request traces across services are not emitted.
+
+<References>
+- [Prometheus](https://prometheus.io/docs/introduction/overview/): the scrape model the endpoint follows
+- [Micrometer](https://micrometer.io/): the instrumentation library the services use
+</References>
+
+<Deeper>
+- [Installing](/administration/installing): where the evaluation stack publishes these ports
+- [Architecture, without the jargon](/administration/architecture): what each service does
+- [Data lifecycle](/administration/data-lifecycle): storage growth, the cost that metrics do not show
+</Deeper>
