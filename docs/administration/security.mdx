@@ -137,6 +137,14 @@ it at startup and load only what they need.
 The tenant registry is in the secret store for a structural reason as well as a security
 one: it decides *which database to connect to*, so it cannot live in one of those databases.
 
+The secret store can be made to require a **client certificate** from every service that
+connects (mutual TLS), so a leaked login credential is not enough on its own. Each service
+then needs a keystore holding its certificate and key, and, where the store's own
+certificate comes from a private CA, a truststore holding that CA. Both are given with the
+same `vault.*` settings as the store's address and login, from a configuration file or the
+`VAULT_KEYSTORE` and `VAULT_TRUSTSTORE` environment variables, and the same stores cover the
+periodic tenant-registry refresh as well as startup.
+
 ## Auditability of the platform itself
 
 The source code is public, under the GNU AGPL-3.0. That changes what a security review can
