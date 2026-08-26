@@ -92,19 +92,21 @@ mistyped address can expose the port without anyone noticing. A certificate requ
 closed instead, and it uses the same mechanism as the secret store, so the private certificate
 authority you already run covers this too.
 
-```yaml
-management:
-  server:
-    ssl:
-      enabled: true
-      client-auth: need
-      key-store: /etc/datahub/metrics-server.p12
-      trust-store: /etc/datahub/metrics-ca.p12
-```
+The certificates and their passwords go in the same secret store entry that already holds the
+identity provider's address, rather than in a file on each application host. A password sitting in
+a configuration file on every server is most of the way to no password at all.
 
-For the three services without an application port, the same settings live under `server.ssl`
-rather than `management.server.ssl`. Prometheus then scrapes with `scheme: https` and a
-`tls_config` naming its client certificate and the same authority.
+| Setting | What it is |
+| --- | --- |
+| `metrics.keystore` | the server's own certificate and key |
+| `metrics.keystore-password` | its password |
+| `metrics.truststore` | the authority that signed the collector's certificate |
+| `metrics.truststore-password` | its password |
+| `metrics.client-auth` | optional; certificates are required unless you say otherwise |
+
+Each service reads those when it starts. Leave `metrics.keystore` unset and the port stays plain
+HTTP, which is what an installation that has not set this up gets. Prometheus then scrapes with
+`scheme: https` and a `tls_config` naming its client certificate and the same authority.
 
 Metrics never carry an organisation identifier. That is deliberate: were a figure broken down per
 organisation, this endpoint would publish your customer list and each customer's usage.
