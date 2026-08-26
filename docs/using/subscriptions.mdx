@@ -55,13 +55,19 @@ missed minute during a reconnect is harmless. A downstream system mirroring data
 agent acting on it, needs the durable kind, where a dropped connection is an inconvenience
 rather than a gap in the record.
 
-Two properties of durable subscriptions are worth knowing even if you never build one:
+Three properties of durable subscriptions are worth knowing even if you never build one:
 
 - **Reconnects resume anywhere.** Your position is **held by the platform, not by the
   server** you happened to be talking to, so a reconnect lands on any instance and carries on. No
   data loss, no special infrastructure.
 - **Filtering happens platform-side.** You subscribe to the series you care about, and only
   those are delivered. A subscriber is not flooded with everything and left to discard.
+- **Connections are capped, and several subscriptions share one.** A tenant may hold a
+  limited number of open connections, with several subscriptions multiplexed onto each, so a
+  well-built integration needs very few. Opening one connection too many is refused and
+  closed; adding one subscription too many to a connection refuses just that subscription and
+  leaves the connection running. The connection cap can be raised for a single tenant.
+  [Limits and quotas →](/administration/limits-and-quotas)
 
 ## What millisecond delivery opens up
 
@@ -254,5 +260,6 @@ the platform runs rather than a process you keep alive, without changing what it
 - [Building AI agents](/using/ai-agents): waking an agent on a reading rather than a timer
 - [Digital twins](/concepts/digital-twin): the live connection that separates a twin from a picture
 - [Users and access](/administration/users-and-access#service-accounts): credentials for a subscribing system
+- [Limits and quotas](/administration/limits-and-quotas): how many live connections a tenant may hold
 - [Architecture](/administration/architecture#load-balancing): why reconnects resume on any instance
 </Deeper>

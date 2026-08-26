@@ -62,7 +62,7 @@ reasons matter when explaining the platform to a security review.
 | **Hard isolation** | Each tenant database *can* have its own credentials, so cross-tenant access requires a credential compromise rather than an application bug. See the caveat below: the reference stack does not configure it this way. |
 | **Consistency across stores** | The measurement store and the graph database do not have a schema concept the way a relational database does. Their natural isolation unit is the database, so using databases everywhere gives all four stores the same boundary. |
 | **Placement flexibility** | Each tenant carries its own connection details, so a heavy tenant can be moved to dedicated hardware by changing configuration, no application change, no re-architecture. |
-| **Per-tenant resource limits** | With a connection pooler, each tenant gets its own pool with its own cap. One tenant's load cannot starve another's connections. |
+| **Per-tenant resource limits** | With a connection pooler, each tenant gets its own pool with its own cap, so one tenant's load cannot starve another's connections. On top of that the platform charges request rate, daily ingest and live connections to the tenant, with a per-tenant override for each. [→](/administration/limits-and-quotas) |
 | **Clean lifecycle** | Offboarding a tenant is dropping its databases, the most airtight cleanup available. Backup and restore are per-tenant by construction. |
 
 The honest trade-offs: migrations run once per tenant database, provisioning a tenant means

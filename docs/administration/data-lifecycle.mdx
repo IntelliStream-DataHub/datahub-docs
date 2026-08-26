@@ -112,6 +112,21 @@ When storage grows unexpectedly and the cause is not obvious, the usual culprits
 newly connected source ingesting at a much higher rate than expected, or a bulk file upload.
 Checking recent [CDC integrations](/using/cdc-integrations) is a good first step.
 
+## The ceiling above all three
+
+The three levers control what a tenant **keeps**. Separately, every tenant carries a daily
+ingest allowance that bounds what can **arrive** at all: bytes written a day, measurements
+written a day, events and entities created a day. A second set of ceilings bounds how large a
+tenant may grow in total, and those ship switched off, because they have to be reconciled
+with the tenants you already have before it is safe to turn them on. Either kind can be
+raised for a single tenant without a restart.
+[→ Limits and quotas](/administration/limits-and-quotas)
+
+<span className="t-accent">File storage is the gap.</span> There is no per-tenant quota on
+uploaded files, so nothing refuses the upload that fills the disk. Until there is, file
+volume is bounded only by capacity planning, the housekeeping sweeps above, and whatever
+ceiling the storage itself has.
+
 ## Backups
 
 Because every store is database-per-tenant, backup and restore are naturally scoped to one
@@ -196,6 +211,7 @@ Deleting stays a human act, and everything with a grace period is designed so th
 
 <Deeper>
 - [Time series value types](/using/timeseries#value-types): the biggest cost lever
+- [Limits and quotas](/administration/limits-and-quotas): the per-tenant ceiling on what can arrive
 - [Change data capture](/using/cdc-integrations): where ingestion volume comes from
 - [Organisations and tenants](/administration/organizations): the per-tenant boundary backups follow
 - [Lineage and data quality](/concepts/lineage-and-quality): why retention affects auditability

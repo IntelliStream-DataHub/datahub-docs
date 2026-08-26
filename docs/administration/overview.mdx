@@ -66,6 +66,13 @@ proportionate.
 
 [→ Data lifecycle](/administration/data-lifecycle)
 
+Each tenant also carries a budget of its own: how fast it may write, how much it may ingest
+in a day, and how many live connections it may hold, plus optional ceilings on how large it
+may grow in total. The defaults are conservative, and raising one for a single tenant is a
+database update rather than a deployment.
+
+[→ Limits and quotas](/administration/limits-and-quotas)
+
 ### Onboarding new sources
 
 Each new source system means: deciding which data set it lands in, configuring the
@@ -122,6 +129,9 @@ capacity</span>, and restart the UI without interrupting ingestion.
   </Card>
   <Card title="Monitoring" to="/administration/monitoring" icon="📈">
     The Prometheus metrics every service exposes, and which ports to scrape.
+  </Card>
+  <Card title="Limits and quotas" to="/administration/limits-and-quotas" icon="🚦">
+    The per-tenant request, ingest and connection budgets, and how to raise one.
   </Card>
   <Card title="Security and compliance" to="/administration/security" icon="🛡️">
     The posture, the isolation guarantees, and what to tell a risk committee.
