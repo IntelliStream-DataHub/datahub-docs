@@ -104,8 +104,9 @@ The platform's housekeeping service runs scheduled sweeps:
   ships in a report-only mode and must be deliberately enabled before it deletes anything
 - **Removed tenants' folders** are quarantined for 30 days, then purged
 
-That covers the routine accumulation that nobody would otherwise notice, once the
-housekeeping service is actually deployed, it is not part of the reference stack today.
+That covers the routine accumulation that nobody would otherwise notice. The housekeeping
+service now runs in the reference stack, but its deletion jobs stay in report-only mode
+there: watch what they say they would remove, then enable them deliberately.
 [Architecture →](/administration/architecture)
 
 When storage grows unexpectedly and the cause is not obvious, the usual culprits are a
