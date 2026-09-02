@@ -426,6 +426,16 @@ honest constraint), the housekeeping task list (30-day file grace, report-only s
 sweep, 30-day tenant quarantine), and the phantom "lineage endpoint" in the API
 descriptions.
 
+Two of those corrections have since been overtaken by the platform, as of a checkout dated
+2026-09-02. The resource create forms **do** carry a data set picker now (platform PR #316),
+prefilled from the node being cloned or connected from, so "assigned through the API rather
+than this form" must not come back. And the Streams area holds only the change-data-capture
+screens: the namespace and topic management it used to describe was removed outright (PR
+#293), so do not describe topics, namespaces or a streams rework as pending. The console also
+gained an **About DataHub** entry in the user menu (PR #371) in place of the old footer, and
+**Export graph** / **Import graph** on a root resource's right-click menu (PR #344), both
+documented on their pages.
+
 **Residual, cosmetic only:** concept pages still use camelCase relationship names
 (`partOf`, `contributesTo`) in illustrative examples. Conceptually fine, and the RDF example
 is legitimately camelCase, but a sweep to spaced names would match what the platform stores.
