@@ -30,13 +30,12 @@ open to the Prometheus host.
 | **API** | 8081 | 9081 |
 | **Console** | 8080 | 9080 |
 | **Analysis** | 8082 | 9082 |
-| **Stateless consumer** (ingestion) | none | 9083 |
-| **Stateful consumer** (graph) | none | 9084 |
+| **Ingest consumer** | none | 9083 |
 | **Cleanup** | none | 9085 |
 
 The API, console and analysis serve their metrics on a **second port next to the application
-port**, so the load balancer in front of them never reaches the endpoint. The three consumer and
-housekeeping services listen on nothing else.
+port**, so the load balancer in front of them never reaches the endpoint. The ingest consumer
+and the housekeeping service listen on nothing else.
 
 Every instance of a service is scraped individually, so a scrape job lists each host.
 

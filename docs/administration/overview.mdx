@@ -42,10 +42,9 @@ set boundaries, and external id conventions. Everything else can be changed late
 
 ### Keeping it available
 
-DataHub runs as four services, all of which run as multiple instances behind a load balancer.
-Three of them scale by simply adding instances; one is deliberately single-active with a
-standby. The backing stores are standard, well-understood systems your infrastructure team
-likely already runs.
+DataHub runs as three services, all of which run as multiple instances behind a load
+balancer and scale by simply adding instances. The backing stores are standard,
+well-understood systems your infrastructure team likely already runs.
 
 [Architecture, without the jargon →](/administration/architecture)
 
@@ -97,11 +96,10 @@ Worth knowing, because these are often assumed:
 
 ## Sizing and scaling, in one paragraph
 
-Each of the four services scales differently and independently. The API scales with user and
-integration traffic. The consumer that lands datapoints and events scales with ingest
-volume. The console is a thin UI layer. The consumer that applies changes to the graph is
-order-sensitive and runs one-active-plus-standby rather than scaling out, which is fine,
-because graph changes are low volume compared with measurement ingest.
+Each of the three services scales differently and independently. The API scales with user
+and integration traffic, and keeping the knowledge graph in step with the model is part of
+its job, so no service needs to run single-instance for the graph. The consumer that
+lands datapoints and events scales with ingest volume. The console is a thin UI layer.
 
 The practical consequence: <span className="t-brand">you can scale ingestion without adding API
 capacity</span>, and restart the UI without interrupting ingestion.

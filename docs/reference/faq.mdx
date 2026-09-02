@@ -202,7 +202,7 @@ cost is near zero. [→ The objection worth taking seriously](/start/the-data-pr
 
 ### What do we actually need to run?
 
-Four core services, the API, the console and two consumers, plus the backing stores: a
+Three core services, the API, the console and the ingest consumer, plus the backing stores: a
 relational database, a streaming platform, a columnar store, a graph database, two
 key-value stores, a secret store and an OAuth2/OIDC identity provider. Alongside those run
 the analysis service behind the Analyze tab, a scheduled housekeeping service, and a broker
@@ -212,16 +212,16 @@ plugin that supports live data delivery.
 ### Why is the platform split into several services?
 
 Each has a different scaling profile and failure mode. The API is request/response and scales
-with user traffic; the consumers are throughput-bound and scale with ingest volume; the
+with user traffic; the ingest consumer is throughput-bound and scales with ingest volume; the
 console is a thin UI layer. Splitting them means you can scale ingest without adding API
 instances, and restart the UI without dropping ingestion.
 
-### Why are there two consumers?
+### How does the knowledge graph stay in step with the model?
 
-Different jobs with different consistency needs. One lands high-volume immutable data
-(measurements and events) in batches and scales horizontally. The other applies changes to
-the knowledge graph, which is order-sensitive, so it runs one-active-plus-standby rather than
-fanning out.
+The API keeps it in step itself: a model change is queued in the same transaction that saves
+it, applied to the graph moments after it commits, and retried until it lands, so a change
+cannot be silently lost. Any API instance can do this, so nothing runs single-instance for
+the graph. The mirror is eventually consistent, normally within milliseconds.
 
 ### Why both a relational database and a graph database?
 

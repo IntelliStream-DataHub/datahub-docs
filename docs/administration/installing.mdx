@@ -14,7 +14,7 @@ description: Standing up a DataHub evaluation stack, what it contains, and what 
 <KeyIdea>
 An evaluation stack is one command from a source checkout. The services are compiled inside
 the containers, so a container runtime is the only thing you install, no Java and no build
-tools. It brings up the four DataHub services plus every backing store, seeded with demo
+tools. It brings up the three DataHub services plus every backing store, seeded with demo
 tenants.
 
 <span className="t-accent">That stack is not production.</span> It runs without TLS, with
@@ -100,14 +100,13 @@ loops or errors, the issuer address is the first thing to check.
 
 ## What the stack contains
 
-Four DataHub services:
+Three DataHub services:
 
 | Service | Role |
 | --- | --- |
 | **API** | The REST interface and the platform's core. Owns the model and the ingestion endpoints |
 | **Console** | The web interface people use |
 | **Datapoint and event consumer** | Lands measurements and events, and fans live data out to [subscribers](/using/subscriptions) |
-| **Graph consumer** | Applies model changes to the knowledge graph |
 
 Plus the backing stores, a relational database, a streaming platform, a columnar store for
 measurements, a graph database, two key-value stores, a secret store and an identity

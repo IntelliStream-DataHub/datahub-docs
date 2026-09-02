@@ -13,7 +13,7 @@ description: What the moving parts of DataHub are, what each one does, and why t
 </Personas>
 
 <KeyIdea>
-DataHub is **four core services**, plus an analysis service behind the Analyze tab and a
+DataHub is **three core services**, plus an analysis service behind the Analyze tab and a
 scheduled housekeeping service, on a set of standard backing stores.
 
 Each service has a different job and a different scaling profile, which is exactly why they
@@ -32,7 +32,6 @@ graph LR
     Console["Console<br/>web interface"]
     API["API<br/>the platform core"]
     ConsumerSL["Ingest consumer<br/>measurements and events"]
-    ConsumerSF["Graph consumer<br/>model changes"]
 
     Cache[("Session and cache store")]
     PG[("Relational database")]
@@ -57,11 +56,9 @@ graph LR
     API --> Stream
     API -. secrets .-> Vault
     Stream --> ConsumerSL
-    Stream --> ConsumerSF
     ConsumerSL --> CH
     ConsumerSL --> PG
-    ConsumerSF --> Neo
-    ConsumerSF --> KV
+    ConsumerSL --> KV
     IdP -. sign-in .-> Console
     IdP -. sign-in .-> API
 ```
@@ -73,6 +70,14 @@ graph LR
 The REST interface. Everything that reads or writes data goes through it, whether from the
 console, from an integration, or from a script. It owns the model and the ingestion
 endpoints, and it is where access decisions are made.
+
+It also keeps the **knowledge graph** in step with the model. A model change is queued in
+the relational database in the same transaction as the change itself, applied to the graph
+moments after it commits, and retried until it lands, so a restart or a graph database
+outage delays the mirror rather than losing a change. Any API instance can do this work,
+so nothing needs to run single-instance for the graph. The mirror is eventually
+consistent: normally within milliseconds, so a read straight after a write can briefly
+predate it.
 
 **Scales with:** user and integration traffic.
 **Stateless:** yes, entirely, including its live-streaming connections.
@@ -88,20 +93,11 @@ identity provider, holding sign-in tokens server-side rather than in the browser
 ### Ingest consumer, measurements and events
 
 Reads incoming measurements and events off the streaming platform, writes them into the
-columnar store in efficient batches, and fans live data out to
-[whoever is subscribed](/using/subscriptions).
+columnar store in efficient batches, keeps the event key mappings current, and fans live
+data out to [whoever is subscribed](/using/subscriptions).
 
 **Scales with:** ingest volume. Add instances and the streaming platform distributes the work
 between them automatically.
-
-### Graph consumer, model changes
-
-Applies changes to the knowledge graph as resources are created, updated and deleted.
-
-Graph changes are **order-sensitive**, applying them out of sequence produces a wrong
-graph, so this one **deliberately does *not* scale out**. It runs one active instance with a standby
-that takes over if the active one fails. That is fine in practice, because model changes are
-low volume compared with measurement ingestion.
 
 ### Analysis, relationship analysis
 
@@ -135,7 +131,7 @@ Three concrete benefits, all of them operational:
 - **Permissions stay in one place.** Even the analysis service holds no data: it fetches
   through the API with the caller's own token, so there is no second access-control system
   to keep aligned.
-- **No web server where one is not needed.** The two consumers have no HTTP interface at
+- **No web server where one is not needed.** The ingest consumer has no HTTP interface at
   all, which reduces both resource use and attack surface.
 
 ## The backing stores
@@ -156,8 +152,8 @@ infrastructure team can likely already operate.
 :::tip Why both a relational database and a graph database?
 The relational database remains the system of record for entities. The graph database serves
 relationship traversal. Expressing multi-hop traversals in SQL gets painful quickly; in a
-graph query language it is natural. They hold the same model from two angles, and the graph
-is kept up to date by the graph consumer.
+graph query language it is natural. They hold the same model from two angles, and the API keeps
+the graph up to date itself, moments after each model change commits.
 :::
 
 ## Load balancing
@@ -197,9 +193,6 @@ For a small production installation:
   </Step>
   <Step title="Two or more ingest consumers">
     Sized to ingest volume. This is the one you add instances to as data grows.
-  </Step>
-  <Step title="Two graph consumers, one active">
-    One active plus a standby. Not for throughput, for failover.
   </Step>
   <Step title="The backing stores, sized and backed up per your standards">
     These are ordinary systems and your existing operational practices apply.
