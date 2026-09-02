@@ -51,7 +51,7 @@ historian's tag list, or an engineering handover package.
 **Typical classes:** `Site`, `Area`, `Line`, `Pump`, `Vessel`, `Valve`, `Motor`,
 `Transformer`, `PressureTransmitter`, `Server`, `Switch`
 
-**Typical relationships:** `partOf`, `contains`, `feeds`, `powers`, `monitors`, `connectedTo`
+**Typical relationships:** *part of*, *contains*, *feeds*, *powers*, *monitors*, *connected to*
 
 :::tip This layer is mostly imported, not typed
 If a source system already holds a decent equipment register, import it rather than
@@ -85,7 +85,7 @@ and the wiring itself can be modelled today.
 **Typical classes:** `Process`, `Separation`, `Cooling`, `Service`, `Calculation`,
 `Aggregation`
 
-**Typical relationships:** `performedBy`, `serves`, `feeds`, `derivedFrom`, `produces`
+**Typical relationships:** *performed by*, *serves*, *feeds*, *derived from*, *produces*
 
 ## Layer 3 · Business and operational knowledge, what matters
 
@@ -104,8 +104,8 @@ emissions obligation that this excursion may affect.
 `Mitigation`, `Procedure`, `BusinessUnit`,
 `Contract`, `MaintenanceStrategy`
 
-**Typical relationships:** `contributesTo`, `governedBy`, `reportedUnder`, `ownedBy`,
-`accountableFor`
+**Typical relationships:** *contributes to*, *governed by*, *reported under*, *owned by*,
+*accountable for*
 
 This layer is also where two whole disciplines attach. **Ownership and accountability**
 live here as relationships, which is what makes

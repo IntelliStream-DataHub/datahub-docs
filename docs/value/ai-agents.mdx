@@ -53,7 +53,7 @@ is an open-ended task with no fixed number of steps, and the agent decides how m
 
 An agent has four things a model does not:
 
-- **A goal it keeps working toward**, usually with sub-goals inside it, rather than a single
+- **A goal it keeps working towards**, usually with sub-goals inside it, rather than a single
   question it answers once. It is given the outcome, not the procedure.
 - **Tools it can use**, query the graph, read time series, search events and documents,
   run an analysis, draft a work order, call an external system, plus the judgement about
@@ -227,39 +227,28 @@ unverifiable answer is not a cheap answer; it is a liability.
 
 ## How an agent actually connects
 
-Everything above describes why a model makes an agent better. This is the plumbing that lets
-one reach it.
+Everything above describes why a model makes an agent better. The plumbing that lets one
+reach it is short, and deliberately so.
 
-DataHub serves agents through the [Model Context Protocol](https://modelcontextprotocol.io/),
-the open standard for connecting AI assistants to tools. Three parts of the platform take
-part:
-
-| Part | What it offers an agent |
-| --- | --- |
-| **The API's MCP server** | **37 tools** covering data sets, equipment and other resources, the relationships between them, time series, events, labels and units. An agent can search the model, walk outward from a piece of equipment to its neighbourhood, find the nearest resources of a given kind, pull history between two timestamps, and write back: record an event, append a reading, create a resource |
-| **The analysis service's MCP server** | The [relationship analysis](/using/relationship-analysis) behind the console's Analyze tab, as a single tool: given one time series and a time window, it finds related series through the graph and reports how strongly they move together, which one leads, and whether the link is dependable |
-| **The console assistant** | An agent itself, and a read-only client of the API's server. It answers from your tenant's data and can offer a button that opens the console screen it just looked something up on |
-
-Both servers are part of the standard deployment. The assistant appears only where the
-deployment enables it, the tenant has the feature, and the user holds the chat role.
-[How that is controlled →](/administration/security#ai-agents-and-the-console-assistant)
+Agents connect through the [Model Context Protocol](https://modelcontextprotocol.io/), the
+open standard for connecting AI assistants to tools, which DataHub serves in two places. The
+API offers the model itself: equipment and other resources, the relationships between them,
+time series, events, labels and units, for reading and for writing back. The analysis
+service offers the [relationship analysis](/using/relationship-analysis) behind the console's
+Analyze tab as a tool of its own, so an agent asked *"what is driving this?"* answers from
+statistics rather than estimating. The console's assistant is itself an agent of this kind,
+a read-only one. Both are part of the standard deployment.
 
 The part worth understanding, even if you never look at the code:
-
-- **There is no separate door for agents.** Each service publishes its tools at its own
-  `/mcp` address, on the same security chain as everything else it serves. Same token,
-  same checks, same tenant isolation.
-- **An agent inherits the permissions of whoever it acts for.** It is not a service account
-  with blanket access. If it should read but not write,
-  <span className="t-brand">issue it a token that can read but not write</span>. There is no
-  second permission model to keep aligned with the first.
-- **Answers are shaped for a reader with finite attention.** List and search results are
-  trimmed projections rather than whole records, so the agent spends its context on the few
-  things that matter instead of the audit fields of everything it looked at.
+<span className="t-brand">agents come in through the same door as everyone else</span>. An
+agent holds a token like any user or integration, sees exactly what that token may see, and
+can change exactly what that token may change. There is no separate permission model for
+agents, and an agent that should only read is given a token that cannot write.
+[How that is controlled →](/administration/security#ai-agents-and-the-console-assistant)
 
 How to point an assistant at it, and what the tools are for, is on
-[using MCP](/using/mcp). The endpoint, the authentication model and the full tool list are
-in the <a href="/sdk-documentation/mcp-server">developer documentation</a>.
+[using MCP](/using/mcp). The full tool list is in the
+<a href="/sdk-documentation/mcp-server">developer documentation</a>.
 
 :::caution The approval step is yours to build
 An MCP server executes what it is asked. It has no way to stop mid-call and ask a person to
@@ -338,8 +327,8 @@ equipment, and any setpoint can be traced to the reasoning that produced it.
 
 A **reporting agent** compiles a verified figure into the regulator's format, ready to file,
 and once [lineage](/concepts/lineage-and-quality) ships, with the ancestry intact, so the
-submission carries its own evidence. An **event engine** turns the operational record into the balance sheet auditors
-and the finance team work from.
+submission carries its own evidence. A second agent turns the operational record into the
+figures finance and the auditors work from.
 
 This is a natural first agent use case for organisations whose pain is reporting rather than
 operations. The work is well defined, repeats on a cycle, and the accuracy is verifiable
@@ -427,7 +416,7 @@ incentive definitions, keep them few, and audit what behaviour they actually pro
 Everything above describes software reasoning about information. The same shift is now
 arriving in hardware: [humanoid robots](https://en.wikipedia.org/wiki/Humanoid_robot) and
 [androids](https://en.wikipedia.org/wiki/Android_(robot)) are moving from demonstrations
-toward deployment, inspection robots and drones already walk and fly industrial sites, and
+towards deployment, inspection robots and drones already walk and fly industrial sites, and
 offshore, [normally unmanned installations](https://en.wikipedia.org/wiki/Normally_unmanned_installation)
 operate today with no permanent crew. The direction for oil and gas is platforms
 <span className="t-brand">designed from the first drawing to run unmanned</span>, visited a

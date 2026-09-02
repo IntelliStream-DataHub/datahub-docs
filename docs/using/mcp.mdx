@@ -57,7 +57,7 @@ The vocabulary, so the rest of this page reads cleanly:
 | **Client** | The thing the person talks to: a desktop assistant, a coding tool, the console's own assistant, or an agent you wrote |
 | **Server** | The system exposing capabilities. DataHub is one; your maintenance system might be another |
 | **Tool** | One named capability, such as `event_filter`, with typed arguments and a description the model reads |
-| **Transport** | How they talk. DataHub's servers speak ordinary HTTP, with your normal token in the `Authorization` header |
+| **Transport** | How they talk. With DataHub it is an ordinary web connection, carrying your normal sign-in token |
 
 ## Why it matters now
 
@@ -90,8 +90,9 @@ decides how much you get from AI.
 
 ## What DataHub exposes
 
-Two servers, each at a `/mcp` address on the service that owns it. Every tool is named
-`<domain>_<action>`, so the listing reads the same to you and to the model.
+DataHub runs two MCP servers, one on the API and one on the analysis service. Each tool is
+named after the thing it acts on and what it does to it, so the list reads the same to you
+and to the model.
 
 The **API server** publishes 37 tools in seven families:
 
@@ -145,14 +146,13 @@ This is the part worth reading even if somebody else will do the connecting.
   <McpCallPath />
 </Figure>
 
-- **There is no separate door and no agent key.** Every MCP request carries an ordinary
-  OAuth2 token from your identity provider. Each endpoint sits on the same security chain
-  as everything else its service serves.
+- **There is no separate door and no agent key.** Every request from an assistant carries
+  the same sign-in token as everything else and passes the same checks, on both servers.
 - **An agent inherits the permissions of whoever it acts for.** If it should read but not
   write, <span className="t-brand">issue it a token that can read but not write</span>. There
   is no second permission model to keep aligned with the first.
-- **Tenant comes from the token's organization claim**, so an assistant cannot reach another
-  tenant's data even by asking for an id it happens to know.
+- **Which tenant an assistant sees is fixed by the organisation recorded in its token**, so
+  it cannot reach another tenant's data even by asking for an id it happens to know.
   [Organizations →](/administration/organizations)
 - **Scoping an assistant is scoping a service account.** Create one in your identity
   provider, grant its groups read on the data sets it should see, and it can see nothing
@@ -180,28 +180,12 @@ also the strongest: an assistant with no business writing gets a token that cann
     within about a minute. [Data set permissions →](/administration/dataset-permissions)
   </Step>
   <Step title="Point the client at the servers">
-    Any MCP client that speaks HTTP and can attach a bearer token will work. The two
-    servers are two entries, with the same token in both:
-
-```json
-{
-  "mcpServers": {
-    "datahub": {
-      "type": "http",
-      "url": "https://your-datahub-host/mcp",
-      "headers": { "Authorization": "Bearer ${DATAHUB_TOKEN}" }
-    },
-    "datahub-analysis": {
-      "type": "http",
-      "url": "https://your-analysis-host/mcp",
-      "headers": { "Authorization": "Bearer ${DATAHUB_TOKEN}" }
-    }
-  }
-}
-```
-
-  Tokens are short-lived. For anything long-running, refresh through your identity provider
-  and update the header rather than pinning a token into a file.
+    Any MCP-capable assistant that can send your token will work. It needs the two server
+    addresses and the token, entered once in its own settings; the exact form depends on the
+    client, and the developer documentation shows it. Tokens are short-lived, so anything
+    that runs unattended should be set up to renew its token automatically rather than have
+    one pasted into a file once.
+    <a href="/sdk-documentation/mcp-server">The connection details, in the developer documentation →</a>
   </Step>
   <Step title="Ask something that needs the model">
     Not *"what is the pressure on P-101"*, which any historian could answer. Ask *"what feeds
@@ -222,11 +206,10 @@ to see what an AI assistant can do with your data before anybody wires anything 
 
 It is deliberately stricter than a general client:
 
-- **Read-only, by an allowlist.** It is offered a named subset of the read-only tools and
-  nothing else. The filter is default-deny: anything not on the list, including a tool
-  added to the API later, is treated as mutating and never offered. A mutating call is
-  refused again at the point of execution, so the property holds even if the model asks for
-  one.
+- **Read-only, from a fixed list.** It is offered a named set of read-only tools and nothing
+  else. Anything not on that list, including a tool added to the platform later, is
+  withheld, and a request for one is refused again at the moment it would run, so the
+  property holds even if the model asks.
 - **It answers about your tenant, not about the world.** Asked *"anything unusual this
   weekend?"*, it reads events and datapoints in your own data rather than answering from
   general knowledge, and it says so plainly when the tools return nothing.

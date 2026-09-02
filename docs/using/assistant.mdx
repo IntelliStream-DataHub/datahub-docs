@@ -1,7 +1,7 @@
 ---
 sidebar_position: 14
 title: The assistant
-description: An optional chat panel in the console that answers questions about your own data, reads but never changes it, and runs on a model you choose.
+description: An optional chat panel in the console that answers questions about your own data, reads but never changes it, and runs on a model your administrator chooses.
 ---
 
 # The assistant
@@ -9,16 +9,15 @@ description: An optional chat panel in the console that answers questions about 
 <Personas>
   <Persona primary>Engineers</Persona>
   <Persona primary>Operations</Persona>
-  <Persona>Administrators</Persona>
 </Personas>
 
 <KeyIdea>
 An optional **Ask AI** panel in the console. Ask a question in plain language and it looks
-the answer up in your own datasets, time series and events, then offers to open what it
+the answer up in your own data sets, time series and events, then offers to open what it
 found in the console.
 
 It is **read only by design**: the tools that change anything are never offered to it. It
-also acts as *you*, so it can only see the datasets you can see.
+also acts as *you*, so it can only see the data sets you can see.
 
 It is off until an administrator turns it on, and it needs a model, which costs money.
 </KeyIdea>
@@ -27,10 +26,10 @@ It is off until an administrator turns it on, and it needs a model, which costs 
 
 It is a way to ask a question without first knowing where the answer lives.
 
-- **Finding things.** "Which datasets mention the compressor?" is faster to type than it is
+- **Finding things.** "Which data sets mention the compressor?" is faster to type than it is
   to browse for, especially in a large model.
 - **Counting and grouping.** "How many alarms yesterday, by type?" It can group events by
-  type, source, dataset or day, then drill into whichever bucket matters.
+  type, source, data set or day, then drill into whichever bucket matters.
 - **Following a thread.** It can walk the [knowledge graph](/concepts/knowledge-graph)
   outward from an asset to the time series that measure it, which is the question that
   usually starts an investigation.
@@ -45,7 +44,7 @@ is enforced twice. Only read-only tools are offered to the model, so it cannot p
 change, and any request for a tool outside that list is refused before it runs.
 
 It also inherits your permissions rather than holding its own. Every lookup is made as the
-signed-in user, so [dataset permissions](/administration/dataset-permissions) apply exactly
+signed-in user, so [data set permissions](/administration/dataset-permissions) apply exactly
 as they do everywhere else. Two people asking the same question can get different answers,
 and that is correct.
 
@@ -77,81 +76,17 @@ long answer may be cut short instead. That is deliberate: a truncated answer is 
 unexpected invoice is not.
 </KeyIdea>
 
-## Turning it on
+## If you cannot see it
 
-Three separate things must all be true before anyone sees the panel, and they are deliberately
-separate: one is a deployment decision, one is per customer, one is per person.
-
-<Steps>
-  <Step title="Enable it in the deployment">
-    `datahub.chat.enabled` must be true for the console. Off by default, so an installation
-    that has not chosen a model behaves exactly as before.
-  </Step>
-  <Step title="Enable it for the organization">
-    The organization's entry in the tenant registry needs `tenant-config.chat` set to true.
-    An organization without it has no assistant even where the deployment does.
-  </Step>
-  <Step title="Grant the role">
-    A user needs the `DATAHUB_CHAT` role in [Keycloak](/administration/identity-providers).
-    Without it the panel is hidden, and the endpoints refuse the request even if called
-    directly.
-  </Step>
-</Steps>
-
-Hiding the panel is not the security boundary. The check runs again on every request, so a
-user without the role gains nothing by going around the interface.
-
-## Choosing a model
-
-The assistant talks to one of two kinds of model, set per deployment.
-
-- **A hosted model**, currently [Anthropic](https://www.anthropic.com/). You supply an API
-  key and usage is billed to whoever owns it.
-- **A model you run yourself**, through any server that speaks the OpenAI chat completions
-  interface, including [Ollama](https://ollama.com/) and vLLM. Nothing leaves your network.
-
-Both work. The trade is the familiar one: a hosted model is stronger and needs no hardware, a
-self-hosted one keeps the data in your building and costs whatever the hardware costs.
-
-<KeyIdea title="If you self-host, read this">
-The assistant works by calling tools, so the model must support tool calling. Many small
-models do not, and one that does not will appear to answer while never looking anything up.
-
-Models that reason at length before answering need care too. The assistant reads only the
-final answer, so time spent reasoning is time and tokens spent for nothing. Turn that off if
-the server allows it, or expect slow and sometimes empty replies.
-</KeyIdea>
-
-### Settings
-
-All of these live beside the credentials in the deployment's secret store, as `llm.*` fields,
-so a change does not need a redeploy.
-
-| Setting | What it controls |
-| --- | --- |
-| `llm.provider` | `anthropic`, or `openai-compatible` for anything you host |
-| `llm.api-key` | The key. Required for a hosted model, usually not for your own |
-| `llm.model` | Which model to use, spelled exactly as the provider spells it |
-| `llm.base-url` | Where your own server listens. Required when you host it |
-| `llm.effort` | Which setting the Effort control starts on |
-| `llm.max-output-tokens` | A ceiling on one answer. Set it and no effort setting can exceed it |
-| `llm.turn-timeout` | How long one question may take before the panel gives up |
-| `llm.reasoning-effort` | Only for a self-hosted server, including how to tell one not to reason |
-| `llm.instructions` | Standing context: your vocabulary, your conventions, what your people care about |
-
-`llm.instructions` is the one worth spending time on. It is added to the assistant's existing
-instructions rather than replacing them, so the read-only rule cannot be configured away, and
-it is where you teach it that a tag beginning `21PT` is a pressure transmitter.
-
-<KeyIdea title="Budgets are worth setting deliberately">
-`llm.max-output-tokens` and `llm.turn-timeout` are the two that matter most, and they pull in
-opposite directions. A hosted model wants a modest ceiling and seconds of patience. A model
-running on your own hardware may need minutes per question, and the panel will give up on it
-long before it finishes unless the timeout is raised.
-</KeyIdea>
+It is off until an administrator turns it on, and that is three separate decisions: one for
+the deployment, one for your organisation, and one for you personally. If **Ask AI** is not
+in the top bar, ask your administrator which of the three is missing. Which model it runs
+on, hosted or inside your own network, is also their choice.
+[Enabling the assistant →](/administration/assistant)
 
 <Deeper title="Related">
-- [Dataset permissions](/administration/dataset-permissions): what the assistant can and
+- [Enabling the assistant](/administration/assistant): the switches, the model and the settings, for administrators
+- [Data set permissions](/administration/dataset-permissions): what the assistant can and
   cannot see, since it inherits exactly your access
 - [Relationship analysis](/using/relationship-analysis): the statistical companion to asking
   questions, for when the question is which signals move together

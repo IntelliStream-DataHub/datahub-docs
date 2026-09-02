@@ -87,11 +87,10 @@ Four things about that table are easy to read wrong:
   frees room again. Events and measurements accumulate, so <span className="t-accent">deleting
   them does not</span>. Create-and-delete churn cannot reset those two.
 - **Read and write are not simply fetching and posting.** Plenty of operations that only read
-  are submitted as posts, because they carry a filter or a long list of ids in the body. Those
-  are charged to the **read** budget, recognised by the last part of the address: `filter`,
-  `search`, `list`, `byids`, `count`, `check`, `aggregate`, `latest`, `fetch-related` and
-  `fetch-nearest`. Everything else that is not a plain fetch counts as a write, deletions
-  included. So a person browsing the console spends the read allowance, which is the larger of
+  are submitted as posts, because they carry a filter or a long list of ids in the body. Searching,
+  filtering, counting, listing and fetching neighbours are charged to the **read** budget
+  even so; the exact list is in the developer documentation. Everything else that is not a
+  plain fetch counts as a write, deletions included. So a person browsing the console spends the read allowance, which is the larger of
   the two.
 - **Nothing is exempt.** The administrator role, the console's own traffic and the agent
   tools are all charged the same way, and the console spends the signed-in user's budget

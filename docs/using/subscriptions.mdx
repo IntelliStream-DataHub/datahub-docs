@@ -63,7 +63,7 @@ Three properties of durable subscriptions are worth knowing even if you never bu
 - **Filtering happens platform-side.** You subscribe to the series you care about, and only
   those are delivered. A subscriber is not flooded with everything and left to discard.
 - **Connections are capped, and several subscriptions share one.** A tenant may hold a
-  limited number of open connections, with several subscriptions multiplexed onto each, so a
+  limited number of open connections, with several subscriptions sharing each one, so a
   well-built integration needs very few. Opening one connection too many is refused and
   closed; adding one subscription too many to a connection refuses just that subscription and
   leaves the connection running. The connection cap can be raised for a single tenant.
@@ -83,7 +83,7 @@ below one second.
     A perception agent is only as fast as its data. Fed by subscription, it evaluates every
     reading as it lands, which is what makes early-warning agents early.
   </Card>
-  <Card title="Downstream systems without batch ETL" to="/using/cdc-integrations" icon="🔁">
+  <Card title="Downstream systems without nightly exports" to="/using/cdc-integrations" icon="🔁">
     A system that needs your operational data can subscribe to it instead of receiving
     nightly exports, always current, no batch window, no reconciliation morning.
   </Card>
@@ -107,9 +107,9 @@ what moves a model from knowing what exists to knowing what is happening, level 
 "Millisecond latency" means delivery inside the platform: from a datapoint landing to it
 being on the wire to subscribers. Your own network path adds whatever it adds, and a
 subscriber that processes slowly adds more. The claim to design against is <span className="t-accent">no schedule in the way</span>,
-not a specific number on your WAN. Acknowledged redelivery also means a consumer can see
-the same datapoint twice after a reconnect, so build handlers
-[idempotent](https://en.wikipedia.org/wiki/Idempotence).
+not a specific number across your own network. Delivery is also guaranteed rather than
+exactly-once: after a reconnect the same reading can arrive twice, so whatever consumes a
+subscription must cope with seeing a reading it has already handled.
 
 The other side of the deal: a durable subscriber that stops consuming leaves the platform
 holding its undelivered data. Build consumers that keep up, and treat a subscription's
@@ -149,82 +149,59 @@ window** always has the last twenty minutes in view, whatever the clock happens 
 
 ### The design
 
+Four decisions, and they are decisions about the rule rather than about code:
+
 <Steps>
-  <Step title="Subscribe to the series, and nothing else">
-    Filtering happens platform-side, so the consumer receives only what it asked for. The
-    service account needs read access to *every* series bound to the subscription; a series it
-    cannot read is refused explicitly rather than arriving as silence, which is the failure
-    mode worth knowing about when somebody adds a series later.
+  <Step title="Subscribe to that series, and nothing else">
+    Only the readings asked for are delivered. The account the rule runs under needs read
+    access to every series it subscribes to; one it cannot read is refused outright rather
+    than arriving as silence, which is worth knowing when somebody adds a series later.
     [Service accounts →](/administration/users-and-access#service-accounts)
   </Step>
-  <Step title="Keep the last twenty minutes, and evict on the carried timestamp">
-    A short buffer of readings, trimmed against the newest reading's own time rather than the
-    wall clock. That one choice is what makes the rule behave correctly when a reconnect
-    delivers four hours at once.
+  <Step title="Judge the last twenty minutes by the readings' own time">
+    Not by the clock on the wall. That one choice is what keeps the rule right when a
+    reconnect delivers four hours of readings at once.
     [Why arrival time is the wrong clock →](/concepts/stream-processing#when-it-happened-is-not-when-it-turned-up)
   </Step>
-  <Step title="Decide on every delivery, with different thresholds for raising and clearing">
+  <Step title="Raise and clear at different thresholds">
     Raise when the whole window has been above the limit; clear only after ten minutes below
-    it. <span className="t-accent">Raise and clear thresholds must differ</span>, or the rule
-    flaps at the boundary and you have reinvented the nuisance alarm with extra steps.
+    it. <span className="t-accent">The two thresholds must differ</span>, or the rule flaps at
+    the boundary and you have reinvented the nuisance alarm with extra steps.
   </Step>
-  <Step title="Write the answer back as an event, not as a message">
+  <Step title="Write the answer back as an event">
     One [event](/using/events) on the pump, carrying the window it was judged over, how long
     the condition held and the peak value. The next person to open that pump sees the finding
     and its evidence together, and every later question can count these events.
   </Step>
 </Steps>
 
-The whole loop is smaller than the discussion around it:
+The runnable version, for whoever builds it, is in the developer documentation.
+<a href="/sdk-documentation/advanced/sustained-alarm-window">The same example, runnable →</a>
 
-```python
-WINDOW = timedelta(minutes=20)
-recent = deque()                      # (timestamp, value), oldest first
+### What makes it survive contact with reality
 
-with client.subscriptions.listen(["pump_p101_discharge"]) as listener:
-    for msg in listener:
-        # the payload carries the action and the datapoints it affected
-        for ts, value in datapoints(msg.payload):
-            if any(t == ts for t, _ in recent):
-                continue              # a redelivery, not a new reading
-            recent.append((ts, value))
+Three things the person building the rule has to get right, and which are worth asking about
+when the rule is reviewed:
 
-        # evict on the carried timestamp, never on the wall clock
-        while recent and recent[0][0] < recent[-1][0] - WINDOW:
-            recent.popleft()
-
-        evaluate(recent)              # raise, clear, or stay quiet
-        listener.ack([msg.message_id])
-```
-
-<a href="/sdk-documentation/advanced/sustained-alarm-window">The same example, runnable, in the SDK documentation →</a>
-
-### The four things that make it survive contact with reality
-
-- **A reading can arrive twice.** Delivery is at least once, so a reconnect can replay what
-  you already handled. The deduplication above is what stops a redelivery counting twice
-  toward a sustained condition. Writing back is safer than reading: datapoints are keyed by
-  series and timestamp, and events by id, so the platform collapses the duplicates you send
-  it. Your own window is the part nobody protects for you.
-- **Fill the window before you trust it.** On start-up, read the last twenty minutes through
-  the ordinary API rather than waiting twenty minutes to become useful. A rule that is blind
-  for its first twenty minutes is blind precisely when somebody has just restarted it during
-  an incident.
+- **A reading can arrive twice** after a reconnect, so the rule must not count the same
+  reading twice towards a sustained condition. Writing back is safer than reading: the
+  platform collapses duplicate readings and duplicate events you send it, but the rule's own
+  window is nobody's job but the rule's.
 - **A window with holes is not a quiet window.** If three of the twenty expected readings
   arrived, the honest output is not "no exceedance", it is that the instrument or the link
-  needs looking at. Raise that as its own quiet finding rather than letting missing data read
-  as good news.
-- **Acknowledge after you have acted, not before.** The ack is a promise that the reading has
-  been durably handled. Acking first turns a crash into a silent gap in the very rule you
-  built to be trustworthy.
+  needs looking at. Missing data must never read as good news.
+- **A freshly started rule should not be blind for twenty minutes.** It should read the last
+  twenty minutes through the ordinary API on start-up, because a restart is most likely
+  during exactly the incident it exists for. And it should confirm a reading as handled only
+  after acting on it, so that a crash cannot leave a silent gap.
 
 ### What it is worth, and where it goes next
 
 One event a month instead of four hundred alarms, and an alarm the control room has not
 switched off. The shape generalises further than it looks:
 <span className="t-brand">sustained above, sustained below, rate of change across the window,
-the ratio between two series over the window</span> are all the same loop with a different
-`evaluate`.
+the ratio between two series over the window</span> are all the same rule with a different
+test.
 
 When no threshold over any window can express the thing you are looking for, because the
 readings never leave their limits and it is the *shape* that changed, that is where a

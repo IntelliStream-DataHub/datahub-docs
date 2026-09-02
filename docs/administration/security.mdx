@@ -27,7 +27,7 @@ callback or hosted dependency.
 
 ## Certification status
 
-<span className="t-brand">IntelliStream is working toward [ISO/IEC 27001](https://en.wikipedia.org/wiki/ISO/IEC_27001) certification.</span>
+<span className="t-brand">IntelliStream is working towards [ISO/IEC 27001](https://en.wikipedia.org/wiki/ISO/IEC_27001) certification.</span>
 That process is **in progress and not yet complete**, we are not certified today, and this
 page should not be read as a claim that we are.
 
@@ -47,8 +47,9 @@ What that means practically for an evaluation:
 
 ## Authentication and authorisation
 
-**Identity is external.** DataHub holds no user accounts and no passwords. Authentication is
-OAuth2/OIDC against your identity provider, so your existing single sign-on, multi-factor
+**Identity is external.** DataHub holds no user accounts and no passwords. Authentication uses the
+standard sign-in protocols (OAuth2 and OpenID Connect) of your identity provider, so your
+existing single sign-on, multi-factor
 requirements, conditional access and joiner-mover-leaver process all apply unchanged.
 [Identity providers, including Entra ID →](/administration/identity-providers)
 
@@ -57,7 +58,7 @@ current answer, so revoking a role or a group membership takes effect within abo
 without waiting for the user's token to expire. If the identity provider cannot be reached,
 requests are refused rather than served with a stale or empty answer.
 
-**The API holds no sessions.** It is a stateless resource server. The console does hold
+**The API holds no sessions.** It keeps no session state of its own. The console does hold
 sessions, externalised to a shared store, which is what lets it scale without affinity.
 
 **Live delivery is authorised the same way.** A [data subscription](/using/subscriptions)
@@ -88,6 +89,7 @@ The console's built-in assistant is stricter still:
 - It only ever offers its model **read-only tools**, whatever the signed-in user could do.
 - It runs only where three switches agree: enabled in the deployment, enabled for the
   tenant, and the user holds the `DATAHUB_CHAT` role.
+  [Enabling the assistant →](/administration/assistant)
 
 [How MCP access works, in practice →](/using/mcp#the-security-property-that-matters)
 [What agents can do with the platform →](/value/ai-agents#how-an-agent-actually-connects)
@@ -117,14 +119,13 @@ a single mistake in query construction can cross the boundary.
 
 Additional defence in depth on the shared-capable stores:
 
-- Key-mapping store keys are 128-bit cryptographic hashes of the external id **combined with
-  the tenant id**, so a key is infeasible to guess and cannot collide across tenants.
-- Cached query cursors are held under unguessable time-ordered keys with a short expiry that
-  refreshes while a result set is still being paged through.
+- Keys in the shared key stores are derived from the tenant as well as the identifier, so a
+  key cannot be guessed and cannot collide across tenants.
+- Paging state is held under unguessable, short-lived keys that expire once a result set is
+  no longer being paged through.
 
-The tenant is resolved from the organisation claim in the caller's token, and the tenant
-context is explicitly cleared at the end of every request so it cannot leak between users
-sharing a server thread.
+The tenant is resolved from the organisation recorded in the caller's token, and one request
+can never see another's tenant.
 
 [How multi-tenancy works →](/administration/organizations)
 
@@ -142,7 +143,7 @@ connects (mutual TLS), so a leaked login credential is not enough on its own. Ea
 then needs a keystore holding its certificate and key, and, where the store's own
 certificate comes from a private CA, a truststore holding that CA. Both are given with the
 same `vault.*` settings as the store's address and login, from a configuration file or the
-`VAULT_KEYSTORE` and `VAULT_TRUSTSTORE` environment variables, and the same stores cover the
+`VAULT_KEYSTORE` and `VAULT_TRUSTSTORE` environment variables. The same stores cover the
 periodic tenant-registry refresh as well as startup.
 
 ## Auditability of the platform itself

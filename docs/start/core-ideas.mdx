@@ -57,9 +57,9 @@ Those three required fields are not arbitrary. They are the same three roles a f
 ontology uses, and the tagging standard your facility already follows very likely fills
 them already. [Naming, labels and standards →](/concepts/naming-and-standards)
 
-DataHub distinguishes a few kinds of resource so the console can treat them sensibly,
+DataHub distinguishes a few kinds of resource so the console can treat them sensibly:
 **assets** (physical or logical things), **functions** (things that compute or perform),
-**time series**, **data sets** and **policies** are all resources in the same graph. And the
+**time series**, **data sets** and **policies**. All are resources in the same graph. And the
 list does not stop at the platform's own kinds: work procedures, documentation, risks,
 mitigations, obligations and KPIs all make good resources, because the test is not "is it
 equipment?" but **"do people refer to it by name?"**
@@ -137,9 +137,9 @@ the vocabulary is complete and so you can model with them in mind.
 ### 📜 Policies, the rules {#policies-the-rules}
 
 A **policy** is a rule attached to a data set: how long its data is kept, who may access it
-and on what terms, what requirements it must meet. Today a policy is a declarative record,
-it documents intent, and that alone has value, the rule is written down where the data
-lives instead of in a procedure document.
+and on what terms, what requirements it must meet. Today a policy is a record of intent. That
+alone has value: the rule is written down where the data lives instead of in a procedure
+document.
 
 Enforcement is what is coming: retention policies that actually expire measurement history,
 access policies that actually gate, requirement policies that actually check. Retention
@@ -186,7 +186,7 @@ kept in step with live data, the four blocks are what a
 [digital twin](/concepts/digital-twin) is made of.
 
 <Deeper>
-- [Using MCP](/using/mcp): the same four blocks, offered to an AI assistant as 38 tools
+- [Using MCP](/using/mcp): the same four blocks, offered to an AI assistant as tools
 - [Your first hour](/start/first-hour): create one of each, in the console
 - [What is an ontology?](/concepts/ontology): the model layer these blocks form
 - [Naming and standards](/concepts/naming-and-standards): how to name resources so the model stays usable

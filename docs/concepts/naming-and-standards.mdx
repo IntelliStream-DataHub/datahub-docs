@@ -28,9 +28,9 @@ before you import at volume.
 
 | Field | What it is | Can it change? |
 | --- | --- | --- |
-| **Name** | The readable label, written for a person scanning a list. In RDF terms, `rdfs:label`. | Yes, any time |
-| **Label** | The class the resource belongs to, `Pump`, `Separator`. In RDF terms, `rdf:type`. | Rarely, and deliberately |
-| **External id** | The stable identifier that follows the namespace in an IRI. Imports, integrations and the SDK match on it. | <span className="t-accent">Never</span> |
+| **Name** | The readable label, written for a person scanning a list. | Yes, any time |
+| **Label** | The class the resource belongs to, `Pump`, `Separator`. | Rarely, and deliberately |
+| **External id** | The stable identifier that never changes. Imports, integrations and the SDK match on it. | <span className="t-accent">Never</span> |
 
 The console *suggests* an external id derived from the name, lowercase with underscores, and
 lets you override it. That derivation is a convenience for a typed name, not a rule about
@@ -105,7 +105,7 @@ something it should not.
 
 External ids are stored <span className="t-accent">exactly as you write them</span>. The
 platform accepts letters, digits and the separators `. _ : + = -`, between 3 and 256
-characters, and rejects spaces, forward slashes and control characters. Nothing is rewritten
+characters, and rejects spaces, forward slashes and non-printing characters. Nothing is rewritten
 on the way in.
 
 That guarantee matters more than it sounds. `COM-99-PT-1034` stays `COM-99-PT-1034`, and an
@@ -129,7 +129,8 @@ two different ids, not two cases of one.
 
 ## Naming policies, making the convention enforceable {#naming-policies}
 
-The charset above is a floor, not a house style. The convention itself, snake_case, verbatim
+The permitted characters above are a floor, not a house style. The convention itself,
+lowercase words joined by underscores, verbatim
 plant tags, or a pattern of your own, is a **naming policy**: a rule an administrator records
 once and the platform then checks on every write. It is the first
 [policy](/using/policies) the platform actually enforces.
@@ -196,7 +197,7 @@ A tenant-wide rule is the normal case. The override exists for the data set that
 records from a source system whose identifier scheme you do not control.
 
 :::caution Naming policies do not govern events
-They apply to **resources, data sets and time series** — everything whose external id is a
+They apply to **resources, data sets and time series**: everything whose external id is a
 unique identity. Event external ids are exempt, deliberately: an
 event external id is not a name somebody chose, it is the source system's key for the
 subject the event is about, and events are *meant* to share one. The charset floor still
@@ -240,7 +241,7 @@ Guidelines:
 - **Aim for 15–25 classes in a first model.** If you are past 60, you are probably modelling
   source systems rather than the operation.
 - **Shallow beats deep.** Three or four levels of specialisation is plenty.
-- **Split when the split changes an answer.** `Valve` and `ControlValve` should be separate
+- **Split when the split changes an answer.** `Valve` and `Control Valve` should be separate
   classes only if some question needs to distinguish them. Otherwise it is one class with a
   metadata field.
 
@@ -253,7 +254,7 @@ sensible:
   or spaced phrases (`part of`) over run-together ones: `contributesTo` stores as the
   unreadable `CONTRIBUTESTO`.
 - **Name what is actually asserted.** `part of`, `feeds`, `monitors`, `powers`, not
-  `relatedTo`, which carries no information and makes traversal useless.
+  *related to*, which carries no information and makes traversal useless.
 - **Fix the direction and hold it.** Decide once whether you write *instrument monitors
   equipment* or *equipment monitoredBy instrument*, and keep every instance consistent.
   Mixed direction is the most common cause of a query returning half its expected results.
@@ -279,7 +280,7 @@ facility uses and mirror it in DataHub, rather than inventing a parallel scheme.
 Two of these map onto DataHub especially directly:
 
 - **[ISA-5.1](https://en.wikipedia.org/wiki/Piping_and_instrumentation_diagram) tags** already encode the class. A tag beginning `PT` tells you the resource is
-  a `PressureTransmitter`, so the tag prefix can drive label assignment during import,
+  a `Pressure Transmitter`, so the tag prefix can drive label assignment during import,
   rather than someone classifying 4,000 instruments by hand.
 - **[IEC/ISO 81346](https://en.wikipedia.org/wiki/IEC_81346)'s aspects** are exactly the [three layers](/concepts/three-layers):
   function (`=`), product (`-`) and location (`+`) are three different relationships from

@@ -125,7 +125,7 @@ keeping them both true is what the [four limits](#the-four-limits-worth-setting)
 | --- | --- |
 | **The goal and the prompt** | You. The single most valuable thing you write, and the part worth iterating on |
 | **The model** | Your choice of provider, swappable, because the tools are behind a standard |
-| **The tools** | The platform: [38 MCP tools](/using/mcp#what-datahub-exposes) over the graph, series, events, labels and units, including the [statistical analysis](/using/mcp#the-second-server-statistics-as-a-tool) that keeps an agent from estimating a cause it could measure |
+| **The tools** | The platform: [the full MCP tool set](/using/mcp#what-datahub-exposes) over the graph, series, events, labels and units, including the [statistical analysis](/using/mcp#the-second-server-statistics-as-a-tool) that keeps an agent from estimating a cause it could measure |
 | **The loop** | Whichever agent framework your team already uses, or fifty lines of your own |
 | **Permissions** | The platform: the agent's token decides what it can read and write, checked on every call |
 | **Live input** | The platform: [subscriptions](/using/subscriptions) push data the moment it lands, so an agent can be woken by a reading rather than polling for one |
@@ -241,9 +241,9 @@ it reached.**
   <AgentGraphJoin />
 </Figure>
 
-In DataHub's tools that walk is `resource_search` to find the thing,
-[`resource_fetch_related` or `resource_fetch_nearest`](/using/mcp#what-datahub-exposes) to
-step outward, then `timeseries_fetch_datapoints` and `event_filter` over what came back.
+In DataHub's [tools](/using/mcp#what-datahub-exposes) that walk is: search for the thing,
+fetch its neighbourhood or the nearest things of a given kind, then read the datapoints and
+the events on what came back.
 Each example below names what its own graph holds, because that is the part you build and
 the part that decides whether the story works, and what stays human, because that boundary
 is what most descriptions leave out.
@@ -322,9 +322,9 @@ service visits, curtailment instructions, vessel movements.
 it, which is the graph answering "who saw the same wind", then reads power and wind series
 for the whole set over one window. The 4 per cent only appears at this point, because it does
 not exist in any single series. It filters events across the same set to rule out the honest
-explanations, a curtailment instruction is a grid decision rather than a fault, then calls
-[`analysis_related_series`](/using/mcp#the-second-server-statistics-as-a-tool) to see what
-the gap actually tracks. It closes by finding the other open jobs on the same string, because
+explanations, a curtailment instruction is a grid decision rather than a fault, then asks the
+[relationship analysis](/using/mcp#the-second-server-statistics-as-a-tool) what the gap
+actually tracks. It closes by finding the other open jobs on the same string, because
 the cost that matters is the sailing, not the repair.
 
 **What stays human.** Sending the vessel, and accepting or challenging a curtailment. The

@@ -45,8 +45,8 @@ is out of date because last night's job failed quietly.
 
 <Steps>
   <Step title="Gather the connection details">
-    Hostname, port, username and password for the source database, plus the [publication name](https://www.postgresql.org/docs/current/logical-replication.html)
-    the source exposes its changes under.
+    Hostname, port, username and password for the source database, plus the name the source
+    database publishes its changes under (its [publication](https://www.postgresql.org/docs/current/logical-replication.html), in PostgreSQL terms).
   </Step>
   <Step title="Test the connection before saving">
     There is a **test connection** action. Use it. A CDC integration that cannot reach its
@@ -121,30 +121,24 @@ integration account:
   [Why →](/administration/users-and-access#service-accounts)
 - Rotate its credentials through your normal process.
 
-## When to involve a developer, or an agent
+## When to involve a developer
 
 Configuring a CDC integration is administrator work and is done entirely in the console.
 Writing a custom integration, for a source with no reachable database, or one needing
 transformation on the way in, is developer work.
-
-It is also work <span className="t-brand">AI agents are unusually good at</span>: exploring an
-unfamiliar source system, proposing the mapping onto the four building blocks, writing the
-integration against the API, and repairing it when the source changes shape. In an
-[organisation of agents](/value/ai-agents#coordination) this is standing worker-agent work,
-running the integration and watching its data quality, not a one-off build. Since integration
-effort is normally the biggest driver of how long a first project takes, this is often the
-fastest payback available.
-[AI agents and integrations →](/value/ai-agents#agents-that-build-and-run-your-integrations)
-
 <a href="/sdk-documentation/">Developer and SDK documentation →</a>
 
 ## Where agents help
 
 Integration work is repetitive, needs patience with other people's data models, and is the
 main thing standing between a first project and a second, which makes it the highest-payback
-place to use an agent. An agent can explore the source, propose the mapping, write the
-integration against the documented API, and then do the part that usually gets neglected:
-watch it in production, notice when the source changes shape, and propose the repair.
+place to use an agent. An agent can explore an unfamiliar source, propose the mapping onto
+the four building blocks, write the integration against the documented API, and then do the
+part that usually gets neglected: watch it in production, notice when the source changes
+shape, and propose the repair. In an [organisation of agents](/value/ai-agents#coordination)
+this is standing worker-agent work rather than a one-off build, and since integration effort
+is normally the biggest driver of how long a first project takes, it is often the fastest
+payback available.
 [Agents that build and run integrations →](/value/ai-agents#agents-that-build-and-run-your-integrations)
 
 <References>

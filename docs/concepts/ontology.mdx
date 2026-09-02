@@ -72,25 +72,22 @@ resource form; here is what each one is doing.
   <Step title="What is this thing called?">
     The **name**, the readable label a person scans in a list. *"21-PT-1234 Separator inlet
     pressure"*. It can be changed at any time, because nothing depends on it.
-
-    In formal ontology terms this is the `rdfs:label`.
   </Step>
   <Step title="What kind of thing is it?">
     The **label**, the class the resource belongs to: `Pump`, `Separator`, `Site`,
-    `PressureTransmitter`. This is the single most powerful field in the model, because it
-    is what lets you ask about *all pumps* rather than one pump at a time.
-
-    In formal terms this is `rdf:type`. Write classes in the singular, each word
-    capitalised.
+    `Pressure Transmitter`. This is the single most powerful field in the model, because it
+    is what lets you ask about *all pumps* rather than one pump at a time. Write classes in
+    the singular, with spaces between words.
   </Step>
   <Step title="How do systems refer to it, permanently?">
     The **external id**, a stable identifier that must never change and never be reused.
     Imports, integrations and the SDK all match on it.
-
-    In formal terms it is the part of the [IRI](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier) that follows the namespace.
     [Why stability matters →](/concepts/naming-and-standards#external-ids-are-promises)
   </Step>
 </Steps>
+
+Those three match the fields the formal ontology standards use: the name is the standard's
+label, the class is its type, and the external id is the last part of its identifier.
 
 Plus the fourth thing, which lives on the connections rather than the things:
 
@@ -99,7 +96,7 @@ Plus the fourth thing, which lives on the connections rather than the things:
   [knowledge graph](/concepts/knowledge-graph).
 
 <Figure
-  caption="The anatomy of one entry. Each field plays a role that RDF standardised long before this product existed, and the relationship underneath is what turns a catalogue of entries into a graph."
+  caption="The anatomy of one entry. Each field plays a role that formal ontology standards defined long before this product existed, and the relationship underneath is what turns a catalogue of entries into a graph."
   wide
 >
   <ResourceAnatomy />
@@ -107,8 +104,17 @@ Plus the fourth thing, which lives on the connections rather than the things:
 
 ## Seeing it written out
 
-DataHub stores your model as a graph, which is the same idea [RDF](https://www.w3.org/RDF/) describes. The same asset,
-written in [RDF](https://www.w3.org/RDF/), looks like this:
+The three fields on the console form are not an invention. They are the standard way of
+describing a thing, the one the web's own knowledge-representation standard,
+[RDF](https://www.w3.org/RDF/), uses, and that is what makes your model interoperable with
+the wider world of standards and tools rather than trapped in one product. You never have
+to write anything in that form yourself.
+
+<details>
+<summary>For the technically curious: the same asset written in RDF</summary>
+
+DataHub stores your model as a graph, which is the same idea RDF describes. The same asset,
+written in RDF, looks like this:
 
 ```turtle
 @prefix ex:   <https://example.org/plant/> .
@@ -121,15 +127,12 @@ ex:21-PT-1234
     ex:partOf       ex:Line3 .
 ```
 
-You never have to write this. It is here to show that the three fields on the console form
-are not an invention: they are the standard way of describing a thing, and that means your
-model is interoperable with the wider world of standards and tools rather than trapped in
-one product.
-
 The alignment is exact rather than approximate, because the external id is
-[stored exactly as you write it](/concepts/naming-and-standards#what-an-external-id-may-contain).
-The local part of an IRI is case-sensitive, so `ex:21-PT-1234` above is your tag, not a
-rewritten version of it that every consuming system would have to reproduce.
+[stored exactly as you write it](/concepts/naming-and-standards#what-an-external-id-may-contain),
+so `ex:21-PT-1234` above is your tag, not a rewritten version of it that every consuming
+system would have to reproduce.
+
+</details>
 
 ## Why an ontology is worth building
 
@@ -138,7 +141,7 @@ Four reasons, in the order most organisations come to appreciate them.
 <Cards>
   <Card title="Questions get cheap" to="/concepts/knowledge-graph" icon="⚡" eyebrow="Immediate">
     Once relationships are recorded, a new cross-system question is a traversal instead of
-    an integration project. The marginal cost of the next question drops toward zero.
+    an integration project. The marginal cost of the next question drops towards zero.
   </Card>
   <Card title="Knowledge stops walking out the door" to="/concepts/building-your-model" icon="🧠" eyebrow="Within a year">
     The mapping between the historian tag, the equipment number and the physical pump moves

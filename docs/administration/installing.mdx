@@ -56,7 +56,7 @@ podman compose down -v        # stop and wipe all data
 Substitute `docker compose` for `podman compose` if that is your runtime; the launcher
 detects which one you have and uses it either way.
 
-By default the stack comes up with a small demo dataset already loaded, so the console shows
+By default the stack comes up with a small demo data set already loaded, so the console shows
 something real on the first visit. Use `./scripts/up.sh --no-demo` for an empty stack
 instead.
 
@@ -115,12 +115,7 @@ provider. [What each one does →](/administration/architecture)
 ## About the build
 
 `./scripts/up.sh --build` compiles the services inside a build container, so nothing beyond
-the container runtime has to be installed on the host. The Gradle wrapper provisions its own
-toolchain, and the console's assets are built on the JVM with no Node.js required.
-
-Contributors who would rather run the services directly on the host, from an IDE or the
-Gradle wrapper, will want a JDK installed; that workflow is documented in the repository
-rather than here.
+the container runtime has to be installed on the host.
 
 ## Before production
 
@@ -147,8 +142,8 @@ must change.
     credentials, per-tenant database roles, and network restrictions.
   </Step>
   <Step title="Put a connection pooler in front of PostgreSQL">
-    For anything beyond a small single-tenant install. Without one, every transaction pays
-    connection-setup cost, and each backend is a process.
+    For anything beyond a small single-tenant install. Without one, every request opens its own
+    database connection, which does not scale.
     [Why →](/reference/faq#do-i-need-a-connection-pooler)
   </Step>
   <Step title="Configure the load balancer">

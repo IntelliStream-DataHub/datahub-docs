@@ -180,7 +180,7 @@ what turns a data platform from a place data *sits* into a place understanding
 Because a function is a node with wired inputs and outputs, it can be **cloned and
 modified**, and the clone is a branch in the graph, the same move as
 [branching in version control](https://en.wikipedia.org/wiki/Branching_(version_control)),
-`git clone` applied to a data flow. Reuse the whole pipeline, swap only the part you want to improve, and run both
+Reuse the whole pipeline, swap only the part you want to improve, and run both
 versions against the same live inputs.
 
 <Figure
@@ -195,7 +195,7 @@ algorithm in place, means last quarter's figures were computed one way and this 
 another, with nothing recording the change. Branching keeps **the production series
 untouched** while the challenger proves itself, and when it wins, the promotion, the loser
 and the comparison all remain in the graph. It is the
-[branching half of the git-for-data idea](/concepts/lineage-and-quality#branching-for-data),
+[branching half of the lineage idea](/concepts/lineage-and-quality#branching-for-data),
 made concrete: the wiring and the parallel series can be modelled today, and racing them
 automatically is what execution brings.
 
@@ -215,7 +215,7 @@ a quiet plant.
 The chain below is the resolution: <span className="t-brand">the function is the tripwire,
 the agent is the responder</span>. Detection runs continuously at function cost, and the
 expensive reasoning wakes only when something merits it. The same functions also give the
-agent its vocabulary, an agent handed *crest factor rising, stress event at 14:32, level
+agent its vocabulary, an agent handed *bearing signal getting spiky, stress event at 14:32, level
 corrected for temperature* starts its [loop](/value/ai-agents#how-agent-loops-work) several
 steps ahead of one handed a million raw samples, and its conclusions are cheaper to verify
 because its inputs are named and flagged.

@@ -18,7 +18,8 @@ design choice, not a limitation, it keeps all authorisation logic in one place.
 
 Other identity providers, including Microsoft Entra ID, are brought in *through* Keycloak
 rather than alongside it. Your users keep signing in with their corporate credentials; Keycloak
-is what turns that into a token DataHub accepts.
+is what turns that into a token DataHub accepts. The standard everything here speaks is
+OpenID Connect (OIDC), the sign-in protocol your corporate identity provider already uses.
 </KeyIdea>
 
 ## Why [Keycloak](https://www.keycloak.org/) sits in the middle
@@ -210,8 +211,10 @@ Keycloak becomes a translation layer rather than a second place to manage people
 ### For services, the JWT authorization grant bridge
 
 For a **service principal registered in Entra ID**, the bridge is Keycloak's
-**JWT Authorization Grant** ([RFC 7523](https://datatracker.ietf.org/doc/html/rfc7523)), available in Keycloak 26.5 and newer. Keycloak accepts
-the externally-signed Entra token as an assertion and returns a Keycloak-issued access token.
+**JWT Authorization Grant** ([RFC 7523](https://datatracker.ietf.org/doc/html/rfc7523)), a
+standard exchange in which one provider's signed token (a JWT) is presented to another and
+swapped for that provider's own. It is available in Keycloak 26.5 and newer. Keycloak accepts
+the Entra-signed token as that assertion and returns a Keycloak-issued access token.
 
 The flow is three steps:
 
@@ -268,22 +271,14 @@ lower risk.
 but not with the platform as it stands, and the day-to-day administration is more work for
 the specific things DataHub needs. If you are choosing, understand what you are taking on.
 
-### What would have to change in the platform
+### Why it is a platform change, not a configuration
 
-DataHub requires three things from a token, and Entra satisfies none of them out of the box:
-
-| Requirement | Keycloak | Entra ID directly |
-| --- | --- | --- |
-| **One trusted issuer** | What the API validates today | Needs the API changed to resolve multiple issuers, plus audience validation that does not exist yet |
-| **Roles in `realm_access.roles`** | Native | App roles arrive in a flat top-level `roles` claim, so a per-issuer role mapper is needed |
-| **Nested `organization` claim** | Emitted from organization membership | The awkward one, see below |
-
-That third row is the real obstacle. Entra's optional claims are configured per application
-and emit **strings and arrays of strings**. Directory extension claims are emitted flat, as
-`extn.<attributename>`, and an application may issue **at most ten** extension attributes as
-optional claims. There is no documented way to emit the nested object shape DataHub reads for
-tenant resolution, so adopting Entra directly means changing how the platform resolves a
-tenant, not just how it reads a claim.
+DataHub reads three things from a token: one trusted issuer, its roles in the place Keycloak
+puts them, and the organisation that decides which tenant the caller belongs to, in a nested
+form that Entra cannot be configured to produce. The last one is the real obstacle. Adopting
+Entra directly therefore means changing how the platform resolves a tenant, not just how a
+token is shaped, and that is development work on the platform rather than administration of
+it. The details are recorded in the platform repository for whoever takes it on.
 
 ### What is genuinely harder to administer
 
@@ -314,14 +309,13 @@ of claim shaping DataHub needs. You get the corporate directory and the required
 without changing the platform.
 
 Replace Keycloak outright only if Entra is becoming the primary identity source for many
-services **and** you are prepared to own the platform changes: a multi-issuer resolver,
-per-issuer role and tenant mapping, audience validation, and the same work duplicated in the
-analysis service.
+services **and** you are prepared to fund the platform changes above, in the API and again in
+the analysis service.
 
 | | |
 | --- | --- |
-| **Gains** | One directory, no linked Keycloak users, no second secret, SDKs talk to Entra directly |
-| **Costs** | Real code changes in the API security configuration, duplicated in the analysis service, plus audience validation that does not exist today |
+| **Gains** | One directory, no linked Keycloak users, no second secret, integrations talk to Entra directly |
+| **Costs** | Development work on two platform services, which nobody has scheduled |
 | **Risk** | Tenant resolution moves into whatever Entra can be persuaded to emit, and becomes harder to audit |
 
 The honest threshold: not worth it for one or two service principals.

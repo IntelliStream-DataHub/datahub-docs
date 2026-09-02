@@ -47,10 +47,9 @@ deployment. The organisation also carries the **groups** that grant data set rea
 access.
 [How organizations work →](/administration/identity-providers#organizations-each-customers-own-identity-providers)
 
-A user's tenant is resolved from the organisation claim in their access token on every
+A user's tenant is resolved from the organisation recorded in their sign-in token on every
 request, and every downstream operation, which database to query, which files to read,
-follows from that. The tenant context is cleared at the end of every request, so it cannot
-leak between users sharing a server.
+follows from that. One request can never see another's tenant.
 
 ## Why database-per-tenant
 
@@ -170,8 +169,8 @@ allows tenants to be added without restarting anything.
 
 Schema migrations run automatically at startup, iterating every tenant in the registry and
 applying the same scripts to each. Tenants that appear at runtime are migrated when
-discovered. Migration locking keeps concurrent instances from racing, so starting several
-instances in parallel is safe, the non-leaders wait and then find the work already done.
+discovered. Starting several instances at once is safe; they coordinate so that the work is
+done once.
 
 You do not run migrations by hand.
 
