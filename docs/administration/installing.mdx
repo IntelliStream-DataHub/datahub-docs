@@ -158,7 +158,8 @@ must change.
     position lives on the platform, so a reconnect resumes on any instance.
     Give it a per-IP request limit as well, and keep its body size ceiling above the API's
     own. [Why →](/administration/architecture#load-balancing) ·
-    [The proxy settings →](/administration/limits-and-quotas#at-the-reverse-proxy)
+    [The proxy settings →](/administration/limits-and-quotas#at-the-reverse-proxy) ·
+    [A worked example →](#running-on-dedicated-servers)
   </Step>
   <Step title="Set retention deliberately">
     Defaults are for evaluation. Storage grows with ingestion whether or not anyone reads it.
@@ -177,6 +178,42 @@ must change.
     to one tenant. [How →](/administration/data-lifecycle#backups)
   </Step>
 </Steps>
+
+## Running on dedicated servers
+
+A production installation runs the services as ordinary system services on machines of their
+own rather than in the evaluation stack. The repository ships two sets of worked examples for
+that, in its `nginx` and `systemd` folders, each with a README that walks through the
+installation. They are starting points to copy and edit, not something the platform installs
+for you.
+
+**The edge.** The nginx examples put a load balancer in front of two API and two console
+instances. TLS ends at the edge with a modern cipher set and a certificate covering both
+hostnames; the live data connections are upgraded to WebSocket with long timeouts; file
+uploads and downloads stream through unbuffered; the per-IP request limit and the body
+ceiling from [limits and quotas](/administration/limits-and-quotas#at-the-reverse-proxy) are
+in place; and the kernel settings are sized to the uplink. There is a variant for Debian and
+Ubuntu and one for AlmaLinux and RHEL, and the README covers both, including the SELinux
+setting without which every proxied request fails.
+
+**The services.** The systemd examples run every DataHub service from one unit template, with
+a short drop-in per instance saying which part of the machine it may use, an environment
+file per service holding the Java settings, and a configuration file per service tuning the
+embedded web server for sitting behind the proxy. The units are hardened, with a read-only
+system, a private temporary directory and no new privileges, and they write no memory dumps
+of any kind, because a dump is a copy of process memory with credentials and tenant data in
+it. The README says how to take one deliberately when a fault needs it, how to turn on the
+[metrics endpoint](/administration/monitoring), and what to check on a running service.
+
+What you supply: the two hostnames and their certificate, the addresses of the load
+balancers (the API trusts forwarded headers from those and nothing else), the secret store's
+credentials, a PostgreSQL connection pooler on each application host, and the file-storage
+mount. Sizing is yours to decide: the examples are written for large servers and say so, and
+every figure in them is meant to be read and changed rather than copied.
+
+Two placement rules carry over from the [architecture page](/administration/architecture#load-balancing):
+the API and console scale by adding instances behind the balancer with no session affinity,
+and the housekeeping service runs as exactly one instance.
 
 ## Air-gapped installation
 
