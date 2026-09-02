@@ -50,7 +50,16 @@ A working realm provides:
 
 - **A confidential client for the console**, used for the browser sign-in flow. The console
   relays the signed-in user's access token straight to the API, so there is no separate token
-  handling in the browser.
+  handling in the browser. Two of its settings point back at the console's own hostname, the
+  one your users type rather than an internal address. The post logout entry is the one that
+  is easy to forget: without it Keycloak refuses to send somebody who signs out back to the
+  console, and answers **Invalid redirect uri** instead.
+
+| Client setting | Value |
+| --- | --- |
+| **Valid redirect URIs** | `https://<console-host>/login/oauth2/code/keycloak` |
+| **Valid post logout redirect URIs** | `https://<console-host>/*` |
+
 - **Realm roles**, which gate the platform itself:
 
 | Role | Grants |
