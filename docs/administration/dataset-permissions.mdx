@@ -193,7 +193,9 @@ from.</span> The connected network returned
 from there is not itself filtered by data set, so a caller who can read one resource can see
 resources it connects to even where those sit in data sets the caller cannot read directly.
 Fetching a single relationship directly needs read on both of its ends, but a traversal does
-not go through that check, so the boundary still leaks along connections.
+not go through that check, so the boundary still leaks along connections. The same applies to
+[exporting a graph](/using/resources#moving-a-model-between-tenants) as a file: the file
+holds every resource the walk reaches, whichever data sets they sit in.
 
 <span className="t-accent">Do not treat a data set boundary as a barrier inside a connected
 graph.</span> If two areas must be genuinely separate, separate them in the model, or put

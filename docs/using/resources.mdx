@@ -225,6 +225,43 @@ insist. Treat it as immutable anyway, because integrations match on it and a cha
 Deleting warns you when it would orphan a connected resource. Both endpoints of a
 relationship are checked, so you find out before rather than after.
 
+## Moving a model between tenants
+
+A model built in one tenant can be carried into another as a single file: from a test tenant
+into production, from one site to a sister site with the same structure, or out of the
+platform as a copy of the structure itself. Right-click a **root resource** in the resource
+list and choose **Export graph**. Everything connected to that root, however many hops away,
+goes into one file: every resource with its name, labels, metadata, description, data set and
+location, and every relationship between them. The file is named after the root's external
+id.
+
+**Import graph**, on the same menu, reads such a file into the current tenant. It creates
+what is missing and leaves alone what is already there, matched on external id, so importing a
+file into the tenant it came from changes nothing, and importing the same file twice is
+harmless. When it finishes, the page reloads and a message says how many resources and
+relationships were created and how many were skipped.
+
+Three things to know before relying on it:
+
+- **Time series are not carried.** The file has no room for a series' unit and value type,
+  so any series in the exported model are listed as skipped, together with the relationships
+  that touch them. Create the series in the target tenant first, then import the same file
+  again, and the relationships to them are added.
+- **The file holds the whole connected graph**, including resources in data sets the person
+  exporting could not open directly, because
+  [traversal is gated on the starting node only](/administration/dataset-permissions#graph-traversal-is-gated-on-the-starting-node-only).
+  Treat an exported file as you would treat the data in it.
+- **Importing needs the same permissions as creating by hand**: write access to every data
+  set the imported resources land in, and the all-data-sets grant for resources that arrive
+  without one and for any data sets in the file. A refusal stops the import where it has
+  got to; what was already written stays, and a second import continues from there.
+
+A file may hold up to two million resources and two million relationships. The platform's
+ordinary limit on request size applies to the upload as well, and a default installation
+sets that at a few megabytes, so an administrator raises it deployment-wide before a large
+model is moved.
+[Limits and quotas →](/administration/limits-and-quotas)
+
 ## Where resources come from at scale
 
 Creating resources by hand is right for modelling sessions and for the top layers of the

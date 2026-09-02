@@ -134,6 +134,15 @@ Yes, and you will. Classes and relationships are meant to evolve as questions ex
 thing that cannot change is an [external id](/concepts/naming-and-standards#external-ids-are-promises),
 because integrations match on it.
 
+### Can we copy a model from one tenant to another?
+
+Yes. Right-click a root resource and choose **Export graph**; everything connected to it
+goes into one file, which **Import graph** reads into another tenant, creating what is missing
+and skipping what already exists. Time series are the exception, since the file does not
+carry their unit and value type: create those first, then import the file again for the
+relationships.
+[→ Moving a model between tenants](/using/resources#moving-a-model-between-tenants)
+
 ### What is contextualization?
 
 Linking each record to the real-world thing it describes, this signal to that pump, this
