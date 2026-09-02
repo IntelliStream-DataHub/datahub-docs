@@ -119,7 +119,9 @@ A scheduled, single-instance service that runs the routine sweeps described in
 [data lifecycle](/administration/data-lifecycle): purging soft-deleted files after their
 grace period, clearing stale temporary uploads, and sweeping orphaned
 [streaming](/using/subscriptions)
-subscriptions. Also not yet in the reference deployment.
+subscriptions. It also retries any tenant whose database migration failed until it
+succeeds, which the API attempts only once. It runs in the reference stack, with its
+deletion jobs in report-only mode there.
 
 ## Why several services rather than one
 
