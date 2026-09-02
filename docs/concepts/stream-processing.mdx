@@ -104,7 +104,8 @@ Three rules follow, and they are worth writing into whatever you build:
 - **Assume a reading can arrive twice.** A consumer restarts, a source replays, a connection
   is re-established mid-delivery. The cheapest defence is to make the computation give the
   same result whether it sees a reading once or twice, which is worth designing for rather
-  than discovering. This is not hypothetical here, and the section on the SDK below says why.
+  than discovering. The platform's own delivery guarantee is exactly this case, as the
+  section below explains.
 
 ## What a computation has to remember
 
@@ -145,38 +146,30 @@ consume in code.
 The computing part, today, is yours to run, and the SDK is what makes that a short job rather
 than a project.
 
-### What a subscription gives you through the SDK
+### What a subscription promises
 
-There are SDKs for **Java, Python and Rust**, and the shape is the same in all three. A
-subscription names a set of time series; a live connection then delivers each new datapoint
-as it lands, with no polling anywhere in the loop.
+There are SDKs for **Java, Python and Rust**, and whoever builds the computation gets the
+same promises in each. A subscription names a set of time series, and a standing connection
+then delivers each new reading as it lands, with no polling anywhere in the loop.
 
-Four properties matter more than the syntax:
+Four properties matter more than any syntax:
 
-- **You acknowledge what you have handled.** Anything unacknowledged is redelivered, so a
-  crash cannot lose data. If a downstream system is unavailable you can decline a message
-  instead, and it comes back later rather than disappearing.
-- **Which means delivery is at least once, not exactly once.** That is the honest guarantee,
-  and it is why the rule above about a reading arriving twice is a design constraint rather
-  than a caution: <span className="t-accent">make the handler idempotent</span>.
-- **The interest set can change while it runs.** Series can be added to or removed from a
-  live listener without reconnecting, so a standing question can be re-aimed at new equipment
-  as the model grows.
+- **Nothing is lost when the consumer fails.** A reading counts as delivered only once the
+  consumer has confirmed it handled it; anything unconfirmed comes back, and a consumer that
+  cannot cope right now can ask for a reading to be delivered again later.
+- **Which means a reading can arrive twice.** That is the honest guarantee, and it is why the
+  rule above is a design constraint rather than a caution:
+  <span className="t-accent">the computation must give the same answer whether it sees a
+  reading once or twice</span>.
+- **The set of series can change while it runs.** Series can be added to or removed from a
+  live subscription without reconnecting, so a standing question can be re-aimed at new
+  equipment as the model grows.
 - **Reconnection is handled for you**, which is exactly the case that produces the burst in
   the figure above. The data is not lost, it arrives together, carrying the timestamps it had
   all along.
 
-The whole consumption loop is about this long, and it is here to show how little there is
-rather than because you have to write it:
-
-```python
-with client.subscriptions.listen(["engine_room"]) as listener:
-    for msg in listener:
-        handle(msg.payload)             # your computation goes here
-        listener.ack([msg.message_id])
-```
-
-<a href="/sdk-documentation/guides/realtime-subscriptions">Consuming live data, in the SDK documentation →</a>
+The consumption loop itself is a few lines of code in any of the three languages.
+<a href="/sdk-documentation/guides/realtime-subscriptions">Consuming live data, in the developer documentation →</a>
 <br /><a href="/sdk-documentation/advanced/sustained-alarm-window">A windowed rule, seeded and verified end to end →</a>
 
 ### The loop that works today
@@ -237,8 +230,6 @@ somebody can read. [Building AI agents →](/using/ai-agents)
 - [Real-time computing](https://en.wikipedia.org/wiki/Real-time_computing)
 - [Idempotence](https://en.wikipedia.org/wiki/Idempotence)
 - [Lambda architecture, batch and speed together](https://en.wikipedia.org/wiki/Lambda_architecture)
-- [Apache Pulsar](https://en.wikipedia.org/wiki/Apache_Pulsar)
-- [Apache Kafka](https://en.wikipedia.org/wiki/Apache_Kafka)
 
 </References>
 

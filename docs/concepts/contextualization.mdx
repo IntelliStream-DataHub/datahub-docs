@@ -95,8 +95,8 @@ Mostly by exploiting identifiers your operation already maintains, which is why
 
     Mirroring it is literal: DataHub stores the tag
     [exactly as you send it](/concepts/naming-and-standards#what-an-external-id-may-contain),
-    uppercase, hyphens and all, so every system holds the same string and the match is a
-    comparison rather than a normalisation each integration has to reimplement the same way.
+    uppercase, hyphens and all. Every system then holds the same string, so matching is a
+    straight comparison rather than a normalisation each integration has to reimplement.
   </Step>
   <Step title="Use structure where identifiers differ">
     When systems disagree, the tag prefix, the location code or the system number usually
@@ -123,8 +123,8 @@ which situation you are in before promising a timeline, it is the single best pr
 integration cost.
 :::
 
-On the roadmap, this is also where assisted classification lands: suggesting the ontological
-placement of new or unfamiliar data, so the human confirms instead of constructs.
+On the roadmap, this is also where assisted classification lands: suggesting which class and
+connections new or unfamiliar data should get, so the human confirms instead of constructs.
 [AI agents and integration work →](/value/ai-agents#agents-that-build-and-run-your-integrations)
 
 ## Where agents help

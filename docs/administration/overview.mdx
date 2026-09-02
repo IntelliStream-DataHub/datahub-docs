@@ -84,12 +84,13 @@ and making sure what arrives connects to the model rather than sitting orphaned.
 
 Worth knowing, because these are often assumed:
 
-- **You do not manage user accounts in DataHub.** Identity lives in your OAuth2/OIDC
-  provider. [Identity providers →](/administration/identity-providers) DataHub authorises
-  every request against what your provider currently says, so revoking access is a matter of
+- **You do not manage user accounts in DataHub.** Identity lives in your identity
+  provider, any system speaking the OAuth2 and OpenID Connect sign-in standards.
+  [Identity providers →](/administration/identity-providers) DataHub authorises every
+  request against what your provider currently says, so revoking access is a matter of
   removing a role or a group membership, and it takes effect within about a minute.
 - **You do not run database migrations by hand.** They run automatically at startup, across
-  every tenant, with locking that makes concurrent instance startup safe.
+  every tenant, and starting several instances at once is safe.
 - **You do not need session affinity on the load balancer.** All services, including the
   [live streaming endpoints](/using/subscriptions), are stateless in the way that matters. The load balancer needs
   WebSocket-upgrade support and nothing else.
@@ -130,6 +131,9 @@ capacity</span>, and restart the UI without interrupting ingestion.
   </Card>
   <Card title="Limits and quotas" to="/administration/limits-and-quotas" icon="🚦">
     The per-tenant request, ingest and connection budgets, and how to raise one.
+  </Card>
+  <Card title="Enabling the assistant" to="/administration/assistant" icon="💬">
+    The three switches behind Ask AI, the model it runs on, and the settings that bound its cost.
   </Card>
   <Card title="Security and compliance" to="/administration/security" icon="🛡️">
     The posture, the isolation guarantees, and what to tell a risk committee.

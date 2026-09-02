@@ -1,0 +1,104 @@
+---
+sidebar_position: 8.5
+title: Enabling the assistant
+description: The three switches that turn the console's Ask AI panel on, the choice between a hosted model and one you run yourself, and the settings that bound what a question may cost.
+---
+
+# Enabling the assistant
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT security</Persona>
+</Personas>
+
+<KeyIdea>
+The console's [assistant](/using/assistant) is off until you turn it on, and turning it on
+is three separate decisions: one for the deployment, one per organisation, one per person.
+It then needs a model, hosted or your own, and two settings that bound what a question may
+cost.
+</KeyIdea>
+
+## Turning it on
+
+Three separate things must all be true before anyone sees the panel, and they are deliberately
+separate: one is a deployment decision, one is per customer, one is per person.
+
+<Steps>
+  <Step title="Enable it in the deployment">
+    `datahub.chat.enabled` must be true for the console. Off by default, so an installation
+    that has not chosen a model behaves exactly as before.
+  </Step>
+  <Step title="Enable it for the organization">
+    The organization's entry in the tenant registry needs `tenant-config.chat` set to true.
+    An organization without it has no assistant even where the deployment does.
+  </Step>
+  <Step title="Grant the role">
+    A user needs the `DATAHUB_CHAT` role in [Keycloak](/administration/identity-providers).
+    Without it the panel is hidden, and the assistant cannot be reached by any other route.
+  </Step>
+</Steps>
+
+Hiding the panel is not the security boundary. The check runs again on every request, so a
+user without the role gains nothing by going around the interface. The assistant also acts
+as the signed-in user, so [data set permissions](/administration/dataset-permissions) apply
+to everything it looks up, and it is only ever offered read-only tools.
+[Why that holds →](/administration/security#ai-agents-and-the-console-assistant)
+
+## Choosing a model
+
+The assistant talks to one of two kinds of model, set per deployment.
+
+- **A hosted model**, currently [Anthropic](https://www.anthropic.com/). You supply an API
+  key and usage is billed to whoever owns it.
+- **A model you run yourself**, through any server that speaks the OpenAI chat completions
+  interface, including [Ollama](https://ollama.com/) and vLLM. Nothing leaves your network.
+
+Both work. The trade is the familiar one: a hosted model is stronger and needs no hardware, a
+self-hosted one keeps the data in your building and costs whatever the hardware costs.
+
+<KeyIdea title="If you self-host, read this">
+The assistant works by calling tools, so the model must be one that can call tools (look for
+"tool use" or "function calling" in its description). Many small models cannot, and one that
+cannot will appear to answer while never looking anything up.
+
+Models that reason at length before answering need care too. The assistant reads only the
+final answer, so time spent reasoning is time and money spent for nothing. Turn that off if
+the server allows it, or expect slow and sometimes empty replies.
+</KeyIdea>
+
+### Settings
+
+All of these live beside the credentials in the deployment's secret store, as `llm.*` fields,
+so a change does not need a redeploy.
+
+| Setting | What it controls |
+| --- | --- |
+| `llm.provider` | `anthropic`, or `openai-compatible` for anything you host |
+| `llm.api-key` | The key. Required for a hosted model, usually not for your own |
+| `llm.model` | Which model to use, spelled exactly as the provider spells it |
+| `llm.base-url` | Where your own server listens. Required when you host it |
+| `llm.effort` | Which setting the Effort control starts on |
+| `llm.max-output-tokens` | A ceiling on the length of one answer. Set it and no effort setting can exceed it |
+| `llm.turn-timeout` | How long one question may take before the panel gives up |
+| `llm.reasoning-effort` | Only for a self-hosted server, including how to tell one not to reason |
+| `llm.instructions` | Standing context: your vocabulary, your conventions, what your people care about |
+
+`llm.instructions` is the one worth spending time on. It is added to the assistant's existing
+instructions rather than replacing them, so the read-only rule cannot be configured away, and
+it is where you teach it that a tag beginning `21PT` is a pressure transmitter.
+
+<KeyIdea title="Budgets are worth setting deliberately">
+`llm.max-output-tokens` and `llm.turn-timeout` are the two that matter most, and they pull in
+opposite directions. A hosted model wants a modest ceiling and seconds of patience. A model
+running on your own hardware may need minutes per question, and the panel will give up on it
+long before it finishes unless the timeout is raised. The answer-length ceiling is also what
+caps the bill: the [Effort control](/using/assistant#effort-how-hard-it-thinks) people use
+cannot spend past it, and a long answer is cut short instead.
+</KeyIdea>
+
+<Deeper title="Related">
+- [The assistant](/using/assistant): what it does for the people using it
+- [Security and compliance](/administration/security#ai-agents-and-the-console-assistant): why it is read-only, and how the checks hold
+- [Identity providers](/administration/identity-providers): where the role is granted
+- [Using MCP](/using/mcp): the same tools, offered to assistants outside the console
+</Deeper>

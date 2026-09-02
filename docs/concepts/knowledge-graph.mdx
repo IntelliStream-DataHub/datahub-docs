@@ -134,14 +134,15 @@ graph TD
 A knowledge graph is only as useful as the relationships in it. Three failure modes to
 watch for:
 
-- **Vague relationship names.** A model full of `relatedTo` edges is **a picture, not a
+- **Vague relationship names.** A model full of *related to* relationships is **a picture, not a
   model**, you cannot traverse it meaningfully because the edges do not mean anything
   specific. Name relationships for what they actually assert.
 - **Direction ignored.** *Monitors* and *is monitored by* are different facts. Pick a
   direction convention and hold to it, or traversals will return nonsense in one direction.
 - **Orphans.** A resource with no relationships is invisible to every traversal. In
-  DataHub, a [resource](/using/resources) left with no relationships at all is removed,
-  which is a deliberate nudge: things in the model should be connected to something.
+  DataHub refuses a delete that would leave a [resource](/using/resources) with no path to
+  the rest of the graph, which is a deliberate nudge: things in the model should be connected
+  to something.
 
 [Naming relationships properly →](/concepts/naming-and-standards#relationships)
 
@@ -181,8 +182,6 @@ keeps up with a plant that changes.
 - [Graph database](https://en.wikipedia.org/wiki/Graph_database)
 - [Property graph model](https://en.wikipedia.org/wiki/Property_graph)
 - [Graph traversal](https://en.wikipedia.org/wiki/Graph_traversal)
-- [Cypher, the query language DataHub uses for traversal](https://en.wikipedia.org/wiki/Cypher_(query_language))
-- [Neo4j](https://en.wikipedia.org/wiki/Neo4j)
 
 </References>
 

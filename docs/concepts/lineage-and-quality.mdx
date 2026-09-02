@@ -28,9 +28,9 @@ See the note below for what exists today.
 <Roadmap>
 **Lineage and data-quality signals are a planned capability, not a shipped one.** They are
 among the most important features on the roadmap, and this page describes the model the
-platform is being built toward.
+platform is being built towards.
 
-What exists today is the foundation: derived values can record a `derivedFrom` relationship
+What exists today is the foundation: derived values can record a *derived from* relationship
 in the graph, so the *structure* lineage needs is already there. What is not yet built is the
 end-to-end trace through transformations, the data-quality flags, and the console view that
 walks a figure back to its inputs. Plan reporting work on that basis.
@@ -93,9 +93,9 @@ Roughly a fifth of the world's petroleum liquids, and a comparable share of its 
 natural gas, leave the Gulf through a strait about 33 kilometres across at its narrowest,
 whose usable lanes are a couple of miles wide in each direction. The pipelines that bypass it
 can carry only part of that flow. This is why a disruption there is not an oil-industry
-story: within days it moves war-risk insurance, charter and freight rates, bunker and
-feedstock costs, fertiliser and plastics prices, and the cost of gas-fired power, in
-businesses that never buy a barrel of anything.
+story. Within days it moves war-risk insurance, charter and freight rates, bunker and
+feedstock costs, fertiliser and plastics prices, and the cost of gas-fired power, and it
+moves them in businesses that never buy a barrel of anything.
 
 So the route comes into question on a Monday. By Tuesday the questions in the room are:
 
@@ -160,20 +160,20 @@ as the derivations you have modelled in the platform.
 
 ## Version control, but for data
 
-The mental model that fits best is [git](https://en.wikipedia.org/wiki/Git).
+The mental model that fits best is a ledger. Nothing in a ledger is ever erased: a
+correction is a new entry that points at the one it corrects, so any balance can be traced
+back through every entry to the transactions behind it. DataHub treats data the same way:
 
-In git, no commit overwrites history. Every commit points at its parents, so any line of
-code can be traced back through every change to its origin. DataHub treats data the same
-way:
-
-- **Raw measurements and events are treated as append-only.** They are the initial commits.
+- **Raw measurements and events are treated as append-only.** They are the opening entries.
 - **Every derived value records the transformations and inputs it came from**, a cleaned
-  signal, a filtered window, an hourly aggregate, a reported KPI, like a commit pointing at
-  its parents.
+  signal, a filtered window, an hourly aggregate, a reported KPI, like an entry pointing at
+  the entries it was made from.
 
-That gives you the two things git gives you.
+Engineers will recognise the same idea from software version control, where every change
+points at the change it was made on, which is where the phrase in this heading comes from.
+Either way, it gives you two things.
 
-### Blame, for data
+### Tracing a figure back
 
 Start from a figure and walk its ancestry back through every transformation to the raw
 samples and events behind it. At each step you can see the data-quality signals that

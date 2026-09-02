@@ -61,7 +61,7 @@ around questions, not built as monuments.
 Yes, and they are unusually good with it, because an agent reasoning over a knowledge graph
 gets context instead of raw tables: it can follow *sensor → pump → line → KPI* the same way
 an engineer would, and answer with the traversal as its evidence. Agents connect through
-the [Model Context Protocol](/using/mcp), which the platform serves as 38 tools, with the
+the [Model Context Protocol](/using/mcp), which the platform serves as a set of tools, with the
 same token and permissions as any other caller, and can also write and
 operate integrations against the API. Once several run, a
 [coordinator](/value/ai-agents#coordination) sequences them into an organisation, and the
@@ -74,7 +74,7 @@ same structure holds when the workers grow bodies, inspection robots and
 MCP, the Model Context Protocol, is the open standard that lets an AI assistant call tools
 instead of guessing from what it was trained on. It matters because it removed the bespoke
 integration between each assistant and each system: a system publishes its tools once, and
-any assistant that speaks the protocol can use them. DataHub publishes 38 of them, over the
+any assistant that speaks the protocol can use them. DataHub publishes a full set of them, over the
 graph, time series, events, labels, units and the statistical analysis. You do not have to use it, the API is still
 there, but it is the shortest path from "we have a model of our operation" to "an assistant
 can answer questions about it", and it takes about twenty minutes and no code.
@@ -165,15 +165,15 @@ recording works today, and writing good rules is the slow part anyway.
 
 ### What does "git branches, but for data lineage" mean?
 
-It is the mental model behind the **planned** lineage capability. In git, no commit
-overwrites history: every commit points at its parents, so any line of code can be traced
-back to its origin. DataHub is being built to treat data the same way: raw data handled as
-append-only, and every derived value recording the transformations and inputs it came from,
-like a commit pointing at its parents.
+It is the mental model behind the **planned** lineage capability, borrowed from software
+version control. There, no change overwrites history: every change points at the one it was
+made on, so any line can be traced back to its origin. DataHub is being built to treat data
+the same way: raw data handled as append-only, and every derived value recording the
+transformations and inputs it came from.
 
-Once complete, that gives you *blame* for data (walk a figure's ancestry back to raw samples,
-with quality flags at each step) and *branching* (alternative derivations fanning out from
-the same source without touching it or each other).
+Once complete, that gives you two things: trace any figure's ancestry back to the raw
+samples, with quality flags at each step, and branch alternative derivations from the same
+source without touching it or each other.
 [→ What exists today, and what is planned](/concepts/lineage-and-quality)
 
 ## About adoption
@@ -248,13 +248,6 @@ in SQL and are natural in a graph query language.
 Telemetry is high-cardinality, append-heavy and queried in large analytical sweeps, exactly
 the columnar workload. The relational database holds the model; the columnar store holds the
 measurements.
-
-### Why is the console server-rendered rather than a single-page application?
-
-Deliberate simplicity: no frontend framework churn, no separate token handling in the browser
-(the console is a regular OAuth2 client with server-held tokens), fast first paint, and
-templates that live next to the code that serves them. It is an operational UI, not an app
-platform, so the trade-off favours longevity and a low contribution barrier.
 
 ### Do we need session affinity on the load balancer?
 
@@ -334,7 +327,7 @@ connection resumes where it left off.
 Recording them, yes; executing them is on the roadmap. Functions, the blocks that will do
 cleaning, transformation, feature extraction and windowing, and policies, the rules on data
 sets, are modelled in the graph today and are the two roadmap building blocks the platform
-is being built toward. You can compute externally now, against the same APIs.
+is being built towards. You can compute externally now, against the same APIs.
 [→ Functions](/using/functions) · [Policies](/using/policies)
 
 ### Why can I see less data than my colleague?

@@ -71,13 +71,11 @@ The REST interface. Everything that reads or writes data goes through it, whethe
 console, from an integration, or from a script. It owns the model and the ingestion
 endpoints, and it is where access decisions are made.
 
-It also keeps the **knowledge graph** in step with the model. A model change is queued in
-the relational database in the same transaction as the change itself, applied to the graph
-moments after it commits, and retried until it lands, so a restart or a graph database
-outage delays the mirror rather than losing a change. Any API instance can do this work,
-so nothing needs to run single-instance for the graph. The mirror is eventually
-consistent: normally within milliseconds, so a read straight after a write can briefly
-predate it.
+It also keeps the **knowledge graph** in step with the model. Every model change is
+recorded first, then copied to the graph moments later and retried until it succeeds, so a
+restart or a graph database outage delays the copy rather than losing a change. Any API
+instance can do this work, so nothing needs to run single-instance for the graph. The copy
+lags by milliseconds, so a read straight after a write can briefly predate it.
 
 **Scales with:** user and integration traffic.
 **Stateless:** yes, entirely, including its live-streaming connections.
@@ -108,8 +106,7 @@ the API on their behalf, so data set permissions still apply.
 **Scales with:** analysis queries. **Stateless:** yes, entirely.
 
 The service also offers the analysis to [AI agents](/using/mcp#the-second-server-statistics-as-a-tool)
-on its own `/mcp`, using the token validation it already performs, so exposing it needs no
-extra configuration. The console's assistant reaches it through the same address setting the
+with the same sign-in checks, and no extra configuration is needed to expose it. The console's assistant reaches it through the same address setting the
 Analyze tab uses, and copes with its absence: in a deployment that leaves the service out,
 the assistant keeps working and that one tool is simply unavailable.
 
@@ -144,7 +141,7 @@ infrastructure team can likely already operate.
 | Store | Job | Why this one |
 | --- | --- | --- |
 | **Relational database** | The model and system of record | Transactional correctness for the things that must be right |
-| **Columnar store** | Measurements and events | Telemetry is high-cardinality, append-heavy and queried in large analytical sweeps, exactly the columnar workload |
+| **Columnar store** | Measurements and events | Measurements are many distinct series, almost always appended and read in large sweeps, exactly the columnar workload |
 | **Graph database** | Traversing the model | Multi-hop traversals over typed relationships are natural here and painful in SQL |
 | **Streaming platform** | Data in flight | Multi-tenancy at the broker level, and per-consumer distribution models |
 | **Key mapping store** | Event key mappings | Fast lookups, kept out of the transactional path |

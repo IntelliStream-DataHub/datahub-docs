@@ -104,7 +104,7 @@ Three behaviours follow from that, and they are all deliberate:
   series and events this run created.
 - **Starting again cleans up first.** A fresh run deletes the previous run's objects before
   it begins, so repeated runs by the same person do not pile up.
-- **Each run gets its own identifiers.** A run stamps a token so the things it creates get
+- **Each run gets its own identifiers.** A run stamps a unique marker so the things it creates get
   unique [external ids](/concepts/naming-and-standards#external-ids-are-promises) rather than
   colliding with the last run's.
 
@@ -123,9 +123,9 @@ sitting in a list of production data sets long enough for somebody to mistake it
   on individual data sets, because a data set is the unit access is granted on. Without it
   the first chapter cannot complete.
   [How permissions work →](/administration/dataset-permissions)
-- **The feature enabled in the deployment.** It is on by default; an operator can turn it off
-  everywhere with `tutorial.enabled=false` in the console's configuration, which also removes
-  the menu entry and the home-screen bar.
+- **The feature enabled in the deployment.** It is on by default; an administrator can switch it
+  off for everyone in the console's configuration, which also removes the menu entry and the
+  home-screen bar.
 
 ## When to reach for it, and when not
 

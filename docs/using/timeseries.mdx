@@ -75,8 +75,8 @@ type that still represents your data honestly.
 | Value type | Use it for | Notes |
 | --- | --- | --- |
 | **Big Integer** | Counters and tallies, whole numbers, no decimals | Most compact for integer values |
-| **Float** | Analog measurements | 64-bit [floating point](https://en.wikipedia.org/wiki/Floating-point_arithmetic). Fast to aggregate, with tiny rounding |
-| **Float (32-bit)** | Analog values where about 7 significant digits is enough | Half the storage of Float |
+| **Float** | Analogue measurements | 64-bit [floating point](https://en.wikipedia.org/wiki/Floating-point_arithmetic). Fast to aggregate, with tiny rounding |
+| **Float (32-bit)** | Analogue values where about 7 significant digits is enough | Half the storage of Float |
 | **Decimal (compact)** | Small-range readings like temperature or percent | Exact to 4 decimal places, very compact |
 | **Numeric** | Values that must be exact, billing, finance | Exact to 6 decimal places, large range |
 | **Text** | States, labels, modes, non-numeric readings | Arbitrary text |
@@ -88,7 +88,7 @@ Two practical notes:
   similar strings in the same stream as their measurements. Without Mixed, those readings
   either break ingestion or get silently dropped, both worse than storing them.
 - **Storage matters at scale.** Choosing Float (32-bit) over Float across a million-series
-  estate **halves the storage bill** for that data with no practical loss for most analog
+  estate **halves the storage bill** for that data with no practical loss for most analogue
   measurements. Choosing Numeric where Float would do costs several times as much.
 
 The console shows this guidance behind the help icon next to the value-type field, so nobody
@@ -158,8 +158,8 @@ A series is empty until data flows in. Datapoints arrive three ways:
   <a href="/sdk-documentation/">Developer documentation →</a>
 - **From a change-data-capture integration.** For source systems whose database can be
   tailed directly. [Change data capture →](/using/cdc-integrations)
-- **By hand**, for testing. Copy your access token from the user menu at the top right and
-  post a few readings.
+- **By hand**, for testing. Your integration team can send a few test readings with your
+  access token, copied from the user menu at the top right.
 
 Whichever route, the token is a credential, treat it like a password, and prefer a
 dedicated service account for production ingestion rather than a person's token.
@@ -186,7 +186,6 @@ at creation.
   </Card>
   <Card title="Find related signals" to="/using/relationship-analysis" icon="🔗">
     Rank other series by how strongly they move with this one, including which leads which.
-    On the roadmap.
   </Card>
   <Card title="Overlay events" to="/using/events" icon="⚡">
     See what was happening to the equipment when the signal did something interesting.

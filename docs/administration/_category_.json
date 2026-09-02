@@ -4,6 +4,6 @@
   "link": {
     "type": "generated-index",
     "title": "Administration",
-    "description": "Running DataHub: installing it, organising tenants, managing users and permissions, controlling retention and cost, and answering the security questions. Written for administrators — technical readers, but not necessarily developers."
+    "description": "Running DataHub: installing it, organising tenants, managing users and permissions, controlling retention and cost, and answering the security questions. Written for administrators: technical readers, but not necessarily developers."
   }
 }

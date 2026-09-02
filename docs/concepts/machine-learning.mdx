@@ -307,10 +307,8 @@ and run that in production. You get the language model's convenience once and th
 model's reliability every day after.
 
 **Its big brother, xLSTM.** In 2024 the original LSTM's inventors published an extended
-version, [xLSTM](https://arxiv.org/abs/2405.04517), which adds exponential gating and a richer
-memory so the architecture scales to the sizes that made
-[transformers](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)) famous,
-while keeping the property that makes LSTMs attractive here: they process a sequence step by
+version, [xLSTM](https://arxiv.org/abs/2405.04517), which scales to the sizes modern
+language models run at, while keeping the property that makes LSTMs attractive here: they process a sequence step by
 step, so they suit a signal that arrives continuously rather than a document that arrives
 whole. If you are choosing a sequence model for industrial time series today, it belongs on
 the shortlist.

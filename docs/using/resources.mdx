@@ -139,27 +139,26 @@ an obstacle.
 ## Relationships
 
 The relationship is the name on the line between two resources: *contains*, *feeds*,
-*monitors*, *powers*, *contributesTo*.
+*monitors*, *powers*, *contributes to*.
 
 Two things to get right, both covered in
 [naming and standards](/concepts/naming-and-standards#relationships):
 
-- **Name what is actually asserted.** `relatedTo` carries no information and makes traversal
+- **Name what is actually asserted.** *related to* carries no information and makes traversal
   useless.
 - **Fix the direction and hold it.** *Monitors* and *is monitored by* are different facts.
   Decide the convention once and apply it consistently.
 
-When editing a relationship you can also enable **animate data flow** and give it a datatype
-for example `temperature`. The datatype then travels visually along that relationship in
+When editing a relationship you can also enable **animate data flow** and give it a data type,
+for example `temperature`. The data type then travels visually along that relationship in
 the graph, from source node to target node, which makes a flow legible without reading
 labels.
 
 Two relationships are constrained, because data sets are the access boundary:
 
-- A relation **to a data set** must use `BELONGS_TO`, the relationship the data set
-  hierarchy and membership are built from. The create-relation form defaults to it whenever
-  the from resource is a data set, and any other type is rejected, in the form and by the
-  API alike.
+- A relation **to a data set** must be *belongs to*, the relationship the data set
+  hierarchy and membership are built from. The form picks it for you whenever the starting
+  resource is a data set, and nothing else is accepted, whichever way the relation is made.
 - A time series belongs to **one** data set. Connecting a data set to a time series that
   already sits in another one is rejected with an error saying so.
 
