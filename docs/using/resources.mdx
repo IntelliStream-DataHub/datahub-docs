@@ -256,10 +256,10 @@ Three things to know before relying on it:
   without one and for any data sets in the file. A refusal stops the import where it has
   got to; what was already written stays, and a second import continues from there.
 
-A file may hold up to two million resources and two million relationships. The platform's
-ordinary limit on request size applies to the upload as well, and a default installation
-sets that at a few megabytes, so an administrator raises it deployment-wide before a large
-model is moved.
+A file may hold up to two million resources and two million relationships, and be up to
+512 MB. The upload is read as it arrives, like a file upload, so the platform's ordinary
+limit on request size does not apply to it; a reverse proxy in front of the API has to pass
+it through the same way, which the shipped examples do.
 [Limits and quotas →](/administration/limits-and-quotas)
 
 ## Where resources come from at scale
