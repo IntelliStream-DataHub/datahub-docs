@@ -233,6 +233,30 @@ organisations cannot tell the two apart.
 Naming the dimensions separately is what stops "data quality" becoming a single vague
 verdict that nobody can act on.
 
+The flags in the table above are the roadmap. What follows is what the platform carries
+*today* against each dimension, because an agent judging a figure has to work from that, and
+it is more than it first looks. One fact first, so nothing below is read as more than it is:
+<span className="t-accent">a datapoint is a timestamp and a value, and nothing else</span>.
+There is no per-value quality flag on a sample. The signal lives around the value, on the
+series it belongs to, on the events anchored beside it, and in the model that says what it
+measures.
+
+| Dimension | What it means for an agent | What speaks to it today |
+| --- | --- | --- |
+| **Accuracy** | The number may be wrong without looking wrong. Before quoting it, the agent should be able to say *where it entered from* | Provenance rather than a flag: `source` on the series, the resource and the event names the system it came from; the `MEASURED_BY` relationship names the instrument; a derived series can record a *derived from* relationship to its inputs. The [model around a reading](/concepts/data-cleaning#the-model-is-what-convicts-a-reading) is what convicts it, a level that rises while the outlet valve is shut, and that is a traversal the agent can make |
+| **Timeliness** | *When it happened* and *when we learnt of it* are two facts, and the gap between them is itself a signal | Every event carries `eventTime`, set at the source and never defaulted, and `createdTime`, set by the platform; filter on the first to ask what happened, on the second to ask what we knew. Every datapoint carries its own timestamp, so the latest value's age against the cadence the instrument should publish at says whether the series is live, late or frozen. [Subscriptions](/using/subscriptions) deliver on arrival, so an agent's own answer age has no polling floor |
+| **Consistency** | Two sources that should agree, and do not, is a finding | The graph says which series *should* move together, because they measure connected equipment; [relationship analysis](/using/relationship-analysis) says whether they do, and whether the link is lasting and consistent across the window or rode one burst. A shared unit catalogue keeps a bar and a psi from being compared as if they were the same |
+| **Completeness** | A monthly figure from 98% of the expected samples and one from 40% are different objects | Fetch the window and count: the number of samples against what the cadence predicts, and the bucketed aggregates against the buckets that should exist. There is no stored expected cadence on a series today; keep it in the series' metadata and the agent can read it there |
+| **Uniqueness** | The same thing recorded twice halves an average and doubles a count | One external id per thing: uniqueness ignores case, and the [near-duplicate guard](/concepts/naming-and-standards#near-duplicate-guard) refuses `pump-a-01` beside `pump_a_01` across the whole tenant. Events are keyed by their own id, so a retried batch collapses to one row. Datapoints are keyed by series and timestamp, so a re-sent sample at the same instant collapses to one row rather than counting twice. The ontology has no built-in *same as* relationship: where two records of one asset already exist, record the fact with a relationship type you define, and treat merging them as a person's decision |
+| **Validity** | A value outside what the instrument can produce is not data | The value type is enforced on write: a float into a `bigint` series is refused, a `decimal32` beyond its range is clamped and logged rather than stored wrong, a `mixed` series keeps a `FAULT` string as a string rather than as a number. Naming policies check every external id on write. The range an instrument can produce is not stored on the series today; it belongs in metadata, where an agent can compare against it |
+
+Two consequences for anyone writing an agent against this. First, most of the dimensions are
+answered by *reading around* a value rather than reading the value, so an agent that quotes a
+number without walking to its series, its instrument and the events beside it has not checked
+anything. Second, the two facts an agent most wants stored on the series, the expected cadence
+and the valid range, are conventions in metadata today rather than fields, so agree the keys
+once and write them down with the [naming conventions](/concepts/naming-and-standards).
+
 One accuracy failure deserves its own mention because no flag above will ever show it: a
 series sampled too slowly is inaccurate before any transformation touches it, fast
 behaviour [aliasing](https://en.wikipedia.org/wiki/Aliasing) into a plausible-looking slow

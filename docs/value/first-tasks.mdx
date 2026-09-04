@@ -1,0 +1,372 @@
+---
+sidebar_position: 6.5
+title: Three first tasks, step by step
+description: Three agent tasks worth building first, the shift handover report, the work order drafted from a trend, and the reported figure with provenance, each as a recipe from the model you need to the approval step a person owns.
+---
+
+# Three first tasks, step by step
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Domain experts</Persona>
+  <Persona>Project sponsors</Persona>
+</Personas>
+
+<KeyIdea>
+[Product discovery](/value/product-discovery) finds the loops worth handing to an agent. This
+page takes the three that come up most often and writes each one out end to end: what has to
+be in the model, which calls the agent makes, what the draft looks like, and where the person
+sits. The shape is the same every time. <span className="hl">The agent drafts, a person
+commits.</span> Anything that changes a record, sends a message or moves money waits for a
+human, and every step in between is a call you can point at in the platform.
+</KeyIdea>
+
+## Before any of the three
+
+- **Agents read the model through [MCP](/using/mcp), under the asking identity's
+  permissions.** An agent holds a token like any user and sees what that token may see. A
+  drafting agent gets read on the data sets it needs and write on the one data set where its
+  drafts land. [How access is decided →](/using/mcp#the-security-property-that-matters)
+- **The approval step is yours to build.** The MCP servers execute what they are asked and
+  cannot pause a call to ask a person, so the gate lives in the agent, not the platform.
+  [The four limits →](/using/ai-agents#the-four-limits-worth-setting)
+- **Every write carries provenance.** A write is authorised under a specific identity, lands
+  with a server-set created time, and carries a `source` naming the system it came from. On
+  an event, `eventTime` says when it happened and `createdTime` when the platform learned of
+  it. <a href="/sdk-documentation/reference/events">The event body, in the developer documentation →</a>
+- **There is no SQL endpoint.** Everything below goes through the REST API and the SDKs, or
+  the MCP tools that wrap them. <a href="/sdk-documentation/">Developer documentation →</a>
+
+<Roadmap>
+Two capabilities the recipes would use are planned rather than shipped. **Function
+execution** is on the roadmap, so a detection or a calculation is modelled as a function in
+the graph today but runs in a service you keep alive. **End-to-end lineage** with data-quality
+flags is on the roadmap, so a figure's ancestry reaches as far as the derivations and run
+records you write down. [Functions →](/using/functions) · [Lineage →](/concepts/lineage-and-quality)
+</Roadmap>
+
+## The shift handover report
+
+The [handover](/value/product-discovery#five-shapes-worth-looking-for) is the loop where the
+most is known and the least is written down. The agent's job is the assembly, not the
+judgement: every fact about the shift in one place, each linked to where it came from, so the
+outgoing supervisor spends the last twenty minutes on the paragraph only they can write.
+
+### What the draft contains
+
+| Section | Source in the platform | What each line links to |
+| --- | --- | --- |
+| **Alarms** in the shift window, grouped by equipment | Events of type `alarm` on the unit's equipment | The event id, and the series window the alarm concerns |
+| **Events** other than alarms: trips, mode changes, isolations, permits | Events by type, on the same resources | The event id and its related resources |
+| **Work orders opened and closed** | Events sharing the order number as `externalId`, one per state change | The order's external id, so its whole history is one lookup |
+| **Deviations from plan** | Typed events produced by a deviation function | The event, which names the series, the window and the planned value |
+| **Open items** carried from the last handover | Handover events whose status is still open | The previous handover event |
+| **State at handover** | Latest value of the handful of series the shift watches | The series and the timestamp of the reading |
+
+Every line names the ids and timestamps behind it. A line the incoming supervisor cannot open
+is a claim, and the draft should not contain claims.
+
+### The model it needs
+
+- **One unit as a root resource, its equipment beneath it.** A `Unit` or `Train` resource
+  with `isRoot` set, connected to its equipment with a containment relationship such as
+  `HAS_PART`, and the equipment connected to what it feeds. [The resource graph →](/using/resources)
+- **The series the shift watches, connected to what they measure.** The planned rate as a
+  **step series**, because a plan holds its value until the next change. An unconnected series
+  cannot be reached from the unit, so the agent cannot report on it. [Time series →](/using/timeseries)
+- **Alarms and work orders as events, anchored to equipment.** Alarms from the control system
+  and work orders from the maintenance system land as [events](/using/events) whose
+  `relatedResources` name the equipment. A work order keeps its own number as `externalId`,
+  so opened, in progress and closed are three events on one thread.
+  [External ids on events →](/using/events#external-ids-on-events)
+- **A deviation as a derived event, from a function.** Model a `Function` resource named for
+  the rule, *deviation from planned rate, unit 21*, related to the actual series, the planned
+  series and the events it produces. It fires when the actual stays outside a band around the
+  plan for longer than a threshold, and writes one `deviation` event carrying the window, the
+  planned and actual values, and the equipment. [Modelling a function today →](/using/functions#what-you-can-do-today)
+
+Until function execution ships, the deviation rule runs in your own service on a
+[durable subscription](/using/subscriptions#the-two-kinds) to the two series and writes its
+events through the SDK, `client.events.create` in Python or `client.events().create` in Java.
+The [sustained-exceedance example](/using/subscriptions#a-worked-example-handling-a-noisy-alarm)
+is the same rule with a different test, and its rules of survival apply: a reading can arrive
+twice, a window with holes is not a quiet window, and a freshly started rule reads the recent
+history before it trusts the live feed.
+
+### The query the agent runs
+
+The agent is given the unit's external id, the shift start and end, and a goal, not a
+procedure. A working walk through the MCP tools:
+
+| Step | Tool | What the agent asks for |
+| --- | --- | --- |
+| Resolve the unit | `resource_get` | The unit by `externalIds` |
+| Collect its equipment | `resource_fetch_related` | `depth` 1 or 2 from the unit; the sub-graph is the list of resources to report on |
+| Count what happened | `event_filter` | `start`, `end`, `dataSetExternalId` of the unit's data set, `groupBy` = `type`, to see how many of each kind before fetching any |
+| Fetch the alarms and events | `event_filter` | The same window, one `type` at a time, `relatedResourceExternalIds` per piece of equipment |
+| Work orders opened and closed | `event_filter` | `externalId` = `WO-*` with the window, then `event_get` on the orders it wants in full |
+| Deviations | `event_filter` | `type` = `deviation` over the window |
+| State at handover | `timeseries_get_latest` | Each watched series, by `externalId` |
+| The window behind a line | `timeseries_fetch_datapoints` | The series and the alarm's window, `aggregates` = `avg,min,max`, `granularity` = `1h`, so the draft can say what the signal did |
+
+Two details from the tool contract matter. `event_filter` narrows to events attached to
+**all** of the resources named in one call, so the agent asks per piece of equipment. And its
+drill-down mode returns compact events, so the agent calls `event_get` for the few it quotes
+in full. <a href="/sdk-documentation/mcp-server#events">Event tools, in the developer documentation →</a>
+
+### The draft, and the approval step
+
+The draft is a document in the order above, with the heading for the human paragraph left
+empty. The agent writes it as one event on the unit, `type` = `shift_handover`, `status` =
+`DRAFT`, the shift as its `externalId` (for example `handover-u21-2026-09-04-night`), the
+report in `description` and every quoted id in `metadata`, which is what makes it findable
+from the unit afterwards.
+
+The **outgoing supervisor** opens the draft, corrects what the agent got wrong, writes the
+human paragraph, and approves. Approval is a second event on the same `externalId` with
+`status` = `APPROVED`, appended rather than edited, so the draft and the approved version are
+both on the record. The agent never sets `APPROVED` itself.
+[Why a follow-up event beats an edit →](/using/events#where-events-come-from)
+
+The **incoming supervisor** sees one approved handover on the unit, open items as events still
+carrying an open status, and a link on every line. Where a line says a compressor tripped at
+03:12, the link is the series and the window, and [Insights](/using/insights) opens on it.
+
+### What the data cannot know
+
+The data knows what happened. It does not know why a decision was taken, what was tried and
+did not work, what was agreed by phone with the onshore team, or what the outgoing supervisor
+is uneasy about. That is the human paragraph, it is mandatory, and the agent must not draft
+it. A persuasive machine-written paragraph about intent is worse than none, because the
+incoming shift will believe it.
+
+:::caution Missing data is not a quiet shift
+If a series stopped arriving at 01:00, the draft says so as its own line, not as an absence of
+alarms. An instrument or a link that went silent is one of the most important things a
+handover can carry, and the easiest for an agent to leave out.
+:::
+
+### Start with one unit and one shift
+
+Model one unit, the series that shift actually watches, and the events from two source
+systems. Run the agent for one shift pattern, in parallel with the handover people already
+write, and have the supervisors compare the two for a fortnight. The differences show where
+the model is thin before anybody depends on the draft.
+
+## The work order drafted from a trend
+
+The [oil and gas example](/using/ai-agents#oil-and-gas-the-facility-that-keeps-working-while-nobody-is-aboard)
+sketches this scene. Here it is as a recipe, with the maintenance system kept on the other
+side of a person.
+
+### The trigger
+
+The trigger is not a reading, it is a **condition**: a bearing temperature that has stayed
+above its band for longer than a threshold, a vibration level whose rate of rise crossed a
+limit, a ratio between two series that drifted. The condition is a
+[function-derived event](/using/functions#event-detection-drawn): model the rule as a
+`Function` resource wired to the series it reads, and have it write one typed event per
+episode, `type` = `condition`, `subType` = `sustained_high`, anchored to the equipment, with
+the window start and end, the peak value and the sample count in `metadata`.
+
+Today the rule runs in your own service on a durable subscription and writes the event through
+the SDK; when function execution ships, the same wiring runs in the platform. The event wakes
+the agent. Pointing an agent at raw samples wastes its reasoning on arithmetic, which is why
+the function is the tripwire and the agent is the responder.
+[Function then agent →](/using/functions#and-then-an-agent-picks-it-up)
+
+### The lookups
+
+| Question | Operation | Notes |
+| --- | --- | --- |
+| Which asset is this? | The event's `relatedResources`, then `resource_get` | The rule anchored the event, so no tag parsing is needed |
+| What does it sit in, and what does it feed? | `resource_fetch_related`, `depth` 1 | The parent through `HAS_PART`, the downstream through `FEEDS`. This is what turns a hot bearing into deferred production, or not |
+| What else moved with it? | `analysis_related_series` on the analysis server | The focus series and the episode window; the result ranks physically connected series and says which led, so the agent answers from statistics rather than estimating |
+| What was the last work order on the asset? | `event_filter`, `externalId` = `WO-*`, `relatedResourceExternalIds` = the asset, then `event_get` | One order's thread is every event sharing its external id, so the agent sees what was done and when it closed |
+| Is there a spare? | `resource_fetch_nearest` from the asset, `endLabels` = `SPARE_PART` | Spares modelled as resources related to the equipment they fit, stock held as a `count` series or a metadata value, read with `timeseries_get_latest` |
+| What is the earliest slot? | Not in the platform | See below |
+
+The last row is the honest one. The platform holds no maintenance schedule, so the earliest
+slot comes from the maintenance system or from the planner. If planned work is mirrored into
+the platform as events, the agent can list what is already open on the same unit and propose
+bundling. Otherwise the field is left blank for the planner, and the draft says so.
+
+### The draft's fields
+
+| Field | Filled from |
+| --- | --- |
+| **Asset** | External id and name, from `resource_get` |
+| **Symptom** | The series, the window, the peak and how long the condition held, from the condition event |
+| **Evidence** | The condition event's id, and the trend window as its provenance (below) |
+| **Context** | What the asset feeds, and the related series that moved, from the walk and the analysis |
+| **History** | The last work order on the asset, what it did, when it closed |
+| **Proposed work and spare** | The agent's suggestion, with the spare's external id and stock status |
+| **Priority, with reasoning** | A suggestion, always with the sentence that justifies it |
+| **Proposed window** | Blank unless planned work is in the platform |
+| **Requested by** | The agent's service account, on behalf of the condition rule |
+
+### The evidence attachment
+
+The trend window *is* the provenance. The draft carries the series external id, the window
+start and end, the aggregates the agent read, and the id of the condition event, so a planner
+can open the same window in [Insights](/using/insights) and see what the agent saw. A rendered
+chart or a table of readings goes in as a [file](/using/files) related to the asset, with the
+source set to the agent; the REST upload takes related resources and a source as headers, and
+the console's *Set related resources* does the same by hand. The file records a checksum, so
+the evidence cannot change quietly.
+
+### The planner's gate
+
+The agent writes the draft as an event on the asset, `type` = `work_order_draft`, `status` =
+`DRAFT`, with the fields above in `description` and `metadata`. That is the end of the agent's
+authority. The **planner** reads it, changes what needs changing, and creates the order in the
+maintenance system themselves. When that order flows back into the platform as a `WO-` event,
+the planner or the integration appends an event to the draft's thread, `status` = `ACCEPTED`
+with the order number in `metadata`, or `REJECTED` with a reason. That thread is worth more
+than the draft: accepted as written, rewritten, or rejected is the signal that says whether the
+agent is worth its cost, computed from the event log rather than from opinion.
+[How the event log steers agents →](/value/ai-agents#where-this-is-heading-dynamic-incentives)
+
+### Why the agent never writes to the maintenance system alone
+
+- **The MCP servers do not ask permission.** A tool executes the moment it is called. The only
+  reliable gate is a token that cannot do the thing, so the agent reaches the maintenance
+  system for reading at most, and in the platform writes only to the data set where drafts land.
+- **A work order is not recoverable cheaply.** It commits people, parts and a shutdown window.
+  Product discovery's fourth test, *a wrong answer is recoverable*, only holds here if a
+  person sits between the draft and the order.
+- **Accountability already sits with the planner.** Put the gate where the accountability is.
+
+### What to model first
+
+The asset, the `HAS_PART` edge to what it sits in, the `FEEDS` edge to what it serves, and the
+series connected to it. Then the work orders as events with the order number as external id,
+usually one change-data-capture integration. Spares last. An agent with the first four finds a
+maintenance job; an agent with the `FEEDS` edge finds deferred production, and those go to
+different people with different urgency.
+
+## The reported figure with provenance
+
+A figure in a submission is a claim until somebody can walk it back to the readings and the
+factors it was made from. This recipe makes that walk possible with what the platform records today.
+
+### Modelling the inputs
+
+- **Meters as series, with an exact value type.** Each meter is a series connected to the
+  equipment it measures, created with the `numeric` value type where the figure has to
+  reconcile exactly. The value type is fixed at creation, so this is the decision to get
+  right first. [Value types →](/using/timeseries#value-types)
+- **Factors as step series, so a version is a datapoint.** A conversion or emission factor
+  changes on a date and holds until the next change. As a step series, *what factor applied on
+  the third of March* is a datapoint read, and every historical value stays where it was.
+- **Corrections as events, never as edits.** A meter found to over-read, a calibration, a
+  manual re-reading: each is an event of type `correction` or `calibration` on the meter, with
+  the value, the reason and the period it covers in `metadata`. Raw stays raw; the correction
+  is a record of what was done to it. [Why an edited log loses its value →](/using/events#where-events-come-from)
+- **Certificates as files on the instrument.** The calibration certificate uploaded as a
+  [file](/using/files) related to the meter, with its checksum recorded on upload.
+
+### The calculation as a function, so the derivation is recorded
+
+Create the calculation as a `Function` resource, through `POST /functions/create` or a
+resource create carrying the `FUNCTION` label, and wire it: edges from the function to every
+input series and factor series it reads, and a `DERIVED_FROM` edge from the output series to
+the function. The output is itself a series, one datapoint per reporting period.
+[Wiring inputs and outputs →](/using/functions#what-you-can-do-today)
+
+Until execution ships, the calculation runs in the flow or job that runs it today. The rule
+that keeps lineage honest is that <span className="t-accent">lineage is recorded as data moves
+through the flow, never reconstructed after the fact</span>, so the run writes its own record
+at the moment it runs:
+
+- **The result**, as a datapoint on the output series, timestamped to the period.
+- **A run event** on the function, `type` = `calculation_run`, with the reporting period as
+  `externalId` (for example `report-2026-08`), and in `metadata`: the function's external id,
+  the version of the logic, each input series and the window read from it, the factor value
+  and its effective date, the sample count and any gaps, and the correction events applied.
+
+A figure computed in a spreadsheet and pasted back in has none of this, and the platform
+cannot invent it. [What lineage asks of you →](/concepts/lineage-and-quality#what-it-asks-of-you)
+
+### Revisions as re-runs
+
+A revision is not an edit. Re-run the function with the corrected input, write the new result,
+and append a second `calculation_run` event on the same period `externalId` with the reason
+and what changed. Datapoints on one series collapse on timestamp, so the output series holds
+the current figure while the run events hold every version and what produced each. To compare
+two methods, clone the function and write the challenger to a parallel series, the
+[branching](/using/functions#branch-it-like-code) the functions page describes.
+
+### Answering the question two years later
+
+*Where did this figure come from?* is answered by walking back, in this order:
+
+1. **From the figure to its run.** The figure is a datapoint on the output series.
+   `event_filter` with `externalId` = `report-2026-08` and `type` = `calculation_run` returns
+   every run for the period, oldest first, and the last is the version that was submitted.
+2. **From the run to its inputs.** The run event names the function, the logic version, each
+   input series and its window, and the factor version. `timeseries_fetch_datapoints` on each
+   input over that window returns the readings the run consumed.
+3. **From the inputs to what was done to them.** `event_filter` on each meter over the window,
+   `type` = `correction` or `calibration`, lists what was applied and why, and the file related
+   to the meter is the certificate.
+4. **From the graph to the definition.** `resource_fetch_related` from the function shows what
+   it was wired to, and the `DERIVED_FROM` edge from the output series says which function
+   produced it.
+
+The walk only works if the inputs still exist, so the retention rule on anything feeding a
+reported figure has to outlive the report's auditability.
+[Retention versus traceability →](/using/policies#writing-a-policy-worth-having)
+
+### The evidence bundle
+
+When a reviewer asks, the bundle is the walk above, exported: the figure, the run events for
+the period, the input datapoints for each window, the factor values in force, the correction
+and calibration events, and the certificates with their checksums. An agent can assemble it,
+citing every id it used, and upload it as a file related to the reporting obligation modelled
+as a resource. The bundle is the agent's work, checked by a person, not a platform guarantee.
+
+### What the platform does not decide
+
+The method, the factors, the boundary of what is counted, and what is reported to whom are
+decisions your organisation makes and is accountable for. The platform records which decision
+was in force when each figure was produced, and makes it possible to show that later. It does
+not choose the method, and an agent must never be allowed to.
+
+## What the three have in common
+
+| | Handover | Work order | Reported figure |
+| --- | --- | --- | --- |
+| **The walk** | Unit outward to equipment, then events and series | Asset outward to what it feeds, then history and spares | Figure backward to run, inputs and corrections |
+| **The tripwire** | The shift clock, and a deviation function | A condition function | The reporting calendar |
+| **The draft** | A handover event, status `DRAFT` | A work order draft event | A run event and a datapoint |
+| **The person** | The outgoing supervisor | The planner | The reviewer who signs the submission |
+| **The record** | Draft and approval on one thread | Draft, and accepted or rejected, on one thread | Every run on one period thread |
+
+Three things repeat. The finding is reached by **resolving one node and stepping outward**,
+never by guessing what connects to what. The output is **a draft written as an event**,
+findable from the thing it concerns and auditable afterwards. And the irreversible step,
+approving, ordering, submitting, is **taken by a person** whose decision is appended to the
+same thread. Change the domain and the relationship names change; the shape does not.
+
+## Where to start
+
+Run a [product discovery](/value/product-discovery) first and let the scoring choose. As a
+rule of thumb, the handover wins where the pain is continuity between shifts, the work order
+where the pain is coordination between a finding and the work, and the reported figure where
+the pain is a submission that costs real effort every cycle.
+
+Whichever comes first, build the model for one unit and let the second task reuse it. The
+handover's unit is the work order's asset with its `FEEDS` edge; the figure's meters are the
+same series the handover reports on. That reuse, not any single agent, is what the platform is
+for. [Where to start →](/value/where-to-start)
+
+<Deeper>
+- [Product discovery](/value/product-discovery): finding and scoring the loops these recipes come from
+- [Building AI agents](/using/ai-agents): the limits to set, and the worked examples by industry
+- [Using MCP](/using/mcp): the tools the recipes call, and how access is decided
+- [Functions](/using/functions): modelling the tripwire today, and what execution will add
+- [Events](/using/events): the record every draft and approval is written to
+- [Lineage and data quality](/concepts/lineage-and-quality): the model the reported figure is built towards
+</Deeper>

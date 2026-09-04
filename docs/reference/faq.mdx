@@ -41,6 +41,7 @@ faster investigations, and cheap onboarding of new data.
 No. DataHub reads from operational systems and sits alongside them. Framing it as a
 replacement invites resistance from every system owner and is not what it does.
 [→ What DataHub is not](/start/what-is-datahub#what-datahub-is-not)
+[→ Historian and DataHub: what each one is for](/concepts/historian-and-datahub)
 
 ### Is there a version for our industry?
 
@@ -99,6 +100,9 @@ library that defines the API's data shapes, are Apache-2.0. That is deliberate, 
 are the parts your own applications are built on, and the Apache licence lets them be used
 in software you keep private.
 
+Inside your organisation you may modify the platform and share nothing. The obligation to offer the source of your changes starts when a modified version reaches someone outside, as a copy or as a service they use over the network. An enterprise licence lifts that obligation; the software is the same either way.
+[→ Licensing: AGPL-3.0 in practice](/administration/licensing)
+
 ### Why open source?
 
 Partly conviction, partly because it is the honest answer to the biggest objection in this
@@ -111,6 +115,28 @@ we ever vanish.
 
 The AGPL specifically guarantees improvements stay open even when the platform is offered as
 a hosted service.
+
+### Does the enterprise version have more features than the open-source version?
+
+No, and that is the plan. There is one platform, one codebase and one set of features. An
+enterprise licence changes only the licence terms, so your own improvements can stay private
+when partners or customers use them. If you never need that, the open-source version is the
+whole product.
+[→ Licensing](/administration/licensing)
+
+### Is there a SQL interface?
+
+No. Customers never address a store directly; everything goes through the model, over the
+REST API and the SDKs for Java, Python and Rust, plus file exports. The columnar store
+underneath speaks SQL, but that surface is the platform's, not yours.
+[→ Storage internals](/administration/storage-internals)
+
+### Can DataHub read our unified namespace?
+
+Yes, the way it reads any source: a value published on a topic lands as a datapoint on a
+series, and the topic path maps to resources and relationships in the graph. What the tree
+cannot say, the relationship that crosses two branches, is what the graph adds.
+[→ Unified namespace and the knowledge graph](/concepts/unified-namespace)
 
 ## About the model
 
@@ -293,6 +319,9 @@ the columnar store's native backup, your standard graph backup, and the tenant's
 root. Restore is similarly scoped, one tenant without touching the others.
 [→ Backups](/administration/data-lifecycle#backups)
 
+On the hosted platform the storage is on ZFS: a snapshot every fifteen minutes, pulled by jailed backup servers to one local and one remote copy, each snapshot a restorable point in time, and only what changed ships, so the interval holds at any size.
+[→ Backups and point-in-time recovery](/administration/security)
+
 ### Can we sign in with our existing Entra ID?
 
 Yes: federate Entra ID through Keycloak, which is the recommended path. Making Entra ID the
@@ -308,10 +337,29 @@ procurement requires a certified supplier now, we do not meet that bar.
 [Ask us where the process stands](https://intellistream.ai/contact-us).
 [→ Certification status](/administration/security)
 
+What exists today: identity through Keycloak with Entra ID behind it, secrets from Vault, TLS to the API and mTLS between services, several network layers behind their own firewalls, policy on every request with denials logged, snapshots every fifteen minutes pulled by jailed backup servers, and a written account after any incident. The security page maps the questions an assessor asks to each of those.
+[→ What an ISO 27001 assessment asks](/administration/security)
+
 ### Can it run air-gapped?
 
 Yes. Nothing in the platform requires an outbound connection at runtime, no licence check,
 no telemetry, no hosted dependency. [→ Security](/administration/security)
+
+### Is traffic encrypted?
+
+The API and console are reached over ordinary TLS. Between the platform's own services the
+hosted platform uses mutual TLS, where both ends present a certificate before any data
+moves. A self-hosted evaluation stack runs without either, and turning them on is part of
+going to production.
+[→ Transport](/administration/security)
+
+### What happens when something goes wrong?
+
+The engineers on call are the ones who built the platform, and every layer underneath it is
+open source they run and understand, so a fix does not wait for a vendor ticket. Afterwards
+you get a written account of what happened, what was affected and what changed, written from
+the audit log.
+[→ When something goes wrong](/administration/security)
 
 ## About using it
 

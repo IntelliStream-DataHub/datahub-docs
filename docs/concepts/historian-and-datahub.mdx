@@ -1,0 +1,238 @@
+---
+sidebar_position: 10.5
+title: "Historian and DataHub: what each one is for"
+description: What a historian does well and should keep doing, what it was never built to answer, the liberation path in detail with the real ingestion routes, batching, backfill, value types and sampling choices, a side-by-side comparison, when the historian alone is enough, and how to run both.
+---
+
+# Historian and DataHub: what each one is for
+
+<Personas>
+  <Persona primary>Leadership</Persona>
+  <Persona primary>Engineers</Persona>
+  <Persona>Operations</Persona>
+</Personas>
+
+<KeyIdea>
+A historian is a good archive, and it stays. It captures tags at the control system's rate,
+keeps them for years and draws a trend faster than anything else you own.
+
+DataHub sits above it. <span className="hl">Nothing is migrated</span>: copies of the signals a
+question needs are liberated in, attached to the things they measure, and joined to the
+events, documents and relationships the historian never held. The historian keeps being the
+system of record for raw capture. DataHub is where the question gets answered.
+</KeyIdea>
+
+## What a historian does well
+
+<Lead>Be precise about this, because the case for DataHub does not rest on the historian being
+bad at its job. It rests on the job being narrower than the questions.</Lead>
+
+- **Capture close to the control system.** A historian is usually wired to the control
+  network, speaks the protocols the controllers speak, and records at the rate the loop
+  runs. Store-and-forward at the collector means a network outage is a delay, not a gap.
+- **Keep tags for a long time, cheaply enough.** Compression tuned for slowly changing
+  process values, and decades of practice at not losing anything.
+- **Draw a trend.** Pick a tag, pick a window, see the line. Operators and process engineers
+  have trusted that screen for thirty years, and they are right to.
+- **Own one hierarchy.** A historian's tag list is a naming discipline the whole plant
+  shares, which is worth more than it sounds when the next system is being connected.
+
+If the questions your organisation asks are all of the form *"what did tag X do between
+these two times?"*, this page ends here and the historian is the right tool.
+
+## What it cannot do
+
+The questions that decide an investigation, a shutdown or an audit are a different shape,
+and the historian's design is what stops it answering them.
+
+| The question | Why the historian cannot answer it |
+| --- | --- |
+| *What feeds this pump, and what does it feed?* | A tag is a name with a history. It has no relationships to other tags beyond a folder path, and the flow of the plant is not a folder |
+| *Was anything open on it at the time?* | Permits, work orders and inspections live in other systems, keyed by an equipment number the tag list has never heard of |
+| *We are taking this switchboard out. What loses supply?* | A question nobody knew to ask when the tag list was built. Answering it needs relationships that were recorded because they are true, not because a report needed them |
+| *Where is the datasheet, and what did the last inspection say?* | Documents are not tags |
+| *An assistant asked: what happened to K-401 overnight?* | There is no standard tool surface for an agent to call, and no per-request policy deciding, for that agent, what it may see. [What DataHub exposes →](/using/mcp#what-datahub-exposes) |
+| *Which figures in this report still hold?* | A historian holds inputs. What was computed from them, and by which method, it does not record. [Lineage →](/concepts/lineage-and-quality) |
+
+The first and third rows are the same limitation, and they are the important one:
+<span className="t-accent">the historian answers questions that were known at install
+time</span>, about one tag at a time. Everything above is a question across things, and
+across systems, that arrived later.
+
+## The liberation path, in detail
+
+[Data liberation](/start/data-liberation) is the name for getting copies out from behind the
+historian's data model and into a shape any reader can use. Here is what the work actually
+consists of, with the routes that exist today.
+
+<Steps>
+  <Step title="Choose what to liberate, not everything">
+    Land what a question needs. A plant with fifty thousand tags rarely has fifty thousand
+    questions, and a faithful copy of the whole tag list reproduces the problem you were
+    escaping. Start with the equipment a real investigation touched last quarter.
+    [The liberation play →](/value/value-paths#data-liberation)
+  </Step>
+  <Step title="Model the things first">
+    The equipment those tags measure becomes [resources](/using/resources), and the
+    historian's tag is the natural external id: `COM-99-PT-1034` is stored exactly as
+    written, so the historian, the maintenance system and DataHub hold the *same string*.
+    Set `source` on each resource to name the system it came from.
+    [External ids are promises →](/concepts/naming-and-standards#external-ids-are-promises)
+  </Step>
+  <Step title="Create each series with a unit, a value type and a relationship">
+    One [series](/using/timeseries) per tag, created with the unit the historian holds for it,
+    a value type chosen from the table below, and a relationship to the equipment it measures.
+    The value type cannot be changed later, so this is the step worth thirty seconds of thought
+    per class of measurement, and worth writing down as a convention.
+  </Step>
+  <Step title="Get the readings in">
+    Three routes exist today, and one is on the roadmap. Through the **REST API**, `POST /timeseries/data`
+    carries batches of timestamped values. Through the **SDKs** for Java, Python and Rust, the
+    same call with the batching, parallelism, retries and durable buffering already written. Through
+    an **edge collector**, a program that sits next to the control system, reads the protocol the
+    controllers speak, OPC-UA or Modbus, and pushes through the SDK. Be clear about what that
+    is: the platform has no server-side connector for OPC-UA, Modbus or MQTT, nothing in
+    DataHub opens a connection to a controller or a broker, and the collector is a client you
+    run. **Change data capture**, tailing the historian's own database, is on the roadmap and
+    its screens are not yet functional.
+    [Getting data in →](/using/timeseries#getting-data-in) · [Change data capture →](/using/cdc-integrations)
+  </Step>
+  <Step title="Backfill the history">
+    History arrives the same way as live data, just faster. The Java SDK's `ingest` splits
+    datapoints into batches of ten thousand per request, sends them in parallel, and retries
+    transient failures; every datapoint carries its own timestamp, so the order batches land
+    in does not matter. Sustained volume is bounded by a per-minute rate limit and a daily
+    ingest quota, both answered with a `429` and a `Retry-After` the SDKs honour for you, so a
+    large backfill is a matter of hours rather than a project. Turn on durable buffering for
+    the collector: readings that cannot reach the API spool to disk and are flushed on the
+    next call, bounded by time and size.
+    <a href="/sdk-documentation/guides/ingest-timeseries">High-throughput ingestion →</a> ·
+    <a href="/sdk-documentation/reference/client#durable-ingest-buffering">Durable buffering →</a>
+  </Step>
+  <Step title="Bring the events across too">
+    The historian's alarms, and the maintenance system's work orders and permits, become
+    [events](/using/events) anchored to the same resources. Every event carries the time it
+    happened at the source, which is what lets a backfilled weekend land with weekend
+    timestamps and a Monday creation time, and the two are filterable separately.
+  </Step>
+  <Step title="Attach each series to the thing it measures">
+    This is [contextualization](/concepts/contextualization), and it is the step that decides
+    whether the result is a model or a second tag list. A connected series is a property of a
+    real thing; an unconnected one is a column of numbers with a new address.
+  </Step>
+</Steps>
+
+### The choices that set the cost
+
+Two decisions are made per series, once, and they set the storage bill for as long as the
+series lives.
+
+**The value type.** Each type lands in its own table in the columnar store, with a
+compression codec suited to it, and the type is fixed at creation.
+
+| Value type | Use it for | Cost note |
+| --- | --- | --- |
+| `float32`, the default | Ordinary analogue measurements, about seven significant digits | Half the storage of `float` |
+| `float` | Analogue values that need double precision | Fast to aggregate, tiny rounding |
+| `bigint` | Counters, totalisers, integer states | Most compact for whole numbers |
+| `decimal32` | Small-range exact readings, four decimal places | Compact, clamped at its range |
+| `numeric` | Values that must reconcile exactly, six decimal places | Several times the cost of a float |
+| `text` | Modes, states, labels | Tighter batch cap than the numeric types |
+| `mixed` | Sensors that publish `FAULT` beside their numbers | Numbers aggregate, text rows are skipped by aggregates |
+
+**The sampling rate.** The historian may hold a tag at one sample a second. Whether the
+liberated copy needs that rate depends on the fastest behaviour a question will ever care
+about: sample at least twice that fast, and no faster. A slow drift kept at one hertz is money
+spent forever, since measurement history is kept indefinitely today and retention is a
+[coming feature](/administration/data-lifecycle#lever-2--retention). A surge kept at one
+sample a minute is a surge you will never see. The full argument, and the illusion that
+undersampling produces, is on the time series page.
+[How often should you sample? →](/using/timeseries#how-often-should-you-sample)
+
+## Side by side
+
+| | Historian | DataHub |
+| --- | --- | --- |
+| **Unit of storage** | A tag: a name, a type, a history | Four things: [resources, series, events and data sets](/start/core-ideas), with typed relationships between them |
+| **The questions it answers** | What did this tag do between two times | That, plus anything reachable by walking relationships: what feeds this, what was open on it, what loses supply |
+| **Relationships** | One folder hierarchy | A graph of named, directional relationships, as many kinds as the operation has |
+| **Readers** | Its own trend client and its own interface | The console, the REST API, the SDKs for Java, Python and Rust, and the [MCP tools](/using/mcp) an assistant calls. There is no SQL endpoint; the columnar store underneath speaks SQL, but that surface is the platform's, not yours |
+| **Lineage** | None. A tag records what arrived | A derived series can record what it was computed from as a relationship today; the end-to-end trace is [planned](/concepts/lineage-and-quality) |
+| **Permissions** | Whatever the historian's own tool offers, administered there | Per data set, granted as groups in your identity provider, and checked the same way on every route, the assistant included |
+| **Cost of history** | Set by the historian's own licence and storage, on its terms | Kept in a columnar store that, on IntelliStream's own setup, compresses industrial time series around a hundred times and reads over ten billion rows a second. Cost is set by the value type and the sampling rate you chose |
+
+## When the historian alone is enough
+
+Honest cases, because they exist:
+
+- **One site, one hierarchy, one kind of reader.** If every question is *"show me tag X"*
+  and every asker is a process engineer with the trend client open, the historian answers it
+  and nothing here would be used.
+- **No cross-system questions.** If the maintenance system and the permit system are never
+  asked about in the same breath as a signal, the join DataHub provides has no customer.
+- **No agents, and none planned.** An assistant reaching a tag list gets numbers it cannot
+  interpret; if nobody intends to point one at the operation, the tool surface is idle.
+- **No documents to reach from the equipment**, and no audit that asks where a figure came
+  from.
+
+The moment one of those changes, usually the first time somebody asks *"what else is
+affected?"* and the answer takes a week, the liberation path above is the cheapest next
+step, and it asks nothing of the historian.
+
+## Running both
+
+The arrangement that works, and that every deployment described in this documentation uses:
+
+- **The historian remains the system of record for raw capture.** It keeps its collectors,
+  its rate and its retention. Nothing is switched off, and nobody has to defend a migration.
+- **DataHub holds liberated copies**, at the rate a question needs, attached to the things
+  they measure. The tag is the external id, so a record in one is a comparison away from the
+  record in the other, and `source` says which system it came from.
+- **Events and documents come from the other systems**, anchored to the same resources, which
+  is the join the historian could never make.
+- **Readers choose by question.** A trend on one tag: the historian's client. Anything
+  across things, across systems, or asked by an assistant: DataHub.
+- **Retention is decided per data set** once retention ships, and the historian's own
+  retention is untouched by it. Until then, the liberated copy is kept indefinitely, which is
+  one more reason to choose the sampling rate deliberately.
+  [Retention versus traceability →](/administration/data-lifecycle#retention-versus-traceability)
+
+The [FAQ](/reference/faq) puts it in one sentence: DataHub is not a replacement for the
+historian, and framing it as one invites resistance from every system owner while describing
+something it does not do.
+
+## Where agents help
+
+The dullest part of liberation is working out what the historian's tag list actually contains
+and which of it matters. An agent can read the list, sample the tags, propose which become
+series, which equipment they belong to and which value type fits the payload, because the
+target vocabulary is only four things wide. Review the mapping, not just the code.
+[Agents that build and run integrations →](/value/ai-agents#agents-that-build-and-run-your-integrations)
+
+Once the copies are in, the standing job is watching them for what a historian cannot see
+about its own data: a series that froze while the plant carried on, a rate that quietly
+halved when a collector was reconfigured, a unit that changed with an instrument swap. Raise
+each as an [event](/using/events), and the record of the liberated copy's condition lives
+with the copy.
+[Data cleaning →](/concepts/data-cleaning)
+
+<References>
+
+- [Operational historian](https://en.wikipedia.org/wiki/Operational_historian)
+- [OPC Unified Architecture](https://en.wikipedia.org/wiki/OPC_Unified_Architecture)
+- [Modbus](https://en.wikipedia.org/wiki/Modbus)
+- [Column-oriented DBMS, the store the copies land in](https://en.wikipedia.org/wiki/Column-oriented_DBMS)
+- [Data compression](https://en.wikipedia.org/wiki/Data_compression)
+- [Aliasing, what undersampling does to a signal](https://en.wikipedia.org/wiki/Aliasing)
+
+</References>
+
+<Deeper>
+- [What is data liberation?](/start/data-liberation): the idea this page applies to one system
+- [Unified namespace and the knowledge graph](/concepts/unified-namespace): the same argument for a topic tree
+- [Time series](/using/timeseries): units, value types, step series and sampling
+- [Events](/using/events): the record the historian does not keep
+- [Data lifecycle](/administration/data-lifecycle): where the copies sit and what they cost
+- [Architecture](/administration/architecture#the-backing-stores): the columnar store and the services around it
+- <a href="/sdk-documentation/guides/ingest-timeseries">High-throughput ingestion</a>: the SDK path a collector or a backfill uses
+</Deeper>

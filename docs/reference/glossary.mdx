@@ -42,6 +42,11 @@ description: Every term used on this site, defined in one line, with a link to w
 | **`rdf:type`** | The formal name for what DataHub calls a label. [→](/concepts/ontology) |
 | **`rdfs:label`** | The formal name for what DataHub calls a name. [→](/concepts/ontology) |
 | **IRI** | A globally unique identifier for a thing; the external id is its local part. [→](/concepts/naming-and-standards) |
+| **Provenance** | Where a value entered from: which instrument, which system, which moment. Lineage is what happened to it afterwards. [→](/concepts/lineage-and-quality) |
+| **Unified namespace (UNS)** | One hierarchical publish-subscribe address space, usually an MQTT topic tree, holding every system's current state. The graph adds the relationships the tree cannot express. [→](/concepts/unified-namespace) |
+| **Historian** | The archive that stores tags and draws trends. It stays; DataHub sits above it and reads liberated copies. [→](/concepts/historian-and-datahub) |
+| **Synthetic data** | Data generated in simulation rather than recorded from the operation, kept one provenance flag apart from real data. [→](/concepts/synthetic-data) |
+
 
 ## Working with data
 
@@ -95,6 +100,9 @@ description: Every term used on this site, defined in one line, with a link to w
 | **Retention** | How long measurement history is kept. Automatic expiry is on the roadmap, so today nothing ages out and volume is cumulative. [→](/administration/data-lifecycle) |
 | **Access token** | A short-lived credential carrying your identity and permissions. Treat it like a password. [→](/administration/users-and-access#access-tokens) |
 | **Service account** | A non-human identity used by an integration, with its own narrow permissions. [→](/administration/users-and-access#service-accounts) |
+| **Edge collector** | A client program built on the SDK that sits next to a control system, reads it (OPC-UA and Modbus are the usual protocols) and pushes readings into the platform; the platform itself has no server-side connector. [→](/concepts/historian-and-datahub) |
+| **Data liberation** | Copying data out of closed systems, over standard protocols, into storage you own, without migrating anything. [→](/start/data-liberation) |
+
 
 ## Administration
 
@@ -116,6 +124,19 @@ description: Every term used on this site, defined in one line, with a link to w
 | **`tenant_limits`** | The one-row table in each tenant's schema that overrides any deployment default limit, live and without a restart. [→](/administration/limits-and-quotas#raising-a-limit-for-one-tenant) |
 | **Identity provider** | The external system holding user accounts and issuing tokens. [→](/administration/users-and-access) |
 | **Air-gapped** | Running with no internet connection at all, fully supported. [→](/administration/security) |
+
+## Security and operations
+
+| Term | In one line |
+| --- | --- |
+| **TLS / mTLS** | Ordinary TLS protects the API and console; mutual TLS, where both ends present a certificate, is used between the platform's own services. [→](/administration/security) |
+| **Network layer** | One of several isolated network segments the hosted platform runs in, each behind its own firewall and access-control lists. [→](/administration/security) |
+| **Snapshot** | A ZFS point-in-time copy of the hosted platform's storage, taken every fifteen minutes and shipped as only what changed. [→](/administration/security) |
+| **Jailed backup server** | An isolated host that pulls snapshots from production; production never pushes to it and has no path into it. [→](/administration/security) |
+| **Audit log** | The record of every request, allowed or denied, that an incident account and a permissions question are both answered from. [→](/administration/security) |
+| **Enterprise licence** | A commercial licence that lifts AGPL-3.0's source-sharing obligation for your own modifications; the same code, only the terms change. [→](/administration/licensing) |
+| **Support contract** | Support from the engineers who built the platform, starting with a one-time onboarding; platform maintenance, advisories and a named contact. [→](/administration/licensing) |
+| **Corresponding source** | AGPL-3.0's term for the source code, build scripts included, that must be offered to whoever receives or remotely uses a modified platform. [→](/administration/licensing) |
 
 ## Industrial standards
 
