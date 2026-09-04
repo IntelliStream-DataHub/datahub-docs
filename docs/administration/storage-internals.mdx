@@ -1,0 +1,390 @@
+---
+sidebar_position: 7.5
+title: "Storage internals: where the bytes sit and why they compress"
+description: Which store holds what in DataHub, the real table definitions behind measurements and events, why industrial data compresses as far as it does, and what that means for sizing, backup and tenant isolation.
+---
+
+# Storage internals: where the bytes sit and why they compress
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT and OT operations</Persona>
+  <Persona>Engineers</Persona>
+</Personas>
+
+<KeyIdea>
+Every store in DataHub holds one kind of thing, and the one that holds measurements and
+events is a columnar store whose tables were defined for industrial signals: timestamps
+stored as the difference between differences, values stored as the bits that changed since
+the previous reading, and a general-purpose compressor over the top.
+
+That is why industrial time-series compress up to 100 times and events up to 25 times,
+where 2 to 4 times is the norm for general data, and why ten years of second-level history
+becomes affordable. Those are observations, not guarantees. This page explains the mechanism
+so you can judge how far your own data will follow them.
+</KeyIdea>
+
+## Every store does one thing
+
+The [architecture page](/administration/architecture#the-backing-stores) names the stores by
+job. This page names the products, because the details only make sense against the real
+systems. The roles are those in the platform repository's `ARCHITECTURE.md`.
+
+| Store | Product | Holds |
+| --- | --- | --- |
+| **Columnar store** | ClickHouse | Datapoints, in one table per value type, and the event log |
+| **Relational database** | PostgreSQL | The ontology and the records: resources and relationships, series definitions, data sets, units, labels, policies, file entries, subscriptions, tenant limits, and the small vocabularies events are classified by |
+| **Graph database** | Neo4j | A mirror of the resources and relationships, for traversal |
+| **Streaming platform** | Apache Pulsar | Data in flight: datapoints and events on their way to the columnar store, and the fan-out to live subscribers |
+| **Session and cache store** | Valkey | Console sessions, query cursors, and the newest reading of each series |
+| **Key mapping store** | Apache Kvrocks | The index from an event's external id to the events that carry it |
+| **File storage** | A filesystem path per tenant | The bytes of uploaded files under the tenant's root path, with a separate trash path |
+| **Secret store** | HashiCorp Vault | The tenant registry: which of the above each tenant connects to |
+
+Two things about the write path matter below. A datapoint or event the API has accepted is
+on the stream before the caller gets its answer, and the ingest consumer lands it in the
+columnar store afterwards in large batches, so the stream lets the store take writes at its
+own pace (`SCALABILITY.md`, "The path as built"). And the graph is never written directly: a
+model change is recorded in the relational database with a row in an outbox table, and any
+API instance then applies it to the graph, so the relational database is the system of
+record and the graph converges to it (`ARCHITECTURE.md`, "Deployment & scaling").
+
+## The time-series table, column by column
+
+The definitions live in one file in the platform repository,
+`datahub-api/src/main/resources/db/clickhouse.sql`, applied to every tenant's database.
+Everything in this section is read from it. This is the float table with its comments
+trimmed; the other six differ only in the value column.
+
+```sql
+CREATE OR REPLACE TABLE datapoints_float (
+    timeseries_id Int64                CODEC(DoubleDelta, ZSTD(9)),
+    timestamp     DateTime64(3, 'UTC') CODEC(DoubleDelta, ZSTD(9)),
+    value         Float64              CODEC(Gorilla, ZSTD(9))
+)
+ENGINE = ReplacingMergeTree
+ORDER BY (timeseries_id, timestamp)
+PRIMARY KEY (timeseries_id, timestamp)
+PARTITION BY YEAR(timestamp)
+SETTINGS min_age_to_force_merge_seconds = 300;
+```
+
+Three columns and nothing else. No series name, no unit, no data set: those live in the
+relational database, and the columnar store knows a series only by its internal id.
+
+### The three columns
+
+**`timeseries_id`**, a 64-bit integer, `DoubleDelta` then `ZSTD(9)`. Rows are sorted by
+series first, so a stored block of this column is long runs of one number. The difference
+between neighbours is zero, the difference between those differences is zero, and
+`DoubleDelta` encodes a run of zeros in almost no space. Any monotonic identifier suits it
+for the same reason.
+
+**`timestamp`**, a `DateTime64(3, 'UTC')`, `DoubleDelta` then `ZSTD(9)`. The `3` is
+millisecond precision; the fixed `UTC` stores a reading as an unambiguous instant whatever
+the sender's local time was. Within one series the timestamps rise by the sampling interval,
+so their first differences are all roughly the interval and their second differences roughly
+zero. A regular one-second signal costs a few bits per timestamp; jitter costs a few more.
+
+**`value`**, whose type and codec the value type fixes at creation. The seven tables map onto
+the [value types](/using/timeseries#value-types) like this:
+
+| Value type in the console | Table | Value column | Codec |
+| --- | --- | --- | --- |
+| Big Integer | `datapoints_bigint` | `Int64` | `T64, ZSTD(9)` |
+| Float | `datapoints_float` | `Float64` | `Gorilla, ZSTD(9)` |
+| Float (32-bit) | `datapoints_float32` | `Float32` | `Gorilla, ZSTD(9)` |
+| Numeric | `datapoints_numeric` | `Decimal64(6)` | `T64, ZSTD(9)` |
+| Decimal (compact) | `datapoints_decimal32` | `Decimal32(4)` | `T64, ZSTD(9)` |
+| Text | `datapoints_text` | `LowCardinality(String)` | `ZSTD(9)` |
+| Mixed | `datapoints_mixed` | `Nullable(Float64)` and `LowCardinality(Nullable(String))` | `Gorilla, ZSTD(9)` and `ZSTD(9)` |
+
+What each codec does:
+
+- **`Gorilla`** is for floating point. It XORs each value with the previous one and stores
+  only the bits that differ. A slowly moving analogue reading shares its sign, exponent and
+  most of its mantissa with its predecessor, so the XOR is mostly zeros.
+- **`T64`** is for integers, and for decimals, which ClickHouse stores as scaled integers.
+  It takes a block of 64 values and strips the high bits none of them use, so a counter or a
+  temperature to four decimals costs about as many bits as its range needs, not 64. The DDL
+  comment on `datapoints_decimal32` says as much.
+- **`LowCardinality`** replaces each string with a small dictionary index. A text series
+  carrying `RUNNING`, `STOPPED` and `FAULT` stores three strings once and a tiny number per
+  row. Right for states and modes, wrong for free text.
+- **`ZSTD(9)`** is the general compressor applied after the specialised codec, at a high
+  level. `SCALABILITY.md` notes that `DoubleDelta` and `Gorilla` do most of the ratio and the
+  high level mainly costs CPU at insert and merge time, which is why it names the level as the
+  first thing to measure if insert CPU ever becomes the limit.
+
+The mixed table has two value columns rather than one flexible column on purpose: each row
+fills exactly one, and the DDL comment notes that the mostly-empty column compresses to
+almost nothing while aggregates run natively on the numeric side.
+
+### The ordering key
+
+`ORDER BY (timeseries_id, timestamp)` is the most consequential line. Inside every stored
+part, all readings of one series sit together, in time order. The platform's read path asks
+for exactly that shape: one series over a window, ordered by time, or one series' newest
+reading. The sparse primary index over the same key lets the store jump to the first block
+for that series and time and read forward, rather than scan the part. It is also what makes
+the codecs work: `DoubleDelta` and `Gorilla` only pay off when neighbouring rows are
+neighbouring readings. The store sorts every insert block by this key itself
+(`SCALABILITY.md`), so nothing upstream has to deliver readings in order.
+
+### The engine
+
+`ReplacingMergeTree` means that rows with the same series and timestamp collapse to one when
+the store merges its parts in the background, so sending a reading twice, or re-sending a
+corrected one, updates rather than duplicates. The collapse is eventual, at merge time. The
+one setting, `min_age_to_force_merge_seconds = 300`, exists because a yearly partition is
+fed continuously by small streaming inserts; the DDL comment explains that parts older than
+five minutes are merged even when size-based selection would leave them, so aggregate
+queries over recent data do not have to plan across hundreds of tiny parts.
+
+### Partitions, and what they mean for retention
+
+`PARTITION BY YEAR(timestamp)` puts each calendar year of a table in its own parts. A query
+whose window falls in one year never opens another, and a whole year is the unit the store
+can detach or drop cheaply, which is how a columnar store makes coarse retention almost free.
+
+The platform does not use that today. There is <span className="t-accent">no TTL clause on
+any table</span> in `clickhouse.sql`, and deleting a series is a row-level delete on its
+table (`DELETE ... WHERE timeseries_id = ...` in the platform's `ClickHouseDatapointService`)
+that the store applies by rewriting the affected parts a moment later. That matches what
+[data lifecycle](/administration/data-lifecycle) says: retention is a planned feature, and
+stored history is cumulative until it ships.
+
+## Why it compresses
+
+Put the pieces together and the ratio stops being surprising:
+
+1. **Sorting by series and time** turns every column into a sequence of near-neighbours.
+2. **`DoubleDelta`** reduces the id column to runs of zeros and the timestamp column to the
+   jitter around the sampling interval.
+3. **`Gorilla` and `T64`** reduce a value to the bits that changed, and a physical process
+   rarely changes much between consecutive samples.
+4. **`ZSTD(9)`** compresses whatever regularity is left, at a level chosen for ratio.
+5. **The store handles columns, not rows**, so each codec sees a long, homogeneous stream
+   rather than a value wedged between a string and an id.
+
+This is why industrial time-series compress up to 100 times and events up to 25 times,
+where 2 to 4 times is the norm for general data. Industrial signals are the best case for
+every step above: regular sampling, slow-moving values, a few distinct states. General data
+gets only the last step.
+
+The caveat is that your data decides. A noisy float sampled irregularly compresses less than
+a steady one sampled on the clock; free text in a text series defeats the dictionary; an
+exact decimal recording noise to six places stores the noise. The figures are what real
+industrial estates have shown, not a property of the platform, and the honest way to know
+yours is the pilot under [sizing](#sizing).
+
+## Why scans are fast
+
+Reading is the mirror of writing. A query for one series over a month names three columns
+of one table, and the store reads those columns from only the parts whose year and key range
+can hold the answer. No row is reassembled and no other column is skipped over. Decoding
+`DoubleDelta` and `Gorilla` is sequential and cheap, and the result is already in time order
+because that is how it was stored. Aggregates stay inside the store too: the platform's
+aggregate path groups readings into time buckets in the query and returns the buckets, so a
+chart of a year at one point per pixel moves a few hundred rows over the network, however
+many were read.
+
+The read rate that produces is large. ClickHouse reads over ten billion rows per second,
+measured on IntelliStream's own setup, and the reader's hardware will differ. Treat it as an
+illustration of the shape of the workload, not a figure to plan against.
+
+## Events, files, graph, records
+
+The measurements are the bulk. The rest is smaller, and each piece is stored the way its
+shape asks for.
+
+### Events
+
+Events live in the columnar store too, in the `events` table of the same tenant database,
+and nowhere else in bulk: the relational database keeps only the small dimension tables of
+event types, sub types, statuses and sources. The definition in `clickhouse.sql` applies the
+same instincts to a wider shape:
+
+- **`LowCardinality(String)`** on `external_id`, `type`, `source`, the related resources'
+  external ids and the keys of the `metadata` map: the columns that repeat.
+- **`DateTime64(3, 'UTC')`** with `DoubleDelta` for `event_time`, `date_created` and
+  `last_updated`; `DoubleDelta` on `data_set_id` and the related resource ids; `T64` on
+  their hashes; **`ZSTD(9)`** on every column, including `description`, the one free-text
+  field and the one that grows with how much people write.
+- **`ORDER BY id`**, `PARTITION BY toYYYYMM(event_time)`, `index_granularity = 2048`. The id
+  is the platform's own event id, so fetching, correcting or deleting by id is a key lookup,
+  and the DDL comment says the small granularity is chosen for those lookups. Time-window
+  queries rely on the monthly partitions and a `minmax` skip index on `event_time`.
+- **Nine skip indexes**: an n-gram bloom filter over `external_id` for prefix filters, a
+  bloom filter over its hash for exact matches, set indexes over `type`, `sub_type` and
+  `status`, and bloom filters over the related resource ids and hashes and the metadata keys
+  and values. A skip index does not find rows; it lets the store skip blocks that cannot
+  match, which keeps the [event log filters](/using/events#the-event-log) fast on a table
+  with no row index.
+
+Alongside the table, the key mapping store holds one set per external id, keyed by a hash
+of the external id and the tenant, listing every event that carries it: the index behind
+[many events sharing one external id](/using/events#external-ids-on-events), kept current
+by the ingest consumer (`ARCHITECTURE.md`, module structure). Events at up to 25 times is
+a lower ratio than measurements because strings are involved, and `description` decides
+where your estate lands. The event table is in the same ClickHouse database as the
+datapoints, so the store's native backup covers both.
+
+### Files
+
+A file is two things in two places. The bytes sit on a filesystem under the tenant's
+`root-path`, with deleted files moved to a separate `trash-path` until the housekeeping
+purge, both from the tenant's registry entry. The record of the file, its name, folder,
+checksum, size, type, related resources and data set, is a row in the relational database,
+which is what the [file browser](/using/files) searches and permissions check against.
+There is no compression story: an uploaded PDF or photo is stored as sent, and file volume
+is bounded only by capacity, since there is
+[no per-tenant file quota](/administration/data-lifecycle#the-ceiling-above-all-three). The
+storage root and the relational database belong in the same snapshot, otherwise a restored
+database lists files whose bytes are missing, or the reverse.
+
+### The graph
+
+The graph database holds the resources and the relationships between them, with labels and
+properties, as a mirror of the relational database: a row in the outbox per change, applied
+in order, re-read from the relational database at apply time so a replayed row writes today's
+state rather than yesterday's. It holds no measurements and no events, grows with resource
+and relationship count, and is the one store that is derived rather than authoritative. Back
+it up and snapshot it with the relational database; if the two disagree, the relational
+database is the one to believe. On the reference deployment all tenants share one graph
+database;
+[organisations and tenants](/administration/organizations#what-the-reference-deployment-actually-does)
+explains why and what to change.
+
+### The records
+
+Everything else is a row in the tenant's relational database: series definitions with unit
+and value type, resources and relationships, data sets and their hierarchy, labels, units,
+policies and their findings, subscriptions, the tenant's limits, the outbox, and the event
+vocabularies. It is small next to the measurements, grows with the number of things rather
+than with time, and is backed up with an ordinary dump.
+
+## Database per tenant
+
+The evaluation stack's ClickHouse initialisation script,
+`deploy/clickhouse/init/10-create-tenant-databases.sql`, is one `CREATE DATABASE IF NOT
+EXISTS` per tenant and a comment saying the ingest consumer routes each tenant into its own
+database. Every table in `clickhouse.sql` is then created inside each of those databases, so
+a tenant's measurements and events are a database, not a column value.
+
+What that isolates, and what it costs, is the subject of
+[organisations and tenants](/administration/organizations#why-database-per-tenant). The
+storage-level consequences belong here:
+
+- **Backup, restore and offboarding are per database.** One tenant can be restored or
+  dropped without touching another's parts, with no shared tables to clean.
+  [Offboarding →](/administration/data-lifecycle#offboarding-a-tenant)
+- **Merges, parts and placement are per tenant.** A small tenant does not ride on a large
+  one's compaction, and a heavy tenant's database can move to its own server by changing
+  its connection details.
+- **The cost is multiplication.** Seven datapoint tables and an event table per tenant, a
+  schema migration per tenant, and one long-lived client per tenant in each service that
+  talks to the store (`SCALABILITY.md`, "ClickHouse"). None of it is large; it is simply
+  proportional to tenant count.
+
+## How a query reaches a store
+
+Nobody, and no integration, addresses a store directly. <span className="hl">There is no SQL
+endpoint.</span> Every read and write goes through the model, by way of the REST API or the
+SDKs for Java, Python and Rust, plus the file exports the console offers such as
+[exporting a model](/using/resources#moving-a-model-between-tenants). The analysis service
+and the console's assistant use the same API with the caller's own token. The
+[developer documentation](https://intellistream.ai/sdk-documentation/) covers the API and
+the SDKs.
+
+Between a request and the bytes:
+
+<Steps>
+  <Step title="The tenant is resolved from the token">
+    The organisation in the caller's sign-in token selects the tenant, and with it which
+    relational database, columnar database, graph and storage root every step below uses.
+    [How →](/administration/organizations#what-a-tenant-is)
+  </Step>
+  <Step title="The model is consulted, and permissions applied">
+    A request names a series or event by id or external id. The API looks it up in the
+    relational database, learns its internal id, value type and data set, and the data set
+    decides whether this caller may read or write. For the event log the permitted data sets
+    are folded into the query itself, so an unpermitted event is never read.
+    [Data set permissions →](/administration/dataset-permissions)
+  </Step>
+  <Step title="The store and the table are chosen">
+    The value type picks the datapoint table and the window becomes a key-range read on it;
+    an event filter becomes a query over the event table and its skip indexes; a
+    latest-value request can be answered from the cache store, which the API updates as
+    readings arrive.
+  </Step>
+  <Step title="The answer comes back through the model">
+    Rows become datapoints with the series' external id, unit and value type attached, which
+    the store never knew. What leaves the platform is model vocabulary, never table
+    vocabulary.
+  </Step>
+</Steps>
+
+So the layout on this page is implementation, not interface: it can change between versions
+without any caller noticing, and a caller's performance depends on asking the model for the
+right shape of data, one series over a window, an aggregate rather than raw rows.
+
+## Sizing
+
+The [capacity method in data lifecycle](/administration/data-lifecycle#planning-capacity) is
+the one to use: datapoints per second, times bytes per datapoint, times seconds retained,
+plus an allowance for files. This page changes only how you get the middle term. Do not take
+bytes per datapoint from the ratios quoted here. Measure it:
+
+1. **Pick representative series, not the easy ones.** A few of each value type, deliberately
+   including the noisy and irregular signals, since they set the upper bound, sampled at the
+   rate you intend to run at.
+2. **Ingest a bounded window into a test tenant**, long enough that background merges have
+   run, so you measure merged, compressed parts rather than fresh inserts.
+3. **Read the compressed size the store reports.** ClickHouse keeps compressed and
+   uncompressed byte counts for every table. Have whoever operates the store read them per
+   datapoint table, and divide by the rows ingested.
+4. **Size events and files separately.** Events scale with `description` length and
+   metadata, files with what people upload. Neither follows the measurement figure.
+
+Ten years of second-level history becomes affordable on the figures real estates have shown.
+Whether it is affordable for yours is the number from step three, multiplied through the
+method, and it is worth an afternoon before anyone commits to a retention promise.
+
+## What compression does not fix
+
+**Sampling too coarse.** Compression removes redundancy in what was recorded; it cannot
+recover what was never sampled. A surge that fell between two one-minute samples is gone,
+and may have left a plausible-looking slow trend in its place. Affordable history is an
+argument for sampling fast enough, not for sampling everything at maximum rate.
+[How often should you sample? →](/using/timeseries#how-often-should-you-sample)
+
+**A wide value type.** The codecs narrow the gap between Float and Float (32-bit), or
+between Numeric and Decimal (compact), but do not close it, and the value type
+[cannot be changed](/using/timeseries#editing-a-series). Make the convention before the first
+series is created, not after the first bill.
+
+**A store is not a model.** A perfectly compressed series that is not connected to the thing
+it measures is a cheap column of numbers: not findable, meaningless to an agent, absent from
+the graph an investigation walks. The work that turns storage into a data platform is
+[contextualization](/concepts/contextualization), and it happens in the model, not the store.
+
+<References>
+
+- [ClickHouse](https://en.wikipedia.org/wiki/ClickHouse)
+- [Column-oriented databases](https://en.wikipedia.org/wiki/Column-oriented_DBMS)
+- [Delta encoding](https://en.wikipedia.org/wiki/Delta_encoding)
+- [Zstandard](https://en.wikipedia.org/wiki/Zstd)
+- [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter)
+
+</References>
+
+<Deeper>
+- [Data lifecycle](/administration/data-lifecycle): value types, retention, housekeeping and the capacity method
+- [Architecture, without the jargon](/administration/architecture): the services around these stores
+- [Organisations and tenants](/administration/organizations): what database-per-tenant isolates, and what the reference deployment configures
+- [Time series](/using/timeseries#value-types): choosing the value type that picks the table
+- [Events](/using/events): the log these tables hold
+- [Files](/using/files): what sits on the storage root
+- [Frequently asked questions](/reference/faq#why-a-columnar-store-for-measurements): the short answer this page is the long version of
+</Deeper>

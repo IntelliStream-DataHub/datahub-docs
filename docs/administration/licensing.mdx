@@ -1,0 +1,406 @@
+---
+sidebar_position: 11
+title: "Licensing: AGPL-3.0 in practice"
+description: What the GNU AGPL-3.0 lets you do with DataHub, when you must offer the source of your changes, what the enterprise licence changes, and how IntelliStream is paid.
+---
+
+# Licensing: AGPL-3.0 in practice
+
+<Personas>
+  <Persona primary>Legal and procurement</Persona>
+  <Persona primary>Administrators</Persona>
+  <Persona>IT security</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+The platform is free software under the GNU AGPL-3.0, and that is the whole product: one
+codebase, one feature set, nothing held back for a paid edition. You can run it, change it and
+keep it inside your organisation without owing anyone the source of your changes.
+
+The obligation starts at the edge of your organisation. When a modified version reaches
+someone outside, as a copy handed to a partner or as a service outsiders use over the
+network, you must offer them the source of your changes. <span className="hl">Sharing is not
+the violation; sharing without offering the source is.</span>
+
+An enterprise licence from IntelliStream lifts that one obligation. It changes the terms,
+not the software.
+</KeyIdea>
+
+:::caution Not legal advice
+This page is a plain-language summary written by engineers, not legal advice, and the
+[licence text](https://www.gnu.org/licenses/agpl-3.0.html) governs wherever the two differ.
+The section numbers below refer to that text, which ships as `LICENSE` in the repository.
+Where a question turns on facts about your organisation rather than on the software, the
+page says so; those are questions for your counsel.
+:::
+
+## What is licensed, and how
+
+The platform is under the GNU Affero General Public License, "either version 3 of the
+License, or (at your option) any later version", as the repository's `NOTICE` file states.
+
+The client libraries are the deliberate exception. In the platform repository,
+`datahub-api-model`, the small library that defines the API's data shapes, and
+`datahub-java-sdk` each carry the Apache License 2.0: their own `LICENSE` file, an
+`SPDX-License-Identifier: Apache-2.0` header on every source file, and the same licence in
+the metadata they are published with. The comment in the build file says why: "A client
+library has to be safe to link into someone else's application, and a copyleft one is not."
+The Python and Rust SDKs are Apache-2.0 on the same principle.
+[The licence, in the FAQ →](/reference/faq#what-is-the-licence)
+
+There is one codebase. The version you clone from GitHub, the version IntelliStream hosts for
+customers and the version covered by an enterprise licence are the same software with the same
+features. Nothing in the platform checks a licence, calls home or expires.
+[Air-gapped installation →](/administration/installing#air-gapped-installation)
+
+## What you can do without asking anyone
+
+The AGPL is a copyright licence, so it only has something to say when you do what copyright
+law would otherwise forbid: copy, adapt, distribute. Using the software is not one of those
+things.
+
+- **Run it, for any purpose, at any scale.** Section 2 "explicitly affirms your unlimited
+  permission to run the unmodified Program". No user limit, no tag limit, no tenant limit, no
+  field of use.
+- **Modify it and run the modified version for yourself.** Section 2 continues: "You may
+  make, run and propagate covered works that you do not convey, without conditions". A change
+  that stays inside your organisation is covered by that sentence.
+- **Keep your data, your model and your configuration private.** They are not the Program.
+  Section 2 says the output of running a covered work is covered "only if the output, given
+  its content, constitutes a covered work", which your measurements, your asset model and
+  your reports do not.
+- **Have a contractor do the work for you.** Section 2 lets you give the software to others
+  "for the sole purpose of having them make modifications exclusively for you, or provide you
+  with facilities for running those works", provided they act on your behalf, under your
+  direction and control, and on terms that forbid them keeping copies outside the
+  relationship. A systems integrator patching it for you, or a hosting company running your
+  instance, fits that paragraph if the contract does.
+- **Pass on unmodified copies.** Section 4 allows verbatim copies, with the copyright and
+  licence notices intact and a copy of the licence alongside, and adds that "you may charge
+  any price or no price for each copy".
+- **Read it before you accept anything.** Section 9: "You are not required to accept this
+  License in order to receive or run a copy of the Program." Acceptance is only implied when
+  you modify or propagate it.
+
+## Modifying the platform versus building on it
+
+Section 0 defines the terms. To "modify" is "to copy from or adapt all or part of the work in
+a fashion requiring copyright permission, other than the making of an exact copy", and the
+result is a "modified version". A "covered work" is the unmodified Program or a work based on
+it. Every obligation on this page attaches to covered works and to nothing else, so the first
+question is always whether what you built is one.
+
+**Building on the platform through its API is not modifying it.** An application that talks
+to DataHub over the REST API, through one of the SDKs, over MCP or through a
+[subscription](/using/subscriptions) is a separate program. It contains none of the
+platform's code. The only DataHub code it links is the client library, and that library is
+Apache-2.0 precisely so the application can be <span className="t-brand">your own work,
+under your own terms</span>: closed, sold, hosted or given away as you choose. The AGPL
+obligations attach to modifying the platform itself and then conveying it or serving it over
+a network, and not to the programs that call it. This is the normal way to extend DataHub,
+and it is why the SDKs exist.
+
+**Patching the platform's own code is modifying it.** A change to the API, the console, the
+consumers or the housekeeping service, a fork with a feature added, a rebuilt image with a
+behaviour changed: each of these produces a modified version, and the rest of this page
+applies to it.
+
+**Anything that embeds platform code beyond the SDKs is a legal judgement.** Section 1 draws
+the Corresponding Source line at "shared libraries and dynamically linked subprograms that the
+work is specifically designed to require, such as by intimate data communication or control
+flow", and section 5 says an "aggregate", separate and independent works shipped side by side
+on the same medium, does not pull the other works under the licence. Code compiled into the
+platform's process, a plugin it loads, a copy of an AGPL module inside your own service, or a
+component the platform cannot start without, sits closer to the first description than to
+the second. If your design depends on where that line falls, ask counsel before relying on it
+rather than after.
+
+:::tip A good test
+Could you delete the platform's source tree and still build your application? If yes, you
+built on it. If your build breaks, you have modified it or combined with it, and the rest of
+this page is for you.
+:::
+
+## The three situations
+
+The licence has two triggers. **Conveying**, defined in section 0 as any propagation "that
+enables other parties to make or receive copies", is what sections 4, 5 and 6 govern.
+**Remote network interaction** with a modified version is what section 13 adds, and it is the
+clause that makes the AGPL different from the ordinary GPL. Section 0 is explicit that "mere
+interaction with a user through a computer network, with no transfer of a copy, is not
+conveying", which is exactly why section 13 exists.
+
+Put the two together and every deployment lands in one of three situations.
+
+| Situation | Example | What the licence asks |
+| --- | --- | --- |
+| **Inside your organisation** | Your engineers patch the platform and your staff use it, on your servers or in your cloud | Nothing. You are not conveying, and the only network users are your own, inside the organisation that already holds the source |
+| **A copy leaves** | You hand a modified build to a partner, a customer or a supplier, or ship it inside a product | Sections 4, 5 and 6: keep the notices, mark what you changed and when, license the whole work under the AGPL, and give the recipient the Corresponding Source or a written offer of it |
+| **Outsiders use it over the network** | People outside your organisation, clients, partners or the public, use your modified version through the console or the API | Section 13: the modified version must prominently offer those users the Corresponding Source of your version, from a network server at no charge |
+
+Two things about the table are worth reading twice.
+
+Section 13 says "all users", not outside users. Your own staff are users too, and the
+obligation towards them is met trivially: the organisation that made the change already holds
+its source. The clause bites when the users are outside, because they hold nothing.
+
+<span className="t-brand">The line is the edge of your organisation, not the edge of your
+servers.</span> A modified version in your own cloud account, used only by your staff, is
+inside. The same version on your own hardware, used by a client, is outside. Where the edge of
+your organisation runs is a question of law and of corporate structure, not of software: a
+wholly owned subsidiary, a joint venture, a shared-services company, a franchisee and a
+long-term contractor are all different cases, and the licence text does not decide them for
+you. Ask counsel, and if the answer is uncertain, the [enterprise licence](#the-enterprise-licence)
+removes the question rather than answering it.
+
+## What "offer the Corresponding Source" means in practice
+
+Section 1 defines Corresponding Source as "all the source code needed to generate, install,
+and (for an executable work) run the object code and to modify the work, including scripts to
+control those activities". It excludes System Libraries and general-purpose tools "used
+unmodified" that are not part of the work, and it need not include "anything that users can
+regenerate automatically from other parts of the Corresponding Source".
+
+For a modified DataHub that means, concretely:
+
+- **The platform source with your changes applied**, not a diff on its own and not a
+  description of the change. The simplest form is a fork of the repository with your commits
+  on it.
+- **The build**, which in this repository is the Gradle build and the container build the
+  launcher uses. If you changed either, the changed version is part of the source. If you did
+  not, the upstream one already is.
+- **Deployment scripts, where they are needed to install or run the modified work.** Section
+  1 includes "scripts to control those activities". Your secrets, certificates, tenant
+  registry and data are not source and are not owed to anyone.
+- **Nothing you did not change and did not combine.** The backing stores, the JVM, the
+  operating system and the container runtime are System Libraries or generally available
+  programs used unmodified.
+
+Section 5 adds what a modified source version must say about itself: "prominent notices
+stating that you modified it, and giving a relevant date" (5a), a notice that it is released
+under this licence (5b), and the whole work licensed under the AGPL "to anyone who comes into
+possession of a copy" (5c). A changes file, or the commit history of a public fork, satisfies
+the first two. The third is the part people underestimate: once a modified version is
+conveyed, the recipient holds it under the AGPL and may pass it on, and section 10 says you
+"may not impose any further restrictions" on top.
+
+Section 6 lists the ways to deliver source with a binary. The ones that matter here are a copy
+alongside the binary (6a), a written offer valid for at least three years to supply it on
+request (6b), or, when the binary is downloaded from somewhere, "equivalent access to the
+Corresponding Source in the same way through the same place at no further charge" (6d). A
+repository the recipient can clone, or a source tarball next to the image, meets 6d. The
+source must be in a publicly documented format and "require no special password or key for
+unpacking, reading or copying".
+
+Section 13 is the operational one for a hosted deployment. The modified version must
+"prominently offer all users interacting with it remotely through a computer network" an
+opportunity to receive its Corresponding Source "from a network server at no charge, through
+some standard or customary means". The console already carries that offer: the **About
+DataHub** entry in the user menu links to the source, the licence text and the third-party
+notices, and the comment on that template says why it is there. <span className="hl">If you
+modify the platform and outsiders use it, point that link at the source of your version</span>,
+a public fork or a tarball on a server they can reach, and leave it where users can find it.
+Removing the offer from a modified, network-served version without an equivalent is the
+violation section 13 describes.
+
+:::tip A test that takes ten minutes
+Give the archive or repository you intend to offer to an engineer who has never seen your
+changes, on a clean machine, and ask them to run the install command from
+[Installing](/administration/installing#installing-the-evaluation-stack). If it builds and
+starts, it is Corresponding Source. If they have to ask you for something, that something
+belongs in the offer.
+:::
+
+## Contributing upstream is the simplest way to comply
+
+Every obligation above exists to keep improvements to the platform available to its users.
+The least effort way to meet it is to give the improvement to the platform.
+
+A change merged upstream has no separate source to offer, because it is in the source everyone
+already gets. It also stops being yours to maintain: it is rebuilt, tested and shipped with
+every release instead of being rebased by your team on every upgrade, security advisories
+cover it, and the people who wrote the surrounding code review it before it lands. For a fix
+or a feature that is not a competitive secret, which describes most of them, this is strictly
+better than a private patch.
+
+The repository's contributing guide is short. Contributions are licensed under the same
+AGPL-3.0 terms, and there is no contributor licence agreement to sign; instead every commit
+carries a `Signed-off-by:` trailer under the
+[Developer Certificate of Origin](https://developercertificate.org/), which `git commit -s`
+adds for you. Fork, branch, sign off, open a pull request, and open an issue first if the
+change is large enough that you would rather know it is wanted before building it.
+[The repository →](https://github.com/IntelliStream-DataHub/datahub-platform)
+
+## The enterprise licence
+
+Some organisations need to keep their improvements private while people outside use them: a
+service company whose modified platform is its product, a vendor shipping it inside
+equipment, a group whose corporate edge is too complicated to draw. For them IntelliStream
+offers an **enterprise licence**.
+
+**What it does.** It lifts the source-sharing obligation for your own improvements. Conveying
+a modified version to a partner or customer, or running it as a service for outsiders, no
+longer requires offering them the source of your changes.
+
+**What it does not do.** It does not change the software. There is no enterprise edition, no
+extra feature and no held-back component: the licensed version and the open-source version
+are the same code, built from the same repository, with the same features. The licence exists
+only for those who need it, and it is quoted per deployment, in writing, once the deployment
+is known. [Talk to us →](https://intellistream.ai/contact-us)
+
+The licence text anticipates the arrangement. Section 5(c) says the AGPL "gives no permission
+to license the work in any other way, but it does not invalidate such permission if you have
+separately received it", and section 7 lets a copyright holder attach additional permissions.
+An enterprise licence is that separately received permission, granted by IntelliStream as the
+platform's copyright holder.
+
+| You | Enterprise licence |
+| --- | --- |
+| Run the platform, modified or not, for your own organisation | Not needed |
+| Build applications on the API and SDKs, internal or commercial | Not needed |
+| Contribute your changes upstream | Not needed |
+| Convey an unmodified copy to a partner | Not needed, section 4 already allows it |
+| Convey a modified version to a partner or customer and keep the changes private | Needed |
+| Host a modified version that outsiders use, and keep the changes private | Needed |
+| Cannot say with confidence where your organisation's edge runs | Worth discussing; it removes the question |
+
+## Do we have to publish our changes?
+
+Worked examples, in the order people tend to ask them. Each answer is the licence applied to a
+plain case; the moment a case stops being plain, it belongs to counsel.
+
+- **A plant patches the console to show a local unit convention and uses it internally.**
+  No. Section 2: no conveying, no outside users. Consider contributing it anyway.
+- **An integrator modifies the platform under contract, for you, on your servers.** No,
+  provided the contract meets section 2: exclusively on your behalf, under your direction and
+  control, no copies kept outside the relationship. Whether a particular contract does is a
+  judgement.
+- **A service company hosts DataHub for its clients, unmodified.** Nothing beyond the offer
+  already in the console, because section 13 applies "if you modify the Program". Leave the
+  About dialog's source link in place.
+- **The same service company adds features and hosts the result for its clients.** Yes. The
+  clients interact with a modified version over the network, so section 13 applies: offer
+  them the Corresponding Source of that version, or hold an enterprise licence.
+- **A vendor ships DataHub inside a product it sells, with changes.** Yes. Delivering the
+  product conveys the modified version, so sections 5 and 6 apply and the source, or a written
+  offer of it, travels with the product. Section 6 has extra rules for a "User Product",
+  consumer goods and things built into dwellings, and says doubtful cases are resolved in
+  favour of coverage; industrial equipment usually is not one, but have that checked. An
+  enterprise licence lifts the source obligation here too.
+- **A vendor ships DataHub unmodified alongside its own software.** Conveying an unmodified
+  copy is section 4: keep the notices, include the licence. Section 5's aggregate paragraph
+  says shipping separate works side by side does not bring the vendor's own software under
+  the AGPL. Whether the two are separate works or one combined program is the linking
+  question above, and a judgement.
+- **A company sells an application that uses the API and the Python SDK.** No. It is a
+  separate work built on Apache-2.0 libraries, and the platform's licence does not attach to
+  it.
+- **A wholly owned subsidiary runs the parent's modified version, or a joint venture runs
+  one deployment for its owners.** This is the "your organisation" question. Separate legal
+  entities are the case the licence text does not settle, and the honest answer is that it
+  depends on your structure and your jurisdiction. Ask counsel, or take the enterprise
+  licence and stop thinking about it.
+- **Your company is acquired, or spins a division out.** Section 10 covers an "entity
+  transaction": each party receiving a copy also receives the licences the predecessor had,
+  plus a right to the Corresponding Source from them. An enterprise licence, if you hold one,
+  is a contract with its own terms; read those.
+
+## How IntelliStream is paid
+
+The code being free is a decision about where the money comes from, not a decision to have
+none. The model is the one Red Hat built a company on and HashiCorp after it: the software is
+free, and the company is paid for running it, supporting it and building on top of it.
+Everything below is quoted per deployment, in writing, and this page carries no figures on
+purpose. [Pricing →](https://intellistream.ai/pricing)
+
+<Cards>
+  <Card title="Support contracts" icon="🛠️" href="https://intellistream.ai/pricing">
+    For self-hosters. It starts with a one-time onboarding, where IntelliStream gets to know
+    your deployment. After that you have a named contact who knows it, platform maintenance,
+    security advisories sent to you directly and answers from the people who built the
+    platform. A contract that is cancelled and later restarted begins with onboarding again.
+  </Card>
+  <Card title="Hosted platform" icon="🏗️" href="https://intellistream.ai/pricing">
+    IntelliStream runs the platform for you: on hardware it owns in Stavanger, under
+    Norwegian law; in your own cloud on AWS, Azure, Google Cloud, IBM or Oracle; or on your
+    own servers in your own data centre. Upgrades, backups, monitoring and on-call are
+    IntelliStream's either way. Quoted on data volume, retention and support level.
+  </Card>
+  <Card title="Engineers" icon="🧭" to="/value/product-discovery">
+    Consulting and forward-deployed engineers. Product Discovery finds the first piece of
+    work worth automating, and on-site engineering puts the people who built the platform at
+    your facility for the modelling, the integration and the first agents.
+  </Card>
+  <Card title="Applications" icon="🧩" href="https://intellistream.ai/pricing">
+    Software built and sold on top of the platform, on the same model your engineers and
+    agents read. Some of it is free and open-sourced. IntelliStream can host and support
+    those applications as well as the platform under them.
+  </Card>
+</Cards>
+
+None of these change the licence of the platform, and none of them is required to run it. A
+self-hoster with no contract runs exactly the same software as a hosted customer with one.
+
+## Frequently asked
+
+### Is there an enterprise edition with more features?
+
+No, and that is deliberate. One platform, one codebase, one set of features. The enterprise
+licence changes the terms your own improvements are held under, nothing else. If you never
+need that, the open-source version is the whole product.
+
+### Do we have to publish our asset model, our data or our configuration?
+
+No. None of them is the Program. The licence covers the platform's code and works based on
+it; what you put into a running instance, and what comes out, is yours.
+
+### We only use the API and the SDKs. Does any of this apply to us?
+
+Not to your application. It is your own work under your own terms, built on Apache-2.0
+client libraries. The platform it talks to remains under the AGPL, and whoever runs that
+platform carries the obligations on this page, which for an unmodified platform amount to
+leaving the source offer in the console where it is.
+
+### Does the platform check a licence key or call home?
+
+No. Nothing in the platform requires an outbound connection at runtime: no licence check, no
+telemetry, no hosted dependency. [Security →](/administration/security#auditability-of-the-platform-itself)
+
+### Can we remove the About dialog from the console?
+
+Removing it is itself a modification, and the modified version would then lack the offer
+section 13 requires of any modified version people use over a network. Keep it, or replace it
+with an equivalent that points at the source of your version.
+
+### What happens if we get it wrong?
+
+Section 8 says your rights under the licence end automatically if you propagate or modify
+outside its terms, and it also says how they come back: stop the violation and the licence is
+reinstated, permanently if it is the first notice you have had from that copyright holder and
+you cure within 30 days of receiving it. The practical version: fix it when told, promptly.
+
+### Is there a warranty?
+
+Not from the licence. Sections 15 and 16 disclaim warranty and liability "except when
+otherwise stated in writing". Commitments about response and availability, where they exist,
+come from a written support or hosting agreement, not from the AGPL.
+
+<References>
+
+- [GNU Affero General Public License, version 3](https://www.gnu.org/licenses/agpl-3.0.html), the text this page summarises
+- [Frequently asked questions about the GNU licenses](https://www.gnu.org/licenses/gpl-faq.html)
+- [GNU Affero General Public License](https://en.wikipedia.org/wiki/GNU_Affero_General_Public_License)
+- [Copyleft](https://en.wikipedia.org/wiki/Copyleft)
+- [Apache License 2.0](https://en.wikipedia.org/wiki/Apache_License)
+- [Developer Certificate of Origin](https://developercertificate.org/)
+
+</References>
+
+<Deeper>
+- [Security and compliance](/administration/security): what source availability lets a security review do
+- [Installing](/administration/installing): the air-gapped installation, and what to change before production
+- [Frequently asked questions](/reference/faq#what-is-the-licence): the licence in two sentences, and why open source
+- [Product discovery](/value/product-discovery): the engagement that finds the first piece of work worth automating
+- [Board briefing](/value/board-briefing): where the cost actually sits when there is no licence fee
+</Deeper>

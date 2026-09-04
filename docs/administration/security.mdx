@@ -1,7 +1,7 @@
 ---
 sidebar_position: 10
 title: Security and compliance
-description: DataHub's security posture, the isolation guarantees, and answers to the questions a risk committee will ask.
+description: DataHub's security posture, the isolation guarantees, transport security, how the hosted platform is backed up and how incidents are handled, and answers to the questions a risk committee or an ISO 27001 assessor will ask.
 ---
 
 # Security and compliance
@@ -31,19 +31,45 @@ callback or hosted dependency.
 That process is **in progress and not yet complete**, we are not certified today, and this
 page should not be read as a claim that we are.
 
+What the work consists of, so that "working towards" is a description rather than a slogan.
+ISO/IEC 27001 certifies an information security management system, and building one means:
+
+- **Defining the scope**: which services, people, sites and systems the management system
+  covers.
+- **A risk assessment and a risk treatment plan**, so that every control exists because a
+  named risk called for it.
+- **Written policies and procedures** for the control areas the standard lists: access
+  control, cryptography, operations, suppliers, incidents, continuity, compliance. Most of
+  what those documents describe is already how the platform is run, and is described on this
+  page; the work is writing it down in the form an auditor can check against evidence.
+- **A statement of applicability**, listing each control in the standard and whether and how
+  it applies.
+- **Internal audit and management review**, and then the external certification audit.
+
 What that means practically for an evaluation:
 
-- The information security management system is being built out against the standard, so the
-  controls and documentation a certified supplier would be expected to hold are being put in
-  place rather than assembled reactively.
+- The controls and documentation a certified supplier would be expected to hold are being
+  put in place deliberately, against the standard's control list, rather than assembled
+  reactively when a questionnaire arrives.
 - If your procurement process requires a certified supplier **today**,
   <span className="hl">we do not meet that bar yet</span>. [Ask us where the process currently stands](https://intellistream.ai/contact-us) rather
   than relying on this page, which is updated less often than the programme moves.
 - [ISO/IEC 27001](https://en.wikipedia.org/wiki/ISO/IEC_27001) certification covers the
   organisation's management system, **not the software itself**. The properties below, external
-  identity, credential-level tenant isolation, and a fully auditable source tree, are what a
-  technical review should actually examine, and they hold independently of certification
-  status.
+  identity, credential-level tenant isolation, transport security, pulled backups and a fully
+  auditable source tree, are what a technical review should actually examine, and they hold
+  independently of certification status.
+
+What a customer can request today:
+
+| Request | What you get |
+| --- | --- |
+| **Answers to your security questionnaire** | Written answers drawn from this page and the platform source, with the gaps stated rather than papered over. [The mapping →](#what-an-iso-27001-assessment-asks) |
+| **A technical walkthrough** | The architecture, the network layering in principle, the identity chain and the backup mechanism, with the engineers who built them |
+| **The source** | All of it, under the AGPL-3.0, before you sign anything. [Auditability →](#auditability-of-the-platform-itself) |
+| **The incident process** | What happens when something goes wrong and what you receive afterwards. [When something goes wrong →](#when-something-goes-wrong) |
+| **The hosting facts** | Where the hosted platform runs, on whose hardware, under which law. [Where does the hosted platform run? →](#where-does-the-hosted-platform-run) |
+| **The current ISO 27001 status** | Which of the steps above are done. On request, because it changes faster than this page |
 
 ## Authentication and authorisation
 
@@ -52,6 +78,11 @@ standard sign-in protocols (OAuth2 and OpenID Connect) of your identity provider
 existing single sign-on, multi-factor
 requirements, conditional access and joiner-mover-leaver process all apply unchanged.
 [Identity providers, including Entra ID →](/administration/identity-providers)
+
+On the hosted platform the identity chain is Keycloak with Microsoft Entra ID as the usual
+identity provider behind it. Keycloak stays in the middle in every case: it is the one
+issuer the platform trusts, and a corporate directory is brokered through it rather than
+replacing it. [Why Keycloak sits in the middle →](/administration/identity-providers#why-keycloak-sits-in-the-middle)
 
 **Authorisation is per request.** Every request is authorised against your identity provider's
 current answer, so revoking a role or a group membership takes effect within about a minute,
@@ -64,6 +95,12 @@ sessions, externalised to a shared store, which is what lets it scale without af
 **Live delivery is authorised the same way.** A [data subscription](/using/subscriptions)
 is an authenticated, permission-scoped standing connection, not a bypass: what it delivers
 is filtered by the same data set read boundary as any other read.
+
+**A refusal is recorded like an answer.** On the hosted platform every request is checked
+against policy under the asking identity, an agent under exactly the rules of the person or
+service account it acts for, and a denial is logged the same as an answer, so the record
+shows what was refused as well as what was served. Every write carries its provenance,
+which identity made it. [Where the record lives →](#where-the-record-lives)
 
 [Users and access →](/administration/users-and-access) ·
 [Data set permissions →](/administration/dataset-permissions)
@@ -129,14 +166,204 @@ can never see another's tenant.
 
 [How multi-tenancy works →](/administration/organizations)
 
+## Transport: TLS to the API, mTLS between services
+
+Two kinds of traffic cross the network, and a questionnaire asks about both: what users and
+integrations send to the platform, and what the services say to each other and to their
+stores. They are protected differently.
+
+**Users and integrations reach the console and the API over ordinary TLS**, with standard
+certificates, from a browser or an SDK, with nothing special on the client side. No API user
+is ever asked for a client certificate: the caller's identity is the bearer token from your
+identity provider, checked on every request.
+[Authentication →](#authentication-and-authorisation)
+
+**Between backend services the hosted platform uses mutual TLS.** A service proves who it is
+with a certificate of its own, and the store or service it calls verifies that certificate
+before it says anything, so a stolen address or a stolen password is not enough to talk to a
+store. That is what "mTLS" means on this page, and it is only ever between backend services.
+
+### What terminates where
+
+| Hop | Protection | Where it ends, and what decides it |
+| --- | --- | --- |
+| Browser or SDK to the edge | TLS with a standard certificate | At the load balancer. The reference nginx configuration (`nginx/README.md` in the platform repository) allows TLS 1.2 and 1.3 only, six ECDHE AEAD cipher suites and no others, session tickets off, OCSP stapling, and HSTS for two years with `includeSubDomains` |
+| Edge to the API and console instances | The worked examples forward plain HTTP to port 8081 (API) and 8080 (console), opened to the load balancer addresses only, and the API trusts `X-Forwarded-*` headers only from the `internal-proxies` list in its configuration (`systemd/README.md`) | On the application host. Whether this hop also gets TLS is a decision the examples leave to you; on the hosted platform it sits inside a firewalled layer, see [Network layers](#network-layers) |
+| Browser to the analysis service | TLS with a standard certificate | The Analyze tab calls this service **directly from the browser** ([architecture](/administration/architecture#analysis-relationship-analysis)), so it needs a public TLS endpoint of its own next to the API and the console; the nginx examples, which define virtual hosts for the API and the console only, do not include one |
+| Services to the secret store | TLS, and mutual TLS where the store's listener requires a client certificate | At the secret store. Controlled by the `vault.*` settings below |
+| Services to the streaming platform | TLS to the broker, plus OAuth2 client credentials for authentication | At the broker. Controlled by `datahub.pulsar.tls.enabled` below |
+| Services to the databases and file storage | The per-tenant connection details in the registry, in whatever form each store's driver accepts | At each store. The platform passes the connection details through and does not choose the mode for you; [before production](/administration/installing#before-production) asks for TLS on every one |
+| Monitoring host to the metrics ports | Optional mutual TLS | At each service. Controlled by the `metrics.*` keys on the [monitoring page](/administration/monitoring#securing-the-endpoint) |
+
+### The settings, in a self-hosted install
+
+**The secret store.** Every service opens its connection to the secret store through one
+class, `VaultClientFactory` in `datahub-commons`, which reads the `vault.*` settings
+(`datahub-commons/README.md`, and `VaultProperties` in the same module). The same
+connection settings serve the startup loader and the periodic tenant-registry refresh
+(`ARCHITECTURE.md`, "Configuration & secrets").
+
+| Setting | Environment variable | What it is |
+| --- | --- | --- |
+| `vault.address`, `vault.role-id`, `vault.secret-id` | `VAULT_ADDRESS`, `VAULT_ROLE_ID`, `VAULT_SECRET_ID` | Where the store is, and the AppRole login. Required; a missing one fails at startup with a message naming the key |
+| `vault.secret-name` | `VAULT_SECRET_NAME` | The KV v2 mount the secrets live under. Defaults to `intellistream-datahub` |
+| `vault.keystore`, `vault.keystore-password` | `VAULT_KEYSTORE`, `VAULT_KEYSTORE_PASSWORD` | A PKCS12 file (or JKS, by the `.jks` extension) holding the client certificate and key presented to a listener that requires mutual TLS. The password defaults to empty |
+| `vault.truststore`, `vault.truststore-password` | `VAULT_TRUSTSTORE`, `VAULT_TRUSTSTORE_PASSWORD` | The authority that signed the store's own certificate, needed when it is a private one. Unset, the JVM's default trust applies |
+
+Under the systemd examples the AppRole secret sits in `/etc/datahub/common.env` with mode
+`0600`, read by systemd as root so the service process never sees the file, and the
+keystore under `/etc/datahub`, which the unit's read-only filesystem still lets the service
+read (`systemd/README.md`).
+
+**The streaming platform.** `datahub.pulsar.tls.enabled`, read by `PulsarConfig` in
+`datahub-infra`, **defaults to `true`**. On, the client verifies the broker against a
+certificate-authority file named `ca.cert.pem` in the service's working directory, and
+authenticates with OAuth2 client credentials from the `datahub-platform` secret
+(`pulsar.client-id`, `pulsar.client-secret` and `pulsar.issuer-url`; the admin client uses
+`pulsar.admin-client-id` and `pulsar.admin-client-secret`). The broker addresses the secret
+store hands out assume the TLS port, `pulsar+ssl://…:6651` (`GETTING_STARTED.md`). Set to
+`false`, the client skips both the certificate check and the token. That is what the
+evaluation stack does, and it is the only reason the setting exists.
+
+:::note What the code configures on the streaming hop
+The comment on the setting in the source calls it "mTLS + OAuth2". What the client code
+configures is trust in the broker's certificate plus a token; whether the broker also
+demands a client certificate from the service is broker configuration rather than a
+platform setting, and it is not documented here.
+:::
+
+**The metrics ports.** `metrics.keystore`, `metrics.truststore` and their passwords, kept in
+the same `datahub-platform` secret rather than in a file on the host, put mutual TLS on the
+scrape endpoint. [Securing the endpoint →](/administration/monitoring#securing-the-endpoint)
+
+**The databases.** The registry entry for each tenant carries its PostgreSQL, ClickHouse,
+Neo4j, key store, file storage and streaming details (`GETTING_STARTED.md`, "Vault
+contract"). TLS on those connections is expressed inside those details, in each driver's
+own way, and the platform neither adds nor removes it. A self-hoster decides it per store.
+
+### What the evaluation stack turns off, and why that must be reversed
+
+The stack in [Installing](/administration/installing) is for evaluation, and it says so at
+the top of every compose file. From the header of `docker-compose.yml` and the first lines
+of `GETTING_STARTED.md`:
+
+| Turned off | What that means on a network anyone else can reach |
+| --- | --- |
+| TLS at the edge, and everywhere else | Every bearer token crosses the wire in clear on every request, and [a token is a credential](/administration/users-and-access#access-tokens) carrying the holder's full permissions |
+| TLS and authentication to the streaming platform (`datahub.pulsar.tls.enabled=false`) | Anyone who can reach the broker can read every tenant's measurements in flight, and write |
+| TLS to the secret store, with a fixed root token | The AppRole login and every tenant's database credentials cross the wire in clear, and the root token is printed in a container log |
+| Sealed-at-rest protection on the secret store | The unseal key is stored next to the data, on the same volume (`GETTING_STARTED.md`, "Hardening Vault for production") |
+| Database passwords | PostgreSQL accepts passwordless connections, and the other stores use `changeme` |
+
+Reversing all of it is the first block of the
+[production hardening checklist](#production-hardening-checklist). For the secret store
+specifically, the platform documentation recommends auto-unseal backed by a key management
+service or a Transit Vault, with the key kept off the box, or manual unseal with the keys
+held off-host at the cost of a human step on every boot.
+
+:::warning The dangerous line is the one you copied
+`datahub.pulsar.tls.enabled` needs no setting at all in production, because its default is
+`true`. It appears in a developer's `application-local.yml` for the plaintext broker. A
+production configuration assembled by copying that file carries `enabled: false` with it,
+and the service starts happily. Search every configuration file for it before go-live.
+:::
+
+### How to verify a service is actually using mTLS
+
+Verifying is cheap, and it is the difference between a control and a belief.
+
+- **At the edge.** `openssl s_client -connect api.example.org:443 -tls1_1 </dev/null` must
+  fail, and `curl -sI https://api.example.org/ | grep -i strict-transport` must show the
+  HSTS header, both from the checks in `nginx/README.md`.
+- **To the secret store.** Make the store's listener require a client certificate. A service
+  that starts is presenting one, because a service that is not fails at startup with a
+  secret-store error rather than connecting. Removing `vault.keystore` from one test instance
+  must make it fail; if it still starts, the listener is not requiring the certificate.
+- **To the streaming platform.** Rename `ca.cert.pem` on one test instance. With
+  `datahub.pulsar.tls.enabled` at its default the client must fail to verify the broker and
+  refuse to connect; if it connects anyway, the setting is `false` somewhere.
+- **To the metrics ports.** Once `metrics.keystore` is set, a plain
+  `curl http://host:9081/actuator/prometheus` must be refused, and only a `curl` presenting a
+  client certificate the truststore covers may read it.
+- **On any application host.** `ss -tnp` lists every connection each service holds open,
+  with the remote port. A service that should only speak TLS should hold no connection to a
+  plaintext port: `6650` rather than `6651` on the broker, or an `http://` secret-store
+  address, is the finding.
+
+## Network layers
+
+The hosted platform runs in several network layers, each behind its own firewall and
+access-control lists, so that a service can reach only the layer it needs and nothing
+beyond it. The exact layout is not published, for the obvious reason. This section
+describes it in principle, so that a self-hoster can replicate the property rather than the
+diagram.
+
+The principle is short: <span className="t-brand">the only thing the internet reaches is the
+edge, the only things the edge reaches are the two web services, and the stores are
+reachable only from the services that need them</span>. The service list on the
+[architecture page](/administration/architecture#the-services) says who needs what:
+
+| Component | Must be able to reach | Should be reachable from |
+| --- | --- | --- |
+| **Edge** (load balancer) | The API on 8081, the console on 8080 | The internet, on 443 (and 80 for the redirect) |
+| **Console** | The API, the session and cache store, the identity provider, and the secret store at startup | The edge only; its metrics port from the monitoring host |
+| **API** | The relational, graph and columnar databases, the key mapping store, the streaming platform, the file storage root, the secret store, and the identity provider | The edge, the console and the analysis service; its metrics port from the monitoring host |
+| **Ingest consumer** | The streaming platform, the columnar and relational databases, the key mapping store, the secret store | Nothing. It has no HTTP interface; only its metrics port, from the monitoring host |
+| **Analysis** | The API, and the identity provider to validate the caller's token | Browsers, directly, so it needs a public TLS endpoint of its own; its metrics port from the monitoring host |
+| **Housekeeping** | At least the relational database, the streaming platform, the file storage root and the secret store | Nothing; only its metrics port |
+| **Identity provider** | Its own database, and, outbound, the corporate directory it brokers | Browsers (the sign-in redirect), integrations (the token endpoint), the console, the API and the analysis service |
+| **Secret store** | Nothing | The services only, and only with a client certificate |
+| **The stores** | Nothing | The services listed against them above. Never the edge, never a browser |
+| **Monitoring host** | Every metrics port | Operators |
+
+Read down the right-hand column and the layers fall out: an **edge layer** holding the load
+balancer, an **application layer** holding the services, a **data layer** holding the stores
+and the streaming platform, and a **secrets layer** holding the secret store. The identity
+provider and the analysis service straddle the edge, because browsers must reach the
+sign-in page and the Analyze tab calls the analysis service directly, so each needs a
+TLS-terminated public endpoint and a rule that admits browsers to exactly that.
+
+Rules that follow, all of them things the platform's own examples already assume:
+
+- **Deny between layers by default**, then open the pairs in the table. The systemd examples
+  open the application ports to the load balancer addresses only and the metrics ports to
+  the monitoring host only (`systemd/README.md`).
+- **The ingest consumer and the housekeeping service accept nothing.** They are the easiest
+  services to place: deep in the application layer, with no inbound rule at all beyond
+  metrics.
+- **The connection pooler sits on the application host**, on localhost, so the data layer
+  sees one address per application host rather than one per request
+  ([running on dedicated servers](/administration/installing#running-on-dedicated-servers)).
+- **Per-tenant database credentials** turn the data-layer boundary from one line into one
+  per tenant. [Tenant isolation →](#tenant-isolation)
+- **A firewall rule is not a substitute for a certificate.** The reasoning on the
+  [monitoring page](/administration/monitoring#securing-the-endpoint) applies to every hop: a
+  rule is one change away from being wrong, and a certificate requirement fails closed.
+- **Administrative access**, SSH, database consoles, the secret store's own interface, is a
+  plane of its own that the platform documentation does not cover. Treat it as an operator
+  decision, and give it the same layered treatment.
+
 ## Secrets
 
 Credentials and the tenant registry live in a dedicated secret store with access control and
 audit, not in application configuration files or database tables. Services authenticate to
 it at startup and load only what they need.
 
+On the hosted platform, secrets are issued to services at runtime from HashiCorp Vault and
+they expire. Nothing sensitive sits in a configuration file on an application host: a file
+taken from a host yields addresses and role identifiers, not credentials, and a service that
+is stopped loses what it held.
+
 The tenant registry is in the secret store for a structural reason as well as a security
 one: it decides *which database to connect to*, so it cannot live in one of those databases.
+
+What the store holds, from the "Vault contract" in `GETTING_STARTED.md`: the per-tenant
+connection registry, the deployment-wide broker credentials and identity-provider issuer
+(and the metrics certificates, when set), the console's sign-in client and session store,
+and one secret per tenant for the settings a tenant owns itself, such as the
+[assistant's](/administration/assistant) model credentials. The registry and the
+deployment secrets are operator-owned; the per-tenant secrets are kept apart so that a
+write to one can never touch another.
 
 The secret store can be made to require a **client certificate** from every service that
 connects (mutual TLS), so a leaked login credential is not enough on its own. Each service
@@ -145,6 +372,13 @@ certificate comes from a private CA, a truststore holding that CA. Both are give
 same `vault.*` settings as the store's address and login, from a configuration file or the
 `VAULT_KEYSTORE` and `VAULT_TRUSTSTORE` environment variables. The same stores cover the
 periodic tenant-registry refresh as well as startup.
+[The settings, and how to verify them →](#transport-tls-to-the-api-mtls-between-services)
+
+The store itself needs the same care as what it holds. The evaluation stack keeps the
+unseal key on the same volume as the data, which the platform documentation calls fine
+for a local install and nothing else; for production it recommends auto-unseal backed by a
+key management service or a Transit Vault, with the key off the box, or manual unseal with
+the keys held off-host (`GETTING_STARTED.md`, "Hardening Vault for production").
 
 ## Auditability of the platform itself
 
@@ -159,6 +393,176 @@ actually do:
 For organisations in regulated or critical-infrastructure sectors, the air-gap capability and
 the source availability are often the deciding factors rather than nice-to-haves.
 
+## Backups and point-in-time recovery
+
+The hosted platform's storage is on [ZFS](https://en.wikipedia.org/wiki/ZFS), and its
+backup is a ZFS snapshot every fifteen minutes, pulled by an isolated backup server, and
+kept as one local copy and one remote copy in another location. Each snapshot is a
+restorable point in time. This section explains the mechanism, why it is built this way,
+and what a self-hoster without ZFS should do instead.
+
+### Datasets, snapshots and incremental send
+
+A ZFS pool is divided into **datasets**, each a filesystem of its own, and each store's data
+directory sits on one. ZFS is copy-on-write, which gives it three properties that matter
+here:
+
+- **A snapshot is instantaneous, and initially free.** It marks the blocks a dataset holds
+  at one moment as immutable. Nothing is copied; only blocks that later change are held on
+  behalf of the snapshot, so taking one every fifteen minutes costs a moment of metadata, not
+  a copy of the data.
+- **A snapshot is read-only.** It cannot be altered from inside the filesystem it describes.
+  It can be destroyed, which is why the direction of the transfer, below, matters.
+- **Send is incremental.** A send between two snapshots produces exactly the blocks that
+  changed between them, and a receive on another host applies them to its own copy of the
+  dataset, ending with an identical snapshot. The volume transferred each interval is the
+  change rate, not the size of the data. That is why the interval does not grow with the
+  installation: <span className="hl">at a hundred petabytes it would still be fifteen
+  minutes</span>, because fifteen minutes of change is the same size however much history
+  sits behind it.
+
+### Why the backup server pulls, from a jail
+
+The direction of the transfer is the security decision. **Production never pushes, and holds
+no path to a backup.** The backup servers are jailed, isolated from everything except the
+one-way read they perform, and they initiate every transfer by pulling the snapshot from
+production.
+
+That inverts the usual failure mode. In a push design the production host holds a credential
+that can write to the backups, and that credential is exactly what an attacker who has
+compromised production, or ransomware running on it, uses to encrypt or delete the copies
+before touching the live data. In the pull design there is no such credential on production
+to steal. A compromised production system can corrupt its own data and even destroy its own
+snapshots, and the backup server's copies, taken before the compromise, are untouched,
+because nothing on production can reach them. Two copies, one local and one in another
+location, cover the loss of a site as well as the loss of a host.
+
+### A point-in-time restore, in principle
+
+Every received snapshot is a complete filesystem state at one instant, so restoring is
+choosing the instant. In principle: pick the snapshot, materialise it (roll the dataset back
+to it, clone it, or send it back to a production host), point the stores at the result and
+start them. Each store then comes up as it would after a sudden power loss and runs its own
+recovery, which is what database engines are built to do. What arrived after the chosen
+snapshot is not in it, and that is the honest limit of any snapshot scheme: a restore is a
+choice of moment.
+
+**The consistency question, answered.** The
+[data lifecycle page](/administration/data-lifecycle#backups) warns that a restore taking the
+model from the relational and graph databases and the measurements from the columnar store
+at different moments produces a model that disagrees with its data. Filesystem-level
+snapshots answer it directly: a recursive ZFS snapshot of a dataset tree is taken
+atomically, so every store on that tree is captured at the same instant, and restoring that
+snapshot restores all of them to the same moment. The model, the graph, the measurements and
+the files agree by construction rather than by scheduling.
+
+### Without ZFS
+
+A self-hoster whose stores sit on other storage has two honest routes, and the
+[per-store table](/administration/data-lifecycle#backups) on the data lifecycle page is the
+starting point for both:
+
+<Steps>
+  <Step title="Any storage layer with atomic snapshots across the stores' volumes">
+    A filesystem, volume manager or storage array that can snapshot all of the stores'
+    volumes at one instant gives you the same consistency property, and incremental
+    replication of those snapshots to another host gives you the same interval property.
+    The requirement is atomic across the stores, not merely per volume.
+  </Step>
+  <Step title="Otherwise, the per-store tools, run together">
+    A relational dump, the columnar store's native backup, the graph backup and a copy of
+    the file storage root, started by one scheduled job at the same moment, so that the
+    window between them is seconds rather than hours. Accept and document that window, as
+    the lifecycle page says.
+  </Step>
+  <Step title="Pull, from a host production cannot reach">
+    Whichever route, keep the direction. The backup host holds a read credential for
+    production; production holds nothing for the backup host; and the copies are immutable
+    once landed.
+  </Step>
+  <Step title="Two copies, one elsewhere">
+    A second location is what turns a backup into continuity.
+  </Step>
+  <Step title="Restore, and prove it">
+    A backup that has never been restored is a hypothesis. Exercise the restore per tenant,
+    which the [database-per-tenant](/administration/organizations) design makes possible
+    without touching the others.
+  </Step>
+</Steps>
+
+How long to keep snapshots, and how often to rehearse a restore, are decisions this page
+does not make for you. They depend on your audit horizon and your data-minimisation
+obligations, which pull in opposite directions, and the
+[lifecycle page](/administration/data-lifecycle#backups) sets out that trade-off. For the
+hosted platform's own figures, ask us.
+
+## When something goes wrong
+
+Two facts about the hosted platform shape how incidents are handled, and both follow from
+how the platform is built rather than from a process document.
+
+**The engineers on call are the ones who built the platform.** There is no first line
+reading from a script and no escalation ladder to climb before someone who understands the
+code is looking at the problem.
+
+**Every layer underneath is open source that IntelliStream runs and understands end to
+end**: the operating system, the filesystem, the databases, the streaming platform, the
+identity provider and the secret store, as well as DataHub itself. A fix never waits for a
+vendor ticket, because there is no vendor between the engineer and the fault.
+
+### What you receive afterwards
+
+After an incident the customer gets a **written account**, drawn from the audit log rather
+than from memory, of:
+
+- **what happened**, the sequence of events and the cause as far as it is known;
+- **what was affected**, which tenants, which data, which requests, and whether anything was
+  refused or delayed;
+- **what changed afterwards**, the fix, and what was altered so that it does not recur.
+
+It is written from the record, which is why the record matters. If you need it in a
+particular form, for your own incident register or for a regulator, say so and it can be
+shaped to fit.
+
+### Where the record lives
+
+The written account is assembled from records the platform keeps as a matter of course, and
+a self-hoster has the same records:
+
+| Record | Where | What it shows |
+| --- | --- | --- |
+| Every request, answered or refused | The edge's access log. The reference nginx log format (`datahub_lb`, in `nginx/README.md`) records the upstream address, the request and upstream timings, and the negotiated TLS protocol and cipher | Who asked for what, when, from where, and what they got. A refusal is a request with a status like any other |
+| What each service did | Each service's journal (`journalctl -u datahub@api` and so on, under the systemd examples) | What the service did, and any error it raised |
+| Sign-ins, token issuance and failures | The identity provider's own event log. Identity lives there deliberately, with [its own audit trail](/administration/users-and-access#what-administrators-cannot-do-from-the-console) | Who authenticated, when, and through which brokered directory |
+| What was written, and by whom | The provenance every write carries, and the platform's [events](/using/events), which are its append-only historical record | Which identity changed what, and the operational record around it |
+| Authentication and error rates over time | The [metrics](/administration/monitoring#what-to-watch): `spring_security_authentications_seconds` by result, and `http_server_requests_seconds_count` by status | When a problem started, and whether it was refusal or failure |
+
+Read together, these are what "written from the audit log" means. The hosted platform logs
+a refusal the same as an answer, so the account can say what was denied as well as what was
+served.
+
+### Diagnostics without leaking
+
+The systemd examples take no heap dump on out-of-memory and no core dump, because either is
+a copy of process memory with credentials and tenant data in it (`systemd/README.md`,
+"Diagnostics"). A service that runs out of memory exits and is restarted. When a fault
+genuinely needs a dump, the README describes taking one deliberately, with the instance out
+of the load balancer, and treating the file like a secret: analysed on the host or on an
+encrypted volume, deleted when done, and every secret that was in the process rotated if the
+file ever left the host. A flight recording holds exception messages and stack traces, and
+is treated like a log file.
+
+### What you can ask for
+
+- The written account, for any incident that touched your tenant.
+- The request record for your tenant over a window, when you are investigating something on
+  your side.
+- The current status of a fix, from the engineer working on it.
+
+What this page does not promise: response times, availability figures or hours of cover.
+Those are terms of an agreement rather than properties of the platform, and they are agreed
+with you rather than published here.
+
 ## Data protection questions
 
 ### Where does our data go?
@@ -167,6 +571,16 @@ Wherever you run the platform. There is no hosted component in a self-managed in
 no telemetry, and no callback. Data residency is determined entirely by where you place the
 databases, and because each tenant carries its own connection details, different tenants can
 sit in different jurisdictions.
+
+### Where does the hosted platform run?
+
+On hardware IntelliStream owns, in Stavanger, Norway, under Norwegian law: more than fifty
+servers, with more than 2 PB of disk, 400 TB of SSD and 30 TB of memory as of this writing,
+and the fleet grows. The platform runs on that hardware rather than on a public cloud, and
+there is no third party between your data and the people who run it. The same code runs
+there as in a self-managed installation, and a fully air-gapped installation is possible for
+organisations that need one.
+[Air-gapped installation →](/administration/installing#air-gapped-installation)
 
 ### Can we delete a tenant's data completely?
 
@@ -197,13 +611,50 @@ measurements before an audit occurs, the ancestry records what a figure was comp
 the inputs themselves are gone. Align retention with your audit horizon deliberately.
 [Retention versus traceability →](/administration/data-lifecycle#retention-versus-traceability)
 
+## What an ISO 27001 assessment asks
+
+An assessor works through the standard's control areas and asks, for each, what the control
+is, where it is written down and what evidence shows it operating. The table maps those
+questions to where this documentation answers them, and says which are in place and which
+are still being written into the form the standard requires. **In place** means the control
+operates on the hosted platform today. **Being documented** means it operates, and the
+policy, procedure or evidence trail is still being assembled into the management system.
+
+| Control area | The question | Where it is answered | Status |
+| --- | --- | --- | --- |
+| **Access control** | How are users identified, how is access granted and removed, and how is privileged access limited? | [Authentication and authorisation](#authentication-and-authorisation), [reviewing access](/administration/users-and-access#reviewing-access), [data set permissions](/administration/dataset-permissions). Identity stays in the customer's provider, grants are groups, and the wildcard groups and `DATAHUB_ADMIN` have named, reviewed holders | In place |
+| **Access control**, machines and agents | Do service accounts and AI agents follow the same rules as people? | [AI agents and the console assistant](#ai-agents-and-the-console-assistant). No separate credential and no API key: the same token, the same policy | In place |
+| **Cryptography**, in transit | What is encrypted in transit, with what, and who holds the keys? | [Transport](#transport-tls-to-the-api-mtls-between-services): TLS 1.2 and 1.3 at the edge, mutual TLS between backend services | In place |
+| **Cryptography**, at rest | Is stored data encrypted, and how are keys managed? | Not claimed on this page | Ask us |
+| **Secrets management** | Where do credentials live, and how are they rotated? | [Secrets](#secrets). Issued at runtime from the secret store, expiring, nothing sensitive in configuration files | In place |
+| **Operations security** | How are systems hardened, changed, logged and monitored? | [Network layers](#network-layers), the [hardened service units](/administration/installing#running-on-dedicated-servers), [monitoring](/administration/monitoring), the [hardening checklist](#production-hardening-checklist) | In place; change management being documented |
+| **Operations security**, separation | Are customers separated from one another? | [Tenant isolation](#tenant-isolation), [organisations and tenants](/administration/organizations) | In place, with the reference-deployment caveat stated there |
+| **Supplier relationships** | Which third parties touch the data, and on what terms? | [Where does the hosted platform run?](#where-does-the-hosted-platform-run): owned hardware, an all-open-source stack that IntelliStream runs itself, no hosted dependency at runtime, identity brokered to the customer's own directory | In place; supplier register being documented |
+| **Incident management** | What happens when something goes wrong, and what does the customer receive? | [When something goes wrong](#when-something-goes-wrong), [reporting a vulnerability](#reporting-a-vulnerability) | In place; procedure being documented |
+| **Business continuity** | How is data backed up, can it be restored, and has that been proven? | [Backups and point-in-time recovery](#backups-and-point-in-time-recovery): fifteen-minute snapshots, pulled by an isolated host, two copies in two locations | Backups in place; restore-test evidence being documented |
+| **Compliance** | Which jurisdiction, which law, and can the customer verify rather than trust? | [Where does the hosted platform run?](#where-does-the-hosted-platform-run) (Norway, Norwegian law), [auditability](#auditability-of-the-platform-itself) (AGPL-3.0 source), the [data protection questions](#data-protection-questions) | In place |
+| **Physical security** | Where is the hardware, and who can touch it? | Owned servers in Stavanger. Site controls on request | Ask us |
+| **The management system itself** | Scope, risk assessment, statement of applicability, internal audit, management review | [Certification status](#certification-status) | Being documented |
+
+The 2022 revision of the standard regroups its controls under four themes, organisational,
+people, physical and technological; the questions are the same. What is deliberately absent
+from the table: a penetration test report, a SOC 2 report, a bug bounty. None is claimed
+here. Ask us for the current position on each rather than assuming either way.
+
 ## Production hardening checklist
 
 The evaluation stack is deliberately convenient and deliberately insecure. Before production:
 
 <Steps>
   <Step title="TLS everywhere">
-    Console, API, streaming platform, and every database connection.
+    Console, API, streaming platform, and every database connection. Check that
+    `datahub.pulsar.tls.enabled` is not `false` in any configuration file, and verify each hop
+    rather than assuming it.
+    [Transport, and how to verify →](#transport-tls-to-the-api-mtls-between-services)
+  </Step>
+  <Step title="Layered network, deny by default">
+    The edge reaches the two web services, the services reach their stores, and nothing
+    else reaches anything. [Network layers →](#network-layers)
   </Step>
   <Step title="No default credentials">
     Demo tenants, demo users and default administrator passwords must not survive.
@@ -233,8 +684,10 @@ The evaluation stack is deliberately convenient and deliberately insecure. Befor
     [Limits and quotas →](/administration/limits-and-quotas)
   </Step>
   <Step title="Backups, tested">
-    Per tenant, with a restore actually exercised rather than assumed.
-    [Backups →](/administration/data-lifecycle#backups)
+    Per tenant, with a restore actually exercised rather than assumed. Snapshot all the
+    stores at one instant, and have the backup host pull.
+    [Backups →](/administration/data-lifecycle#backups) ·
+    [Why pull, and why snapshots →](#backups-and-point-in-time-recovery)
   </Step>
   <Step title="Retention aligned with policy">
     Both directions: long enough for audit, short enough for data minimisation.
@@ -249,7 +702,13 @@ The evaluation stack is deliberately convenient and deliberately insecure. Befor
 ## Reporting a vulnerability
 
 Security issues should be reported through the process published in the platform
-repository's security policy, rather than through public issue tracking.
+repository's security policy, rather than through public issue tracking. That policy
+(`SECURITY.md` in the platform repository) asks for GitHub's private vulnerability
+reporting, from the repository's **Security** tab, with a description of the issue and its
+impact, steps to reproduce, and the affected modules and version. It commits to
+acknowledging a report within a few business days, and asks for a reasonable disclosure
+window before details are published. Only the latest release and the main development
+branch receive security fixes, so plan upgrades accordingly.
 
 <References>
 
@@ -258,6 +717,10 @@ repository's security policy, rather than through public issue tracking.
 - [Air-gapped networks](https://en.wikipedia.org/wiki/Air_gap_(networking))
 - [Principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 - [Checksums](https://en.wikipedia.org/wiki/Checksum)
+- [Transport Layer Security](https://en.wikipedia.org/wiki/Transport_Layer_Security)
+- [Mutual authentication](https://en.wikipedia.org/wiki/Mutual_authentication)
+- [ZFS](https://en.wikipedia.org/wiki/ZFS)
+- [Copy-on-write](https://en.wikipedia.org/wiki/Copy-on-write)
 
 </References>
 
@@ -266,5 +729,7 @@ repository's security policy, rather than through public issue tracking.
 - [Identity providers](/administration/identity-providers): Keycloak, and bringing in Entra ID
 - [Data set permissions](/administration/dataset-permissions): how read and write are granted
 - [Data lifecycle](/administration/data-lifecycle): retention, backups and deletion
+- [Installing](/administration/installing): the evaluation stack, and the worked examples for dedicated servers
+- [Monitoring](/administration/monitoring): the metrics endpoint, and putting a certificate on it
 - [Board briefing](/value/board-briefing): the governance-level summary
 </Deeper>

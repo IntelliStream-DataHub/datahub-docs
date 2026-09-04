@@ -133,7 +133,7 @@ ceiling the storage itself has.
 Because every store is database-per-tenant, backup and restore are naturally scoped to one
 tenant, and one tenant can be restored without touching the others.
 
-For each tenant:
+For each tenant, with each store's own tools:
 
 | Store | Backup |
 | --- | --- |
@@ -146,12 +146,40 @@ Two things worth deciding explicitly:
 
 - **Consistency across stores.** The model lives in the relational database and the graph;
   the measurements live in the columnar store. A restore that takes them from different
-  points in time will have a model that disagrees with its data. **Snapshot them together**, or
-  accept and document the window.
+  points in time will have a model that disagrees with its data. The simplest way to get the
+  consistent point in time this asks for is a **filesystem-level snapshot across all of the
+  stores on one host**, taken atomically, so that every store is captured at the same
+  instant. The per-store tools above, started together from one scheduled job, are the
+  fallback, and then the window between them is something to accept and document.
+  [How snapshots answer this →](/administration/security#backups-and-point-in-time-recovery)
 - **Retention of backups versus retention of data.** If measurements are retained for 90
   days but backups for a year, the backups are the longer record. That may be exactly what
   you want for audit purposes, or exactly what you do not want for data-minimisation
   purposes. Decide rather than discover.
+
+### How the hosted platform does it
+
+The hosted platform's storage is on ZFS, and its backup is the filesystem doing the work:
+
+- **A snapshot every fifteen minutes.** Copy-on-write makes a snapshot instantaneous, and
+  each one is a complete, restorable state of the stores at that instant.
+- **Pulled, never pushed.** Isolated backup servers initiate every transfer by pulling the
+  snapshot from production. Production holds no credential and no path to a backup, so a
+  compromised production system cannot reach the copies.
+- **Two copies.** Each snapshot goes to one local copy and one remote copy in another
+  location.
+- **Only what changed.** An incremental send ships the blocks that changed since the last
+  snapshot, so the interval is set by the change rate rather than by the data size, and it
+  does not lengthen as the installation grows.
+- **A point in time, not a nightly.** Any snapshot can be restored, which makes the backup
+  a time machine for the data rather than a copy of last night.
+
+A self-hoster with ZFS, or with any storage that snapshots atomically across the stores'
+volumes, can do the same. Without it, the per-store table above, run together and pulled
+from a separate host, is the honest substitute. How long snapshots are kept, and how often
+a restore is rehearsed, are decisions to make against your audit horizon and your
+data-minimisation obligations rather than defaults to inherit.
+[The mechanism, and why it pulls →](/administration/security#backups-and-point-in-time-recovery)
 
 ## Offboarding a tenant
 
