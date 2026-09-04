@@ -98,7 +98,7 @@ has to remember it.
 
 Each value type maps to its own table in the columnar store, with a value column and a
 compression codec chosen for that type, sorted by series and time so that neighbouring
-readings sit together. That layout is why industrial time-series compress around 100 times,
+readings sit together. That layout is why industrial time-series compress up to 100 times,
 where 2 to 4 times is the norm for general data, and it is implementation rather than
 interface: nothing reaches the tables except through the API and the SDKs, so the only
 storage decision a series owner makes is the value type above.

@@ -18,7 +18,7 @@ events is a columnar store whose tables were defined for industrial signals: tim
 stored as the difference between differences, values stored as the bits that changed since
 the previous reading, and a general-purpose compressor over the top.
 
-That is why industrial time-series compress around 100 times and events around 25 times,
+That is why industrial time-series compress up to 100 times and events up to 25 times,
 where 2 to 4 times is the norm for general data, and why ten years of second-level history
 becomes affordable. Those are observations, not guarantees. This page explains the mechanism
 so you can judge how far your own data will follow them.
@@ -167,7 +167,7 @@ Put the pieces together and the ratio stops being surprising:
 5. **The store handles columns, not rows**, so each codec sees a long, homogeneous stream
    rather than a value wedged between a string and an id.
 
-This is why industrial time-series compress around 100 times and events around 25 times,
+This is why industrial time-series compress up to 100 times and events up to 25 times,
 where 2 to 4 times is the norm for general data. Industrial signals are the best case for
 every step above: regular sampling, slow-moving values, a few distinct states. General data
 gets only the last step.
@@ -225,7 +225,7 @@ same instincts to a wider shape:
 Alongside the table, the key mapping store holds one set per external id, keyed by a hash
 of the external id and the tenant, listing every event that carries it: the index behind
 [many events sharing one external id](/using/events#external-ids-on-events), kept current
-by the ingest consumer (`ARCHITECTURE.md`, module structure). Events at around 25 times is
+by the ingest consumer (`ARCHITECTURE.md`, module structure). Events at up to 25 times is
 a lower ratio than measurements because strings are involved, and `description` decides
 where your estate lands. The event table is in the same ClickHouse database as the
 datapoints, so the store's native backup covers both.
