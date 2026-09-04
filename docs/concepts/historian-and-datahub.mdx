@@ -90,10 +90,11 @@ consists of, with the routes that exist today.
     carries batches of timestamped values. Through the **SDKs** for Java, Python and Rust, the
     same call with the batching, parallelism, retries and durable buffering already written. Through
     an **edge collector**, a program that sits next to the control system, reads the protocol the
-    controllers speak, OPC-UA or Modbus, and pushes through the SDK. Be clear about what that
-    is: the platform has no server-side connector for OPC-UA, Modbus or MQTT, nothing in
-    DataHub opens a connection to a controller or a broker, and the collector is a client you
-    run. **Change data capture**, tailing the historian's own database, is on the roadmap and
+    controllers speak, OPC-UA or Modbus, and pushes through the SDK. Today that collection
+    runs through Apache NiFi flows for OPC-UA and Modbus, alongside IntelliStream's own Java
+    collectors, all pushing through the API and the SDKs. Be clear about where it runs: nothing
+    inside DataHub opens a connection to a controller or a broker, so the collector is a
+    component that runs next to the source, not inside the platform. **Change data capture**, tailing the historian's own database, is on the roadmap and
     its screens are not yet functional.
     [Getting data in →](/using/timeseries#getting-data-in) · [Change data capture →](/using/cdc-integrations)
   </Step>

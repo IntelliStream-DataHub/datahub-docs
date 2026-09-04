@@ -123,9 +123,9 @@ returns half its answers.
 Everything below uses operations that exist today. There is one thing to know first, because
 it decides the shape of the work: **the platform does not subscribe to a broker.** There is no
 MQTT connector in DataHub, nothing in it opens a connection to your namespace, and the
-integration that does is a small bridge you run, subscribing to the topics you choose and
-pushing through the same [API and SDKs](/using/timeseries#getting-data-in) every other source
-uses. The SDKs carry the batching, retries and durable buffering that bridge needs, so it is
+integration that does is a bridge you run, today typically an Apache NiFi flow or one of
+IntelliStream's own Java collectors, subscribing to the topics you choose and pushing through
+the same [API and SDKs](/using/timeseries#getting-data-in) every other source uses. The SDKs carry the batching, retries and durable buffering that bridge needs, so it is
 usually a short program.
 
 <Steps>
