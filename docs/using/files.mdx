@@ -116,9 +116,13 @@ Recognised by file extension: `3dm`, `3ds`, `3mf`, `amf`, `bim`, `brep`, `dae`, 
 Everything the viewer needs is served by the console itself, so this works on a closed network
 with no outbound internet.
 
-One limit worth knowing before you rely on it: the model is read in the browser, so it suits a
-piece of equipment, a skid or an area rather than a whole facility. A plant-scale model will not
-open.
+**Upload the whole set for a model that comes as several files.** An `obj` keeps its colours in
+an `mtl`, and a `gltf` keeps its geometry and textures in files beside it. Put them in the same
+folder as the model and the viewer collects them when you open it. Leave them out and the model
+still opens, in a plain grey. A `glb` needs nothing else, since it holds everything in one file.
+
+One limit worth knowing before you rely on it: the model is read in the browser, so a pump, a
+skid or a single area opens comfortably. A whole plant will not.
 
 ## Finding files
 
