@@ -48,7 +48,9 @@ Two more do not draw well but cost just as much:
   [external ids](/concepts/naming-and-standards#external-ids-are-promises).
 - **Timestamps in the wrong zone.** An offset that turns a night shift into a day shift and
   destroys any comparison against something recorded properly. The favourite of anyone who
-  has ever tried to correlate two source systems.
+  has ever tried to correlate two source systems. DataHub will not guess one: a timestamp has
+  to arrive carrying its offset, and one sent without a zone is refused rather than quietly
+  read as UTC.
 
 :::tip One that is not a defect at all
 A signal that looks like a slow, clean wave may be an artefact of sampling too rarely rather
