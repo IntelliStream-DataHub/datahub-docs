@@ -183,10 +183,11 @@ however many intermediate nodes lie between.
 | Tool | Arguments | Returns |
 | --- | --- | --- |
 | `timeseries_get_latest` | `externalId` or `id` | The most recent datapoint, answered from a cache rather than a scan, for *"what is it reading now?"* |
-| `timeseries_fetch_datapoints` | `externalId` or `id`; `start`, `end` (ISO-8601, end exclusive); `limit` (default 1000, hard max 100000); `aggregates` and `granularity` | Raw samples, or, with `aggregates` of `avg`, `sum`, `min`, `max` and a bucket such as `1h`, one value per bucket |
+| `timeseries_fetch_datapoints` | `externalId` or `id`; `start`, `end` (ISO-8601 or epoch milliseconds, end exclusive); `limit` (default 1000, hard max 100000); `aggregates` and `granularity` | Raw samples, or, with `aggregates` of `avg`, `sum`, `min`, `max` and a bucket such as `1h`, one value per bucket |
 
 Timestamps come back as ISO-8601 strings, the same as the REST API, so a value reads the same
-whichever way an assistant reached it.
+whichever way an assistant reached it. On the way in, either form is accepted: ISO-8601, or an
+epoch in milliseconds.
 
 ### Read what happened
 
