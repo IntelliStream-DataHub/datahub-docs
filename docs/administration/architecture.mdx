@@ -13,8 +13,9 @@ description: What the moving parts of DataHub are, what each one does, and why t
 </Personas>
 
 <KeyIdea>
-DataHub is **three core services**, plus an analysis service behind the Analyze tab and a
-scheduled housekeeping service, on a set of standard backing stores.
+DataHub is **three core services**, plus an analysis service behind the Analyze tab, an
+optional converter that opens plant models in the 3D viewer, and a scheduled housekeeping
+service, on a set of standard backing stores.
 
 Each service has a different job and a different scaling profile, which is exactly why they
 are separate: you can scale data ingestion without adding capacity for users, and restart
@@ -42,10 +43,13 @@ graph LR
     Vault[["Secret store"]]
 
     Analysis["Analysis<br/>relationship analysis"]
+    Converter["RVM converter<br/>plant models for 3D"]
 
     User --> Console
     User --> Analysis
     Analysis --> API
+    User --> Converter
+    Converter --> API
     Ext --> API
     Console --> API
     Console --> Cache
@@ -109,6 +113,34 @@ The service also offers the analysis to [AI agents](/using/mcp#the-second-server
 with the same sign-in checks, and no extra configuration is needed to expose it. The console's assistant reaches it through the same address setting the
 Analyze tab uses, and copes with its absence: in a deployment that leaves the service out,
 the assistant keeps working and that one tool is simply unavailable.
+
+### RVM converter, plant models for the 3D viewer
+
+A small, optional service that turns `.rvm` plant models into a model the console's
+[3D viewer](/using/files#plant-models-rvm) opens. Like the analysis service, it is called
+**directly from the browser** with the signed-in user's token. It accepts only a token that
+carries the `DATAHUB_ACCESS` role, fetches the files from the API with that same token, so data
+set permissions apply, and stores nothing itself. Saving the converted model beside the
+original is done by the console, as an ordinary upload by that user.
+
+**Scales with:** conversions. **Stateless:** yes, entirely. Port 8083.
+
+It is not part of the evaluation stack, nor of the systemd and nginx examples. The console
+still points at `http://localhost:8083` by default, so without the service the Convert button
+shows and every conversion fails with "Could not open this model". Set the address blank to
+hide the button.
+
+| Setting | Set on | Default | What it does |
+| --- | --- | --- | --- |
+| `datahub.rvm-converter.url` | Console | `http://localhost:8083` | Where the browser finds the converter. Blank hides the Convert button |
+| `cors.allowed-origins` | Converter | `http://localhost:8080` | The console's address. The browser calls the converter from the console's pages, so without it every conversion fails the same way |
+| `datahub.api.url` | Converter | `http://localhost:8081` | The API it fetches files from |
+| `rvm.converter.binary` | Converter | `/opt/datahub/bin/rvm-converter` | The conversion program, built by `tools/rvm-converter/build.sh` in the platform repository and installed beside the service |
+| `rvm.converter.timeout` | Converter | `PT5M`, five minutes | How long one conversion may run before it is stopped |
+
+Like the other services, it signs in to the secret store with the `vault.*` settings
+([security](/administration/security#the-settings-in-a-self-hosted-install)) and reads the
+identity provider's address from there, so there is no issuer to configure separately.
 
 ### Housekeeping
 

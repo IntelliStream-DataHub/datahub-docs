@@ -1,7 +1,7 @@
 ---
 sidebar_position: 10
 title: Files
-description: Attaching documents and images to your model, P&IDs, datasheets, inspection photos and certificates, with folders, data sets and a recoverable trash.
+description: Attaching documents and images to your model, P&IDs, datasheets, inspection photos, certificates and 3D models, with folders, data sets and a recoverable trash.
 ---
 
 # Files
@@ -102,6 +102,88 @@ the safety mechanism it is.
   alt="A confirmation dialog headed Delete folder. Beneath it, in orange, the warning that this permanently deletes the folder and everything inside it, then an instruction to type the name area100 to confirm, an empty text field, and Cancel and Delete buttons with Delete greyed out."
   caption="The Delete button stays inactive until the folder's name is typed in full. It is the one destructive action in the file browser that no amount of clicking will complete by accident, which is deliberate: a folder delete takes its contents with it and there is no trash to recover them from."
 />
+
+## Looking at 3D models
+
+A file the console recognises as a 3D model or CAD file gets a **View in 3D** button in its
+file information, which opens it in a viewer you can orbit with a left drag, pan with a right
+drag and zoom with the scroll wheel. The file is read in the browser exactly as it was
+uploaded.
+
+Recognised by file extension: `3dm`, `3ds`, `3mf`, `amf`, `bim`, `brep`, `dae`, `fbx`, `fcstd`,
+`gltf`, `glb`, `ifc`, `iges`, `igs`, `step`, `stp`, `stl`, `obj`, `off`, `ply`, `wrl`. Plant
+models in `rvm` are converted first, [see below](#plant-models-rvm).
+
+Everything the viewer needs is served by the console itself, so this works on a closed network
+with no outbound internet. The model is read in the browser, so a pump, a skid or a single
+area opens comfortably. A whole plant will not.
+
+### Sizes
+
+When a model opens, a panel in the bottom-left corner shows its size, for example
+`L 4.00 × W 0.40 × H 0.67 m` (`L × B × H` in Norwegian). Sizes are metric: millimetres while
+every side is under a metre, otherwise metres with two decimals. **Click a part** to highlight
+it and see its name and its own size; click empty space to go back to the whole model.
+
+- **Height is the vertical on screen.** The viewer always shows Y as up. Length is the longer
+  horizontal side, width the shorter. A model drawn with Z as up, common for STL, appears
+  lying on its side and reports its depth as its height.
+- **The whole model is measured along the viewer's axes; a clicked part along its own.** A pipe
+  laid at an angle reads its real length and diameter.
+
+| Format | Sizes are read in |
+| --- | --- |
+| glTF and GLB, VRML, COLLADA | Metres |
+| STEP, IGES, BREP, FCStd, AMF | Millimetres |
+| 3MF | The unit the model declares, millimetres if it declares none |
+| STL, OBJ, PLY, OFF | No unit is stored, so sizes are read as metres and the panel says "This format stores no unit, so sizes assume metres" |
+
+### Models made of several files
+
+**Upload the whole set into the same folder as the model.** The viewer reads the model for the
+files it names and fetches them from that folder: an `obj`'s `mtl` material library and the
+textures that library names, and a `gltf`'s `bin` buffers and images.
+
+- References are matched by **plain file name in the same folder**. A reference such as
+  `textures/steel.png` is not found, even if that subfolder exists.
+- At most **24** companion files are fetched for one model.
+- Only `obj` and `gltf` files are read for references. An `fbx` or `dae` that points at
+  separate texture files opens without them.
+- A missing material library or texture is skipped, and the model opens grey or untextured.
+  A `gltf` whose `bin` is missing does not open at all.
+
+A self-contained file needs none of this: a `glb` with its textures inside, a `gltf` with its
+data embedded, or a `3mf`.
+
+### Plant models (RVM)
+
+A file ending `.rvm` in any letter case, the review format plant design tools export, shows
+**Convert and view in 3D** in its file information when the console is set up with a
+[converter](/administration/architecture#rvm-converter-plant-models-for-the-3d-viewer).
+
+The console looks in the same folder for an **attribute file** with the same base name, ending
+`.att` or `.txt` in any letter case, and sends both to the converter. The attribute file is
+optional, but upload it if you have it: without it the geometry is the same, but the parts
+lose their tags, discipline, material and the rest.
+
+The converted model opens in the viewer, which then offers **Download RVM** (the stored file)
+and **Download GLB** (the converted model). The console also saves it beside the RVM as
+`<name>.glb`, in the same data set, so the same people can read both and it opens next time
+with plain **View in 3D**, without the converter. The saved file has source
+`datahub-rvm-converter`, and metadata `convertedFrom` holding the RVM's external id. Its
+external id is `<rvm external id>_glb`, or that with an extra suffix when the id is already
+taken (a deleted file keeps its external id).
+
+It never overwrites. If `<name>.glb` is already in the folder, the model is converted and shown
+but nothing is saved, so delete that GLB to have the next conversion save a fresh one.
+
+| Message | What happened |
+| --- | --- |
+| `Saved as <name>` | The converted model is in the folder, and the list shows it once you close the viewer |
+| `<name> already exists, so the converted model was not saved` | A file of that name was in the way and was left as it is |
+| `No write access to this folder, so the converted model was not saved` | You can view the model, but not add files to this folder |
+| `The converted model could not be saved` | Saving failed for another reason; the model is still shown |
+| `Could not convert this model` | The converter could not read the file |
 
 ## Finding files
 
