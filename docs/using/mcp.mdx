@@ -230,7 +230,7 @@ history of one logical thing. Drill down after that, on the bucket that mattered
 | --- | --- | --- |
 | `dataset_update`, `resource_update`, `timeseries_update`, `label_update` | `id`, then only the fields to change, named `newName`, `newDescription`, `newExternalId` and so on | The updated record. Anything not supplied is left alone; metadata add and remove, and edge updates, are API-only |
 | `event_update` | `id` (UUID) or `externalId`, then `newType`, `newSubType`, `newStatus`, `newDescription`, `newExternalId` | The updated event |
-| `timeseries_send_datapoint` | `externalId` or `id`; `timestamp` (ISO-8601 or epoch milliseconds); `value` as a string | The insert result. One datapoint per call; the bulk path is the API |
+| `timeseries_send_datapoint` | `externalId` or `id`; `timestamp` (ISO-8601, or an epoch in seconds or milliseconds); `value` as a string | The insert result. One datapoint per call; the bulk path is the API |
 
 ### Delete
 

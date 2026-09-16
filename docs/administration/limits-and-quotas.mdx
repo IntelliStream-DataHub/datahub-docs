@@ -47,6 +47,8 @@ be overridden for a single tenant by setting the matching column in that tenant'
 | --- | --- | --- | --- |
 | `max-body-bytes` | 4 MiB | deployment-wide only | The largest accepted request body |
 | `max-body-bytes-datapoints` | 16 MiB | deployment-wide only | The same, for measurement writes, which are legitimately larger |
+| `max-body-bytes-datapoints-binary` | 64 MiB | deployment-wide only | The same, for the binary measurement path the SDKs use for volume, measured on the compressed body. What the frames unpack to is capped at 64 MiB a request as well |
+| `max-in-flight-datapoints-binary` | 16 | deployment-wide only | Binary measurement requests one API instance checks at once. The next one gets `429` with a one-second `Retry-After`, which the SDKs retry |
 | `cache-ttl` | 5m | deployment-wide only | How long an override takes to reach every instance |
 | `rate.write-per-minute-per-tenant` | 2,000 | `write_per_minute_per_tenant` | Writes a minute for the whole tenant |
 | `rate.read-per-minute-per-tenant` | 6,000 | `read_per_minute_per_tenant` | Reads a minute for the whole tenant |
@@ -56,7 +58,7 @@ be overridden for a single tenant by setting the matching column in that tenant'
 | `quota.nodes-per-day` | 50,000 | `nodes_per_day` | Entities created in a day, see the note below |
 | `quota.edges-per-day` | 100,000 | `edges_per_day` | Relationships created in a day |
 | `quota.datapoints-per-day` | 10,000,000 | `datapoints_per_day` | Measurements written in a day |
-| `quota.ingest-bytes-per-day` | 1 GiB | `ingest_bytes_per_day` | Bytes of write traffic in a day |
+| `quota.ingest-bytes-per-day` | 1 GiB | `ingest_bytes_per_day` | Bytes of write traffic in a day, binary measurement bodies counted at their unpacked size |
 | `lifetime.max-resources` | 1,000 | `max_resources` | Entities held at once, see the note below |
 | `lifetime.max-events-total` | 25,000 | `max_events_total` | Events ever created |
 | `lifetime.max-datapoints-total` | 1,000,000,000 | `max_datapoints_total` | Measurements ever written |
@@ -78,7 +80,7 @@ The order that avoids that: put a `0` in the `tenant_limits` row of every tenant
 keep growing **first**, then set `lifetime.enabled: true`.
 :::
 
-Four things about that table are easy to read wrong:
+Five things about that table are easy to read wrong:
 
 - **"Entities" is broader than "resources".** Resources, time series, data sets, labels,
   policies and functions are all rows in the same table, so `nodes-per-day` and
@@ -95,6 +97,12 @@ Four things about that table are easy to read wrong:
 - **Nothing is exempt.** The administrator role, the console's own traffic and the agent
   tools are all charged the same way, and the console spends the signed-in user's budget
   rather than a budget of its own.
+- **The binary measurement path is bounded per instance as well.** Its bodies arrive
+  compressed and are checked in memory before anything is accepted, so one API instance
+  takes on at most `max-in-flight-datapoints-binary` of them at once and answers the next
+  with a `429` and a one-second `Retry-After`. That refusal clears on its own, like the rate
+  limit, but it is the instance that is busy rather than the tenant that is over budget:
+  adding an API instance raises it, and raising a tenant's limits does not.
 
 Quotas are counted per instance and reconciled continuously, so a tenant can overshoot a
 daily allowance slightly on a multi-instance deployment. They are ceilings, not invoices.
@@ -159,6 +167,9 @@ examples that ship with the platform:
   caps. The point of the gap is that an oversized request should reach the application and
   come back as a readable message naming the limit, rather than as the proxy's bare error
   page. File uploads are exempt from it and stream without a ceiling.
+- **A location of its own for the binary measurement path**, with a 64 MiB ceiling matching
+  the API's, five-minute timeouts, and no request buffering: the API checks the body in
+  memory, so there is nothing to gain from the proxy spooling it to disk first.
 
 ## What is not limited
 

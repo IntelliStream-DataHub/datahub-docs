@@ -102,7 +102,9 @@ consists of, with the routes that exist today.
     History arrives the same way as live data, just faster. The Java SDK's `ingest` splits
     datapoints into batches of ten thousand per request, sends them in parallel, and retries
     transient failures; every datapoint carries its own timestamp, so the order batches land
-    in does not matter. Sustained volume is bounded by a per-minute rate limit and a daily
+    in does not matter. For volume, its binary ingest packs points by the hundred thousand
+    into one compressed request instead, so a backfill spends far fewer requests against
+    the rate limit. Sustained volume is bounded by a per-minute rate limit and a daily
     ingest quota, both answered with a `429` and a `Retry-After` the SDKs honour for you, so a
     large backfill is a matter of hours rather than a project. Turn on durable buffering for
     the collector: readings that cannot reach the API spool to disk and are flushed on the
