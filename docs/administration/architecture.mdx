@@ -71,6 +71,13 @@ The REST interface. Everything that reads or writes data goes through it, whethe
 console, from an integration, or from a script. It owns the model and the ingestion
 endpoints, and it is where access decisions are made.
 
+Measurements arrive over two paths: a plain one, and a compact binary one the SDKs use for
+volume. A binary body arrives compressed and is checked in memory before any of it is
+accepted, then travels the streaming platform exactly as the client sent it. Because that
+check is held in memory, each API instance takes on a bounded number of binary requests at
+once and asks the next caller to retry a second later.
+[Limits and quotas →](/administration/limits-and-quotas)
+
 It also keeps the **knowledge graph** in step with the model. Every model change is
 recorded first, then copied to the graph moments later and retried until it succeeds, so a
 restart or a graph database outage delays the copy rather than losing a change. Any API
@@ -90,9 +97,9 @@ identity provider, holding sign-in tokens server-side rather than in the browser
 
 ### Ingest consumer, measurements and events
 
-Reads incoming measurements and events off the streaming platform, writes them into the
-columnar store in efficient batches, keeps the event key mappings current, and fans live
-data out to [whoever is subscribed](/using/subscriptions).
+Reads incoming measurements, from both ingest paths, and events off the streaming platform,
+writes them into the columnar store in efficient batches, keeps the event key mappings
+current, and fans live data out to [whoever is subscribed](/using/subscriptions).
 
 **Scales with:** ingest volume. Add instances and the streaming platform distributes the work
 between them automatically.
