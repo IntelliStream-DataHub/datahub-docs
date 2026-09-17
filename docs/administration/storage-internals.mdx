@@ -49,6 +49,13 @@ model change is recorded in the relational database with a row in an outbox tabl
 API instance then applies it to the graph, so the relational database is the system of
 record and the graph converges to it (`ARCHITECTURE.md`, "Deployment & scaling").
 
+Datapoints cross the stream in two namespaces. `datapoints` carries the plain path, and
+`datapoint-blocks` carries the binary path the SDKs use for volume, whose frames are stored
+**compressed, as the client sent them**, so for the same backlog quota it holds several
+times the points. The two are set up alike: a backlog quota, a retention window and a
+partitioned topic per namespace, with the production values in the platform repository's
+`datahub-api/PULSAR_SETUP.md`. The evaluation stack creates both at start-up.
+
 ## The time-series table, column by column
 
 The definitions live in one file in the platform repository,
