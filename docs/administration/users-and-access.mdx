@@ -122,7 +122,8 @@ Two practical habits:
   `/datasets/*/write` grant everything in the tenant, and the `DATAHUB_ADMIN` role grants
   everything in every tenant. All three should be held by very few accounts, and their
   holders should be reviewed by name. Remember that a grant high in the data set hierarchy
-  covers everything beneath it.
+  covers everything beneath it. `/settings/llm/write` and `/settings/*/write` belong on the
+  same short list: they change the credential the assistant bills.
 
 [How grants work →](/administration/dataset-permissions)
 

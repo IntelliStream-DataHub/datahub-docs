@@ -76,12 +76,8 @@ the server allows it, or expect slow and sometimes empty replies.
 
 Set these in **Settings** in the console, reached from the menu under your name. They are
 stored in your organization's own secret and take effect within five minutes, without a
-redeploy.
-
-Seeing them needs the `/settings/llm/read` organization group and changing them needs
-`/settings/llm/write`, granted in [Keycloak](/administration/identity-providers) like any
-other group. They are separate grants, and neither follows from `DATAHUB_CHAT`: everyone who
-uses the assistant would otherwise be able to rewrite the credential it bills.
+redeploy. Seeing them and changing them are
+[separate grants](#who-may-see-and-change-the-settings).
 
 | Setting | What it controls |
 | --- | --- |
@@ -110,9 +106,39 @@ caps the bill: the [Effort control](/using/assistant#effort-how-hard-it-thinks) 
 cannot spend past it, and a long answer is cut short instead.
 </KeyIdea>
 
+## Who may see and change the settings {#who-may-see-and-change-the-settings}
+
+Settings are granted the way
+[data set access](/administration/dataset-permissions#how-a-grant-is-expressed) is: by
+organization groups in [Keycloak](/administration/identity-providers), in the same shape,
+one pair per **scope**. The assistant's model is the only scope today, `llm`.
+
+```text
+/settings/<scope>/read
+/settings/<scope>/write
+```
+
+| Group | Grants |
+| --- | --- |
+| `/settings/llm/read` | Seeing the assistant settings. The API key is never shown, only whether one is stored |
+| `/settings/llm/write` | Changing them |
+| `/settings/*/read` | Seeing every scope, including scopes added later |
+| `/settings/*/write` | Changing every scope, including scopes added later |
+
+- **Read and write are independent**, as they are for data sets. The **Settings** page needs
+  both to save anything: read alone shows the form locked, write alone shows no access.
+- **Neither follows from `DATAHUB_CHAT`.** Everyone who uses the assistant would otherwise be
+  able to rewrite the credential it bills.
+- **`DATAHUB_ADMIN` holds every scope**, the same operator escape hatch it is for data sets.
+- **The groups belong to one organization**, so a tenant's own administrator can hand them
+  out, and `/settings/*/write` in one organization says nothing about any other.
+- **Spell the path as shown.** In Keycloak it is three nested groups: `settings`, then the
+  scope, then `read` or `write`, and only that last level grants anything. A group that does
+  not match is ignored rather than reported, so a misspelt group looks exactly like no group.
+
 <Deeper title="Related">
 - [The assistant](/using/assistant): what it does for the people using it
 - [Security and compliance](/administration/security#ai-agents-and-the-console-assistant): why it is read-only, and how the checks hold
-- [Identity providers](/administration/identity-providers): where the role is granted
+- [Identity providers](/administration/identity-providers): where the role and the settings groups are granted
 - [Using MCP](/using/mcp): the same tools, offered to assistants outside the console
 </Deeper>
