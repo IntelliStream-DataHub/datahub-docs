@@ -26,50 +26,39 @@ one is what your organization has been given, one is what it has configured, one
 <Steps>
   <Step title="Enable it for the organization">
     The organization's entry in the tenant registry needs `tenant-config.chat` set to true.
-    This is set by whoever operates the platform, not by the customer: it is the entitlement,
-    not the configuration.
+    This is set by whoever operates the platform, talk to your system administrator.
   </Step>
   <Step title="Configure a model">
-    The organization supplies its own provider, model and credential, in **Settings** in the
-    console. Until that names a model that can actually be called, there is no assistant.
+    The organization supplies its own llm credentials , in **Settings** in the
+    console.
     [Settings](#settings) below.
   </Step>
   <Step title="Grant the role">
     A user needs the `DATAHUB_CHAT` role in [Keycloak](/administration/identity-providers).
-    Without it the panel is hidden, and the assistant cannot be reached by any other route.
+    Without it the panel is hidden.
   </Step>
 </Steps>
 
-There is no deployment-wide switch, and no deployment-wide model or key. That is deliberate:
-an assistant nobody configured would otherwise answer on the platform owner's account, and
-one organization's questions would reach a model another organization chose.
-
-Hiding the panel is not the security boundary. The check runs again on every request, so a
-user without the role gains nothing by going around the interface. The assistant also acts
+The assistant acts
 as the signed-in user, so [data set permissions](/administration/dataset-permissions) apply
-to everything it looks up, and it is only ever offered read-only tools.
-[Why that holds →](/administration/security#ai-agents-and-the-console-assistant)
+to everything it looks up. it is only ever offered read-only tools.
 
 ## Choosing a model
 
-The assistant talks to one of two kinds of model, and each organization chooses for itself.
+Both Antropic and OpenAI-compatible llm models are supported.
 
-- **A hosted model**, currently [Anthropic](https://www.anthropic.com/). You supply an API
-  key and usage is billed to whoever owns it.
-- **A model you run yourself**, through any server that speaks the OpenAI chat completions
-  interface, including [Ollama](https://ollama.com/) and vLLM. Nothing leaves your network.
+- **Anthropic** You supply an API
+  key and usage is billed to whoever owns it. You can also configure what model to help control costs.
+- **OpenAI-compatible**, through any server that speaks the OpenAI chat completions
+  interface, including self hosted model using [Ollama](https://ollama.com/) and vLLM, or a externally hosted model eihter from OpenAI or any other provider.
 
-Both work. The trade is the familiar one: a hosted model is stronger and needs no hardware, a
-self-hosted one keeps the data in your building and costs whatever the hardware costs.
+
 
 <KeyIdea title="If you self-host, read this">
-The assistant works by calling tools, so the model must be one that can call tools (look for
-"tool use" or "function calling" in its description). Many small models cannot, and one that
-cannot will appear to answer while never looking anything up.
+The assistant works by calling tools, so the model must be one that can call tools. 
 
-Models that reason at length before answering need care too. The assistant reads only the
-final answer, so time spent reasoning is time and money spent for nothing. Turn that off if
-the server allows it, or expect slow and sometimes empty replies.
+Models that reason at length before answering need care too. Turn that off if
+the server allows it, or expect slow and sometimes empty replies. adjusting effort is also suggested to reduce costs
 </KeyIdea>
 
 ### Settings
@@ -81,12 +70,12 @@ redeploy. Seeing them and changing them are
 
 | Setting | What it controls |
 | --- | --- |
-| `llm.provider` | `anthropic`, or `openai-compatible` for anything you host |
-| `llm.api-key` | The key. Required for a hosted model, usually not for your own. Never shown again once saved, and leaving the field empty keeps the stored one |
+| `llm.provider` | `anthropic`, or `openai-compatible`|
+| `llm.api-key` | The key. Required for a hosted model. Never shown again once saved, and leaving the field empty keeps the stored one |
 | `llm.model` | Which model to use, spelled exactly as the provider spells it |
 | `llm.base-url` | Where your own server listens. Required when you host it |
 | `llm.effort` | Which setting the Effort control starts on |
-| `llm.max-output-tokens` | A ceiling on the length of one answer. Set it and no effort setting can exceed it |
+| `llm.max-output-tokens` | A ceiling on the length of one answer.|
 | `llm.turn-timeout` | How long one question may take before the panel gives up |
 | `llm.max-iterations` | How many times the assistant may look something up and think again within one question |
 | `llm.reasoning-effort` | Only for a self-hosted server, including how to tell one not to reason |
@@ -95,16 +84,6 @@ redeploy. Seeing them and changing them are
 `llm.instructions` is the one worth spending time on. It is added to the assistant's existing
 instructions rather than replacing them, so the read-only rule cannot be configured away, and
 it is where you teach it that a tag beginning `21PT` is a pressure transmitter.
-
-<KeyIdea title="Budgets are worth setting deliberately">
-These are yours to set, not a ceiling the platform imposes, because the model is billed to
-you. `llm.max-output-tokens` and `llm.turn-timeout` are the two that matter most, and they
-pull in opposite directions. A hosted model wants a modest ceiling and seconds of patience. A model
-running on your own hardware may need minutes per question, and the panel will give up on it
-long before it finishes unless the timeout is raised. The answer-length ceiling is also what
-caps the bill: the [Effort control](/using/assistant#effort-how-hard-it-thinks) people use
-cannot spend past it, and a long answer is cut short instead.
-</KeyIdea>
 
 ## Who may see and change the settings {#who-may-see-and-change-the-settings}
 
@@ -127,14 +106,6 @@ one pair per **scope**. The assistant's model is the only scope today, `llm`.
 
 - **Read and write are independent**, as they are for data sets. The **Settings** page needs
   both to save anything: read alone shows the form locked, write alone shows no access.
-- **Neither follows from `DATAHUB_CHAT`.** Everyone who uses the assistant would otherwise be
-  able to rewrite the credential it bills.
-- **`DATAHUB_ADMIN` holds every scope**, the same operator escape hatch it is for data sets.
-- **The groups belong to one organization**, so a tenant's own administrator can hand them
-  out, and `/settings/*/write` in one organization says nothing about any other.
-- **Spell the path as shown.** In Keycloak it is three nested groups: `settings`, then the
-  scope, then `read` or `write`, and only that last level grants anything. A group that does
-  not match is ignored rather than reported, so a misspelt group looks exactly like no group.
 
 <Deeper title="Related">
 - [The assistant](/using/assistant): what it does for the people using it
