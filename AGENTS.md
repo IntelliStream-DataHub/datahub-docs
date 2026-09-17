@@ -815,6 +815,21 @@ streaming will work, while this is a concepts page about the idea. The one place
 backpressure, which the new page states as a principle (drop, buffer or slow the producer, and
 the only mistake is not knowing which) without documenting any console screen.
 
+### 3D viewer and the RVM converter, 2026-09-15
+
+`using/files.mdx` gained "Looking at 3D models", written from the platform's
+`feat/rvm-converter-tool` working copy dated 2026-09-15 (`model-viewer.js`, `model-measure.js`,
+`files-page.js`, the i18n bundle and `datahub-rvm-converter`). It supersedes the unmerged
+`docs/files-3d-viewer` branch, whose text it absorbs; that branch should not be merged as well.
+Facts worth keeping: companion files are fetched **by plain file name from the model's own
+folder only**, at most 24, and only `obj` and `gltf` are read for references; a `gltf` missing
+its `bin` does not open. Sizes treat Y as up. `.rvm` conversion saves `<name>.glb` beside the
+source and never overwrites. The converter (port 8083, metrics 9084) is **not** in the
+evaluation stack, the systemd examples or the nginx examples, yet the console's default
+`datahub.rvm-converter.url` still shows the Convert button, which is why the architecture page
+says to blank it. The file format's vendor and its design products are deliberately not named,
+under the competitor rule.
+
 ### The lesson
 
 Do not document platform behaviour from i18n strings, console text or the platform's own
