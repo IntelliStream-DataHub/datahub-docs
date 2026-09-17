@@ -124,8 +124,16 @@ and it cannot write or see anything else.
 The console's built-in assistant is stricter still:
 
 - It only ever offers its model **read-only tools**, whatever the signed-in user could do.
-- It runs only where three switches agree: enabled in the deployment, enabled for the
-  tenant, and the user holds the `DATAHUB_CHAT` role.
+- It runs only where three things agree: the feature is enabled for the tenant, the tenant
+  has configured a model of its own, and the user holds the `DATAHUB_CHAT` role.
+- **The model is yours, and so is the account it bills.** Each tenant supplies its own
+  provider, model and API key. There is no platform-wide model or key behind it, so a tenant
+  that has configured none has no assistant rather than one running on somebody else's
+  credential, and no tenant's questions reach a model another tenant chose.
+- The key is stored in your tenant's own secret, never returned to a browser, and never
+  written to a log. Changing it is a separate permission: the `/settings/llm/write`
+  organization group, held by whoever administers the tenant rather than by everyone who can
+  use the assistant.
   [Enabling the assistant →](/administration/assistant)
 
 [How MCP access works, in practice →](/using/mcp#the-security-property-that-matters)

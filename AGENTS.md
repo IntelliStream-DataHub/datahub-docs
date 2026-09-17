@@ -619,9 +619,15 @@ stays in `value/`; keep that split, and keep them cross-linked.
   produces. Whether the assistant now also calls `analysis_related_series` is **unverified
   against the newer platform**; the docs are worded so they hold either way. The exact
   allowlist size was deliberately dropped from the prose because it drifts.
-- Gating is `datahub.chat.enabled` in the deployment, the tenant flag, and the
+- Gating is the tenant flag, a model the tenant has configured itself, and the
   `DATAHUB_CHAT` authority, and the entry point in the console is the **Ask AI** button in
-  the top bar.
+  the top bar. **As of platform PRs #42 and #44 (2026-09),**
+  `datahub.chat.enabled` and the deployment-wide model and key are gone. Each tenant brings
+  its own provider, model and key through the console's **Settings** page, stored in
+  `tenant-config/<org-name>`, and a tenant with none has no assistant. Who may see and change
+  settings is the organization groups `/settings/<scope>/read|write` (plus a `*` wildcard),
+  the same shape as the data set groups; `llm` is the only scope. Do not reintroduce a
+  deployment switch or a platform-wide key.
 - **The analysis service ships in the standard deployment** (confirmed by the product owner,
   2026-08-14). The docs used to say the opposite in six places, and it was the stated reason
   `relationship-analysis.mdx` carried a `<Roadmap>` banner at all. That banner is gone, along

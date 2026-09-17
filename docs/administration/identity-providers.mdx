@@ -67,7 +67,7 @@ A working realm provides:
 | --- | --- |
 | `DATAHUB_ACCESS` | The baseline, required to use the API at all |
 | `DATAHUB_CONSOLE` | Required for every console page |
-| `DATAHUB_CHAT` | The console's [AI assistant](/administration/security#ai-agents-and-the-console-assistant), in deployments and tenants where it is enabled |
+| `DATAHUB_CHAT` | The console's [AI assistant](/administration/security#ai-agents-and-the-console-assistant), in tenants where it is enabled and a model is configured |
 | `DATAHUB_ADMIN` | The operator escape hatch: read and write on every data set in every tenant |
 
 - **An organization per tenant**, using Keycloak's
@@ -79,6 +79,9 @@ A working realm provides:
   the organization's data sets through the wildcard groups `/datasets/*/read` and
   `/datasets/*/write`.
   [Data set permissions →](/administration/dataset-permissions)
+  The same tree grants who may see and change the organization's own settings, such as the
+  assistant's model, through `/settings/<scope>/read` and `/settings/<scope>/write`.
+  [Who may change settings →](/administration/assistant#who-may-see-and-change-the-settings)
 
   Note that <span className="t-accent">access and data permissions are separate</span>. A user
   with `DATAHUB_ACCESS` and `DATAHUB_CONSOLE` but no data set grants can sign in and then see
@@ -175,6 +178,10 @@ organization, named after the data set:
 organization's data sets, so even all-data-sets access is delegated inside the tenant rather
 than granted realm-wide.
 [Data set permissions →](/administration/dataset-permissions)
+
+The same tree also decides who may see and change the organization's own settings, in the
+same shape: `/settings/<scope>/read` and `/settings/<scope>/write`, with a `*` wildcard.
+[Who may change settings →](/administration/assistant#who-may-see-and-change-the-settings)
 
 Plan your [data set boundaries](/using/datasets#designing-good-boundaries) with that in mind:
 they line up with organization groups, so a boundary that matches how you would group people
