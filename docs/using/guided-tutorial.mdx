@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: Guided tutorial
-description: The console teaches itself. Where to start the built-in guided tutorial, the six chapters it walks you through, the four industry scenarios it can speak in, what it creates in your tenant and how to remove it afterwards.
+description: The console teaches itself. Where to start the built-in guided tutorial, its two tours (build a network yourself, or explore a demo site and follow one incident on it), the four industry scenarios it can speak in, what it creates in your tenant and how to remove it afterwards.
 ---
 
 # Guided tutorial
@@ -21,6 +21,11 @@ a demo somebody showed you.
 
 It is the fastest way to take a new colleague from "what is this" to a data set, a resource
 network, a measurement and an event, in about the time a presentation would have taken.
+
+It comes as two tours. **Build a network from scratch** has you make a small model yourself.
+**Explore a demo site** builds a small industrial site for you and follows one incident through
+it: a pump's bearing runs hot, an alarm arrives, a work permit is raised and worked, the fault is
+fixed. Same engine, same real screens; one teaches by building, the other by reading.
 </KeyIdea>
 
 ## Starting it
@@ -32,20 +37,21 @@ Two entry points, both leading to the same flow:
 - **The home screen.** The "New to DataHub?" bar, for anyone who has just signed in for the
   first time.
 
-Either one opens **Start guided tutorial?**, which offers two ways in:
+Either one opens **Start guided tutorial?**, which offers three ways in:
 
-- **From the beginning**, the full tour.
-- **Or jump to a chapter**, which plays from the chapter you pick through to the end. If the
-  chapter you choose needs something an earlier one would have built, the tutorial creates
-  that first rather than leaving you stuck.
+- **Build a network from scratch**, the full build tour described in the next sections.
+- **Explore a demo site**, the demo tour, described [below](#explore-a-demo-site).
+- **Or jump to a chapter of the build tour**, which plays from the chapter you pick through to
+  the end. If the chapter you choose needs something an earlier one would have built, the
+  tutorial creates that first rather than leaving you stuck.
 
 ## Pick the industry it speaks in
 
 Before the first step you choose a scenario: **Oil & Gas** (the default), **Tech / IoT**,
 **Manufacturing** or **Energy**.
 
-The choice changes the vocabulary rather than the mechanics. The data set you create, the
-resources you connect and the measurement you add are all named for the industry you picked,
+The choice changes the vocabulary rather than the mechanics, in both tours. The data set you
+create, the resources you connect and the measurement you add are all named for the industry you picked,
 so the model you finish with reads like a small piece of your own operation. That matters
 more than it sounds: <span className="t-brand">the point of the tour is to recognise your own
 plant in it</span>, and generic example names are what usually stop people doing that.
@@ -67,6 +73,35 @@ clicked, then walks you through building it.
 The order is deliberate and it is the same order the rest of this section is written in:
 a container, the things in it, what they measure, how those measurements relate, what
 happened to them, and then the whole shape at once.
+
+## Explore a demo site
+
+The demo tour is for the person who wants to see the platform holding a story together before
+modelling anything. Pick an industry and it seeds a site for you: a tank, two valves, a pump and
+its standby, a motor, and three signals on the pump, with two days of readings and an alarm
+already in the log. Then it follows one incident in six short chapters:
+
+| Chapter | What you do | What it shows |
+| --- | --- | --- |
+| **The site** | Open the site from the resource list and read its graph | Equipment, the process flow between it, and the pump's signals as nodes of the same graph |
+| **The signal** | Chart the bearing temperature in [Insights](/using/insights), zoom in, overlay the discharge pressure | Two readings from one machine on one chart |
+| **The alarm** | Open the alarm in the [event log](/using/events) | An alarm is a record tied to the pump, with its source and threshold |
+| **The permit** | Watch a work permit arrive and open it; narrow the log to its external id | A permit's life as a trail of events sharing one external id: open, in progress, closed |
+| **The fix** | See the repair posted, the signal settle, and the home page count the alarm | Readings and happenings on one timeline |
+| **What's next** | Read what is planned | Anomaly and event detection on the same foundation |
+
+Everything you click is a real console action; the systems around DataHub (condition
+monitoring, the permit system, the technician) are played by the tour posting real events and
+readings as the story moves on. Nothing is typed for you except where the point of a step is to
+type. It takes about five minutes.
+
+The demo creates the same kind of real data as the build tour: a root resource with six pieces
+of equipment under it, three time series, their readings, and the events of the story, all under
+external ids that start with `demo_` and a marker unique to the run. Labels (SITE, PUMP, MOTOR,
+VALVE, TANK) and relationship types (CONTAINS, FEEDS, DRIVES, MEASURES) are created only where
+the tenant lacks them, and are left in place afterwards as ordinary vocabulary. The last step
+offers **Keep it** or **Remove tutorial data**, exactly as the build tour does. It has no
+chapters to jump into, because every chapter depends on the site the first one builds.
 
 ## How it behaves while it runs
 
@@ -92,16 +127,17 @@ happened to them, and then the whole shape at once.
 
 This is the part worth knowing before turning a team loose on a production tenant.
 
-<span className="t-accent">What the tutorial creates is real.</span> A data set, resources,
-a time series with datapoints, a couple of events, and two extra series for the correlation
-chapter, all ordinary objects in your tenant, visible to anybody who can read that data set.
-Nothing is a simulation or a sandbox mode.
+<span className="t-accent">What the tutorial creates is real.</span> In the build tour: a data
+set, resources, a time series with datapoints, a couple of events, and two extra series for the
+correlation chapter. In the demo tour: a site of seven resources, three series, their readings
+and the events of the story. All ordinary objects in your tenant, visible to anybody who can
+read them. Nothing is a simulation or a sandbox mode.
 
 Three behaviours follow from that, and they are all deliberate:
 
 - **The last step asks.** It offers **Keep it**, which leaves the network in place to inspect
   or carry on with, or **Remove tutorial data**, which deletes the data set, resources,
-  series and events this run created.
+  series and events this run created. Labels and relationship types the demo tour added stay.
 - **Starting again cleans up first.** A fresh run deletes the previous run's objects before
   it begins, so repeated runs by the same person do not pile up.
 - **Each run gets its own identifiers.** A run stamps a unique marker so the things it creates get
@@ -126,6 +162,10 @@ sitting in a list of production data sets long enough for somebody to mistake it
 - **The feature enabled in the deployment.** It is on by default; an administrator can switch it
   off for everyone in the console's configuration, which also removes the menu entry and the
   home-screen bar.
+- **For the demo tour, the whole platform running.** Its readings and events reach the screens
+  through the message bus and the consumer, and its graph through the mirror; on a deployment
+  where those are down the tour waits up to a minute at two points and then carries on with
+  whatever has arrived.
 
 ## When to reach for it, and when not
 
