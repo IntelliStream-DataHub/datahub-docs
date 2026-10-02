@@ -1,95 +1,157 @@
 ---
 sidebar_position: 8.5
 title: Enabling the assistant
-description: How an organization turns on the console's Ask AI panel by bringing its own model, the choice between a hosted model and one you run yourself, and the settings that bound what a question may cost.
+description: How an organisation turns on the console's Ask AI panel today. The four things that must be in place and who does each, choosing between a hosted model and one you run yourself, the settings that bound what a question may cost, and what to check when it does not work.
 ---
 
 # Enabling the assistant
 
 <Personas>
   <Persona primary>Administrators</Persona>
+  <Persona>Platform operators</Persona>
   <Persona>IT security</Persona>
 </Personas>
 
 <KeyIdea>
-The console's [assistant](/using/assistant) is off until your organization turns it on, and
+The console's [assistant](/using/assistant) is off until your organisation turns it on, and
 **you bring the model**: your own provider, your own API key, billed to you. There is no
-platform-wide model behind it, so an organization that has configured none simply has no
+platform-wide model behind it, so an organisation that has configured none simply has no
 assistant.
+
+Turning it on takes <span className="hl">four things, held by up to three different
+people</span>. If **Ask AI** is missing from the top bar, one of them is not done yet.
 </KeyIdea>
+
+## The checklist
+
+| What | Who does it | Where | If it is missing |
+| --- | --- | --- | --- |
+| The assistant is enabled for the organisation | Whoever operates the platform | The tenant registry | Nobody in the organisation sees **Ask AI** |
+| Someone may change the assistant's settings | Your identity administrator | Organisation groups in Keycloak | **Settings** says you have no access, or shows the form locked |
+| A model is configured | Your organisation's administrator | **Settings**, then **AI assistant**, in the console | Nobody sees **Ask AI**, and the settings page warns that the assistant is not running yet |
+| A person may use it | Your identity administrator | The `DATAHUB_CHAT` role in Keycloak | That person does not see **Ask AI** |
+
+The first is an entitlement: something your organisation has been given and cannot grant
+itself. The other three are your organisation's own decisions.
 
 ## Turning it on
 
-Three things must all be true before anyone sees the panel. They are deliberately separate:
-one is what your organization has been given, one is what it has configured, one is per person.
-
 <Steps>
-  <Step title="Enable it for the organization">
-    The organization's entry in the tenant registry needs `tenant-config.chat` set to true.
-    This is set by whoever operates the platform, talk to your system administrator.
+  <Step title="Ask for the assistant to be enabled">
+    Your organisation's entry in the tenant registry needs `chat` set to `true`. Whoever
+    operates the platform sets it, so ask your system administrator. There is no screen for
+    it yet; the operator's side is under [for platform operators](#for-platform-operators).
+  </Step>
+  <Step title="Let someone change the settings">
+    In [Keycloak](/administration/identity-providers), add your organisation's administrator
+    to two organisation groups, `/settings/llm/read` and `/settings/llm/write`. Saving needs
+    both. See [who may see and change the settings](#who-may-see-and-change-the-settings).
   </Step>
   <Step title="Configure a model">
-    The organization supplies its own llm credentials , in **Settings** in the
-    console.
-    [Settings](#settings) below.
+    That administrator opens **Settings** from the menu under their name, then
+    **AI assistant**. Pick a provider, name the model, and give either an API key (Anthropic)
+    or a base URL (OpenAI-compatible), then save. [Choosing a model](#choosing-a-model) and
+    [the settings](#settings) explain each field. The change reaches the console within five
+    minutes, with no restart. Step by step:
+    [setting up the assistant](/using/assistant-setup).
   </Step>
-  <Step title="Grant the role">
-    A user needs the `DATAHUB_CHAT` role in [Keycloak](/administration/identity-providers).
-    Without it the panel is hidden.
+  <Step title="Give the role to the people who will use it">
+    Each user needs the `DATAHUB_CHAT` realm role. Without it the panel is hidden, and a
+    request sent by hand is refused. Roles are read when a person signs in, so they need to
+    sign out and back in before the panel appears.
+  </Step>
+  <Step title="Check that it answers">
+    Sign in as one of those users, open **Ask AI** and ask something simple about your own
+    data, such as *"which data sets do we have?"*. A good answer lists them and shows which
+    lookups it **Consulted**. If the panel is there but every question fails, see
+    [when it does not work](#when-it-does-not-work).
   </Step>
 </Steps>
 
-The assistant acts
-as the signed-in user, so [data set permissions](/administration/dataset-permissions) apply
-to everything it looks up. it is only ever offered read-only tools.
+The assistant acts as the signed-in user, so
+[data set permissions](/administration/dataset-permissions) apply to everything it looks
+up, and it is only ever offered read-only tools.
+[Why, and how that holds →](/administration/security#ai-agents-and-the-console-assistant)
 
-## Choosing a model
+## Choosing a model {#choosing-a-model}
 
-Both Antropic and OpenAI-compatible llm models are supported.
+Two kinds of provider are supported.
 
-- **Anthropic** You supply an API
-  key and usage is billed to whoever owns it. You can also configure what model to help control costs.
-- **OpenAI-compatible**, through any server that speaks the OpenAI chat completions
-  interface, including self hosted model using [Ollama](https://ollama.com/) and vLLM, or a externally hosted model eihter from OpenAI or any other provider.
+- **Anthropic**, hosted. You supply an API key from your own Anthropic account, and usage is
+  billed to it. Name the model exactly as Anthropic spells it: `claude-opus-5-5` for the
+  best answers, or `claude-sonnet-5-5` at about half the price per question. Not
+  `claude-haiku-4-5`, which refuses the thinking and effort settings DataHub sends.
+- **OpenAI-compatible**: any server that speaks the OpenAI chat completions interface. That
+  covers a model you run yourself with [Ollama](https://ollama.com/),
+  [vLLM](https://docs.vllm.ai/) or [llama.cpp](https://github.com/ggml-org/llama.cpp), and
+  hosted services that offer the same interface.
 
+For an OpenAI-compatible server, the **base URL** is its address up to and including `/v1`.
+The console adds `/chat/completions` itself.
 
+| Server | Typical base URL |
+| --- | --- |
+| Ollama | `http://<host>:11434/v1` |
+| vLLM | `http://<host>:8000/v1` |
+| llama.cpp server | `http://<host>:8080/v1` |
 
-<KeyIdea title="If you self-host, read this">
-The assistant works by calling tools, so the model must be one that can call tools. 
+<span className="t-accent">The address must be reachable from the console's server, not
+from your browser.</span> The console makes the calls, so `localhost` means the machine or
+container the console runs in, which is rarely where the model is.
 
-Models that reason at length before answering need care too. Turn that off if
-the server allows it, or expect slow and sometimes empty replies. adjusting effort is also suggested to reduce costs
+**A hosted OpenAI-compatible service that needs a key** cannot be set up from the
+**Settings** page yet: the page asks for a key only when Anthropic is selected. Until it
+does, your platform operator can store the key for you, as described under
+[for platform operators](#for-platform-operators).
+
+<KeyIdea title="If you run the model yourself, read this">
+- **The model must be able to call tools.** The assistant answers by looking things up, so
+  a model without tool calling answers from general knowledge, or not at all. Ollama marks
+  these models with a *tools* tag.
+- **Tell a thinking model not to think at length.** Set **Reasoning effort** to `none` if
+  your server accepts it. Otherwise expect slow and sometimes empty replies.
+- **Give it time.** A model on ordinary CPUs can spend minutes on one step, and a question
+  takes several. Raise **Turn timeout** to `10m` or more rather than lowering
+  **Max iterations** until it cannot finish.
+- **Make it reachable, and only by the console.** Ollama listens on the local machine only
+  by default, which a console on another machine or in a container cannot reach; set
+  `OLLAMA_HOST=0.0.0.0` so it listens on the network. Neither Ollama nor vLLM asks for a
+  password by default, so keep the server inside your network.
 </KeyIdea>
 
-### Settings
+## Settings {#settings}
 
-Set these in **Settings** in the console, reached from the menu under your name. They are
-stored in your organization's own secret and take effect within five minutes, without a
-redeploy. Seeing them and changing them are
+Set these in **Settings**, then **AI assistant**, reached from the menu under your name.
+They are stored in your organisation's own secret and reach the console within five minutes,
+without a redeploy. Seeing them and changing them are
 [separate grants](#who-may-see-and-change-the-settings).
 
-| Setting | What it controls |
-| --- | --- |
-| `llm.provider` | `anthropic`, or `openai-compatible`|
-| `llm.api-key` | The key. Required for a hosted model. Never shown again once saved, and leaving the field empty keeps the stored one |
-| `llm.model` | Which model to use, spelled exactly as the provider spells it |
-| `llm.base-url` | Where your own server listens. Required when you host it |
-| `llm.effort` | Which setting the Effort control starts on |
-| `llm.max-output-tokens` | A ceiling on the length of one answer.|
-| `llm.turn-timeout` | How long one question may take before the panel gives up |
-| `llm.max-iterations` | How many times the assistant may look something up and think again within one question |
-| `llm.reasoning-effort` | Only for a self-hosted server, including how to tell one not to reason |
-| `llm.instructions` | Standing context: your vocabulary, your conventions, what your people care about |
+| Field | What it controls | Left empty |
+| --- | --- | --- |
+| **Provider** | `Anthropic` or `OpenAI-compatible` | Required |
+| **Model** | Which model to use, spelled exactly as the provider spells it | Required |
+| **API key** | The key, for Anthropic. Never shown again once saved, and leaving the field empty keeps the stored one | Required for Anthropic |
+| **Base URL** | Where an OpenAI-compatible server listens, ending in `/v1` | Required for OpenAI-compatible |
+| **Reasoning effort** | Sent to an OpenAI-compatible server as it is; `none` stops a thinking model reasoning | Nothing is sent |
+| **Default effort** | Where the Effort control under the message box starts. People can still change it per message | High |
+| **Max output tokens** | A ceiling on the length of one model reply, thinking included | The effort level decides |
+| **Max iterations** | How many times the assistant may look something up and think again within one question | 6 |
+| **Turn timeout** | How long one question may take before the panel gives up, such as `10m` | 4 minutes |
+| **Instructions** | Standing context: your vocabulary, your conventions, what your people care about | None |
 
-`llm.instructions` is the one worth spending time on. It is added to the assistant's existing
-instructions rather than replacing them, so the read-only rule cannot be configured away, and
-it is where you teach it that a tag beginning `21PT` is a pressure transmitter.
+The *Left empty* column shows the platform's out-of-the-box defaults. Your platform operator
+may have changed them, and none of them is a ceiling: the bill is yours, so every one is
+yours to override.
+
+**Instructions** is the one worth spending time on. It is added to the assistant's existing
+instructions rather than replacing them, so the read-only rule cannot be configured away,
+and it is where you teach it that a tag beginning `21PT` is a pressure transmitter.
 
 ## Who may see and change the settings {#who-may-see-and-change-the-settings}
 
 Settings are granted the way
 [data set access](/administration/dataset-permissions#how-a-grant-is-expressed) is: by
-organization groups in [Keycloak](/administration/identity-providers), in the same shape,
+organisation groups in [Keycloak](/administration/identity-providers), in the same shape,
 one pair per **scope**. The assistant's model is the only scope today, `llm`.
 
 ```text
@@ -106,6 +168,62 @@ one pair per **scope**. The assistant's model is the only scope today, `llm`.
 
 - **Read and write are independent**, as they are for data sets. The **Settings** page needs
   both to save anything: read alone shows the form locked, write alone shows no access.
+- **Give them to people, not service accounts.** Whoever holds write can change the
+  credential your organisation is billed on.
+- **Using the assistant needs neither.** The `DATAHUB_CHAT` role is enough to ask questions;
+  the settings groups are for whoever looks after the model.
+
+## When it does not work {#when-it-does-not-work}
+
+| What you see | Most likely cause |
+| --- | --- |
+| Nobody in the organisation sees **Ask AI** | The organisation is not enabled yet, or the model settings are incomplete (the **Settings** page says so). After fixing either, allow five minutes |
+| One person does not see **Ask AI** | They lack the `DATAHUB_CHAT` role, or have not signed in again since receiving it |
+| **Settings** says you do not have access | You lack `/settings/llm/read` |
+| **Settings** shows the form but will not let you save | You have read but not `/settings/llm/write` |
+| **Ask AI** is there, but every question ends in *"Something went wrong"* | The model cannot be reached or refuses: a wrong key, a misspelt model name, or a base URL the console's server cannot reach. The reason is in the console's log, so ask your platform operator |
+| *"That took too long to answer"* | Raise **Turn timeout**, especially for a model you run yourself |
+| *"I stopped after several lookups without reaching an answer"* | Narrow the question, or raise **Max iterations** |
+| It answers, but never lists anything it **Consulted** | The model is not calling tools. Choose a model that supports tool calling |
+
+## For platform operators {#for-platform-operators}
+
+**Enabling an organisation.** The flag lives in the organisation's entry in the
+`tenant-resources` secret, inside its `tenant-config` block:
+
+```json
+"acme": {
+  "org-id": "…",
+  "tenant-config": { "files": true, "chat": true }
+}
+```
+
+That secret holds every organisation's connection credentials in one document, so edit it
+with care and keep a copy of the previous version. The console reads the change within five
+minutes.
+
+**Storing a key the Settings page cannot.** Each organisation's model settings live in their
+own secret, `tenant-config/<organisation name>`, as `llm.*` keys that match the table above:
+`llm.provider`, `llm.model`, `llm.api-key`, `llm.base-url`, `llm.reasoning-effort`,
+`llm.effort`, `llm.max-output-tokens`, `llm.max-iterations`, `llm.turn-timeout` and
+`llm.instructions`. For a hosted OpenAI-compatible service, have the organisation save its
+other settings from the **Settings** page first, then add `llm.api-key` to that secret
+without replacing the keys already in it.
+
+**Changing the defaults.** The *Left empty* values come from the console's own secret, which
+carries the same `llm.effort`, `llm.max-output-tokens`, `llm.max-iterations`,
+`llm.turn-timeout` and `llm.instructions` keys. They are defaults for an organisation that
+named none, not limits.
+
+<References>
+
+- [Large language models](https://en.wikipedia.org/wiki/Large_language_model)
+- [Ollama](https://ollama.com/): runs open models on your own hardware
+- [vLLM](https://docs.vllm.ai/): a high-throughput server for open models
+- [llama.cpp](https://github.com/ggml-org/llama.cpp): a lightweight server for open models
+- [Model Context Protocol](https://modelcontextprotocol.io/): how the assistant reaches its tools
+
+</References>
 
 <Deeper title="Related">
 - [The assistant](/using/assistant): what it does for the people using it
