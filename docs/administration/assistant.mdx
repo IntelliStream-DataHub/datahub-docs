@@ -95,9 +95,10 @@ The console adds `/chat/completions` itself.
 | vLLM | `http://<host>:8000/v1` |
 | llama.cpp server | `http://<host>:8080/v1` |
 
-<span className="t-accent">The address must be reachable from the console's server, not
-from your browser.</span> The console makes the calls, so `localhost` means the machine or
-container the console runs in, which is rarely where the model is.
+<span className="t-accent">The address must be reachable from DataHub's servers, not from
+your browser.</span> The console calls the model to answer questions, and the API asks it for
+the model list that **Settings** offers as suggestions, so `localhost` means the machine or
+container those run in, which is rarely where the model is.
 
 **A hosted OpenAI-compatible service that needs a key** cannot be set up from the
 **Settings** page yet: the page asks for a key only when Anthropic is selected. Until it
@@ -200,7 +201,10 @@ one pair per **scope**. The assistant's model is the only scope today, `llm`.
 
 That secret holds every organisation's connection credentials in one document, so edit it
 with care and keep a copy of the previous version. The console reads the change within five
-minutes.
+minutes. An organisation whose block leaves `chat` out gets the console's default instead,
+the `datahub.features.chat` setting, which is off unless you set it, for example as the
+environment variable `DATAHUB_FEATURES_CHAT=true` on the console. It is a default for the
+entitlement only: each organisation still needs a model of its own.
 
 **Storing a key the Settings page cannot.** Each organisation's model settings live in their
 own secret, `tenant-config/<organisation name>`, as `llm.*` keys that match the table above:

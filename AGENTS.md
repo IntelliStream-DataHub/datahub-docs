@@ -635,7 +635,14 @@ stays in `value/`; keep that split, and keep them cross-linked.
   within five minutes (the tenant registry refresh), and a new `DATAHUB_CHAT` role needs a
   fresh sign-in. A model call that fails shows the user only *"Something went wrong"*; the
   cause is in the console log. The `chat` flag is not managed by the tenant manager, so
-  there is no screen for the operator step, and the pages must not claim one.
+  there is no screen for the operator step, and the pages must not claim one. A tenant
+  whose `tenant-config` block leaves `chat` out falls back to the console's
+  `datahub.features.chat` (default false, Spring config only, not Vault); that is a default
+  for the entitlement, not the removed deployment switch. Verified end to end on the dev
+  stack (2026-10-02), including a self-hosted Ollama model reached from the console
+  container at `host.containers.internal`. A platform change in review replaces
+  "Something went wrong" with a message per cause (key rejected, model not found, server
+  unreachable and so on); update the troubleshooting tables when it ships.
 - **The analysis service ships in the standard deployment** (confirmed by the product owner,
   2026-08-14). The docs used to say the opposite in six places, and it was the stated reason
   `relationship-analysis.mdx` carried a `<Roadmap>` banner at all. That banner is gone, along

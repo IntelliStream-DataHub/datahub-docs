@@ -61,7 +61,8 @@ Check three things:
 
     1. On a machine DataHub can reach, install Ollama and pull a model that can call tools.
        On [ollama.com](https://ollama.com/search?c=tools) these carry a **tools** tag. A
-       model that cannot call tools cannot look anything up.
+       model that cannot call tools cannot look anything up, and a very small one calls
+       them but chooses them less well, so take the largest your hardware runs comfortably.
     2. Make Ollama listen on the network, not only on its own machine:
        `OLLAMA_HOST=0.0.0.0 ollama serve`. Ollama has no password, so keep it inside your
        network.
@@ -98,9 +99,14 @@ Open the menu under your name, then **Settings**, then **AI assistant**, and fil
 | **Base URL** | Not shown | `http://<model-server>:11434/v1` |
 | **Reasoning effort** | Not shown | `none` for a model that thinks before it answers; otherwise leave empty |
 
-For your own server, also set **Turn timeout** under **Cost and limits** to `10m`. A model
-on ordinary hardware can take minutes per step, and one question takes several. Leave
-everything else empty for now; each empty field falls back to a sensible default.
+For your own server, once **Base URL** is filled in, **Model** suggests the models that
+server offers, provided DataHub can reach it. No suggestions is an early sign that it cannot;
+you can still type any name.
+
+Also set **Turn timeout** under **Cost and limits** to `10m` for your own server. One step
+takes a few seconds for a small model on a fast machine and minutes for a large one, and a
+question takes several. Leave everything else empty for now; each empty field falls back to
+a sensible default.
 
 Press **Save**. *Settings saved.* confirms it, and the warning that the assistant is not
 running yet disappears once the required fields are filled in. If a field is marked, the
@@ -124,7 +130,8 @@ is for.
 2. **Open it and ask something simple** about your own data, such as
    *"Which data sets do we have?"*
 3. **Check the answer.** A working assistant lists your data sets, and underneath its answer
-   shows **Consulted:** followed by the lookups it made, such as `dataset_list`.
+   shows **Consulted:** followed by the lookups it made, such as `dataset_list` or
+   `resource_search`.
 4. **Then ask a real question**, such as *"What alarms were raised on the export compressor
    yesterday?"* It may offer a button that opens the same view in the console.
 
