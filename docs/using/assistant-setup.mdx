@@ -1,0 +1,194 @@
+---
+sidebar_position: 13.5
+title: Setting up the assistant
+description: Step by step, for an organisation that already has access to the assistant. Choose a model, enter it on the Settings page, check that Ask AI answers, and fix the common problems.
+---
+
+# Setting up the assistant
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona>Engineers</Persona>
+</Personas>
+
+<KeyIdea>
+This page is for an organisation that **already has access**: the assistant is enabled for
+you, you can open **Settings**, and your people hold the assistant role. What is left is to
+connect a model, which takes about ten minutes.
+
+<span className="hl">Choose a model, enter it on the Settings page, wait up to five
+minutes, ask a question.</span> If any of the access is missing, start with
+[enabling the assistant](/administration/assistant) instead.
+</KeyIdea>
+
+## Before you start
+
+Check three things:
+
+- **You can edit the settings.** Open the menu under your name at the top right, choose
+  **Settings**, then **AI assistant**. If the form is greyed out or the page says you do not
+  have access, your permissions are not in place yet:
+  [who may change the settings](/administration/assistant#who-may-see-and-change-the-settings).
+- **You know where the model will run.** Either at Anthropic, which needs an API key and
+  bills your Anthropic account per question, or on a server you run yourself, which costs
+  nothing per question but must be reachable from DataHub.
+- **You have the details at hand.** For Anthropic, an API key. For your own server, its
+  address and the model's name.
+
+## Step 1: get a model
+
+<Steps>
+  <Step title="Option A: a hosted model from Anthropic">
+    Sign in to the [Claude Console](https://platform.claude.com/) with your organisation's
+    Anthropic account, open **Settings**, then **API keys**, and create a key. Two choices on
+    that form matter here:
+
+    - **Scope it to one workspace.** A key that covers several workspaces must name the
+      workspace on every request, which DataHub does not do, so every question would fail.
+    - **Link it to a service account** if your organisation will depend on it. A key linked to
+      a person stops working when that person leaves the organisation.
+
+    Copy the key when the Console shows it.
+
+    Then choose which model to use. The name goes into DataHub exactly as written here:
+
+    | Model name | Choose it when |
+    | --- | --- |
+    | `claude-opus-5-5` | You want the best answers to hard questions, such as following a fault across equipment, events and measurements |
+    | `claude-sonnet-5-5` | You want faster answers at half the price per token; lookups and counting do well here |
+
+    **Do not use `claude-haiku-4-5`.** DataHub asks every model for adaptive thinking, and
+    Anthropic rejects that on Haiku 4.5, as on the other 4.5 models, so every question fails.
+    On the 4.6 models the **Very high** effort setting is not available. Current prices are on
+    [Anthropic's pricing page](https://platform.claude.com/docs/en/about-claude/pricing).
+  </Step>
+  <Step title="Option B: a model on your own server">
+    Any server that speaks the OpenAI chat completions interface works. With
+    [Ollama](https://ollama.com/), the simplest to start with:
+
+    1. On a machine DataHub can reach, install Ollama and pull a model that can call tools.
+       On [ollama.com](https://ollama.com/search?c=tools) these carry a **tools** tag. A
+       model that cannot call tools cannot look anything up, and a very small one calls
+       them but chooses them less well, so take the largest your hardware runs comfortably.
+    2. Make Ollama listen on the network, not only on its own machine:
+       `OLLAMA_HOST=0.0.0.0 ollama serve`. Ollama has no password, so keep it inside your
+       network.
+    3. Note the model's name exactly as `ollama list` prints it, for example `qwen3.8:latest`.
+
+    The address you will enter is the server's, up to and including `/v1`:
+
+    | Server | Address |
+    | --- | --- |
+    | Ollama | `http://<model-server>:11434/v1` |
+    | vLLM | `http://<model-server>:8000/v1` |
+    | llama.cpp server | `http://<model-server>:8080/v1` |
+
+    <span className="t-accent">DataHub calls the model from its own servers, not from your
+    browser.</span> `localhost` only works if DataHub runs on that same machine and not in
+    a container. If DataHub is hosted for you outside your network, agree with your
+    platform contact how it reaches your model server before opening it up.
+
+    A server that requires an API key cannot be set up from the Settings page yet; ask your
+    platform operator to add the key for you.
+  </Step>
+</Steps>
+
+## Step 2: enter it in Settings
+
+Open the menu under your name, then **Settings**, then **AI assistant**, and fill in the
+**Model** section.
+
+| Field | Anthropic | Your own server |
+| --- | --- | --- |
+| **Provider** | Anthropic | OpenAI-compatible (Ollama, vLLM, llama.cpp) |
+| **Model** | `claude-opus-5-5` or `claude-sonnet-5-5` | As `ollama list` prints it, such as `qwen3.8:latest` |
+| **API key** | Paste the key | Not shown |
+| **Base URL** | Not shown | `http://<model-server>:11434/v1` |
+| **Reasoning effort** | Not shown | `none` for a model that thinks before it answers; otherwise leave empty |
+
+For your own server, once **Base URL** is filled in, **Model** suggests the models that
+server offers, provided DataHub can reach it. No suggestions is an early sign that it cannot;
+you can still type any name.
+
+Also set **Turn timeout** under **Cost and limits** to `10m` for your own server. One step
+takes a few seconds for a small model on a fast machine and minutes for a large one, and a
+question takes several. Leave everything else empty for now; each empty field falls back to
+a sensible default.
+
+Press **Save**. *Settings saved.* confirms it. If a field is marked, the message beneath it
+says what is missing:
+
+| Message | Fix |
+| --- | --- |
+| *A model name is required.* | Fill in **Model** |
+| *Anthropic needs an API key.* | Paste the key; nothing is stored yet |
+| *An OpenAI-compatible provider needs a base URL* | Fill in **Base URL** |
+| *Not a duration* | Write the timeout as `10m`, `90s` or `PT10M` |
+
+<span className="hl">Saving does not test the model.</span> A wrong key or an address
+DataHub cannot reach only shows when someone asks the first question, which is what step 3
+is for.
+
+## Step 3: ask it something
+
+1. **Wait up to five minutes**, then reload the page. **Ask AI** appears at the top right,
+   next to your name, for everyone in your organisation who holds the assistant role.
+2. **Open it and ask something simple** about your own data, such as
+   *"Which data sets do we have?"*
+3. **Check the answer.** A working assistant lists your data sets, and underneath its answer
+   shows **Consulted:** followed by the lookups it made, such as `dataset_list` or
+   `resource_search`.
+4. **Then ask a real question**, such as *"What alarms were raised on the export compressor
+   yesterday?"* It may offer a button that opens the same view in the console.
+
+The first question after DataHub restarts is slower than the rest.
+
+## Step 4: make it yours
+
+Optional, and worth doing in the first week.
+
+- **Instructions.** Teach it your vocabulary: what your tag prefixes mean, which site is
+  which, what "the loop" refers to. It is added to the assistant's own instructions, so it
+  cannot switch off the read-only rule.
+- **Default effort.** Where the **Effort** control under the message box starts. High suits
+  most questions; Medium is cheaper and faster for lookups. People can still change it per
+  message. On your own server it sets how long a reply may be, and also how hard the model
+  reasons if **Reasoning effort** is `mapped`.
+- **A ceiling on cost.** **Max output tokens** caps the length of each reply and
+  **Max iterations** caps how many lookups one question may make. Watch the first weeks'
+  usage in your provider's console before you tighten them.
+
+If you later move from Anthropic to your own server, **revoke the old key in the Claude
+Console** afterwards.
+
+## When it does not work
+
+| What you see | What to do |
+| --- | --- |
+| No **Ask AI** after five minutes and a reload | Check that **Model**, and an **API key** or **Base URL**, are filled in on the Settings page. Sign out and back in. If it is still missing, ask your administrator whether you hold the assistant role |
+| *"You don't have access to the assistant"* | You lack the assistant role; ask your administrator |
+| *"Something went wrong. Please try again."* on every question | The model cannot be reached or refuses. **Anthropic:** paste the key again, check that the key is scoped to one workspace, check the model name letter for letter, and check the Anthropic account has credit. **Own server:** check it is running, that the address ends in `/v1` and is not `localhost`, and that the model name matches `ollama list`. Your platform operator can see the exact reason in DataHub's log |
+| *"That took too long to answer"* | Raise **Turn timeout**, choose a lower **Effort**, or use a smaller model. On your own server, set **Reasoning effort** to `none` |
+| *"I stopped after several lookups without reaching an answer"* | Narrow the question, or raise **Max iterations** |
+| It answers, but never shows **Consulted:** and the answers sound generic | The model is not calling tools. Choose one with tool support |
+| Empty or very slow replies from your own server | The model is reasoning at length. Set **Reasoning effort** to `none` |
+| *"Your session expired"* | Reload the page and sign in again |
+
+<References>
+
+- [Claude Console](https://platform.claude.com/): where Anthropic API keys are created and usage is shown
+- [Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [Claude models overview](https://platform.claude.com/docs/en/about-claude/models/overview): model names, prices and which kind of thinking each supports
+- [Thinking support by model](https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting): which models reject adaptive thinking
+- [Claude API authentication](https://platform.claude.com/docs/en/manage-claude/authentication): key types and workspace scope
+- [Ollama](https://ollama.com/): runs open models on your own hardware
+- [vLLM](https://docs.vllm.ai/): a high-throughput server for open models
+- [llama.cpp](https://github.com/ggml-org/llama.cpp): a lightweight server for open models
+
+</References>
+
+<Deeper title="Related">
+- [The assistant](/using/assistant): what it is good at, what it will not do, and the Effort control
+- [Enabling the assistant](/administration/assistant): the access this page assumes, and every setting in detail
+- [Using MCP](/using/mcp): the same tools, offered to assistants outside the console
+</Deeper>

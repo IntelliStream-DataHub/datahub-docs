@@ -616,8 +616,8 @@ stays in `value/`; keep that split, and keep them cross-linked.
   `ChatProperties` caps a turn at 6 model-to-tool round trips, truncates a tool result at
   24k chars and trims the transcript at 40 messages; local `open_*_view` navigation tools
   render a button rather than fetching anything, which is what an "analyze" request
-  produces. Whether the assistant now also calls `analysis_related_series` is **unverified
-  against the newer platform**; the docs are worded so they hold either way. The exact
+  produces. **As of 2026-10-02 it also calls `analysis_related_series`**: the name is in
+  `ToolPolicy`'s allowlist and `McpBridge` routes it to datahub-analysis's `/mcp`. The exact
   allowlist size was deliberately dropped from the prose because it drifts.
 - Gating is the tenant flag, a model the tenant has configured itself, and the
   `DATAHUB_CHAT` authority, and the entry point in the console is the **Ask AI** button in
@@ -628,6 +628,34 @@ stays in `value/`; keep that split, and keep them cross-linked.
   settings is the organization groups `/settings/<scope>/read|write` (plus a `*` wildcard),
   the same shape as the data set groups; `llm` is the only scope. Do not reintroduce a
   deployment switch or a platform-wide key.
+- **Settings page facts the assistant pages depend on** (checked against the console code,
+  2026-10-02). The **API key** field is shown only for Anthropic, so a hosted
+  OpenAI-compatible service that needs a key cannot be configured from the page; the
+  administration page says so and routes it to the operator. Changes reach the console
+  within five minutes (the tenant registry refresh), and a new `DATAHUB_CHAT` role needs a
+  fresh sign-in. A model call that fails shows the user only *"Something went wrong"*; the
+  cause is in the console log. The `chat` flag is not managed by the tenant manager, so
+  there is no screen for the operator step, and the pages must not claim one. A tenant
+  whose `tenant-config` block leaves `chat` out falls back to the console's
+  `datahub.features.chat` (default false, Spring config only, not Vault); that is a default
+  for the entitlement, not the removed deployment switch. Verified end to end on the dev
+  stack (2026-10-02), including a self-hosted Ollama model reached from the console
+  container at `host.containers.internal`. A platform change in review replaces
+  "Something went wrong" with a message per cause (key rejected, model not found, server
+  unreachable and so on); update the troubleshooting tables when it ships.
+- **Where the model advice comes from** (checked 2026-10-05 against Anthropic's own docs, not
+  by calling the API). DataHub's console sends `thinking: adaptive` plus an explicit `effort`
+  on every Anthropic call and no `anthropic-workspace-id` header. Anthropic's
+  thinking-troubleshooting table lists Haiku 4.5 (and Opus/Sonnet 4.5) as extended-only with
+  `"adaptive"` "Rejected with 400"; the effort page leaves Haiku 4.5 off its supported list
+  and gives `xhigh` to neither 4.6 model; the authentication page says a key not scoped to a
+  workspace must send `anthropic-workspace-id` on every request. Model IDs and prices are from
+  the models overview. Ollama's `reasoning_effort: "none"` and tool support are from Ollama's
+  OpenAI-compatibility page. Re-check these when the console's request shape changes.
+- **The Settings page's banners never hide on the console as deployed** (2026-10-05):
+  `.settings-banner { display: flex }` outranks `[hidden]`. A platform fix is in review
+  (`feat/settings-ai-setup-help`). Until it ships, do not tell readers to watch a warning
+  disappear, or to check that none is shown.
 - **The analysis service ships in the standard deployment** (confirmed by the product owner,
   2026-08-14). The docs used to say the opposite in six places, and it was the stated reason
   `relationship-analysis.mdx` carried a `<Roadmap>` banner at all. That banner is gone, along
