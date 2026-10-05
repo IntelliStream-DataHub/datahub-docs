@@ -643,6 +643,19 @@ stays in `value/`; keep that split, and keep them cross-linked.
   container at `host.containers.internal`. A platform change in review replaces
   "Something went wrong" with a message per cause (key rejected, model not found, server
   unreachable and so on); update the troubleshooting tables when it ships.
+- **Where the model advice comes from** (checked 2026-10-05 against Anthropic's own docs, not
+  by calling the API). DataHub's console sends `thinking: adaptive` plus an explicit `effort`
+  on every Anthropic call and no `anthropic-workspace-id` header. Anthropic's
+  thinking-troubleshooting table lists Haiku 4.5 (and Opus/Sonnet 4.5) as extended-only with
+  `"adaptive"` "Rejected with 400"; the effort page leaves Haiku 4.5 off its supported list
+  and gives `xhigh` to neither 4.6 model; the authentication page says a key not scoped to a
+  workspace must send `anthropic-workspace-id` on every request. Model IDs and prices are from
+  the models overview. Ollama's `reasoning_effort: "none"` and tool support are from Ollama's
+  OpenAI-compatibility page. Re-check these when the console's request shape changes.
+- **The Settings page's banners never hide on the console as deployed** (2026-10-05):
+  `.settings-banner { display: flex }` outranks `[hidden]`. A platform fix is in review
+  (`feat/settings-ai-setup-help`). Until it ships, do not tell readers to watch a warning
+  disappear, or to check that none is shown.
 - **The analysis service ships in the standard deployment** (confirmed by the product owner,
   2026-08-14). The docs used to say the opposite in six places, and it was the stated reason
   `relationship-analysis.mdx` carried a `<Roadmap>` banner at all. That banner is gone, along

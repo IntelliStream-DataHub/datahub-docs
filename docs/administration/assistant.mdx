@@ -28,7 +28,7 @@ people</span>. If **Ask AI** is missing from the top bar, one of them is not don
 | --- | --- | --- | --- |
 | The assistant is enabled for the organisation | Whoever operates the platform | The tenant registry | Nobody in the organisation sees **Ask AI** |
 | Someone may change the assistant's settings | Your identity administrator | Organisation groups in Keycloak | **Settings** says you have no access, or shows the form locked |
-| A model is configured | Your organisation's administrator | **Settings**, then **AI assistant**, in the console | Nobody sees **Ask AI**, and the settings page warns that the assistant is not running yet |
+| A model is configured | Your organisation's administrator | **Settings**, then **AI assistant**, in the console | Nobody sees **Ask AI** |
 | A person may use it | Your identity administrator | The `DATAHUB_CHAT` role in Keycloak | That person does not see **Ask AI** |
 
 The first is an entitlement: something your organisation has been given and cannot grant
@@ -79,8 +79,10 @@ Two kinds of provider are supported.
 
 - **Anthropic**, hosted. You supply an API key from your own Anthropic account, and usage is
   billed to it. Name the model exactly as Anthropic spells it: `claude-opus-5-5` for the
-  best answers, or `claude-sonnet-5-5` at about half the price per question. Not
-  `claude-haiku-4-5`, which refuses the thinking and effort settings DataHub sends.
+  best answers, or `claude-sonnet-5-5` at half the price per token. Not
+  `claude-haiku-4-5`: DataHub asks for adaptive thinking, which Anthropic rejects on that
+  model. Scope the key to a single workspace, since DataHub does not name one on its
+  requests.
 - **OpenAI-compatible**: any server that speaks the OpenAI chat completions interface. That
   covers a model you run yourself with [Ollama](https://ollama.com/),
   [vLLM](https://docs.vllm.ai/) or [llama.cpp](https://github.com/ggml-org/llama.cpp), and
@@ -178,7 +180,7 @@ one pair per **scope**. The assistant's model is the only scope today, `llm`.
 
 | What you see | Most likely cause |
 | --- | --- |
-| Nobody in the organisation sees **Ask AI** | The organisation is not enabled yet, or the model settings are incomplete (the **Settings** page says so). After fixing either, allow five minutes |
+| Nobody in the organisation sees **Ask AI** | The organisation is not enabled yet, or the model settings are incomplete (**Model**, and an **API key** or **Base URL**, must be filled in). After fixing either, allow five minutes |
 | One person does not see **Ask AI** | They lack the `DATAHUB_CHAT` role, or have not signed in again since receiving it |
 | **Settings** says you do not have access | You lack `/settings/llm/read` |
 | **Settings** shows the form but will not let you save | You have read but not `/settings/llm/write` |

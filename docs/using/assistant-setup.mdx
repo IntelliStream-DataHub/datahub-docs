@@ -40,19 +40,26 @@ Check three things:
 <Steps>
   <Step title="Option A: a hosted model from Anthropic">
     Sign in to the [Claude Console](https://platform.claude.com/) with your organisation's
-    Anthropic account and create an API key under **API keys**. Use an ordinary key, not an
-    Admin key, which cannot answer questions. Copy it straight away: it is shown only once.
+    Anthropic account, open **Settings**, then **API keys**, and create a key. Two choices on
+    that form matter here:
+
+    - **Scope it to one workspace.** A key that covers several workspaces must name the
+      workspace on every request, which DataHub does not do, so every question would fail.
+    - **Link it to a service account** if your organisation will depend on it. A key linked to
+      a person stops working when that person leaves the organisation.
+
+    Copy the key when the Console shows it.
 
     Then choose which model to use. The name goes into DataHub exactly as written here:
 
     | Model name | Choose it when |
     | --- | --- |
     | `claude-opus-5-5` | You want the best answers to hard questions, such as following a fault across equipment, events and measurements |
-    | `claude-sonnet-5-5` | You want faster answers at about half the price per question; lookups and counting do well here |
+    | `claude-sonnet-5-5` | You want faster answers at half the price per token; lookups and counting do well here |
 
-    **Do not use `claude-haiku-4-5`.** It does not accept the thinking and effort settings
-    DataHub sends, so every question fails. Older models may also refuse the highest effort
-    levels. Current prices are on
+    **Do not use `claude-haiku-4-5`.** DataHub asks every model for adaptive thinking, and
+    Anthropic rejects that on Haiku 4.5, as on the other 4.5 models, so every question fails.
+    On the 4.6 models the **Very high** effort setting is not available. Current prices are on
     [Anthropic's pricing page](https://platform.claude.com/docs/en/about-claude/pricing).
   </Step>
   <Step title="Option B: a model on your own server">
@@ -108,9 +115,8 @@ takes a few seconds for a small model on a fast machine and minutes for a large 
 question takes several. Leave everything else empty for now; each empty field falls back to
 a sensible default.
 
-Press **Save**. *Settings saved.* confirms it, and the warning that the assistant is not
-running yet disappears once the required fields are filled in. If a field is marked, the
-message beneath it says what is missing:
+Press **Save**. *Settings saved.* confirms it. If a field is marked, the message beneath it
+says what is missing:
 
 | Message | Fix |
 | --- | --- |
@@ -159,9 +165,9 @@ Console** afterwards.
 
 | What you see | What to do |
 | --- | --- |
-| No **Ask AI** after five minutes and a reload | Check that the Settings page shows no warning. Sign out and back in. If it is still missing, ask your administrator whether you hold the assistant role |
+| No **Ask AI** after five minutes and a reload | Check that **Model**, and an **API key** or **Base URL**, are filled in on the Settings page. Sign out and back in. If it is still missing, ask your administrator whether you hold the assistant role |
 | *"You don't have access to the assistant"* | You lack the assistant role; ask your administrator |
-| *"Something went wrong. Please try again."* on every question | The model cannot be reached or refuses. **Anthropic:** paste the key again, check the model name letter for letter, and check the Anthropic account has credit. **Own server:** check it is running, that the address ends in `/v1` and is not `localhost`, and that the model name matches `ollama list`. Your platform operator can see the exact reason in DataHub's log |
+| *"Something went wrong. Please try again."* on every question | The model cannot be reached or refuses. **Anthropic:** paste the key again, check that the key is scoped to one workspace, check the model name letter for letter, and check the Anthropic account has credit. **Own server:** check it is running, that the address ends in `/v1` and is not `localhost`, and that the model name matches `ollama list`. Your platform operator can see the exact reason in DataHub's log |
 | *"That took too long to answer"* | Raise **Turn timeout**, choose a lower **Effort**, or use a smaller model. On your own server, set **Reasoning effort** to `none` |
 | *"I stopped after several lookups without reaching an answer"* | Narrow the question, or raise **Max iterations** |
 | It answers, but never shows **Consulted:** and the answers sound generic | The model is not calling tools. Choose one with tool support |
@@ -172,6 +178,9 @@ Console** afterwards.
 
 - [Claude Console](https://platform.claude.com/): where Anthropic API keys are created and usage is shown
 - [Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [Claude models overview](https://platform.claude.com/docs/en/about-claude/models/overview): model names, prices and which kind of thinking each supports
+- [Thinking support by model](https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting): which models reject adaptive thinking
+- [Claude API authentication](https://platform.claude.com/docs/en/manage-claude/authentication): key types and workspace scope
 - [Ollama](https://ollama.com/): runs open models on your own hardware
 - [vLLM](https://docs.vllm.ai/): a high-throughput server for open models
 - [llama.cpp](https://github.com/ggml-org/llama.cpp): a lightweight server for open models
