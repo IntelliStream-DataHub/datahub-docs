@@ -229,7 +229,9 @@ read (`systemd/README.md`).
 certificate-authority file named `ca.cert.pem` in the service's working directory, and
 authenticates with OAuth2 client credentials from the `datahub-platform` secret
 (`pulsar.client-id`, `pulsar.client-secret` and `pulsar.issuer-url`; the admin client uses
-`pulsar.admin-client-id` and `pulsar.admin-client-secret`). The broker addresses the secret
+`pulsar.admin-client-id` and `pulsar.admin-client-secret`). When `pulsar.issuer-url` is
+missing or blank, the client uses `keycloak.issuer` from the same secret. Set
+`pulsar.issuer-url` when the broker trusts a different issuer. The broker addresses the secret
 store hands out assume the TLS port, `pulsar+ssl://…:6651` (`GETTING_STARTED.md`). Set to
 `false`, the client skips both the certificate check and the token. That is what the
 evaluation stack does, and it is the only reason the setting exists.
