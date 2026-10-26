@@ -1,0 +1,102 @@
+---
+sidebar_position: 12.5
+title: References in flows
+description: The placeholders a flow's processor properties can hold, what each one is filled in with when the flow runs, and the rules for where they may appear.
+---
+
+# References in flows
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Domain experts</Persona>
+  <Persona>Operations</Persona>
+</Personas>
+
+<KeyIdea>
+A **reference** is a placeholder written as `${…}` in a processor property in the
+**Flows** editor. When the flow runs, it is replaced with a value: a parameter, the run's
+time window, a secret, or something known about the series being handled.
+
+It is **substitution only**. A reference names one value; there are no operators or
+functions, so `${parameters.max} * 2` is not a calculation.
+</KeyIdea>
+
+## What you can refer to
+
+| Reference | Filled in with | Resolved |
+| --- | --- | --- |
+| `${parameters.<name>}` | A parameter of the flow | Once per run |
+| `${run.window.start}`, `${run.window.end}` | The start and end of the run's time window | Once per run |
+| `${secrets.<name>}` | A secret from your organization's flow settings | Once per run |
+| `${item.last}`, `lastTime`, `min`, `max`, `mean`, `count` | Computed from the series' points reaching this step | Per item |
+| Any other name, e.g. `${timeseries.externalId}` | An attribute an earlier step set on the item | Per item |
+
+**Parameters** are declared in the flow definition's `parameters`, each with a `type`
+(`string`, `number`, `boolean`, `duration`, `instant` or `list`), a `default` and a
+`description`. In the console they are edited in the **JSON** tab. A run uses the default:
+**Run now** cannot pass other values, though a run started through the API can override
+them. A rerun reuses the values of the run it repeats. A scheduled flow's parameters must
+all have defaults, since nobody is there to supply them when the schedule starts a run.
+
+**Item summaries** are computed by the flow itself from the points that reach that step,
+after any earlier steps have changed them, and only within the run's data. `mean` is a
+plain average of the points, not weighted by time. They work on time series items only.
+With no points, `${item.count}` is 0 and every other summary fails the step. Only these
+six names exist, and saving refuses any other `${item.…}`.
+
+**Attributes** are whatever earlier steps have set on the item: a source sets
+`timeseries.externalId` on every series it reads, for example, and Clamp sets `clamp.count`, the number of points it
+changed. If the attribute is missing when the step runs, the step fails. For a statistic
+the six summaries do not cover, a processor sets it as an attribute under its own prefix,
+and later steps refer to that.
+
+**Secrets** can only go in sensitive properties, and there the whole value must be the one
+reference: a secret's value never goes in a flow definition.
+
+## An example
+
+A Clamp step limits a flow rate to a ceiling that should be easy to change without
+editing the step. Declare a parameter in the **JSON** tab:
+
+```json
+"parameters": {
+  "maxFlow": {
+    "type": "number",
+    "default": 250,
+    "description": "Highest credible flow, m3/h"
+  }
+}
+```
+
+then set Clamp's **Max** to `${parameters.maxFlow}`. Every run clamps at 250 unless a run
+started through the API passes another value.
+
+## Rules worth knowing
+
+- **Numbers, durations and other non-text properties take a value or exactly one
+  reference**, with nothing around it. `${parameters.maxFlow}` works; `${parameters.maxFlow}0`
+  does not.
+- **Text properties allow text around references**, such as
+  `Clamped ${clamp.count} points on ${timeseries.externalId}`.
+- **Not every property takes references.** One that does not says *"This property does not
+  take references."* when you save.
+- **A literal `${` cannot be written** in a property value.
+- **Saving checks names, the run checks values.** A save refuses a parameter the flow does
+  not declare, an unknown `${run.…}` or `${item.…}` name and, when the secrets can be looked
+  up, an unknown secret. Whether a value has the right type, and a processor's own checks such
+  as Clamp's *"min must not be greater than max"*, wait until the run, because the values
+  are not known before then.
+- **A run with no time window** fails at the first step that refers to
+  `${run.window.start}` or `${run.window.end}`.
+
+<References>
+
+- [ISO 8601, the format times and durations take when written into text](https://en.wikipedia.org/wiki/ISO_8601)
+- [Arithmetic mean, what `${item.mean}` computes](https://en.wikipedia.org/wiki/Arithmetic_mean)
+
+</References>
+
+<Deeper>
+- [Time series](/using/timeseries): the data most flows read and write
+- [Functions](/using/functions): the modelling side of computations in the graph
+</Deeper>
