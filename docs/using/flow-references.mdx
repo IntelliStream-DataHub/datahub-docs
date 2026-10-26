@@ -31,7 +31,8 @@ functions, so `${parameters.max} * 2` is not a calculation.
 | `${item.last}`, `lastTime`, `min`, `max`, `mean`, `count` | Computed from the series' points reaching this step | Per item |
 | Any other name, e.g. `${timeseries.externalId}` | An attribute an earlier step set on the item | Per item |
 
-**Parameters** are declared in the flow definition's `parameters`, each with a `type`
+**Parameters** are declared in the
+[flow definition](/using/flow-definition#parameters)'s `parameters`, each with a `type`
 (`string`, `number`, `boolean`, `duration`, `instant` or `list`), a `default` and a
 `description`. In the console they are edited in the **JSON** tab. A run uses the default:
 **Run now** cannot pass other values, though a run started through the API can override
@@ -97,6 +98,8 @@ started through the API passes another value.
 </References>
 
 <Deeper>
+- [Flow definition reference](/using/flow-definition): every field of a flow definition and
+  every processor's properties
 - [Time series](/using/timeseries): the data most flows read and write
 - [Functions](/using/functions): the modelling side of computations in the graph
 </Deeper>

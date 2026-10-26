@@ -1,0 +1,347 @@
+---
+sidebar_position: 12.6
+title: Flow definition reference
+description: Every field of a flow definition as the JSON tab of the Flows editor shows it, with its type, default and the rules a save checks, and the properties of each processor.
+---
+
+# Flow definition reference
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona>Domain experts</Persona>
+</Personas>
+
+<KeyIdea>
+A flow is saved as one JSON document, the **flow definition**. The **Flows** editor's forms
+show the common fields; the **JSON** tab shows all of it. Some settings exist **only in the
+JSON view**: parameters, a schedule's window, `maxConcurrentRuns`, and a few processor
+properties marked below. Saving from the form keeps whatever the JSON already holds for them.
+
+A save checks the whole definition and reports every problem at once, each with the place it
+was found.
+</KeyIdea>
+
+## A complete example
+
+Read one flow-rate series every hour, limit it to a ceiling held in a parameter, and write
+the result to a series of its own beside the one read.
+
+```json
+{
+  "schemaVersion": 1,
+  "externalId": "pump-12-flow-clamped",
+  "dataSet": "plant-a",
+  "name": "Pump 12 flow, clamped",
+  "description": "Removes spikes above the meter's range.",
+  "parameters": {
+    "maxFlow": {
+      "type": "number",
+      "default": 250,
+      "description": "Highest credible flow, m3/h"
+    }
+  },
+  "processors": [
+    {
+      "id": "read",
+      "type": "read-timeseries",
+      "properties": { "timeseries": "pump-12.flow" }
+    },
+    {
+      "id": "clamp",
+      "type": "clamp",
+      "properties": {
+        "min": 0,
+        "max": "${parameters.maxFlow}"
+      }
+    },
+    {
+      "id": "write",
+      "type": "write-timeseries",
+      "properties": {
+        "target": "${timeseries.externalId}_clamped",
+        "name": "Pump 12 flow, clamped"
+      }
+    }
+  ],
+  "connections": [
+    { "from": "read", "relationship": "success",
+      "to": "clamp" },
+    { "from": "clamp", "relationship": "success",
+      "to": "write" }
+  ],
+  "trigger": {
+    "type": "schedule",
+    "cron": "0 0 * * * *",
+    "timezone": "Europe/Oslo",
+    "delay": "PT5M"
+  },
+  "execution": { "maxAttempts": 3, "timeout": "PT10M" }
+}
+```
+
+Each run covers the hour since the tick before it, and starts five minutes after the tick so
+late readings have arrived. The sink's `create` is left at its default, `true`, so saving the
+flow creates `pump-12.flow_clamped`, copying the unit of `pump-12.flow`.
+
+## Top level
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `schemaVersion` | number | required | Must be `1`, the only format there is |
+| `externalId` | string | required | The flow's id in your organization. Letters, digits and `_ . : -`, starting with a letter or digit, at most 255 characters. Cannot change once saved |
+| `dataSet` | string | required | External id of the data set the flow belongs to. Saving needs write access to it |
+| `name` | string | required | At most 255 characters |
+| `description` | string | none | Free text |
+| `parameters` | object | none | Values a run is given, by name. See [Parameters](#parameters) |
+| `processors` | array | required | The steps, at least one. See [Processors](#processors) |
+| `connections` | array | none | Which step's outcome goes to which step. See [Connections](#connections) |
+| `trigger` | object | manual, no window | When runs start. See [Trigger](#trigger) |
+| `execution` | object | the defaults below | Limits on a run. See [Execution](#execution) |
+
+## Parameters
+
+An object keyed by parameter name. A name is letters, digits and `_`, starting with a letter.
+They are used as `${parameters.<name>}`, explained on
+[References in flows](/using/flow-references).
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `type` | string | required | `string`, `number`, `boolean`, `duration`, `instant` or `list` |
+| `default` | per `type` | none | The value a run uses unless it is given another. Required for every parameter of a scheduled flow |
+| `description` | string | none | Free text |
+
+## Processors
+
+Each entry in `processors` is one step.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `id` | string | required | Unique in the flow. Letters, digits, `_` and `-`, starting with a letter, at most 64 characters |
+| `type` | string | required | The processor's catalog name, e.g. `clamp`. See [The processors](#the-processors) |
+| `properties` | object | none | Property values by name. A property left out takes its default |
+| `terminate` | array of strings | none | Relationships whose items end at this step |
+| `retry` | object | no retry | Retries of the step when it fails, within the run |
+
+### How property values are written
+
+| Property type | JSON | Example |
+| --- | --- | --- |
+| string | a string | `"pump-12.flow"` |
+| number | a number | `250` |
+| boolean | `true` or `false` | `true` |
+| duration | an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Durations) duration string | `"PT5M"` |
+| instant | an ISO 8601 time string | `"2026-10-01T00:00:00Z"` |
+| list | an array of strings | `["trip", "alarm"]` |
+| choice | a string, one of the listed values | `"above"` |
+
+`null` and objects are not values: to unset a property, leave it out. Where a property takes
+references, a value that is exactly one reference, such as `"${parameters.maxFlow}"`, is
+accepted for any type; text around a reference is allowed only in string properties. A
+property the processor does not declare is refused, except on `write-events`, which reads
+extra properties as event metadata.
+
+### Relationships and terminate
+
+A **relationship** is a named outcome of a step, such as `success`. Every relationship of
+every step needs somewhere to go, or the save is refused. What a relationship accepts when it
+is neither connected nor listed in `terminate`:
+
+| When left unconnected | Meaning | Can be terminated |
+| --- | --- | --- |
+| Refused | Connect it, or list it in `terminate` | Yes |
+| Must connect | Refused, and so is terminating it: it is the step's result | No |
+| Ends there | Items end as if terminated, e.g. a sink's `success` | Yes |
+| Fails the run | An item sent there fails the run, e.g. a sink's `failure` | Yes |
+
+A relationship cannot be both connected and terminated. Each processor's relationships are
+listed in [The processors](#the-processors).
+
+### Retry
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `maxAttempts` | number | `1` | Attempts of the step, the first included, 1 to 10 |
+| `backoff` | duration | `PT0S` | Wait between attempts, `PT0S` to `PT1M` |
+
+## Connections
+
+Each entry links one step's relationship to the next step.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `from` | string | required | The `id` of the step the items come from |
+| `relationship` | string | required | One of that step's relationships |
+| `to` | string | required | The `id` of the step they go to |
+
+The same connection may not be listed twice, and connections may not form a loop. A
+relationship may be connected to several steps.
+
+## Trigger
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `type` | string | required | `manual` or `schedule`. Leaving out the whole `trigger` makes the flow manual, with no window |
+| `cron` | string | required for a schedule | When a schedule ticks: a six-field cron expression, seconds first, e.g. `"0 0 * * * *"` for every hour |
+| `timezone` | string | `UTC` | Schedule only. The [time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) the cron expression is read in, e.g. `Europe/Oslo`, so ticks follow that zone's clock through daylight saving |
+| `window` | duration | see below | How much time a run covers. Only in the JSON view for a schedule |
+| `delay` | duration | `PT0S` | Schedule only. How long after a tick its run starts, so late data arrives. Must not be negative |
+
+**The window.** A schedule's tick at time T covers the time since the tick before it, so
+every moment is covered once however irregular the cron expression. With `window` set, the
+tick at T covers from T minus the window up to T instead. For a manual trigger, `window`
+gives a **Run now** run the window ending now; without one, a run must be given its window
+when it is started. `window` must be positive, and may be a single
+`${parameters.<name>}` reference to a `duration` parameter, which takes that parameter's
+default when the flow is deployed.
+
+`cron`, `timezone` and `delay` are refused on a manual trigger. A deployment is refused when
+the cron expression's ticks are too far apart to find the tick before, unless `window` is
+set.
+
+## Execution
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `maxConcurrentRuns` | number | `1` | How many runs of the flow may run at once, at least 1. Only in the JSON view |
+| `maxAttempts` | number | `2` | Attempts of a whole run, the first included, 1 to 10. A failed run is tried again until they are used up |
+| `timeout` | duration | `PT15M` | How long a run may take, at most `PT1H` |
+
+Trigger and execution settings take effect when the flow is deployed.
+
+## The processors
+
+Columns: **Default** is used when the property is left out; **Refs** says whether it takes
+`${…}` references. Properties marked *JSON only* are left out of the editor's form, and those
+marked *Advanced* are folded away in it. What content a step is handed is not checked on
+save: a step given content it cannot handle fails the run.
+
+### read-timeseries
+
+Reads one series over the run's window, plus the lookback, as a time series item. Numeric
+series only: a series holding text fails the run. Points with the same timestamp are read
+once. Sets `timeseries.externalId` on every item.
+
+| Property | Type | Default | Refs | Meaning |
+| --- | --- | --- | --- | --- |
+| `timeseries` | string | required | No | External id of the series to read |
+| `lookback` | duration | `PT0S` | No | Also read this much before the window, as history. Must not be negative |
+| `maxPointsPerItem` | number | `100000` | No | A longer read is split into several items, at least 1. *JSON only* |
+| `onMissing` | choice | `fail` | No | When the series does not exist or the run may not read it: `fail` the run, or `skip` it |
+
+| Relationship | When left unconnected |
+| --- | --- |
+| `success` | Refused |
+
+### read-events
+
+Reads the events whose event time is in the run's window, oldest first, as events items.
+Events exactly at the window's end belong to the next window.
+
+| Property | Type | Default | Refs | Meaning |
+| --- | --- | --- | --- | --- |
+| `type` | list | every type | No | Event types to read |
+| `subType` | list | every subtype | No | Event subtypes to read. *Advanced* |
+| `status` | list | every status | No | Statuses to read. *Advanced* |
+| `maxEventsPerItem` | number | `10000` | No | More events are split into several items, at least 1. *JSON only* |
+
+| Relationship | When left unconnected |
+| --- | --- |
+| `success` | Refused. No events means no item |
+
+### clamp
+
+Limits values to a range: a value below `min` becomes `min`, one above `max` becomes `max`.
+Every point is kept. Sets `clamp.count`, the number of points it changed. Accepts time series
+items.
+
+| Property | Type | Default | Refs | Meaning |
+| --- | --- | --- | --- | --- |
+| `min` | number | unbounded | Yes | Values below this are raised to it |
+| `max` | number | unbounded | Yes | Values above this are lowered to it |
+
+Set `min`, `max` or both. `min` must not be greater than `max`.
+
+| Relationship | When left unconnected |
+| --- | --- |
+| `success` | Refused |
+
+### threshold
+
+Finds the periods a series is above, or below, a threshold, as an events item in lifecycle
+form: an `active` row when a period starts and a `cleared` row when it ends, sharing an
+external id `<series>:above:<start>` (or `:below:`). Rows carry `threshold` and `peak` (or
+`trough`) in their metadata, and the `cleared` row also `duration`. To join a period that
+spans two runs, give the source a `lookback` reaching back to its start. Accepts time series
+items.
+
+| Property | Type | Default | Refs | Meaning |
+| --- | --- | --- | --- | --- |
+| `threshold` | number | required | Yes | The value a period starts when the series crosses |
+| `direction` | choice | `above` | No | `above` or `below` the threshold |
+| `minDuration` | duration | `PT0S` | No | Ignore periods shorter than this. A period still going at the end of the data is reported whatever its length |
+
+| Relationship | When left unconnected |
+| --- | --- |
+| `alarms` | Must connect, usually to `write-events`. Sent only when there is at least one row |
+| `success` | Refused. The input series, unchanged |
+
+### write-timeseries
+
+Writes a time series item's points within the run's window to a series, and passes the item
+on unchanged. Takes time series items. History read through `lookback` is not written. A run never creates a series:
+with `create`, the targets are created when the flow is saved, by the person saving it.
+
+| Property | Type | Default | Refs | Meaning |
+| --- | --- | --- | --- | --- |
+| `target` | string | `${timeseries.externalId}_out` | Yes | External id of the series to write to |
+| `create` | boolean | `true` | No | `true`: targets that do not exist are created on save. `false`: every target must exist |
+| `name` | string | the external id | Yes | Name of a created series. With `create` only |
+| `unit` | string | that of the series read | Yes | Unit of a created series. With `create` only |
+| `description` | string | none | Yes | Description of a created series. With `create` only |
+| `dataSet` | string | the flow's | No | Data set of created series; saving needs write access to it. With `create` only |
+
+With `create`, the targets must be known from the definition alone. `target`, `name`, `unit`
+and `description` may then use only `${timeseries.externalId}`, which needs a
+`read-timeseries` upstream; a fixed `target` also needs a `unit`, since there is no series
+read to copy it from. `name`, `unit`, `description` and `dataSet` are refused when `create`
+is `false`.
+
+| Relationship | When left unconnected |
+| --- | --- |
+| `success` | Ends there |
+| `failure` | Fails the run. The item's `failure.reason` says why |
+
+### write-events
+
+Creates one event per row of an events item. Each row gives the event's external id, event
+time, status and metadata; the properties give the rest. Takes events items. An event's id is
+derived from what it says, so writing the same window again does not add duplicates. Any property not listed here is a **metadata key** set on every event,
+its value a string that takes references, such as
+`"series": "${timeseries.externalId}"`.
+
+| Property | Type | Default | Refs | Meaning |
+| --- | --- | --- | --- | --- |
+| `type` | string | `flow` | Yes | The events' type |
+| `subType` | string | none | Yes | The events' subtype. *Advanced* |
+| `externalId` | string | the row's | Yes | Overrides the row's external id, e.g. `${timeseries.externalId}:high`. *Advanced* |
+| `dataSet` | string | the flow's | No | Data set of the events; the run's identity needs write access to it. *Advanced* |
+| `description` | string | none | Yes | The events' description. *Advanced* |
+
+| Relationship | When left unconnected |
+| --- | --- |
+| `success` | Ends there |
+| `failure` | Fails the run. The item's `failure.reason` says why |
+
+<References>
+
+- [ISO 8601 durations, the format of every duration field](https://en.wikipedia.org/wiki/ISO_8601#Durations)
+- [The tz database time zone names `timezone` takes](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+- [Cron, the scheduling notation `cron` follows](https://en.wikipedia.org/wiki/Cron)
+
+</References>
+
+<Deeper>
+- [References in flows](/using/flow-references): what `${…}` can name and when it is filled in
+- [Time series](/using/timeseries): the data most flows read and write
+- [Events](/using/events): what `read-events` and `write-events` handle
+</Deeper>
