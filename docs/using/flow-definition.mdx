@@ -14,7 +14,7 @@ description: Every field of a flow definition as the JSON tab of the Flows edito
 <KeyIdea>
 A flow is saved as one JSON document, the **flow definition**. The **Flows** editor's forms
 show the common fields; the **JSON** tab shows all of it. Some settings exist **only in the
-JSON view**: parameters, a schedule's window, `maxConcurrentRuns`, and a few processor
+JSON view**: parameters, a schedule's window and time zone, `maxConcurrentRuns`, and a few processor
 properties marked below. Saving from the form keeps whatever the JSON already holds for them.
 
 A save checks the whole definition and reports every problem at once, each with the place it
@@ -182,7 +182,7 @@ relationship may be connected to several steps.
 | --- | --- | --- | --- |
 | `type` | string | required | `manual` or `schedule`. Leaving out the whole `trigger` makes the flow manual, with no window |
 | `cron` | string | required for a schedule | When a schedule ticks: a six-field cron expression, seconds first, e.g. `"0 0 * * * *"` for every hour |
-| `timezone` | string | `UTC` | Schedule only. The [time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) the cron expression is read in, e.g. `Europe/Oslo`, so ticks follow that zone's clock through daylight saving |
+| `timezone` | string | `UTC` | Schedule only. The [time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) the cron expression is read in, e.g. `Europe/Oslo`, so ticks follow that zone's clock through daylight saving. Only in the JSON view |
 | `window` | duration | see below | How much time a run covers. Only in the JSON view for a schedule |
 | `delay` | duration | `PT0S` | Schedule only. How long after a tick its run starts, so late data arrives. Must not be negative |
 
