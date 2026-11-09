@@ -295,7 +295,7 @@ A model with tools, acting on the events connected into it: the step that makes 
 [agent](/using/agents). One invocation takes every waiting events item, gives the model their
 events and the instructions, runs the tool calls it asks for against the platform's tool
 servers as the run's identity, and ends when the model calls its built-in `finish` tool with
-an outcome of `done` or `attention` and a summary. The organisation's model settings apply;
+an outcome of `done` or `flagged` and a summary. The organisation's model settings apply;
 the properties below override them for this step. Accepts events items. Sets
 `agent.outcome`, `agent.summary`, `agent.iterations`, `agent.tokens.input`,
 `agent.tokens.output` and `agent.toolCalls` on every item.
@@ -313,11 +313,11 @@ the properties below override them for this step. Accepts events items. Sets
 | Relationship | When left unconnected |
 | --- | --- |
 | `done` | Ends there. The events acted on; `agent.outcome` and `agent.summary` say how |
-| `attention` | Refused. One event-shaped item when the agent asked for a person: connect it to `write-events`, or terminate it |
+| `flagged` | Refused. One event-shaped item when the agent flagged something for a person: connect it to `write-events`, or terminate it |
 | `failure` | Fails the run. The events of a run that could not finish; `failure.reason` says why |
 
 The Agents form writes an agent as `read-events` on recorded time, leaving agents' own
-events out, then `agent`, then `write-events` for the attention it raises:
+events out, then `agent`, then `write-events` for what it flags:
 
 ```json
 {
@@ -336,15 +336,15 @@ events out, then `agent`, then `write-events` for the attention it raises:
         "instructions": "For each event, look up the resource ...",
         "tools": ["event_get", "event_filter", "resource_get"] },
       "terminate": ["done"] },
-    { "id": "attention", "type": "write-events",
-      "properties": { "type": "agent", "subType": "attention",
+    { "id": "flagged", "type": "write-events",
+      "properties": { "type": "agent", "subType": "flagged",
                       "source": "agent:repeat-failures" } }
   ],
   "connections": [
     { "from": "events", "relationship": "success",
       "to": "agent" },
-    { "from": "agent", "relationship": "attention",
-      "to": "attention" }
+    { "from": "agent", "relationship": "flagged",
+      "to": "flagged" }
   ],
   "trigger": { "type": "schedule", "cron": "0 */15 * * * *",
                "timezone": "Europe/Oslo", "delay": "PT1M" },

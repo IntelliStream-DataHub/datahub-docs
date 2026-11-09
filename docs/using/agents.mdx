@@ -69,9 +69,9 @@ One page, in sections. The only text that takes thought is the instructions.
 | **Tools** | A picker of every tool the platform offers. Tools that may change data are marked; tools that destroy or overwrite data are shown greyed out and cannot be ticked. With no tools ticked the agent can only reason over the events |
 | **Model** | Effort, model calls per run, max output tokens and the turn timeout, such as `2m`. Left empty, the organisation's settings apply. Each run is billed to the organisation's own model credential |
 
-An instruction that works is specific about what to look up and when to raise attention:
+An instruction that works is specific about what to look up and when to flag something:
 
-> For each event, look up the resource it is about and its recent events. Raise attention
+> For each event, look up the resource it is about and its recent events. Flag it
 > with a short summary when the same resource has failed more than once this week.
 
 Then the buttons:
@@ -87,7 +87,7 @@ Then the buttons:
 | **Open in Flows** | The same agent in the Flows editor |
 | **Delete** | Removes the agent, its versions and its runs |
 
-Four tabs: **Agent** (the form), **Runs**, **Needs attention** (what this agent raised) and
+Four tabs: **Agent** (the form), **Runs**, **Flagged** (what this agent flagged) and
 **Versions**.
 
 ## When it runs
@@ -109,7 +109,7 @@ one minute after the tick, so events still on their way have arrived.
 
 The model is given your instructions, the window, the events as JSON, and the tools you
 ticked plus one built-in tool, `finish`, which ends the run with an outcome of `done` or
-`attention` and a summary. It calls tools, reads what they return, and finishes.
+`flagged` and a summary. It calls tools, reads what they return, and finishes.
 
 | Limit | Default |
 | --- | --- |
@@ -151,16 +151,16 @@ change data are refused. It stops if your sign-in is about to expire.
 - Read-only tools really run, so the model sees real data.
 - A refused tool tells the model to go on as if the call had succeeded, so you see what it
   would have done next.
-- The attention it would raise is reported in the transcript, not written as an event.
+- What it would flag is reported in the transcript, not written as an event.
 - The transcript is shown live while the preview runs.
 
 ## What it gives back
 
-### Needs attention
+### Flagged
 
-When the agent finishes with `attention`, an open event of type `agent` and subtype
-`attention` is written in the agent's data set, carrying the summary. It is listed under
-**Needs attention** in the section's header, across every agent, and on the agent's own tab,
+When the agent finishes with `flagged`, an open event of type `agent` and subtype
+`flagged` is written in the agent's data set, carrying the summary. It is listed under
+**Flagged** in the section's header, across every agent, and on the agent's own tab,
 with **View run**, **Dismiss** and **Dismiss all**.
 
 Dismissing writes the event's `dismissed` state, as the person dismissing, who needs write
@@ -173,7 +173,7 @@ person decides.
 The facts and records of any flow run, plus the transcript, **What the model said and did**:
 the instructions and the events given to the model (folded), the model's text, each tool
 call with its arguments (marked when it may change data), each result, the token usage of
-each model call, and the outcome, **Done** or **Needs attention**. While the run is live it
+each model call, and the outcome, **Done** or **Flagged**. While the run is live it
 updates every two seconds.
 
 Only people who may change the agent can read the transcript, because tool results carry

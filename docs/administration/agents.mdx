@@ -163,7 +163,7 @@ groups.
 | A run fails with *not retried: the first attempt changed data* | The first attempt called a tool that may change data and then failed, so the second refused to repeat it. Read the first attempt's transcript |
 | A run fails with *iteration cap* | The agent needed more model calls than allowed. Narrow the instructions, or raise **Model calls per run** on the agent |
 | A tool answers *Not authorised* in the transcript | The run's identity may not call it: it lacks the data set grant the tool needs |
-| *"Could not dismiss"* under Needs attention | The person dismissing lacks write access to the agent's data set |
+| *"Could not dismiss"* under **Flagged** | The person dismissing lacks write access to the agent's data set |
 
 <References>
 
