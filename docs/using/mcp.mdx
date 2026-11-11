@@ -1,7 +1,7 @@
 ---
 sidebar_position: 15
 title: Using MCP
-description: What the Model Context Protocol is, why it changed what AI assistants can do, and how to point one at your own DataHub so it answers from your operation instead of from general knowledge. The two servers, the 38 tools, and how access is decided.
+description: What the Model Context Protocol is, why it changed what AI assistants can do, and how to point one at your own DataHub so it answers from your operation instead of from general knowledge. The two servers, the 39 tools, and how access is decided.
 ---
 import McpOneProtocol from '@site/src/figures/mcp-one-protocol.svg';
 import McpCallPath from '@site/src/figures/mcp-call-path.svg';
@@ -21,7 +21,7 @@ An AI assistant on its own knows a great deal about the world and
 usually shortened to **MCP**, is the standard way to fix that: it lets an assistant call
 tools that fetch real data, in a form any assistant can use.
 
-DataHub publishes **38 tools** across two MCP servers. Point an assistant at them and a
+DataHub publishes **39 tools** across two MCP servers. Point an assistant at them and a
 question like *"what did the export compressor do overnight, and was anything raised
 against it?"* stops being unanswerable. The access rules do not change:
 <span className="t-brand">an MCP call is checked exactly like any other request</span>.
@@ -94,7 +94,7 @@ DataHub runs two MCP servers, one on the API and one on the analysis service. Ea
 named after the thing it acts on and what it does to it, so the list reads the same to you
 and to the model.
 
-The **API server** publishes 37 tools in seven families:
+The **API server** publishes 38 tools in eight families:
 
 | Family | Tools | What it lets an assistant do |
 | --- | --- | --- |
@@ -105,6 +105,7 @@ The **API server** publishes 37 tools in seven families:
 | **Events** | 6 | Search, filter, read, create, update and delete [events](/using/events) |
 | **Labels** | 3 | List and manage the [labels](/concepts/taxonomy) that classify things |
 | **Units** | 2 | Look up units of measure, so a number arrives with its dimension |
+| **Policies** | 1 | Ask which [policies](/using/policies) a write into a data set is held to, before writing |
 
 Three are worth knowing by name, because they are what make an answer good rather than
 merely fast:
@@ -206,6 +207,7 @@ history of one logical thing. Drill down after that, on the bucket that mattered
 | --- | --- | --- |
 | `unit_list` | `limit` | The unit catalogue: external id, name, symbol and quantity, so a number arrives with its dimension |
 | `unit_get` | `externalId` | One catalogue entry, in full |
+| `policy_list` | `dataSetId` (omit for data in no data set); `typeLabel`; `labels` | The rules a write there is held to: the naming convention, the schema rules a node of that type and those labels must or should meet, and per kind of data the freeze and retention ages, inherited from the data sets above and the tenant. Read-only |
 
 ### Statistics, on the second server
 
@@ -405,7 +407,7 @@ would see in the console, for the same reason.
 
 ## Mutating tools and confirmation
 
-Eighteen of the thirty-seven API tools change something: the six `*_create` tools, the five
+Eighteen of the thirty-eight API tools change something: the six `*_create` tools, the five
 `*_update` tools, the five `*_delete` tools, `edge_create_type` and `timeseries_send_datapoint`.
 The analysis server's tool is read-only. What the platform does about that today, precisely:
 
@@ -417,7 +419,7 @@ The analysis server's tool is read-only. What the platform does about that today
   are rare. If it is ever needed, the path is known: switch the server to stateful mode and
   have each mutating tool ask before it writes. Until then the gate is yours to build.
 - **The console assistant refuses them twice.** Its policy is a default-deny allowlist of
-  twenty read-only names, nineteen on the API server and the analysis tool. Anything not on
+  twenty-one read-only names, twenty on the API server and the analysis tool. Anything not on
   the list, including a tool added later, is filtered out before the model ever sees the tool
   list, and if the model asks for one anyway the request is refused again at the moment it
   would run, and logged.

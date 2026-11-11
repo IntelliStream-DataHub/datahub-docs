@@ -17,7 +17,8 @@ Storage is the dominant infrastructure cost, and it grows with ingestion whether
 anybody reads the data.
 
 Three levers control it: **value types** (chosen once per series, at creation),
-**retention** on the streams, and **housekeeping** that clears what is no longer referenced.
+**retention** set by lifecycle policies, and **housekeeping** that clears what is no longer
+referenced.
 </KeyIdea>
 
 ## Where the data actually sits
@@ -55,27 +56,26 @@ get chosen out of caution and the bill reflects it.
 
 ## Lever 2 · Retention
 
-<Roadmap>
-**Automatic expiry of stored measurements is a planned feature.** Today the measurement
-store keeps datapoints indefinitely: there is no [time-to-live](https://en.wikipedia.org/wiki/Time_to_live) on the tables. Retention
-settings on the streaming layer bound the message log, not the stored history.
-
-Until expiry ships, treat stored measurement volume as **cumulative**, and plan capacity on
-total ingested volume rather than on a retention window. The guidance below is how to think
-about the policy once you can set it.
-</Roadmap>
-
-How long measurement history is kept. Storage for measurements is essentially
+How long data is kept. Storage for measurements is essentially
 <span className="t-brand">ingestion rate × retention</span>, so this is the lever that scales
 the bill linearly.
+
+Retention is set with a [lifecycle policy](/using/policies#lifecycle): pick the data
+(datapoints, events, files, resources), set **Delete after** in days, and attach it to the
+data sets it governs, or to none for the whole tenant. A nightly sweep then deletes what is
+older than that, on the data's own time, so a datapoint goes when its timestamp is old enough.
+The same policy can **freeze** data earlier, so it can no longer be changed or deleted by
+anyone. Where no lifecycle policy applies, data is kept indefinitely: plan capacity on total
+ingested volume for those data sets. Retention settings on the streaming layer bound the
+message log, not the stored history.
 
 Set it per data domain rather than globally. A high-rate vibration signal used for
 short-window condition monitoring and a monthly energy total used for regulated reporting
 have very different useful lifetimes, and giving them the same retention means either paying
-to keep the first one too long or losing the second one too early. Record each decision as
-a [lifecycle policy](/using/policies#the-four-kinds) on the data set, so the rule sits
-with the data it governs and is ready the day enforcement ships; "how long does it live?"
-is one of the five questions [data governance](/concepts/data-governance) answers.
+to keep the first one too long or losing the second one too early. A policy on a data set
+covers the data sets below it, and the nearest one wins, so a plant-wide default with a few
+exceptions is a handful of policies. "How long does it live?" is one of the five questions
+[data governance](/concepts/data-governance) answers.
 
 Two questions decide the number for any given domain:
 
@@ -86,10 +86,49 @@ Two questions decide the number for any given domain:
   [retention versus traceability](#retention-versus-traceability) below, this is the one
   that catches organisations out.
 
-Until expiry ships, deleting is the only thing that shrinks the measurement store, and it does
-shrink it. Deleting a series takes its measurements with it, and a single time window of one
-series can be cleared on its own. Both complete shortly after the request returns rather than
-during it, so the freed space shows up a moment later. Neither can be undone.
+### What the sweep will and will not delete
+
+It deletes datapoints, events, files and resources past their policy's age, working through a
+capped number of each per night, with the rest the next night. It never deletes data sets,
+policies or functions, keeps any resource still feeding a subscription or holding the graph
+together (and counts it as kept), and moves files to the trash, where
+[housekeeping](#lever-3--housekeeping) purges them after the grace period. Each sweep that did
+something records an event of type `policy_retention_run` with the counts, so what retention
+removed can be read back later.
+
+Before a new or changed policy deletes anything, a data steward can press **Preview
+retention** on it to count what the next sweep would remove, and a policy changed within the
+last day is not acted on yet, so a mistake can be corrected first.
+[Retention in the policies page →](/using/policies#retention)
+
+### Policy sweep settings {#policy-sweep-settings}
+
+The same nightly pass also runs every schema policy's
+[audit](/using/policies#the-audit-finds-what-already-breaks-a-rule). It runs inside the API
+service: every instance is scheduled, and each tenant is handled by exactly one of them per
+day, so adding instances does not repeat the work. These are set on the API, like its other
+settings:
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| `datahub.policy.sweep.enabled` | `true` | The whole nightly pass, audits and retention. `false` stops both; the console's Run audit and Preview retention still work |
+| `datahub.policy.sweep.cron` | `0 15 3 * * *`, 03:15 server time | When the pass starts |
+| `datahub.policy.retention.enabled` | `true` | The kill switch for deletion. `false` keeps the nightly audits and deletes nothing |
+| `datahub.policy.retention.dry-run` | `false` | `true` makes the sweep count and record what it would delete, without deleting |
+| `datahub.policy.retention.activation-delay` | `P1D`, one day | How long after its last change a lifecycle policy is left alone |
+| `datahub.policy.retention.max-per-kind` | `10000` | How many items of each kind one night works through (events and files, per data set); the rest wait for the next night |
+| `datahub.policy.audit.max-nodes` | `20000` | Nodes one audit judges at most |
+
+:::tip Turn on retention in dry-run first
+On an installation where data stewards are writing their first lifecycle policies, set
+`dry-run` for a week and read the `policy_retention_run` events it records. Then switch it off
+deliberately, the same way the housekeeping deletion jobs are enabled.
+:::
+
+Deleting by hand still works alongside retention. Deleting a series takes its measurements
+with it, and a single time window of one series can be cleared on its own. Both complete
+shortly after the request returns rather than during it, so the freed space shows up a moment
+later. Neither can be undone.
 
 ## Lever 3 · Housekeeping
 
@@ -231,9 +270,10 @@ decision, not a technical one, and it is much cheaper to make in advance.
 
 ## Where agents help
 
-Retention is a policy that only shows up when something has already been deleted. An agent can
-check conformance ahead of time: what is due to be swept next week, what is being kept far past
-its stated period, and which data sets have no retention decision recorded at all.
+Retention is a rule that only shows up when something has already been deleted. Preview
+answers what the next sweep removes; an agent can look further ahead: what is due to go next
+month, what feeds a report that will outlive it, and which data sets have no retention
+decision at all.
 
 Deleting stays a human act, and everything with a grace period is designed so that it can be.
 [Building AI agents →](/using/ai-agents)

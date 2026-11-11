@@ -1,7 +1,7 @@
 ---
 sidebar_position: 13
 title: Policies
-description: Naming policies, enforced on every write, plus the lifecycle, access and requirement rules recorded today and the enforcement that is on the roadmap.
+description: Naming, schema and lifecycle policies, what each one enforces, where a policy applies, and how audits, freezing and retention work.
 ---
 import PolicyEnforcement from '@site/src/figures/policy-enforcement.svg';
 
@@ -15,75 +15,61 @@ import PolicyEnforcement from '@site/src/figures/policy-enforcement.svg';
 </Personas>
 
 <KeyIdea>
-A **policy** is a rule the platform holds on your behalf: what an identifier must look like,
-how long data is kept, who may access it and on what terms, what requirements it must meet.
+A **policy** is a rule the platform holds and enforces on your behalf: what an identifier must
+look like, what a kind of thing must carry, and how long data may be changed and kept.
 
-One kind is enforced today. A **naming policy** is checked on every write, and a create that
-breaks it is either refused or flagged for review.
-[Naming policies →](/concepts/naming-and-standards#naming-policies)
+Three kinds act today. A **naming** policy checks every new external id. A **schema** policy
+says what a node of one type must or should have, and refuses or flags a write that breaks
+it. A **lifecycle** policy freezes data after an age and deletes it after a longer one.
 
-The other three are <span className="hl">declarative records</span> for now: they document
-the rule where the data lives, and enforcement is the roadmap part of
-[one of the two building blocks still being built](/start/core-ideas#policies-the-rules).
+Attached to no data set, a policy covers the whole tenant; attached to data sets, it covers
+them and every data set below them.
 </KeyIdea>
 
-<Roadmap>
-**Lifecycle, access and requirement policies are recorded, not enforced.** Nothing in the
-platform currently expires data, gates access or checks requirements because a policy says
-so: retention is a [coming feature](/administration/data-lifecycle#lever-2--retention)
-planned together with policy enforcement, and access comes entirely from
-[groups in your identity provider](/administration/dataset-permissions). Treat what you write
-as documented intent, and write it as though it will be enforced, because it will be.
+## The kinds
 
-**Naming policies are the exception**, and they are what the rest of policy enforcement is
-being built out from: naming is checked at the moment of writing, which is far simpler to
-enforce than a retention sweep or an access decision, so it shipped first.
-</Roadmap>
-
-## Why record rules before they are enforced
-
-It sounds backwards, and it is the right order, for the same reason the
-[model](/concepts/ontology) comes before the analytics, and for the same reason
-[governance works best attached to the data it governs](/concepts/data-governance).
-
-Most organisations keep data rules in procedure documents: a retention schedule in a PDF, an
-access principle in a policy manual, a regulatory requirement in somebody's head. The rule
-and the data it governs live in different places, so the rule is invisible exactly where
-decisions get made.
-
-A recorded policy fixes the visibility problem on its own:
-
-- **The rule is findable from the data.** Whoever opens the data set sees what governs it,
-  rather than needing to know which document to check.
-- **Intent survives people.** "We keep this for ten years because of obligation X" stops
-  being tribal knowledge, the same argument as for the
-  [model itself](/value/cost-of-doing-nothing#2--knowledge-concentrated-in-people).
-- **Enforcement becomes a switch, not a project.** When it ships, the rules are already
-  written, reviewed and attached. <span className="hl">Organisations that waited will be
-  starting their retention workshops while yours activates.</span>
-
-## The four kinds
-
-| Kind | What it records | Enforced |
+| Kind | What it decides | What happens |
 | --- | --- | --- |
-| **Naming** | What an [external id](/concepts/naming-and-standards#external-ids-are-promises) must look like: a preset, or a pattern of your own | <span className="t-accent">Yes, today</span>, on every write |
-| **Lifecycle** | How long data is kept, and what happens when the clock runs out | Once shipped: measurement history actually expires on schedule |
-| **Access** | Who may read or write, and on what terms | Once shipped: gating, aligned with the [organization groups](/administration/identity-providers#organization-groups-carry-data-set-access) that grant access today |
-| **Requirement** | What the data set must satisfy, completeness, standards, review cadence | Once shipped: checks that flag when the requirement is not met |
+| **Naming** | What an [external id](/concepts/naming-and-standards#external-ids-are-promises) must look like: a preset, or a pattern of your own | A write that breaks it is refused, or accepted with a finding |
+| **Schema** | What a node of one type, optionally with certain labels, must or should carry: a metadata key, a field, a relationship | A **Must** rule refuses the write; a **Should** rule accepts it and records a finding |
+| **Lifecycle** | When data stops being editable, and when it is deleted | Frozen data cannot be changed or deleted; a nightly sweep deletes what is past its retention |
+| **Legacy** | Lifecycle, access and requirement drafts saved before policies were enforced | <span className="t-accent">Nothing.</span> Kept, shown read-only as "Legacy, not enforced" |
 
-## The naming policy, in short {#naming}
+**Legacy policies never start doing anything**, even the old drafts that said "delete after
+30 days". They were written when nothing acted on them, so converting them silently would
+turn a note into a deletion. Read them, and recreate the ones you still want as a schema or
+lifecycle policy. Access is not a policy kind at all: who may read or write a data set comes
+from [groups in your identity provider](/administration/dataset-permissions).
 
-The one kind that acts rather than documents. It fixes the shape of new external ids, either
-by preset (verbatim tags, or lowercase words joined by underscores) or by a pattern you
-supply, and it runs in one of two
-modes: **reject**, where the write fails and nothing is created, or **warn**, where the write
+## Where a policy applies {#where-a-policy-applies}
+
+The **Applies to data sets** list on a policy decides its reach:
+
+- **No data set attached**: the policy covers the whole tenant.
+- **One or more data sets attached**: it covers each of them and every data set below them in
+  the hierarchy. One policy can be attached to several data sets, so "every production plant"
+  is one policy, not one copy per plant.
+
+How several policies combine depends on the kind:
+
+| Kind | When several cover the same data |
+| --- | --- |
+| **Naming** | The nearest wins and replaces the ones above it |
+| **Schema** | They add up: a node is held to the tenant's schema policies and those of every data set above it |
+| **Lifecycle** | The nearest data set's policy wins over the ones above it and the tenant-wide one |
+
+Two naming policies on the same data set, or two lifecycle policies there selecting the same
+data, are refused when you save, so which one applies never has to be guessed.
+
+## Naming policies, in short {#naming}
+
+It fixes the shape of new external ids, either by preset (verbatim tags, or lowercase words
+joined by underscores) or by a pattern you supply, and it runs in one of two modes:
+**reject**, where the write fails and nothing is created, or **warn**, where the write
 succeeds and a finding goes into a data steward's queue.
 
-Three properties are worth carrying in your head:
-
-- **It is set for the tenant, and can be overridden on a data set.** The override also covers
-  the data sets below it. The nearest policy wins and replaces the one above it rather than
-  adding to it.
+- **The nearest policy wins.** A naming policy on a data set also covers the data sets below
+  it, and replaces the one above it rather than adding to it.
 - **A near-duplicate guard runs regardless of the preset**, refusing `pump-a-01` next to an
   existing `pump_a_01` anywhere in the tenant.
 - **It does not govern events.** An event external id is the source system's key for the
@@ -91,8 +77,100 @@ Three properties are worth carrying in your head:
 
 [The full rules, presets and findings queue →](/concepts/naming-and-standards#naming-policies)
 
+## Schema policies {#schema}
+
+A schema policy is a **partial schema**: it says what matters about one kind of thing and
+leaves everything else free. You choose the type it applies to (asset, time series, plain
+resource, data set or function), optionally narrow it to nodes carrying certain labels, and
+add rules. Each rule asks for one of:
+
+- **a metadata key**, such as `numberOfSeats`;
+- **a field**: name, description or source on anything, a location on an asset, a unit or a
+  registered unit on a time series;
+- **a relationship** of a given type and direction, optionally to a given type of node.
+
+Each rule has a level:
+
+| Level | A write that breaks it |
+| --- | --- |
+| **Must** | Is refused, and nothing in it is saved |
+| **Should** | Is saved, and a finding goes to the findings queue showing the rule and its level |
+
+**Example.** *Assets labelled CAR must have the metadata key `numberOfSeats`.* Creating a car
+without it is refused. Creating a pump without it is fine, because the policy does not apply
+to pumps.
+
+### Existing data is judged only on what a write changes
+
+Turning on a Must rule does not lock every old record that predates it. A write is judged only
+on the rules that look at what the write changes:
+
+- Fixing an old car's description does not demand seats, because the seats rule does not look
+  at descriptions.
+- Removing the seats from a car, or relabelling something as a car, is judged against the
+  seats rule, and refused if it breaks it.
+
+### The audit finds what already breaks a rule
+
+Because old data is left alone at the write, a schema policy has an **audit**: it checks
+everything the policy covers and records every broken rule as a finding, including Must rules
+broken by data saved before the policy existed. It also closes findings that no longer apply,
+so a fixed record leaves the queue on its own.
+
+The audit runs **every night**, and on demand from **Run audit** on a saved schema policy,
+which reports how many nodes it judged, how many broken rules it recorded and how many
+findings it closed. Run it once after creating a policy to see how far your data is from it.
+
+## Lifecycle policies {#lifecycle}
+
+A lifecycle policy picks some data and sets one or both ages, in days:
+
+- **Data**: datapoints, events, files and resources, any combination. For resources and
+  datapoints you can narrow it further to one type and to certain labels.
+- **Freeze after**: from this age, the data cannot be changed or deleted.
+- **Delete after**: from this age, the nightly sweep deletes it.
+
+Leave an age empty for never. Ages are measured on **the data's own time**: a datapoint's
+timestamp, an event's time, and the moment a resource or file was created. So a backfill of
+ten-year-old readings arrives already old.
+
+**Example.** *Datapoints and events in the plant data set: freeze after 30 days, delete after
+365.* Last month's readings can no longer be corrected; last year's are removed overnight.
+
+### Freezing
+
+A write that would change or delete frozen data is refused, with an error naming what is
+frozen and which policy froze it. A few things are deliberately outside it:
+
+- **Data sets and policies are never frozen**, so the structure and the rules stay editable.
+- **Relationships stay editable**, so old equipment can still be connected to new.
+- **A time series created before its datapoints' freeze age cannot be deleted**, because
+  deleting it would take its frozen datapoints with it.
+
+### Retention
+
+Once a night the platform deletes what each lifecycle policy has kept long enough, going
+through the same steps as a person's delete. What it will not do:
+
+- **Data sets, policies and functions are never deleted.**
+- **A resource still feeding a subscription, or the only link holding other nodes to the
+  graph, is kept**, and counted as kept rather than forced.
+- **Files go to the [trash](/using/files#deleting-and-restoring) first**, so they can be
+  restored during the grace period.
+
+Three safeguards make a mistake recoverable before it costs data:
+
+| Safeguard | What it does |
+| --- | --- |
+| **Preview retention** | On a saved lifecycle policy, counts what the next sweep would delete because of it: resources, the time series whose old datapoints would go, events and files. It deletes nothing |
+| **A day's grace** | A policy changed within the last day is not acted on yet, by the sweep or the preview, so a mistyped age can be corrected first |
+| **A record of every sweep** | Each sweep that did something leaves an event of type `policy_retention_run`, with what it deleted and what it kept, so "what did retention remove last night?" has an answer |
+
+Operators can also switch retention off, or make it count without deleting, for a whole
+installation. [The settings →](/administration/data-lifecycle#policy-sweep-settings)
+
 <Figure
-  caption="Worth pausing on what this makes possible: because the policy and its enforcer are nodes, you can traverse from a series to the rule that governs it, or from a function to every rule it enforces. Compliance questions become graph questions. The enforcement arrow is the roadmap part; the structure around it can be modelled today."
+  caption="Because a policy is a node, you can traverse from a series to the rule that governs it, and compliance questions become graph questions. The platform now enforces a lifecycle policy itself; the function drawn here is the modelling idea that any other enforcer, a function or an agent, can sit in the same graph beside it."
   wide
 >
   <PolicyEnforcement />
@@ -106,44 +184,58 @@ just the rule but the reason.
 
 <Steps>
   <Step title="Name the obligation, not just the number">
-    "Retain 10 years, [NORSOK](https://en.wikipedia.org/wiki/NORSOK_standard) requirement
-    for well data" beats "retain 10 years". The reason is what lets a successor revisit the
-    rule safely when the obligation changes.
+    "Delete after 10 years, [NORSOK](https://en.wikipedia.org/wiki/NORSOK_standard)
+    requirement for well data" beats "delete after 10 years". The description is where the
+    reason goes, and it is what lets a successor revisit the rule safely when the obligation
+    changes.
   </Step>
   <Step title="Attach it to the right boundary">
-    Lifecycle, access and requirement policies live on [data sets](/using/datasets), so the
-    data set boundary decides what a rule can govern. If one rule must cover two data sets,
-    or half of one, that is a sign the boundaries need a look first. A **naming** policy is
-    the exception: it is set for the whole tenant, because a rule living on a data set could
-    not govern the naming of the data set itself, and overridden on a data set (and with it,
-    the data sets below it) only where a source system's identifiers leave you no choice.
+    A policy follows the [data set](/using/datasets) hierarchy, so attach it as high as the
+    rule is true and no higher. If a rule must cover half of a data set, narrow it by type
+    and labels, or take that as a sign the boundaries need a look first.
   </Step>
-  <Step title="Keep lifecycle policies aligned with your audit horizon">
+  <Step title="Start with Should, then audit, then tighten">
+    A new schema rule at **Should** costs nothing to try. Run the audit, work the findings
+    down, and raise it to **Must** once the data meets it, so the first refusal is a surprise
+    to nobody.
+  </Step>
+  <Step title="Preview before anything deletes">
+    Save a lifecycle policy, then **Preview retention** before the next night's sweep. The
+    day's grace is there so the numbers can be read before they become deletions.
+  </Step>
+  <Step title="Keep retention aligned with your audit horizon">
     <span className="t-accent">A reported figure can only ever be traced to inputs that
-    still exist</span>, so [retention](https://en.wikipedia.org/wiki/Data_retention) rules
-    on anything feeding a regulated report should outlive the report's auditability.
+    still exist</span>, so [retention](https://en.wikipedia.org/wiki/Data_retention) on
+    anything feeding a regulated report should outlive the report's auditability.
     [Retention versus traceability →](/administration/data-lifecycle#retention-versus-traceability)
   </Step>
-  <Step title="Review them like access, on a cadence">
+  <Step title="Review them on a cadence">
     A quarterly pass over the policies alongside the
     [permission review](/administration/dataset-permissions#designing-a-permission-scheme),
-    so recorded intent tracks reality.
+    so the rules track reality.
   </Step>
 </Steps>
 
 ## Where they appear
 
-Each data set has a **Policies** tab in the console, which is where its rules are recorded
-and read. [Data sets →](/using/datasets#policies)
+The **Policies** tab of the Data Governance section lists the tenant-wide policies and the
+data set policies, each with its kind; legacy ones are marked "Legacy, not enforced". A
+policy can be deactivated without deleting it, which keeps its findings and lets whatever it
+overrode apply again. [Data sets →](/using/datasets#policies)
 
-Warnings raised by a naming policy collect in a findings queue, grouped by policy, data set,
-status and the shape of the mistake rather than listed row by row, and a resource shows its
-own open findings. [The findings queue →](/concepts/naming-and-standards#findings)
+Warnings from naming and schema policies collect in the **Findings** tab, grouped by policy,
+data set, status and either the shape of the mistake or the rule that was broken, and a
+resource shows its own open findings. [The findings queue →](/concepts/naming-and-standards#findings)
 
 Policies are one of four pieces that carry governance here, alongside the graph, data sets
 and functions. [How the pieces fit →](/concepts/data-governance#how-the-pieces-carry-it)
 
 ## Where agents help
+
+An assistant or agent can ask which rules a data set holds data to before it writes, through
+the read-only `policy_list` tool: the naming convention, the schema rules for the kind of node
+it is about to create, and the freeze and retention ages. Writing data that passes first time
+beats being refused and guessing why. [Using MCP →](/using/mcp#the-tools-one-by-one)
 
 A findings queue is only useful if somebody works through it. An agent can triage: group
 findings that share a cause, separate the ones that need a decision from the ones that need a
@@ -153,14 +245,15 @@ What it must not do is close a finding on its own. The point of a finding is tha
 looked at it, and an agent that quietly resolves them has removed the control rather than
 satisfied it. [Building AI agents →](/using/ai-agents)
 
-The stronger version of the idea is to give one agent one rule and let it enforce that rule
-against the graph, which is how the three kinds waiting on enforcement can start acting now.
+Some rules are judgements no schema can state: whether a description says anything, whether a
+data set's members still match its purpose. Those are the job for an agent given one rule.
 [The policy agent →](/concepts/data-governance#the-policy-agent)
 
 <References>
 
 - [Data retention](https://en.wikipedia.org/wiki/Data_retention)
 - [Records management](https://en.wikipedia.org/wiki/Records_management)
+- [Database schema](https://en.wikipedia.org/wiki/Database_schema)
 - [NORSOK standards](https://en.wikipedia.org/wiki/NORSOK_standard)
 
 </References>
@@ -168,9 +261,8 @@ against the graph, which is how the three kinds waiting on enforcement can start
 <Deeper>
 - [Naming and standards](/concepts/naming-and-standards#naming-policies): the naming policy in full, presets, modes and findings
 - [Data governance](/concepts/data-governance): the umbrella policies are one piece of
-- [The roadmap building blocks](/start/core-ideas#policies-the-rules): policies and functions in the vocabulary
-- [Data sets](/using/datasets): the boundary a policy governs
-- [Data set permissions](/administration/dataset-permissions): where access actually comes from today
-- [Data lifecycle](/administration/data-lifecycle): retention, and the expiry feature policies will drive
-- [Functions](/using/functions): the other roadmap block, computations where policies are rules
+- [Data sets](/using/datasets): the hierarchy a policy follows
+- [Data set permissions](/administration/dataset-permissions): where access comes from
+- [Data lifecycle](/administration/data-lifecycle): retention, its safety switches, and what it does to storage
+- [Functions](/using/functions): the roadmap block for computations
 </Deeper>

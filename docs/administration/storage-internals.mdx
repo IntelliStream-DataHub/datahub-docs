@@ -157,9 +157,11 @@ can detach or drop cheaply, which is how a columnar store makes coarse retention
 The platform does not use that today. There is <span className="t-accent">no TTL clause on
 any table</span> in `clickhouse.sql`, and deleting a series is a row-level delete on its
 table (`DELETE ... WHERE timeseries_id = ...` in the platform's `ClickHouseDatapointService`)
-that the store applies by rewriting the affected parts a moment later. That matches what
-[data lifecycle](/administration/data-lifecycle) says: retention is a planned feature, and
-stored history is cumulative until it ships.
+that the store applies by rewriting the affected parts a moment later. Retention set by a
+[lifecycle policy](/administration/data-lifecycle#lever-2--retention) works the same way: the
+nightly sweep removes old datapoints with the same kind of row-level delete rather than by
+dropping partitions, and history
+no policy covers is kept indefinitely.
 
 ## Why it compresses
 

@@ -17,8 +17,9 @@ Everything in DataHub is one of four things: a **resource**, a **time series**, 
 
 That is the whole working vocabulary today. Whatever your source systems call things, they
 arrive as one of these four, which is why you can query across a historian, an ERP and a
-maintenance system without learning any of their data models. Two more blocks, **policies**
-and **functions**, are on the roadmap and covered at the end of this page.
+maintenance system without learning any of their data models. Two more blocks are covered at
+the end of this page: **policies**, the rules data is held to, and **functions**, whose
+execution is on the roadmap.
 </KeyIdea>
 
 ## The four, at a glance
@@ -125,27 +126,20 @@ Not building blocks in their own right, but you will meet them immediately:
 - **Subscriptions**, a standing request so new data is pushed to you the moment it lands,
   rather than polled for on a schedule. [Data subscriptions →](/using/subscriptions)
 
-## Two more building blocks, on the roadmap
+## Two more building blocks {#two-more-building-blocks}
 
-<Roadmap>
-Both of these already exist as *kinds of resource* in the model, you will meet the words in
-the console. What makes each one a building block in its own right, **enforcement** for
-policies and **execution** for functions, is still being built. They are described here so
-the vocabulary is complete and so you can model with them in mind.
-</Roadmap>
+Both already exist as *kinds of resource* in the model, and you will meet the words in the
+console. Policies are enforced today; functions are recorded, and their **execution** is
+still being built.
 
 ### 📜 Policies, the rules {#policies-the-rules}
 
-A **policy** is a rule attached to a data set: how long its data is kept, who may access it
-and on what terms, what requirements it must meet. Today a policy is a record of intent. That
-alone has value: the rule is written down where the data lives instead of in a procedure
-document.
-
-Enforcement is what is coming: retention policies that actually expire measurement history,
-access policies that actually gate, requirement policies that actually check. Retention
-enforcement arrives together with
-[measurement expiry](/administration/data-lifecycle#lever-2--retention), which is why the
-two are planned as one piece of work.
+A **policy** is a rule the platform enforces, for the whole tenant or for a data set and
+everything below it. Three kinds act today: **naming** (what an external id must look like),
+**schema** (what a kind of thing must or should carry, such as a unit on every time series)
+and **lifecycle** (when data is frozen against change, and when it is deleted). A write that
+breaks a hard rule is refused; a softer rule lets it through and raises a finding for a data
+steward. Who may read or write is not a policy: it comes from your identity provider.
 [Using policies →](/using/policies) ·
 [How the pieces carry governance →](/concepts/data-governance)
 

@@ -52,7 +52,7 @@ thing it governs.**
 ## How the pieces carry it
 
 <Figure
-  caption="The filled pieces work end to end today; the outlined two record faithfully now and start acting when enforcement and execution ship. Governance can begin on that basis, because writing good rules is the slow part anyway."
+  caption="The filled pieces work end to end today. The figure still draws policies as outlined, but they now act too: naming, schema and lifecycle policies are enforced. Functions record faithfully and start acting when execution ships."
   wide
 >
   <DataGovernance />
@@ -82,13 +82,13 @@ is a standing delivery from a data set, so a grant is also a decision about what
 out, and a durable subscriber deserves its own narrowly-scoped
 [service account](/administration/users-and-access).
 
-### Policies: the rules, recorded where the data lives
+### Policies: the rules, held where the data lives
 
-[Policies](/using/policies) put the retention rule, the access intent and the requirements
-on the data set they govern, findable by whoever opens it, instead of in a manual nobody
-consults. Recorded today; enforcement, rules the platform acts on automatically, is on the
-roadmap, which is exactly the right order: writing the rules down well is the slow,
-human part, and it can start now.
+[Policies](/using/policies) put the naming convention, what each kind of thing must carry and
+how long data is kept on the data sets they govern, findable by whoever opens them, instead of
+in a manual nobody consults. And the platform acts on them: a write that breaks a hard rule is
+refused, a softer one raises a finding, and data past its retention is deleted overnight.
+Writing the rules well is still the slow, human part.
 
 ### Functions: trust in derived numbers
 
@@ -125,7 +125,7 @@ been quoted in reports and wired into interfaces, costs a project.
 moment available.</span>
 
 <Figure
-  caption="The same policy, read at four different moments. Only the first acts on its own today. The read is genuinely gated, but by group membership in your identity provider rather than by anything a policy says, which is why it is drawn as one of the outstanding three."
+  caption="The same policy, read at four different moments. The figure predates schema and lifecycle policies: the platform now also acts while data sits (schema audits) and at the end of its life (freeze and retention). The read is genuinely gated, but by group membership in your identity provider rather than by anything a policy says."
   wide
 >
   <PolicyAgents />
@@ -134,15 +134,13 @@ moment available.</span>
 | Moment | What a rule can do there | Where that stands |
 | --- | --- | --- |
 | **At the write** | Check the identifier against the convention, refuse it or raise a finding | Enforced today: [naming policies](/using/policies#naming) run on every write |
-| **While it sits** | Check the data is still fit: owner named, description filled, review not overdue | Recorded as a requirement policy; nothing checks it |
+| **While it sits** | Check the data is still fit: owner named, description filled, review not overdue | Enforced for what a [schema policy](/using/policies#schema) can state (a field, a metadata key, a relationship), by a nightly audit that raises findings. A review date is a judgement the platform does not check |
 | **At the read** | Decide who may see it, and on what terms | Reads are gated, but by [organization groups](/administration/dataset-permissions), not by a policy record |
-| **At the end of life** | Expire what is past its retention, keep what is still owed to an auditor | [Retention](/administration/data-lifecycle) is recorded; nothing expires yet |
+| **At the end of life** | Expire what is past its retention, keep what is still owed to an auditor | Enforced: [lifecycle policies](/using/policies#lifecycle) freeze old data against change and delete it once past its retention |
 
-<Roadmap>
-**Only the first row acts on its own today.** Lifecycle, access and requirement policies are
-declarative records, and enforcement is planned alongside measurement expiry.
-[What is enforced and what is recorded →](/using/policies)
-</Roadmap>
+**Three of the four rows act on their own today.** The read is the exception, by design:
+access is decided by group membership, so there is one permission model rather than two.
+[What each kind of policy enforces →](/using/policies)
 
 ### Write the rule so that something could enforce it
 
@@ -158,8 +156,8 @@ and what happens when it fails.**
 - **Keep the obligation next to it**, so a successor can revisit the rule safely when the
   obligation changes. [Writing a policy worth having →](/using/policies#writing-a-policy-worth-having)
 
-The pleasant surprise is that a rule written this way is enforceable *now*, by something the
-platform did not have to ship.
+A rule written this way is one the platform can usually enforce itself, as a schema or
+lifecycle policy. The ones it cannot state are the case for an agent.
 
 ### The policy agent
 
@@ -194,9 +192,9 @@ Four things to hold on to before you point one at your data:
 - **It runs inside the ordinary limits.** Scope of data, tools it may call, actions it may
   take, and a log of what it did.
   [The four limits worth setting →](/using/ai-agents#the-four-limits-worth-setting)
-- **The rule stays the artefact, the agent is only the enforcer.** When platform enforcement
-  ships, the rules are already written and reviewed, and the agent hands that rule over
-  rather than being rewritten around it.
+- **The rule stays the artefact, the agent is only the enforcer.** When a rule turns out to
+  be checkable after all, it moves into a schema policy and the agent hands it over rather
+  than being rewritten around it.
 
 Because both the policy and whatever enforces it are nodes in the model, "which rule governs
 this series, what enforces it, and when did it last run?" is a traversal rather than an
@@ -209,7 +207,7 @@ standing in the enforcer's place.
 | --- | --- |
 | A data register, updated annually, stale by March | The graph *is* the register, current because it is used |
 | Access reviewed by interviewing system owners | Access read off data set grants in one pass |
-| Retention schedule in a PDF, applied by memory | Retention recorded per data set, enforced when expiry ships |
+| Retention schedule in a PDF, applied by memory | Retention set per data set, applied every night |
 | "Where did this figure come from?" answered by whoever built it | Answered by the model, and eventually by the lineage trail |
 | Governance as a committee that meets quarterly | Governance as properties of the data, reviewed quarterly |
 
@@ -258,7 +256,7 @@ governance decisions are political as often as they are technical.
 
 <Deeper>
 - [Data sets](/using/datasets): the access boundary
-- [Policies](/using/policies): recording the rules today
+- [Policies](/using/policies): the rules the platform enforces
 - [Functions](/using/functions): governing computation, not just storage
 - [Lineage and data quality](/concepts/lineage-and-quality): the trust question, and what is planned
 - [Who does what](/start/who-does-what): the steward role that carries this

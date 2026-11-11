@@ -124,19 +124,14 @@ much cheaper than rearranging later.
 
 ## Policies
 
-<Roadmap>
-**Lifecycle, access and requirement policies are declarative records today, not
-enforcement.** A data set can carry policies describing lifecycle or access intent, and they
-document what *should* happen, but nothing in the platform currently acts on them.
+A data set is where policies attach. A naming, schema or lifecycle policy attached to a data
+set governs it and every data set below it; one attached to none governs the whole tenant.
+They are enforced: a write that breaks a **Must** rule or touches frozen data is refused, and
+data past its retention is deleted overnight. The console lists them on the **Policies** tab
+of the Data Governance section. [Policies in full →](/using/policies)
 
-Read and write access comes entirely from the groups and roles in your identity provider.
-[Data set permissions](/administration/dataset-permissions) ·
-[Policies as a building block →](/start/core-ideas#policies-the-rules)
-</Roadmap>
-
-Each data set has a **Policies** tab, where the rules governing that data set, lifecycle,
-access, requirements, are recorded and read. They document intent today and will be enforced
-later. [Policies in full →](/using/policies)
+Read and write access is not a policy. It comes entirely from the groups and roles in your
+identity provider. [Data set permissions →](/administration/dataset-permissions)
 
 One kind is enforced now. A **naming policy** fixes the shape of new external ids and is
 checked on every write. It is normally set once for the whole tenant, and a data set can

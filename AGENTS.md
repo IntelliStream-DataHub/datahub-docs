@@ -279,10 +279,22 @@ same mistakes are easy to reintroduce.
 
 ### Flagged as roadmap, confirmed with the product team
 
-Also flagged as roadmap **building blocks** on `start/core-ideas.mdx`: **policies with
-enforcement** (retention, access, requirements, retention enforcement planned together with
-measurement expiry) and **executable functions** (data cleaning, transformation, feature
-extraction, streaming computation with windowing).
+Also flagged as roadmap **building block** on `start/core-ideas.mdx`: **executable
+functions** (data cleaning, transformation, feature extraction, streaming computation with
+windowing). Policies used to be the other one; see the policies entry below.
+
+**Policies: enforced, no longer roadmap** (platform branch `feat/policy-sdk-mcp`, 2026-11).
+The kinds are **naming**, **schema** (partial schemas, Must refuses, Should raises a finding,
+writes judged only on the rules that look at what they change, a nightly and on-demand audit
+for old data) and **lifecycle** (freeze and retention on the data's own time, nightly sweep,
+preview, one-day activation delay, `policy_retention_run` events, `datahub.policy.*` settings
+on `administration/data-lifecycle.mdx`). A policy on no data set covers the tenant; on data
+sets, them and everything below. Old lifecycle/access/requirement drafts are **legacy**,
+read-only and never enforced. Access is never a policy: do not reintroduce "access policies,
+enforcement coming". Three figures still draw the old state and need redrawing:
+`data-governance.svg` (policies "enforcement coming"), `policy-agents.svg` ("the platform
+enforces the first today") and `policy-enforcement.svg` (a function as the lifecycle
+enforcer); their captions say so for now.
 
 **Keycloak Organizations: landed, no longer roadmap** (was flagged here as "expected during
 the second half of 2026"; that instruction is discharged as of 2026-08-03). Both halves
@@ -324,8 +336,8 @@ Documented with `<Roadmap>` rather than removed: **lineage and data quality** (n
 subsystem exists; the only artefact is a `WAS_DERIVED_FROM` edge, and no data-quality flag
 exists in any model or migration), **change data capture** (the console screens are not wired
 up end to end), **relationship analysis** (implemented in `datahub-analysis`, which is not in
-the shipped compose), **measurement expiry** (no ClickHouse TTL, so datapoints are kept
-indefinitely), and **data set policies** (declarative records that nothing enforces).
+the shipped compose), and, until 2026-11, **measurement expiry** and **data set policies**,
+both now shipped as lifecycle and schema policies (see above).
 
 ### Value-section review, August 2026
 

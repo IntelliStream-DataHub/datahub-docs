@@ -184,9 +184,9 @@ of records into a model you can reason over.
 ### Do we get data governance out of this?
 
 You get the pieces it is assembled from: the knowledge graph as the living inventory, data
-sets as the access boundary, policies as the recorded rules, and functions as sanctioned
-computation. Enforcement of policies and execution of functions are on the roadmap; the
-recording works today, and writing good rules is the slow part anyway.
+sets as the access boundary, policies as the enforced rules (naming, what each kind of thing
+must carry, how long data is kept), and functions as sanctioned computation. Execution of
+functions is on the roadmap; writing good rules is the slow part anyway.
 [→ Data governance](/concepts/data-governance)
 
 ### What does "git branches, but for data lineage" mean?
@@ -374,10 +374,10 @@ connection resumes where it left off.
 ### Can the platform run computations on our data?
 
 Recording them, yes; executing them is on the roadmap. Functions, the blocks that will do
-cleaning, transformation, feature extraction and windowing, and policies, the rules on data
-sets, are modelled in the graph today and are the two roadmap building blocks the platform
-is being built towards. You can compute externally now, against the same APIs.
-[→ Functions](/using/functions) · [Policies](/using/policies)
+cleaning, transformation, feature extraction and windowing, are modelled in the graph today,
+and the platform is being built towards running them. You can compute externally now,
+against the same APIs. What the platform does run on its own is policy upkeep: nightly
+schema audits and retention. [→ Functions](/using/functions) · [Policies](/using/policies)
 
 ### Why can I see less data than my colleague?
 

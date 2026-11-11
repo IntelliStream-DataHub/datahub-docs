@@ -146,8 +146,8 @@ compression codec suited to it, and the type is fixed at creation.
 **The sampling rate.** The historian may hold a tag at one sample a second. Whether the
 liberated copy needs that rate depends on the fastest behaviour a question will ever care
 about: sample at least twice that fast, and no faster. A slow drift kept at one hertz is money
-spent forever, since measurement history is kept indefinitely today and retention is a
-[coming feature](/administration/data-lifecycle#lever-2--retention). A surge kept at one
+spent for as long as it is kept, which is indefinitely unless a
+[lifecycle policy](/administration/data-lifecycle#lever-2--retention) sets a retention. A surge kept at one
 sample a minute is a surge you will never see. The full argument, and the illusion that
 undersampling produces, is on the time series page.
 [How often should you sample? →](/using/timeseries#how-often-should-you-sample)
@@ -195,8 +195,8 @@ The arrangement that works, and that every deployment described in this document
   is the join the historian could never make.
 - **Readers choose by question.** A trend on one tag: the historian's client. Anything
   across things, across systems, or asked by an assistant: DataHub.
-- **Retention is decided per data set** once retention ships, and the historian's own
-  retention is untouched by it. Until then, the liberated copy is kept indefinitely, which is
+- **Retention is decided per data set**, with a lifecycle policy, and the historian's own
+  retention is untouched by it. Without one, the liberated copy is kept indefinitely, which is
   one more reason to choose the sampling rate deliberately.
   [Retention versus traceability →](/administration/data-lifecycle#retention-versus-traceability)
 
