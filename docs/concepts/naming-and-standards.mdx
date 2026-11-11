@@ -188,10 +188,15 @@ Two things to know about it:
 
 ### Where a policy applies {#where-a-naming-policy-applies}
 
-A naming policy is set for the tenant and can be overridden on an individual
-[data set](/using/datasets). The most specific one wins, and it **replaces** rather than adds
-to the one above it: a data set carrying its own naming policy is governed by that policy
-alone, because a half-overridden naming rule is not something anyone can reason about.
+A naming policy is set for the tenant and can be overridden on a
+[data set](/using/datasets). An override covers that data set **and every data set below it**
+in the hierarchy, so a policy on a plant also governs its areas and units. The nearest one
+wins, and it **replaces** rather than adds to the one above it: a data set governed by an
+override follows that policy alone, because a half-overridden naming rule is not something
+anyone can reason about.
+
+One data set can carry only one naming policy, and the tenant only one tenant-wide policy.
+Attaching a second is refused, so which rule applies never has to be guessed.
 
 A tenant-wide rule is the normal case. The override exists for the data set that lands
 records from a source system whose identifier scheme you do not control.
