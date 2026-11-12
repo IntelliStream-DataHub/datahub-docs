@@ -22,8 +22,9 @@ person needs to look</span>.
 
 It is built in the **Agents** section of the console and runs unattended, on a schedule or
 only when you start it. Unlike the assistant it may create things, within the tools you
-tick. Unlike an agent you [build yourself](/using/ai-agents) it needs no code and no
-credential of its own.
+tick, and it may use tools from [servers of your own](#tool-servers) beside DataHub's.
+Unlike an agent you [build yourself](/using/ai-agents) it needs no code and no credential
+of its own.
 </KeyIdea>
 
 ## What an agent is here
@@ -66,7 +67,7 @@ One page, in sections. The only text that takes thought is the instructions.
 | **When it runs** | **On a schedule**: every 5, 15 (the default) or 30 minutes, every hour, once a day at 06:00, or a custom six-field cron expression, in a time zone of your choice. Or **only when started** |
 | **Which events wake it** | Event types, subtypes and statuses, one per line; a field left empty means all. A run happens only when at least one matching event was recorded in the window. Events written by agents never wake an agent |
 | **Who sees it, and whose access it uses** | The **data set**: who may see and change the agent, and where what it raises is written. Runs act as whoever deployed the agent, or as a registered client. The tools bound what the agent may call; that identity's access bounds what the calls can reach |
-| **Tools** | A picker of every tool the platform offers. Tools that may change data are marked; tools that destroy or overwrite data are shown greyed out and cannot be ticked. With no tools ticked the agent can only reason over the events |
+| **Tools** | A picker of every tool the platform offers, and of the tools of each [registered tool server](#tool-servers), grouped under the server's name and marked *external server*. Tools that may change data are marked; tools that destroy or overwrite data are shown greyed out and cannot be ticked. With no tools ticked the agent can only reason over the events |
 | **Model** | Effort, model calls per run, max output tokens and the turn timeout, such as `2m`. Left empty, the organisation's settings apply. Each run is billed to the organisation's own model credential |
 
 An instruction that works is specific about what to look up and when to flag something:
@@ -88,7 +89,8 @@ Then the buttons:
 | **Delete** | Removes the agent, its versions and its runs |
 
 Four tabs: **Agent** (the form), **Runs**, **Flagged** (what this agent flagged) and
-**Versions**.
+**Versions**. The section's own header has **Agents**, **Runs**, **Flagged** and
+**Tool servers**.
 
 ## As you, or as a client {#as-you-or-as-a-client}
 
@@ -164,6 +166,57 @@ A tool the run's identity may not call fails in the run, as any call would. Even
 creates through `event_create` carry `source: agent:<the agent's id>` automatically, which is
 why an agent's own events never wake it, or any other agent.
 
+The same three kinds apply to the tools of a [registered tool server](#tool-servers), on
+the server's own word about each tool: a tool it marks as destructive is never offered, one
+it does not mark read-only counts as *may change data*.
+
+## Tool servers {#tool-servers}
+
+Your organisation can give its agents tools beyond DataHub's own: a ticketing system, a
+maintenance planner, anything that offers tools over the
+[Model Context Protocol](https://modelcontextprotocol.io/). Register the server under
+**Tool servers** in the section's header, and its tools appear in every agent's picker under
+the server's name, marked *external server*.
+
+| Field | What you set |
+| --- | --- |
+| **Name** | What agents call it by: lowercase letters, digits and dashes, at most 24 characters, `crm` say. Its tools are offered as `<name>__<tool>`, `crm__ticket_get` |
+| **Endpoint URL** | The server's address, over `https` |
+| **Authentication** | **A fixed header**: a header name (`Authorization` when left empty) and a credential such as `Bearer …`, sent with every call. Or **OAuth 2.0 client credentials**: a token URL, a client ID and secret, and an optional scope and resource; DataHub takes an access token as that client, sends it as `Authorization: Bearer`, and takes a new one before it expires or when the server refuses it |
+
+The credential is stored encrypted in your organisation's own secret and never shown again.
+Editing a server shows that one is stored: leave the field empty to keep it, or type a new
+one to replace it. Nothing is tried on save; the agent form's picker shows what the server
+answers, or says which server did not.
+
+| To | You need |
+| --- | --- |
+| See the registered servers | `/settings/flow/read` |
+| Register, change or remove one | `/settings/flow/write` |
+
+These are the same groups as for the flow secrets and clients, not the flow groups: the page
+says so when you may see the servers but not change them.
+
+What a run does with them:
+
+- **The server's own credential, never the run's.** DataHub's tools are called as the
+  identity the agent runs as; a registered server is called with the credential you stored,
+  so its access is whatever that credential has. What the agent may call is still bounded by
+  the tools you tick.
+- **Only the servers an agent's tools name are contacted.** Ticking `crm__ticket_get` makes
+  that agent's runs open a session with `crm`; an agent with no `crm__` tools never reaches
+  it. Removing a server makes an agent that still names its tools fail its next run until
+  the agent is edited.
+- **What the server returns goes to the model.** Its tool descriptions and results are shown
+  to the model and kept in the transcript as they are, so register only servers you trust as
+  much as the people who may edit agents.
+- **One call may take 30 seconds**, reply included, where DataHub's own tools get a minute.
+  Whoever operates the platform [can change that](/administration/agents#configuration).
+
+Where the server may sit is the operator's decision: an address inside DataHub's own
+networks, or plain `http`, is refused unless the platform
+[allows it](/administration/agents#tool-servers).
+
 ## Preview, the dry run
 
 **Preview** runs the agent now, as you, over the last hour, changing nothing: tools that
@@ -233,4 +286,6 @@ history, your organisation's flow retention, 90 days by default, and is cut at 1
   outside
 - [Security and compliance](/administration/security#ai-agents-and-the-console-assistant):
   why a tool call is no different from any other call
+- [Enabling agents, tool servers](/administration/agents#tool-servers): what the operator
+  decides about where a registered server may sit
 </Deeper>

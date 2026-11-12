@@ -294,7 +294,9 @@ items.
 A model with tools, acting on the events connected into it: the step that makes a flow an
 [agent](/using/agents). One invocation takes every waiting events item, gives the model their
 events and the instructions, runs the tool calls it asks for against the platform's tool
-servers as the run's identity, and ends when the model calls its built-in `finish` tool with
+servers as the run's identity, and against the organisation's
+[registered tool servers](/using/agents#tool-servers) with their own credential, and ends
+when the model calls its built-in `finish` tool with
 an outcome of `done` or `flagged` and a summary. The organisation's model settings apply;
 the properties below override them for this step. Accepts events items. Sets
 `agent.outcome`, `agent.summary`, `agent.iterations`, `agent.tokens.input`,
@@ -303,7 +305,7 @@ the properties below override them for this step. Accepts events items. Sets
 | Property | Type | Default | Refs | Meaning |
 | --- | --- | --- | --- | --- |
 | `instructions` | string | required | No | What the agent is to do with the events it is given |
-| `tools` | list | none | No | The tools it may use, by name or pattern, e.g. `event_*`, `resource_get`. Tools that destroy or overwrite data are never offered, whatever is listed. Empty: it can only reason over the events |
+| `tools` | list | none | No | The tools it may use, by name or pattern, e.g. `event_*`, `resource_get`. A registered tool server's tools are `<server>__<tool>`, and naming them (`crm__*`) is what connects the run to that server; a bare `*` covers the platform's own tools only. Saving checks that every server named is registered. Tools that destroy or overwrite data are never offered, whatever is listed. Empty: it can only reason over the events |
 | `effort` | choice | the organisation's | No | How hard the model thinks: `low`, `medium`, `high`, `xhigh` or `max` |
 | `maxIterations` | number | the organisation's | No | Model calls in one run, at least 1. Reaching it fails the run. *Advanced* |
 | `maxOutputTokens` | number | the organisation's | No | Ceiling on one model call's output, at least 1. *Advanced* |

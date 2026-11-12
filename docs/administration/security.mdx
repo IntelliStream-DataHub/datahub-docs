@@ -121,6 +121,12 @@ Scoping an AI agent is therefore the same administrative act as scoping any
 account in your identity provider, grant its groups read on the data sets it should see,
 and it cannot write or see anything else.
 
+The one credential that is not a DataHub token is the one a tenant stores for a
+[tool server of its own](/using/agents#tool-servers), which the tenant's agents call with
+that credential rather than with the run's token. It is the tenant's credential for the
+tenant's server, kept in the tenant's own secret, and where such a server may sit is
+[bounded by the operator](/administration/agents#tool-servers).
+
 The console's built-in assistant is stricter still:
 
 - It only ever offers its model **read-only tools**, whatever the signed-in user could do.
