@@ -71,7 +71,8 @@ assistant.
   <Step title="Let a deployer grant offline access">
     Deploying an agent takes the person through Keycloak to grant it an offline token, as
     deploying a flow does, so their account needs the `offline_access` role. Nothing here is
-    new for agents.
+    new for agents. How long such a deployment lasts is a realm setting: see
+    [Keycloak](#keycloak) below.
   </Step>
   <Step title="Create one and preview it">
     Open **Agents**, create an agent with a read-only tool or two ticked, and press
@@ -133,11 +134,35 @@ the model and create and update for the tokens, besides `datahub-platform` and
 `tenant-resources`. In the evaluation stack the one shared policy already covers the whole
 mount.
 
-## Keycloak
+## Keycloak {#keycloak}
 
 Nothing new. Deploying an agent is the same offline-token flow as deploying a flow, every
 tool call carries the run's own token, and the groups are the flow groups and the data set
 groups.
+
+### How long a deployment as a person lasts {#how-long-a-deployment-lasts}
+
+A flow or agent deployed as a person runs on that person's **offline session**, and two
+realm settings, under **Realm settings**, then **Sessions**, decide how long it lasts:
+
+| Setting | Keycloak's default | Effect on a deployment |
+| --- | --- | --- |
+| **Offline Session Idle** | 30 days | Every run renews the session, so a deployment ends only after this long without a run. The flow service renews nothing on its own: a flow that runs monthly or quarterly outlives a 30-day idle time only if raised |
+| **Offline Session Max Limited** with **Offline Session Max** | Off (60 days once on) | When on, every deployment as a person ends at this age, however often it runs, and has to be deployed again |
+
+The session also ends when the person is disabled or deleted, or their offline sessions or
+consent are revoked. A run always carries the person's access as it is then, so losing a
+data set grant later breaks the flow without ending the session.
+
+When Keycloak refuses the session, the deployment is marked *needs re-authorisation*: its
+schedule stops, the run fails without a retry, and **no event is raised**, since the run can
+no longer write as anyone. The console shows it on the flow or agent and as **Problem** under
+**Runs**. Deploying it again resumes it; windows missed in between are not run.
+
+**Run a long-lived or business-critical flow as a registered client.** A client's
+`client_credentials` token has no session to lapse and belongs to no one person; it stops
+only if its secret is rotated in Keycloak and not under **Flows**, then **Clients**, or the
+client is disabled. Whoever assigns a client must hold every group it holds.
 
 ## What a security review should note
 
@@ -163,6 +188,7 @@ groups.
 | A run fails with *not retried: the first attempt changed data* | The first attempt called a tool that may change data and then failed, so the second refused to repeat it. Read the first attempt's transcript |
 | A run fails with *iteration cap* | The agent needed more model calls than allowed. Narrow the instructions, or raise **Model calls per run** on the agent |
 | A tool answers *Not authorised* in the transcript | The run's identity may not call it: it lacks the data set grant the tool needs |
+| *needs re-authorisation: deploy it again* on the agent, and **Problem** under **Runs** | Keycloak refused the deployment's identity: the person's offline session lapsed or was revoked, the person was disabled, or a registered client's secret changed. [How long a deployment lasts →](#how-long-a-deployment-lasts) |
 | *"Could not dismiss"* under **Flagged** | The person dismissing lacks write access to the agent's data set |
 
 <References>

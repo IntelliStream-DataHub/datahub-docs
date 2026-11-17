@@ -80,7 +80,7 @@ Then the buttons:
 | --- | --- |
 | **Save** | Checks the agent and saves it as a new version. Versions never change; a later save is a later version |
 | **Preview** | Runs it now, as you, over the last hour, changing nothing. See [the dry run](#preview-the-dry-run) |
-| **Deploy** | Takes you through your sign-in page, where you grant the agent a long-lived token, and back to the agent. From then on its runs act as you |
+| **Deploy** | Takes you through your sign-in page, where you grant the agent a long-lived token, and back to the agent. From then on its runs act as you, [for as long as that token lasts](#as-you-or-as-a-client) |
 | **Run as a client** | Deploys it as a registered client instead, so its runs act as that client, with its access and its own request budget |
 | **Run now** | Starts a run over the schedule's latest window, or the last hour for an agent that runs only when started. Shown once the agent is deployed and on |
 | **Switch off**, **Switch on** | Pauses the schedule, and resumes it. Ticks missed while it was off are not run |
@@ -89,6 +89,27 @@ Then the buttons:
 
 Four tabs: **Agent** (the form), **Runs**, **Flagged** (what this agent flagged) and
 **Versions**.
+
+## As you, or as a client {#as-you-or-as-a-client}
+
+An agent deployed **as you** keeps running for as long as your sign-in session for it lasts,
+and each run renews that session. With the sign-in server's defaults, the session ends after
+**30 days without a run**. An agent that runs daily or weekly never notices this; one
+started by hand once a quarter does. Your administrator may set a different idle time, or
+a maximum age after which the session ends however often the agent runs.
+
+The session also ends when your account is disabled or removed, or when your offline access
+is revoked. And a run always has your access **as it is now**, not as it was when you
+deployed: lose a data set and the agent loses it too.
+
+When the session ends, the agent shows *needs re-authorisation: deploy it again* and stops
+running. It raises no event, because it can no longer write as you: what shows it is the
+agent's own page, and **Agents**, then **Runs**, where it is marked **Problem**. **Deploy** it again to
+resume. Windows missed in between are not run.
+
+An agent that must keep running whoever built it should **run as a client**. A registered
+client has no session to lapse and belongs to no one person; your administrator registers it
+under **Flows**, then **Clients**.
 
 ## When it runs
 
