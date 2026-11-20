@@ -1,0 +1,207 @@
+---
+sidebar_position: 8.6
+title: Enabling agents
+description: How an organisation turns on the console's Agents section. What must be in place and who does each, the flow service settings that bound a run, capacity, storage and retention, the Vault path, and what to check when it does not work.
+---
+
+# Enabling agents
+
+<Personas>
+  <Persona primary>Administrators</Persona>
+  <Persona primary>Platform operators</Persona>
+  <Persona>IT security</Persona>
+</Personas>
+
+<KeyIdea>
+[Agents](/using/agents) are flows that run a model, so they need two things that may already
+be in place: **flows**, which your organisation is given by whoever operates the platform,
+and **a model**, which your organisation brings itself under **Settings**, then
+**AI assistant**, exactly as for the [assistant](/administration/assistant). There is no
+platform-wide model and no separate switch for agents: <span className="hl">an organisation
+with flows and a usable model has the Agents section</span>, and one without either sees a
+notice in its place.
+
+What runs them is the flow service, so the operator's side is its configuration, its run
+slots, one ClickHouse table and one Vault path.
+</KeyIdea>
+
+## The checklist
+
+| What | Who does it | Where | If it is missing |
+| --- | --- | --- | --- |
+| Flows are enabled for the organisation | Whoever operates the platform | The tenant registry, the `flow` flag | Neither **Flows** nor **Agents** in the header |
+| A model is configured | Your organisation's administrator | **Settings**, then **AI assistant** | **Agents** is missing, or shows a notice instead of the form |
+| Someone may create agents | Your identity administrator | The `/flows/write` organisation group in Keycloak, and write access to a data set | They can see agents but not save one |
+| The flow service has the table and the Vault path below | Whoever operates the platform | Each tenant's ClickHouse database; the flow service's AppRole policy | Runs fail with *no model configured* although one is set, or transcripts are not kept once a run has finished |
+
+The first is an entitlement; the others are the organisation's own decisions. The
+assistant's `DATAHUB_CHAT` role plays no part: using agents takes flow access, not the
+assistant.
+
+## Turning it on
+
+<Steps>
+  <Step title="Ask for flows">
+    Your organisation's entry in the tenant registry needs `flow` set to `true`, next to
+    `chat` and `files`, in the `tenant-config` block of the `tenant-resources` secret:
+
+    ```json
+    "acme": {
+      "org-id": "…",
+      "tenant-config": { "files": true, "chat": true, "flow": true }
+    }
+    ```
+
+    Whoever operates the platform sets it; there is no screen for it. The flow service
+    refuses every call for an organisation without it.
+  </Step>
+  <Step title="Configure a model">
+    An administrator holding `/settings/llm/write` opens **Settings**, then **AI assistant**,
+    and enters a provider, a model, and an API key or a base URL. The same model serves the
+    assistant and every agent. [Choosing a model](/administration/assistant#choosing-a-model)
+    and [the settings](/administration/assistant#settings) apply unchanged; step by step,
+    [setting up the assistant](/using/assistant-setup). The change reaches the console
+    within five minutes.
+  </Step>
+  <Step title="Give flow access to the people who will build agents">
+    In [Keycloak](/administration/identity-providers), the organisation groups `/flows/read`
+    and `/flows/write`, plus read or write on the data set each agent will live in, granted
+    the way [data set access](/administration/dataset-permissions) is.
+  </Step>
+  <Step title="Let a deployer grant offline access">
+    Deploying an agent takes the person through Keycloak to grant it an offline token, as
+    deploying a flow does, so their account needs the `offline_access` role. Nothing here is
+    new for agents. How long such a deployment lasts is a realm setting: see
+    [Keycloak](#keycloak) below.
+  </Step>
+  <Step title="Create one and preview it">
+    Open **Agents**, create an agent with a read-only tool or two ticked, and press
+    **Preview**. A transcript in which the model calls a tool and finishes shows that the
+    model, the tools and the access are all in place. Then deploy it.
+  </Step>
+</Steps>
+
+## Configuration {#configuration}
+
+On the flow service, under `datahub.flow.agents`. These are what a run gets when neither the
+agent nor its organisation's settings say otherwise: the organisation's **Settings** values
+override them, and an agent's own **Model** fields override those. None is a ceiling on the
+organisation's spend; the last two bound the platform's own memory.
+
+| Property | Default | What it controls |
+| --- | --- | --- |
+| `effort` | `high` | The model's reasoning effort when the agent sets none |
+| `turn-timeout` | `PT2M` | How long one model call may take |
+| `max-iterations` | `6` | Model calls in one run; reaching it ends the run as failed |
+| `max-output-tokens` | unset | A ceiling on one model call's output. Unset, the organisation's or the provider's default |
+| `max-tool-result-chars` | `24000` | How much of a tool's answer the model is shown, and of the events a run starts from |
+| `transcript-max-bytes` | `1MB` | How much of a run's transcript is kept |
+
+`datahub.analysis.url` names the analysis service, so that its tool,
+`analysis_related_series`, is offered besides the api's. Left blank, agents get the api's
+tools only.
+
+## Capacity
+
+A running agent holds one of the flow instance's run slots, `datahub.flow.runs.max-running`
+(8 by default), for up to its timeout, 20 minutes by default, and a preview takes a slot the
+same way. With the defaults, six model calls of two minutes each keep a run well inside its
+timeout. A model on your own hardware is slow per call: raise the turn timeout in the
+organisation's settings or on the agent, not the number of slots.
+
+## Storage and retention
+
+| What | While the run is live | After it |
+| --- | --- | --- |
+| The run's state | The organisation's KVRocks | ClickHouse `flow_run` |
+| Its transcript | The organisation's KVRocks | ClickHouse `flow_run_transcript` |
+
+Its records go to ClickHouse `flow_run_event` as for any flow. `flow_run_transcript` is new
+with agents: create it in each tenant's ClickHouse database from the platform's
+`clickhouse.sql`, as you created `flow_run` and `flow_run_event`. The Postgres change, a
+`kind` column on `flow`, is applied by the platform's own migrations.
+
+Retention is the organisation's flow retention, `datahub.flow.retention` on the housekeeping
+service, 90 days by default; the housekeeping service sets each flow table's expiry to it,
+transcripts included. [Data lifecycle →](/administration/data-lifecycle)
+
+## Vault
+
+The flow service reads the organisation's `tenant-config/<organisation name>` secret: the
+model's `llm.*` values, the same keys the assistant uses, and the deployers' offline tokens
+it keeps there for every flow. Its AppRole policy therefore needs `tenant-config/*`, read for
+the model and create and update for the tokens, besides `datahub-platform` and
+`tenant-resources`. In the evaluation stack the one shared policy already covers the whole
+mount.
+
+## Keycloak {#keycloak}
+
+Nothing new. Deploying an agent is the same offline-token flow as deploying a flow, every
+tool call carries the run's own token, and the groups are the flow groups and the data set
+groups.
+
+### How long a deployment as a person lasts {#how-long-a-deployment-lasts}
+
+A flow or agent deployed as a person runs on that person's **offline session**, and two
+realm settings, under **Realm settings**, then **Sessions**, decide how long it lasts:
+
+| Setting | Keycloak's default | Effect on a deployment |
+| --- | --- | --- |
+| **Offline Session Idle** | 30 days | Every run renews the session, so a deployment ends only after this long without a run. The flow service renews nothing on its own: a flow that runs monthly or quarterly outlives a 30-day idle time only if raised |
+| **Offline Session Max Limited** with **Offline Session Max** | Off (60 days once on) | When on, every deployment as a person ends at this age, however often it runs, and has to be deployed again |
+
+The session also ends when the person is disabled or deleted, or their offline sessions or
+consent are revoked. A run always carries the person's access as it is then, so losing a
+data set grant later breaks the flow without ending the session.
+
+When Keycloak refuses the session, the deployment is marked *needs re-authorisation*: its
+schedule stops, the run fails without a retry, and **no event is raised**, since the run can
+no longer write as anyone. The console shows it on the flow or agent and as **Problem** under
+**Runs**. Deploying it again resumes it; windows missed in between are not run.
+
+**Run a long-lived or business-critical flow as a registered client.** A client's
+`client_credentials` token has no session to lapse and belongs to no one person; it stops
+only if its secret is rotated in Keycloak and not under **Flows**, then **Clients**, or the
+client is disabled. Whoever assigns a client must hold every group it holds.
+
+## What a security review should note
+
+- **No credential of DataHub's reaches the model.** A tool call carries the run's token, and
+  the api applies that identity's data set grants to it like any other call.
+  [Why that holds →](/administration/security#ai-agents-and-the-console-assistant)
+- **Tools that overwrite or destroy are never advertised to an agent**, whatever the
+  instructions say. Tools that create are offered only when ticked, and a preview refuses
+  them.
+- **Transcripts are readable only with flow write and write on the agent's data set**,
+  because tool results carry data from every data set the run's identity can reach.
+- **The events, tool results and instructions of every run go to the organisation's model
+  provider.** With a hosted provider that data leaves your control; where the model runs is
+  the organisation's decision under **Settings**.
+
+## When it does not work
+
+| What you see | Most likely cause |
+| --- | --- |
+| No **Agents** in the header, or the notice *"Agents need flows and a model configured for your organization"* | The organisation lacks the `flow` flag, or its model settings are incomplete. After fixing either, allow five minutes |
+| *"Could not load the tools."* on the form | A tool server did not answer: the api, or the analysis service named by `datahub.analysis.url` |
+| A run fails with *no model configured* | The model settings were removed or are incomplete |
+| A run fails with *not retried: the first attempt changed data* | The first attempt called a tool that may change data and then failed, so the second refused to repeat it. Read the first attempt's transcript |
+| A run fails with *iteration cap* | The agent needed more model calls than allowed. Narrow the instructions, or raise **Model calls per run** on the agent |
+| A tool answers *Not authorised* in the transcript | The run's identity may not call it: it lacks the data set grant the tool needs |
+| *needs re-authorisation: deploy it again* on the agent, and **Problem** under **Runs** | Keycloak refused the deployment's identity: the person's offline session lapsed or was revoked, the person was disabled, or a registered client's secret changed. [How long a deployment lasts →](#how-long-a-deployment-lasts) |
+| *"Could not dismiss"* under **Flagged** | The person dismissing lacks write access to the agent's data set |
+
+<References>
+
+- [Model Context Protocol](https://modelcontextprotocol.io/): how an agent reaches its tools
+- [Large language models](https://en.wikipedia.org/wiki/Large_language_model)
+
+</References>
+
+<Deeper title="Related">
+- [Agents](/using/agents): what an agent is, creating one, and what it gives back
+- [Enabling the assistant](/administration/assistant): the model settings agents share
+- [Limits and quotas](/administration/limits-and-quotas): the request budget a run's
+  identity spends
+- [Identity providers](/administration/identity-providers): where the groups are granted
+</Deeper>
