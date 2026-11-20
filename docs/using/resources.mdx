@@ -164,47 +164,113 @@ Two relationships are constrained, because data sets are the access boundary:
 
 ## Using the network view
 
-The graph is for exploring and explaining. Selecting a node raises a small toolbar above it;
-that toolbar, plus the two controls in the sub-nav, is the whole set:
+The graph is for exploring and explaining. Each resource is a **dot** with an
+[icon](#icons) for what it is, sized by how much of the network passes through it, so the
+resources everything depends on stand out. Dots are drawn in **groups** taken from the
+model's own hierarchy, the *belongs to* and *part of* relationships: a well's sections sit
+together inside a light outline. Where the model has no usable hierarchy, the console finds
+groups from how the resources connect instead. A resource that belongs to several groups is
+placed between them.
+
+Names appear only where they are large enough to read and do not overlap, and each leaves
+out the part its parent already says, so zooming in shows more of them. Point at a dot for
+its full name and labels.
+
+**The picture stays where you left it.** Each graph's arrangement is kept in your browser,
+so a reload, a new resource or an edit moves nothing already placed, and a resource you drag
+stays where you drop it. **Rearrange** lays the graph out afresh.
+
+Selecting a node fades everything except its direct neighbours, colours its relationships by
+direction and raises a small toolbar above it. That toolbar, the **Filter** button in the
+sub-nav and the **View** menu are the whole set:
 
 | Control | What it does |
 | --- | --- |
-| **Click a node** | Centres the view on it and shows what it connects to |
+| **Click a node** | Selects it and shows what it connects to |
 | **Expand relations** | On the node's toolbar. Pulls that node's neighbours into view, and hides them again on a second click |
 | **Add a connected node** | The + on a node creates a resource already connected to it. On a data set it first asks what to add: a resource, a time series, a sub-data set or a policy |
 | **Create relation to** | Connects this node to another that already exists |
 | **Edit** and **Clone** | Change a node, or copy its labels and relationships as the starting point for the next one |
-| **Stabilise network layout** | Freezes a dense area that will not settle |
-| **Filters** | Narrows the graph by label, relationship type or name, essential above a few hundred nodes |
+| **Click a line** | Opens the relationship's form. Where several bundled relationships meet, it first lists them so you can pick one |
+| **Filter** | Narrows the graph by name, label or relationship type, essential above a few hundred nodes |
+| **View** | The sliders button at the top right of the graph. Changes how the graph is drawn, and holds **Rearrange** and **Draw a relation** |
 
 **Expanding is how you follow a dependency chain.** Start at the symptom, pull in its
 neighbours, and step outward a hop at a time. It answers *"which assets does this sensor
 feed?"* and *"what would a change here ripple into?"* without anybody writing a query, and
 because each hop is a deliberate click you can see where the chain widens.
 
-**Filtering is how you isolate one.** Unchecking every relationship type except the one that
-carries flow leaves the process route lit and fades the containment hierarchy, which is what
-makes a large graph readable. Labels work the same way: tag the resources along a route with
-a cross-cutting label, filter to it, and only that route stays bright. Filtered elements are
-dimmed rather than removed, so the surrounding shape stays as context.
-
-<Figure
-  src="/img/screenshots/resource-graph-export-route.png"
-  alt="The resource graph filtered to a single cross-cutting label. Seven nodes stay bright and joined by labelled relationships: a pressure transmitter monitors a separator, which feeds a valve, then a pump, then a metering skid, then the export riser, which contributes to an export availability KPI. Every other node is faded to a pale outline."
-  caption="Read the bright chain as a sentence and it runs from one instrument all the way up to the business measure that depends on it. The faded nodes are the rest of the plant, still drawn: dimming rather than hiding is what stops a filtered graph from losing the shape you were navigating."
-  wide
-/>
+**Filtering is how you isolate one.** Unticking every relationship type except the one that
+carries flow leaves only the process route's lines drawn, without the containment hierarchy
+around it. Labels work the same way: tag the resources along a route with a cross-cutting
+label, filter to it, and only that route is left. Filtered resources and relationships are
+**hidden**, not dimmed, and **Clear filters** brings them back.
 
 Both of these follow **structure**, what connects to what. Tracing a *number* back through
 the computations that produced it is [lineage](/concepts/lineage-and-quality), a separate
 and planned capability.
 
+### Changing how the graph is drawn
+
+The **View** menu holds every choice about the drawing. Your choices are kept in this
+browser and apply to every graph, and each layout keeps its own arrangement, so switching
+back finds the picture as you left it.
+
+| Setting | Choices |
+| --- | --- |
+| **Layout** | **Network** (the default, grouped as described above), **Diagram, left to right**, or **Classic** |
+| **Resources** | **Dots**, or **Pills with names** |
+| **Size** | **By importance**, or **All the same** |
+| **Lines** | **Curved** (bundled between groups), or **Straight** |
+| **Direction arrows** | **On** or **Off**: small arrowheads that show which way each relationship points |
+| **Icons** | **Equipment symbols**, **Simple** or **None**. See [icons](#icons) |
+| **Flow labels on relations** | **Moving** or **Off**: whether [animated data flow](#relationships) travels along the lines |
+
+**Classic** draws the graph as the console did before the network view: one tree from the
+top down, each resource a pill bordered in its label's colour with its types above its name,
+and curved lines with arrowheads and relationship names. It suits a small model read as a
+hierarchy. The settings that do not apply to a layout, or to a large graph, are greyed out
+with a short note saying why. The diagram is for graphs under 5,000 resources.
+
+**Draw a relation**, at the foot of the menu, lets you drag from one resource to another to
+relate them, then pick the relationship type. Esc or **Stop drawing** ends it.
+
+### Icons
+
+With **Equipment symbols**, the default, a resource shows a P&ID-style symbol for what it is:
+a pump, a valve, a compressor, a separator, or an instrument bubble with its letters, such as
+`PT`. The symbol is picked from the resource's labels first, then from its instrument code,
+its kind, a NORSOK or ISA tag in its name, or a word in its name. **Simple** shows one icon
+per kind of resource (asset, time series, function, data set, policy), and **None** shows
+plain dots.
+
+To use your own picture instead, open **Filter**: the button beside each label lets you
+choose an image from [Files](/using/files), which then replaces the icon of every resource
+with that label. **Only you see it, in this browser**; colleagues still see the automatic
+icons.
+
+### Large networks
+
+The graph loads the network around the resource you opened in full, however many resources
+it holds. Above 5,000 resources it is drawn **group by group**, like a map:
+
+- **Zoomed out**, each group is one dot sized by its resources, with a line between groups
+  that are linked. A group's name is shown where it does not crowd another, so more names
+  appear as you come closer.
+- **Zooming in** opens the groups nearest the middle of the screen into their resources, a
+  few thousand at a time. Clicking a group's dot zooms into it.
+- Inside an open group everything works as in a smaller graph: the node toolbar, the forms,
+  the filter and drawing a relation.
+
+A large graph's arrangement is not kept in the browser, but it is laid out the same way on
+every load. Its layout, and the drawing settings that only suit smaller graphs, are greyed
+out in the **View** menu.
+
 <Roadmap>
-**Tracing a route in one action is on the roadmap.** Today you follow a chain by expanding
-node by node, and isolate one by filtering. What is coming is the single gesture: select a
-node, and everything not on the path dims, so one dependency chain stands out without
-setting a filter up first. The graph already dims rather than hides, so this is the same
-picture reached in one step instead of three.
+**Tracing a route in one action is on the roadmap.** Today selecting a node fades everything
+but its direct neighbours, and you follow a longer chain by expanding node by node or isolate
+one by filtering. What is coming is the single gesture: select a node, and everything not on
+the whole path fades, so one dependency chain stands out without setting a filter up first.
 </Roadmap>
 
 <Roadmap>
