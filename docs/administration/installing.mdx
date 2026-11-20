@@ -14,7 +14,7 @@ description: Standing up a DataHub evaluation stack, what it contains, and what 
 <KeyIdea>
 An evaluation stack is one command from a source checkout. The services are compiled inside
 the containers, so a container runtime is the only thing you install, no Java and no build
-tools. It brings up the three DataHub services plus every backing store, seeded with demo
+tools. It brings up the DataHub services plus every backing store, seeded with demo
 tenants.
 
 <span className="t-accent">That stack is not production.</span> It runs without TLS, with
@@ -100,13 +100,16 @@ loops or errors, the issuer address is the first thing to check.
 
 ## What the stack contains
 
-Three DataHub services:
+Six DataHub services:
 
 | Service | Role |
 | --- | --- |
 | **API** | The REST interface and the platform's core. Owns the model and the ingestion endpoints |
 | **Console** | The web interface people use |
 | **Datapoint and event consumer** | Lands measurements and events, and fans live data out to [subscribers](/using/subscriptions) |
+| **Analysis** | The Analyze tab's relationship analysis |
+| **Flow service** | Runs [flows and agents](/administration/flow-service), on port 8084. Both demo tenants have flows turned on |
+| **Housekeeping** | The scheduled sweeps in [data lifecycle](/administration/data-lifecycle) |
 
 Plus the backing stores, a relational database, a streaming platform, a columnar store for
 measurements, a graph database, two key-value stores, a secret store and an identity
@@ -214,7 +217,8 @@ every figure in them is meant to be read and changed rather than copied.
 
 Two placement rules carry over from the [architecture page](/administration/architecture#load-balancing):
 the API and console scale by adding instances behind the balancer with no session affinity,
-and the housekeeping service runs as exactly one instance.
+and the housekeeping service runs as exactly one instance. The flow service scales by adding
+instances too, and needs a [few things of its own](/administration/flow-service#setting-it-up).
 
 ## Air-gapped installation
 

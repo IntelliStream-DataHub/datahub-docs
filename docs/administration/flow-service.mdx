@@ -1,0 +1,164 @@
+---
+sidebar_position: 8.55
+title: Running the flow service
+description: Installing and operating the flow service that runs flows and agents. What it needs from the stores, Keycloak and Vault, the flow flag per organisation, the settings worth an operator's attention, memory and run slots, scaling, and what happens when it starts.
+---
+
+# Running the flow service
+
+<Personas>
+  <Persona primary>Platform operators</Persona>
+  <Persona>IT and OT operations</Persona>
+  <Persona>IT security</Persona>
+</Personas>
+
+<KeyIdea>
+The **flow service** runs every organisation's [flows](/using/flow-definition) and
+[agents](/using/agents), on a schedule, on an event or on request. It is a web service on
+port **8084**, metrics on **9086**, and it ships with every release as
+`datahub-flow-<version>.jar`.
+
+It keeps nothing of its own: flows are in each organisation's relational database, runs in
+its key mapping store and history in its columnar store. So <span className="hl">you scale
+it by adding instances</span>, and none of them is special.
+</KeyIdea>
+
+## What it needs
+
+| What | What for | Who sets it up |
+| --- | --- | --- |
+| Each organisation's PostgreSQL | Flows, versions, deployments, schedules | The platform's own migrations, run by the API. The flow service never migrates anything |
+| Each organisation's KVRocks | Runs while they are queued, running or just finished | The `kvrocks` host and port in the organisation's registry entry, the same store the API already uses for event keys |
+| Each organisation's ClickHouse | `flow_run`, `flow_run_event` and `flow_run_transcript`: finished runs, their records, agent transcripts | You, per tenant database, from the platform's `clickhouse.sql`, as for the other ClickHouse tables |
+| The streaming platform | Run records on their way to ClickHouse, and events that wake event-triggered flows | The service itself creates a `flow` namespace under each organisation's Pulsar tenant, which must exist already |
+| The API | What a caller may do, and every read and write a run makes | Nothing extra; set `datahub.api.url` |
+| Keycloak | Validating tokens, and acting for whoever deployed a flow | A client of its own, below |
+| Vault | The issuer, its client secret, the tenant registry, each organisation's settings | Keys and a policy, below |
+
+## Setting it up
+
+<Steps>
+  <Step title="Install it like the other services">
+    The release attaches `datahub-flow-<version>.jar` with the other jars, and the systemd
+    examples in the platform repository carry an instance for it, `datahub@flow`, with its
+    own environment and configuration files. The evaluation stack already runs it.
+    [Running on dedicated servers →](/administration/installing#running-on-dedicated-servers)
+  </Step>
+  <Step title="Create its Keycloak client">
+    A confidential client named `intellistream-flow`, with the standard (authorisation code)
+    flow on. Deploying a flow sends the deployer's browser to Keycloak and back to the
+    service, so its **Valid redirect URIs** must hold
+    `https://<flow-host>/flows/deployment/callback`. Give it no client scope list of its
+    own, so that Keycloak's optional `offline_access` and `organization` scopes apply.
+    Whoever deploys a flow needs the `offline_access` realm role.
+    [Groups and session length →](/administration/agents#keycloak)
+  </Step>
+  <Step title="Put its keys in Vault">
+    In the shared `datahub-platform` secret, beside `keycloak.issuer`, add
+    `flow.client-secret`, and `flow.client-id` if the client has another name. Without the
+    secret the service starts, but no flow can be deployed or run as its deployer. Its AppRole policy needs read on
+    `datahub-platform` and `tenant-resources`, and read, create and update on
+    `tenant-config/*`, where it keeps each deployer's offline token.
+  </Step>
+  <Step title="Create the ClickHouse tables">
+    Run the `CREATE TABLE` statements for `flow_run`, `flow_run_event` and
+    `flow_run_transcript` from `clickhouse.sql` in each tenant's database. They do not
+    replace an existing table, so running them again keeps the history.
+  </Step>
+  <Step title="Tell the console where it is">
+    The console's Flows and Agents pages call the service **directly from the browser**. Set
+    `datahub.flow.url` on the console to the address a browser uses, and
+    `cors.allowed-origins` on the flow service to the console's address.
+  </Step>
+  <Step title="Turn flows on per organisation">
+    Set `flow` to `true` in the organisation's `tenant-config` block of the
+    `tenant-resources` secret, as shown on [Enabling agents](/administration/agents#turning-it-on).
+    The service notices within five minutes, without a restart.
+  </Step>
+</Steps>
+
+## Settings worth knowing
+
+On the flow service. The rest are in its `application.properties` and rarely need changing.
+
+| Property | Default | What it does |
+| --- | --- | --- |
+| `datahub.api.url` | `http://localhost:8081` | The API it asks and calls. Point it at the API's load balancer or a local instance |
+| `datahub.analysis.url` | blank | The analysis service, whose tool agents may then use. Blank, agents get the API's tools only |
+| `datahub.flow.public-url` | `http://localhost:8084` | The service's own address as a browser sees it, for the deploy callback |
+| `datahub.flow.console-url` | `http://localhost:8080` | Where the deployer lands after the callback |
+| `cors.allowed-origins` | `http://localhost:8080` | The console's address |
+| `datahub.flow.runs.max-running` | `8` | Runs one instance executes at once |
+| `datahub.flow.runs.memory-budget` | half the heap | What those runs may hold between them |
+| `datahub.flow.records.backlog-size`, `backlog-age` | `1GB`, `7d` | How many run records may wait for an organisation's ClickHouse. When full, that organisation's runs fail rather than lose records |
+| `datahub.flow.events.enabled` | `true` | Whether events wake event-triggered flows. Off, those flows run only when deployed or started |
+| `datahub.outbound.allow-private-networks` | `false` | Whether an organisation's [tool servers](/administration/agents#tool-servers) may sit on a private address |
+
+How long run history is kept is set on the housekeeping service, `datahub.flow.retention`,
+90 days by default. [Data lifecycle →](/administration/data-lifecycle)
+
+## Memory and run slots
+
+Runs hold their data in the service's memory, and no flow says how much it needs. Instead
+you size the instance: half the heap is the run budget, split evenly over the run slots.
+
+```bash
+# /etc/datahub/flow.env: a 16 GB heap gives 8 GB for runs, 1 GB each over 8 slots
+JAVA_OPTS=-Xms16g -Xmx16g ...
+```
+
+More slots drain a queue faster but give each run less. The service **refuses to start**
+if the budget is set above half the heap, or if a run's share would be under 64 MB, so
+eight slots need at least 1 GB of heap. A running agent holds a slot for up to 20 minutes.
+[Agent capacity →](/administration/agents#capacity)
+
+## Starting it, and scaling it
+
+<span className="t-accent">A service that starts after being stopped runs what it
+missed.</span> Every schedule tick that fell due while no instance was running becomes a run,
+oldest first, as soon as one starts. A flow that ticks every minute and was down for a day
+queues 1,440 runs. Before a planned stop, switch off the flows whose missed runs you do not
+want: ticks missed while a flow is switched off are not run.
+
+Every instance runs the same loops over every organisation and shares the work through
+each organisation's KVRocks, so add instances behind the load balancer with no session
+affinity. An instance that dies leaves its runs to another, which takes them back and runs
+them again once their one-minute lease has lapsed.
+
+One organisation's trouble stays its own. If its KVRocks is down, its runs do not start or
+show, and other organisations carry on. KVRocks keeps runs on disk, so a restart loses
+nothing, but **losing its disk loses that organisation's queued and running runs**; schedules
+then resume from a checkpoint saved every minute.
+
+## What callers see when something is missing
+
+| Answer | Meaning | Fix |
+| --- | --- | --- |
+| 403 *Unknown organization* | No registry entry for the caller's organisation | Onboard the organisation |
+| 403 *Flows are not enabled for your organization* | The `flow` flag is off | Set it, above |
+| 503 *still being prepared for flows* | The flag is on, but the API has not yet migrated that organisation's database | Wait; the API and the housekeeping service migrate it. Check their logs if it persists |
+
+## Network and metrics
+
+The service needs a **public TLS endpoint of its own**, like the analysis service, because
+browsers call it and Keycloak redirects to it. The nginx examples do not include one. It
+must reach the API, the organisations' PostgreSQL, KVRocks and ClickHouse, the streaming
+platform, Keycloak and Vault, plus any tool servers organisations register.
+[Network layers →](/administration/security#network-layers)
+
+Metrics are on port 9086, switched off until you turn them on, as for every service.
+[Monitoring →](/administration/monitoring)
+
+<References>
+
+- [KVRocks](https://kvrocks.apache.org/): the key-value store runs are kept in
+- [OAuth 2.0 offline access](https://openid.net/specs/openid-connect-core-1_0.html#OfflineAccess): what a deployment as a person rests on
+
+</References>
+
+<Deeper title="Related">
+- [Enabling agents](/administration/agents): the model, the tool servers and the realm settings
+- [Flow clients and secrets](/administration/flow-credentials): what an organisation keeps for its flows
+- [Architecture, without the jargon](/administration/architecture): where the service sits
+- [Monitoring](/administration/monitoring): the metrics ports
+</Deeper>
