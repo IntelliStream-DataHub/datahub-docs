@@ -61,6 +61,11 @@ A working realm provides:
 | **Valid redirect URIs** | `https://<console-host>/login/oauth2/code/keycloak` |
 | **Valid post logout redirect URIs** | `https://<console-host>/*` |
 
+- **A confidential client for the flow service**, `intellistream-flow`, with the standard flow
+  on, a redirect URI of `https://<flow-host>/flows/deployment/callback`, and no client scope
+  list of its own, so the optional `offline_access` and `organization` scopes apply. Only
+  needed where flows run. [Running the flow service →](/administration/flow-service#setting-it-up)
+
 - **Realm roles**, which gate the platform itself:
 
 | Role | Grants |

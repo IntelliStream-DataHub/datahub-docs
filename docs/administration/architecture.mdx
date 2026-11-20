@@ -13,9 +13,9 @@ description: What the moving parts of DataHub are, what each one does, and why t
 </Personas>
 
 <KeyIdea>
-DataHub is **three core services**, plus an analysis service behind the Analyze tab, an
-optional converter that opens plant models in the 3D viewer, and a scheduled housekeeping
-service, on a set of standard backing stores.
+DataHub is **three core services**, plus an analysis service behind the Analyze tab, a
+flow service that runs flows and agents, an optional converter that opens plant models in
+the 3D viewer, and a scheduled housekeeping service, on a set of standard backing stores.
 
 Each service has a different job and a different scaling profile, which is exactly why they
 are separate: you can scale data ingestion without adding capacity for users, and restart
@@ -44,12 +44,19 @@ graph LR
 
     Analysis["Analysis<br/>relationship analysis"]
     Converter["RVM converter<br/>plant models for 3D"]
+    Flow["Flow service<br/>flows and agents"]
 
     User --> Console
     User --> Analysis
     Analysis --> API
     User --> Converter
     Converter --> API
+    User --> Flow
+    Flow --> API
+    Flow --> PG
+    Flow --> KV
+    Flow --> CH
+    Flow --> Stream
     Ext --> API
     Console --> API
     Console --> Cache
@@ -120,6 +127,17 @@ The service also offers the analysis to [AI agents](/using/mcp#the-second-server
 with the same sign-in checks, and no extra configuration is needed to expose it. The console's assistant reaches it through the same address setting the
 Analyze tab uses, and copes with its absence: in a deployment that leaves the service out,
 the assistant keeps working and that one tool is simply unavailable.
+
+### Flow service, flows and agents
+
+Runs every organisation's [flows](/using/flow-definition) and [agents](/using/agents), on a
+schedule, on an event or on request. The console's Flows and Agents pages call it **directly
+from the browser**, and every read and write a run makes goes through the API as the run's
+own identity, so data set permissions apply. Flows live in the relational database, runs in
+the key mapping store while they are live, and their history in the columnar store.
+
+**Scales with:** how many runs are due. Add instances; they share the work through the
+stores. Port 8084. [Running the flow service →](/administration/flow-service)
 
 ### RVM converter, plant models for the 3D viewer
 
@@ -253,6 +271,7 @@ For a small production installation:
 
 <Deeper>
 - [Installing](/administration/installing): standing this up
+- [Running the flow service](/administration/flow-service): what flows and agents need
 - [Limits and quotas](/administration/limits-and-quotas): the per-tenant budgets, and what the proxy in front should enforce
 - [Data lifecycle](/administration/data-lifecycle): capacity planning and backups
 - [Organisations and tenants](/administration/organizations): how multi-tenancy maps onto these stores

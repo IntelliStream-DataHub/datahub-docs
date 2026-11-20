@@ -31,10 +31,11 @@ open to the Prometheus host.
 | **Console** | 8080 | 9080 |
 | **Analysis** | 8082 | 9082 |
 | **RVM converter** | 8083 | 9084 |
+| **Flow service** | 8084 | 9086 |
 | **Ingest consumer** | none | 9083 |
 | **Cleanup** | none | 9085 |
 
-The API, console, analysis and RVM converter serve their metrics on a **second port next to
+The API, console, analysis, RVM converter and flow service serve their metrics on a **second port next to
 the application port**, so the load balancer in front of them never reaches the endpoint. The
 ingest consumer and the housekeeping service listen on nothing else.
 
