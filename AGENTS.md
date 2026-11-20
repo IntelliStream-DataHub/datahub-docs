@@ -864,6 +864,12 @@ evaluation stack, the systemd examples or the nginx examples, yet the console's 
 says to blank it. The file format's vendor and its design products are deliberately not named,
 under the competitor rule.
 
+Superseded 2026-11-20 by platform PR #180: the converter is no longer a service of its own. The
+analysis service serves the conversion and runs the program (`rvm.converter.*` on the analysis
+service), the console finds it through `datahub.analysis.url`, and `datahub.rvm-converter.url`
+and ports 8083/9084 are gone. The program ships in neither the release nor the compose image, so
+the Convert button shows and answers "Could not convert this model" there.
+
 ### The lesson
 
 Do not document platform behaviour from i18n strings, console text or the platform's own
