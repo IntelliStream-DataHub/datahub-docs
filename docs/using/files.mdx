@@ -160,18 +160,19 @@ data embedded, or a `3mf`.
 ### Plant models (RVM)
 
 A file ending `.rvm` in any letter case, the review format plant design tools export, shows
-**Convert and view in 3D** in its file information when the console is set up with a
-[converter](/administration/architecture#rvm-converter-plant-models-for-the-3d-viewer).
+**Convert and view in 3D** in its file information when the console is set up with the
+[analysis service](/administration/architecture#plant-models-for-the-3d-viewer), which does
+the conversion.
 
 The console looks in the same folder for an **attribute file** with the same base name, ending
-`.att` or `.txt` in any letter case, and sends both to the converter. The attribute file is
+`.att` or `.txt` in any letter case, and sends both to be converted. The attribute file is
 optional, but upload it if you have it: without it the geometry is the same, but the parts
 lose their tags, discipline, material and the rest.
 
 The converted model opens in the viewer, which then offers **Download RVM** (the stored file)
 and **Download GLB** (the converted model). The console also saves it beside the RVM as
 `<name>.glb`, in the same data set, so the same people can read both and it opens next time
-with plain **View in 3D**, without the converter. The saved file has source
+with plain **View in 3D**, without converting again. The saved file has source
 `datahub-rvm-converter`, and metadata `convertedFrom` holding the RVM's external id. Its
 external id is `<rvm external id>_glb`, or that with an extra suffix when the id is already
 taken (a deleted file keeps its external id).
@@ -185,7 +186,7 @@ but nothing is saved, so delete that GLB to have the next conversion save a fres
 | `<name> already exists, so the converted model was not saved` | A file of that name was in the way and was left as it is |
 | `No write access to this folder, so the converted model was not saved` | You can view the model, but not add files to this folder |
 | `The converted model could not be saved` | Saving failed for another reason; the model is still shown |
-| `Could not convert this model` | The converter could not read the file |
+| `Could not convert this model` | The file could not be converted, or the conversion program is not installed on the analysis service |
 
 ## Finding files
 
