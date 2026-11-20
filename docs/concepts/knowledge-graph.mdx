@@ -84,18 +84,20 @@ the model keeps paying off for questions nobody thought of when it was built.
 ## What it looks like in the console
 
 The **Resources** view draws your graph directly. Nodes are resources, coloured by their
-[label](/concepts/taxonomy); lines are relationships.
+[label](/concepts/taxonomy), with a symbol for the kind of equipment they are and grouped by
+the model's own hierarchy; lines are relationships.
 
-- **Click a node** to make it the centre and see what it connects to.
+- **Click a node** to select it: everything but its direct neighbours fades.
 - **Expand its relations** to pull the neighbours into view, which is how you follow a
   dependency chain visually: one hop at a time, outward from wherever you started.
-- **Filter by relationship type**, so the edges carrying flow stay lit while the containment
-  hierarchy dims, and one route through a dense graph becomes readable.
+- **Filter by relationship type**, so only the edges carrying flow are left and one route
+  through a dense graph becomes readable.
 - **Animate a relationship** to watch a data type travel from source node to target node,
   making a flow legible at a glance.
-- **Stabilise the layout** when a dense area gets tangled.
+- **Change the drawing** from the **View** menu, including a **Classic** top-down tree.
+  Graphs of many thousands of resources are drawn group by group, like a map.
 
-Tracing a whole route in one action, where everything off the path dims at once, is on the
+Tracing a whole route in one action, where everything off the path fades at once, is on the
 roadmap; today the same question is answered by expanding and filtering.
 
 [Working with the resource graph →](/using/resources)
