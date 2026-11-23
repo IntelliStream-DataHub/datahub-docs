@@ -1,0 +1,250 @@
+---
+sidebar_position: 16
+title: How flows work
+description: The story of a flow in plain language. The problem flows solve, the four ideas behind them, what one run does from trigger to history, and why previews, missed ticks, retries, expiring deployments and memory limits behave the way they do.
+---
+
+import FlowRunPath from '@site/src/figures/flow-run-path.svg';
+
+# How flows work
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Domain experts</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+A **flow** is recurring work on your DataHub data that DataHub does for you: read some data,
+change or check it, and write the result back, every hour or whenever something happens.
+You put the steps together in the console. <span className="hl">Nobody writes a program,
+and nobody has to keep one running.</span>
+
+This page tells the story of what happens when a flow runs, and why it behaves the way it
+does. For the buttons, see [Flows](/using/flows); for every field, the
+[flow definition reference](/using/flow-definition).
+</KeyIdea>
+
+## The problem flows solve
+
+Most data needs a little work before it is useful, and the same work again tomorrow. A meter
+that sometimes spikes past its range needs those spikes taken out every hour. A bearing that
+runs hot for ten minutes should leave a record that it did, so someone can find it later. A
+cleaned or derived series has to be kept up to date as new readings arrive.
+
+Each of these jobs is small. The usual way to do one is a script on someone's machine or a
+spare server: it reads, it computes, it writes, and it keeps working until the person who
+wrote it moves on, the machine is replaced, or the password it holds expires. Until then,
+nobody else can easily see whether it ran, what it changed, or why it stopped.
+
+A flow moves that work into the platform. The steps are picked from a short list the
+platform provides: read, transform, detect and write. DataHub runs them on its own flow
+service, keeps a history of every run, tells you when one failed, and lets each run touch
+only what a person or client you name may touch.
+[The steps on offer →](/using/flows#the-processors)
+
+## Four ideas
+
+Four words carry the whole subject. A cooking comparison helps: a **flow** is a recipe.
+
+| Idea | In plain words | Why it is kept separate |
+| --- | --- | --- |
+| **Flow** | The recipe: which steps, joined how, and when it should run | It is the thing you design and talk about |
+| **Version** | A frozen copy of the recipe, made every time you save | So anyone can tell exactly what ran last Tuesday, and saving a change never alters what is already running |
+| **Deployment** | The permission to run one version, acting as someone | So every run has an owner, and that owner's access is the limit |
+| **Run** | One execution of the deployed version, over one stretch of time | So each stretch of time succeeds, fails and can be done again on its own |
+
+The deployment is the idea most worth pausing on. Deploying answers the question *who is
+doing this?* The answer is either **you**, through a long-lived grant you give at your sign-in
+page, or a **registered client**, a named service identity your organisation keeps for jobs
+that should not depend on one person. Every read and write a run makes goes through the same
+front door as a person using the console, and that identity's access is checked each time.
+A flow cannot read a data set its identity cannot read, or write where it may not write, and
+if the identity loses access, so does the flow.
+[Deploying →](/using/flows#deploying)
+
+## One run, start to finish
+
+Take one flow and follow it through an hour. A pump's bearing temperature, `pump-12.temp`,
+sometimes reports spikes above 120 that the sensor cannot really measure. The flow runs every
+hour and does two things with the hour just ended: it writes a cleaned copy of the series with
+the spikes lowered to 120, and it records an event for every period the bearing stayed above
+90 for at least ten minutes.
+
+<Figure caption="The flow's steps form a tree. Read's one outcome feeds two branches; each step sends what it made through a named outcome, and the one outcome this flow does not need is ended on purpose rather than forgotten. Everything the run did is kept in its history." wide>
+  <FlowRunPath />
+</Figure>
+
+<Steps>
+  <Step title="The trigger fires">
+    At 14:00 the schedule ticks and a run is created at once, waiting to start. It is given
+    its **window**, 13:00 to 14:00: the time since the tick before, so that every moment is
+    covered once and only once. If the flow has a **delay**, the run starts that much later,
+    so readings that arrive a little late are in.
+  </Step>
+  <Step title="The service picks it up">
+    The flow service has a fixed number of **run slots**. A free one takes the run, earliest
+    window first. While the run is going, the instance holding it keeps renewing a short
+    claim on it, a **lease**, so the other instances know it is being handled.
+  </Step>
+  <Step title="The first step reads">
+    **Read timeseries** asks DataHub for `pump-12.temp` between 13:00 and 14:00, as the run's
+    identity. What comes back travels through the flow as an **item**: the whole series over
+    the window, as one batch, not one reading at a time. A very long series arrives as several
+    items.
+  </Step>
+  <Step title="Items pass from step to step, by outcome">
+    Each step sends what it made out through a named **outcome**. Read's `success` is
+    connected to two steps, so each gets its own copy of the item. **Clamp** lowers every
+    value above 120 and sends the result through its `success`. **Threshold periods** has two
+    outcomes: `alarms` carries the periods it found, as events, and `success` carries the
+    series unchanged, which this flow has no use for and ends there. Every outcome must be
+    connected or deliberately ended, so nothing disappears because someone forgot a line.
+  </Step>
+  <Step title="The write steps put results back">
+    **Write timeseries** writes the cleaned hour to `pump-12.temp_clean`. **Write events**
+    writes one event per hot period. A write that is refused sends its item to the step's
+    `failure` outcome, and that fails the run, so a write that did not land never passes as
+    a success.
+  </Step>
+  <Step title="The run ends, and is remembered">
+    The run finishes as succeeded, failed or cancelled. Its **records**, one line for every
+    read, route and write each step made, are kept with it, 90 days by default. On the run
+    page you can click one item and see what it came from and what it became.
+    [The run page →](/using/flows#the-run-page)
+  </Step>
+</Steps>
+
+At 15:00 the next tick does the same for 14:00 to 15:00. The same flow written out field by
+field is on the [flow definition reference](/using/flow-definition#a-complete-example), and
+the steps and their outcomes are under [the processors](/using/flow-definition#the-processors).
+
+## Why it behaves the way it does
+
+### A preview writes nothing
+
+A flow writes into the same series and events that everyone else reads, so trying out a
+change must not itself be a change. **Preview** runs the flow now, as you, over the last hour.
+Its read steps really read, so you see what your steps do with real data. Its write steps only
+report what they would have written, no series is created, and an agent's tools that might
+change data are not called. A preview never counts as a failure and never moves a schedule.
+[Preview →](/using/flows#preview-the-dry-run)
+
+### Missed ticks are run when the service is back
+
+A schedule is a promise to cover every window. If the flow service was down from 02:00 to
+05:00, those hours still happened, and the readings in them still need the same work. So when
+an instance starts again, every tick that fell due while it was away becomes a run, oldest
+first.
+
+The exception is deliberate. Ticks missed while a flow was **switched off**, not deployed, or
+waiting for someone to deploy it again are not made up afterwards, because switching a flow
+off is how you say you do not want those runs. That is why the operator's advice is to switch
+off, before planned maintenance, the flows whose missed runs you would rather skip: a flow
+that ticks every minute and is down for a day comes back to 1,440 runs.
+[Missed ticks →](/using/flows#when-a-flow-runs)
+
+### Failures are retried, and the ones that stay failed are kept
+
+Most failures pass by themselves: a database restarting, a network hiccup, a service briefly
+busy. So a failed run is tried again on its own, **two attempts in all** by default. The wait
+before a retry starts at half a minute and doubles each time, and each wait is spread a little
+at random, so that a hundred runs that failed together because something they share was down
+do not all try again in the same second. A single step can also be told to retry just itself.
+
+Two failures are not retried, because no attempt would get further: a deployment whose sign-in
+has lapsed, and a flow whose data set was deleted, which the service switches off instead.
+
+When the last attempt fails, that window has still not been processed, and **Failed runs** is
+the list of exactly those windows: work nobody has dealt with yet. The failure is also written
+as an event in the flow's data set, so it sits in the [event log](/using/events) beside
+everything else that happened. From the list you can **re-run** the window or **dismiss** it,
+and a later successful run of the same window closes it by itself.
+
+Doing a window again is safe. A re-run writes the same readings at the same times on the same
+series, and the same events with the same identity, so they settle into what is already there
+rather than doubling it. [When a run fails →](/using/flows#when-a-run-fails)
+
+### A deployment as a person eventually lapses
+
+Deploying as yourself gives the flow a long-lived grant from your sign-in, which each run
+renews. With the sign-in server's usual settings it ends after **30 days without a run**, and
+at once if your account is disabled or the grant is revoked. That is the point: a flow acting
+as a person should stop when that person is no longer around to answer for it, and nothing
+else would notice that they had gone.
+
+When it lapses, the flow says it needs re-authorisation and stops until someone deploys it
+again. A run also always has the person's access as it is that day, so losing a data set can
+break a flow without ending the grant. A flow that must keep running whoever built it should
+run as a registered client instead.
+[How long a deployment lasts →](/administration/agents#how-long-a-deployment-lasts)
+
+### A run has a memory budget, a time limit and a record cap
+
+A run keeps its data in the flow service's memory while it works, which is fast and needs no
+extra storage. Memory then has to be shared fairly, so no flow says how much it wants. The
+operator sizes each instance; half its memory is set aside for runs and split evenly over its
+run slots, eight by default, so every run gets the same share. A run that would go over its
+share fails at once, and alone, and the other runs on the same instance carry on. To keep
+within the share, the service always moves items on towards the write steps as early as it
+can, so their memory is freed instead of every step's output piling up.
+
+A run also has a **time limit**, 15 minutes by default and at most an hour, because a stuck
+run would otherwise hold a slot for ever. And its history is capped at **100,000 records per
+attempt**; past that, the list on the run page ends with a *truncated* line.
+[Memory and run slots →](/administration/flow-service#memory-and-run-slots)
+
+### An instance that stops mid-run hands the run on
+
+The flow service can run as several instances, none of them special. The lease from step two
+is what makes that work: the instance running a run renews its lease every 15 seconds. If the
+instance stops, the lease runs out after a minute, and any other instance takes the run back
+and starts it again from the beginning, as its next attempt. That is safe for the same reason a
+re-run is. If it was already the last attempt, the run fails and appears under Failed runs.
+An instance that was only slow, not stopped, finds the run taken from it and stops writing.
+[Starting it, and scaling it →](/administration/flow-service#starting-it-and-scaling-it)
+
+## Where agents fit
+
+An [agent](/using/agents) is a flow whose middle step is a model with tools. Read events feeds
+it what was recorded since its last run; the model reads that, calls the tools you allowed,
+and ends by sending the events either through `done` or, when it decides a person needs to
+look, through `flagged` to a write step that records it.
+
+Everything on this page applies to it unchanged: versions, deployments, previews, retries and
+failed runs. So does the identity rule, twice over. The tools you tick limit what the agent may
+call, and the identity it runs as limits what those calls can reach. The one thing an agent
+adds is a transcript of what it said and did, kept with the run.
+
+## What flows are not
+
+- **Not a streaming engine.** A flow works on windows of time, one run per window, and a burst
+  of events that wakes a flow makes one run, not one per event. To act on every reading the
+  moment it lands, a [subscription](/using/subscriptions) is the tool.
+  [Stream processing →](/concepts/stream-processing)
+- **Not a place for your own code.** The steps are a fixed set the platform provides. Work
+  they cannot express belongs in an application of your own, built on the API.
+  [Building applications →](/using/building-applications)
+- **Not a store.** A run holds data only while it works. What it produces is ordinary series
+  and events, read and governed like any other.
+
+<References>
+
+- [Extract, transform, load, the older idea a flow is a small, scheduled case of](https://en.wikipedia.org/wiki/Extract,_transform,_load)
+- [Dataflow programming, steps joined by what passes between them](https://en.wikipedia.org/wiki/Dataflow_programming)
+- [Leases, how one instance holds work so others can take it back](https://en.wikipedia.org/wiki/Lease_(computer_science))
+- [Exponential backoff, the growing wait between retries](https://en.wikipedia.org/wiki/Exponential_backoff)
+- [Idempotence, why doing a window again is safe](https://en.wikipedia.org/wiki/Idempotence)
+
+</References>
+
+<Deeper title="Related">
+- [Flows](/using/flows): the console's Flows section, task by task
+- [Flow definition reference](/using/flow-definition): every field and every step's properties
+- [References in flows](/using/flow-references): parameters, the run's window and other placeholders
+- [Agents](/using/agents): flows built around a model with tools
+- [Flow clients and secrets](/administration/flow-credentials): running as a client
+- [Running the flow service](/administration/flow-service): the operator's side
+- [Data cleaning](/concepts/data-cleaning): what is worth automating in the first place
+</Deeper>
