@@ -18,7 +18,8 @@ JSON view**: parameters, a schedule's window, `maxConcurrentRuns`, and a few pro
 properties marked below. Saving from the form keeps whatever the JSON already holds for them.
 
 A save checks the whole definition and reports every problem at once, each with the place it
-was found.
+was found. New to flows? [Flows](/using/flows) explains them and the console's Flows section
+first.
 </KeyIdea>
 
 ## A complete example
@@ -181,11 +182,13 @@ relationship may be connected to several steps.
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `type` | string | required | `manual` or `schedule`. Leaving out the whole `trigger` makes the flow manual, with no window |
+| `type` | string | required | `manual`, `schedule` or `events`. Leaving out the whole `trigger` makes the flow manual, with no window |
 | `cron` | string | required for a schedule | When a schedule ticks: a six-field cron expression, seconds first, e.g. `"0 0 * * * *"` for every hour |
 | `timezone` | string | `UTC` | Schedule only. The [time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) the cron expression is read in, e.g. `Europe/Oslo`, so ticks follow that zone's clock through daylight saving |
 | `window` | duration | see below | How much time a run covers. Only in the JSON view for a schedule |
-| `delay` | duration | `PT0S` | Schedule only. How long after a tick its run starts, so late data arrives. Must not be negative |
+| `delay` | duration | `PT0S`, `PT10S` for events | Schedule or events. How long after a tick its run starts, so late data arrives. Must not be negative |
+| `debounce` | duration | `PT10S` | Events only. How long after the first matching event the tick is, so a burst of events is one run. Must be positive. Only in the JSON view |
+| `match` | object | every event | Events only. The events that wake the flow: `externalId`, `type`, `subType`, `status` and `source`, each a list where `*` matches anything; `metadata`, a list of `key=value` or a bare key; and `excludeSource`, sources whose events never match, such as `agent:*`. Fields are combined with and, the values of one field with or |
 
 **The window.** A schedule's tick at time T covers the time since the tick before it, so
 every moment is covered once however irregular the cron expression. With `window` set, the
@@ -195,7 +198,10 @@ when it is started. `window` must be positive, and may be a single
 `${parameters.<name>}` reference to a `duration` parameter, which takes that parameter's
 default when the flow is deployed.
 
-`cron`, `timezone` and `delay` are refused on a manual trigger. A deployment is refused when
+`cron`, `timezone` and `delay` are refused on a manual trigger, and `cron` and `timezone` on
+an events trigger. An events trigger's run covers the time since the run before; its
+parameters all need defaults, as a schedule's do. Only events in a data set the run's
+identity may read wake the flow. A deployment is refused when
 the cron expression's ticks are too far apart to find the tick before, unless `window` is
 set.
 
@@ -247,6 +253,22 @@ the next window.
 | `timeField` | choice | `eventTime` | No | Which time the window bounds: `eventTime`, when the event happened, or `createdTime`, when DataHub recorded it, which also catches late-stamped events and status changes on older ones. *Advanced* |
 | `excludeSource` | list | none | No | Events whose source matches any of these are left out; `*` matches anything, `_` one character. An agent's own events are `agent:*`. *Advanced* |
 | `maxEventsPerItem` | number | `10000` | No | More events are split into several items, at least 1. *JSON only* |
+
+| Relationship | When left unconnected |
+| --- | --- |
+| `success` | Refused. No events means no item |
+
+### trigger-events
+
+Reads the events that woke the run, those the flow's events trigger `match`es, recorded in
+the run's window, oldest first, as events items. Only for a flow whose trigger is `events`.
+The filter is the trigger's own, so what wakes the flow and what it reads cannot drift apart.
+
+| Property | Type | Default | Refs | Meaning |
+| --- | --- | --- | --- | --- |
+| `dataSet` | list | every data set the run may read | No | Read only the events in these data sets, by external id, each with the data sets beneath it. *Advanced* |
+| `advancedFilter` | string | none | No | Read only the events this expression matches, as in the events page's advanced filter. *Advanced* |
+| `maxEventsPerItem` | number | `10000` | No | More events are split into several items. *JSON only* |
 
 | Relationship | When left unconnected |
 | --- | --- |

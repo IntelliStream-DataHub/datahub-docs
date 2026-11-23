@@ -1,0 +1,371 @@
+---
+sidebar_position: 12.4
+title: Flows
+description: What a flow is and how to use the console's Flows section, from building one in the editor and previewing it to deploying it, choosing when it runs, reading its runs and dealing with the ones that failed.
+---
+
+# Flows
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Domain experts</Persona>
+</Personas>
+
+<KeyIdea>
+A **flow** is a small pipeline that DataHub runs for you. It reads data from DataHub,
+changes it and writes the result back, <span className="hl">on a schedule, when an event is
+recorded, or when you start it</span>. Each step is a **processor**, such as *Read
+timeseries*, *Clamp* or *Write events*, and you join the steps into a tree in the console's
+**Flows** section, with no code.
+
+Every save is a new **version**. A flow runs only once it is **deployed**, and it then acts
+as you or as a registered client, with that identity's access and no more.
+</KeyIdea>
+
+## An example
+
+A flow meter sometimes reports spikes far beyond its range. A flow that cleans them up
+every hour has three steps:
+
+| Step | Processor | What it does |
+| --- | --- | --- |
+| 1 | **Read timeseries** | Reads `pump-12.flow` for the hour just ended |
+| 2 | **Clamp** | Lowers every value above 250 to 250 |
+| 3 | **Write timeseries** | Writes the result to `pump-12.flow_clamped`, created when the flow is saved |
+
+The same flow written out as JSON, field by field, is the example on the
+[flow definition reference](/using/flow-definition#a-complete-example).
+
+## Who sees the section
+
+**Flows** appears in the console header when your organisation has flows turned on, the
+`flow` setting whoever operates the platform sets for it. Without it the entry is missing
+and the section's pages say *This feature is not enabled for your organization.* Beyond
+that, what you see and may do is decided per flow, by two organisation groups and the
+flow's data set:
+
+| To | You need |
+| --- | --- |
+| See a flow, its versions and its runs | `/flows/read` and read access to its data set |
+| Create, change, preview, deploy, run, cancel, switch off or delete it | `/flows/write` and write access to its data set |
+
+`DATAHUB_ADMIN` may do everything. A flow you may see but not change opens with *You can
+see this flow but not change it.* A flow whose data set was deleted is shown only to people
+with write access to every data set, so they can move it to another data set or delete it.
+[Enabling flows →](/administration/flow-service#setting-it-up)
+
+## The section
+
+| Tab | What it is for |
+| --- | --- |
+| **Flows** | The list of flows, and **New flow** |
+| **Runs** | How every deployed flow is doing, at a glance. See [the Runs tab](#the-runs-tab) |
+| **Failed runs** | Runs that failed after their last attempt and that nobody has dealt with yet. See [Failed runs](#failed-runs) |
+| **Clients** | The registered clients a flow can run as. [Setting one up →](/administration/flow-credentials#registered-clients) |
+
+The count on the **Flows** entry in the header is the number of open failed runs.
+
+**The list** shows the flows in data sets you can read, with their **Name**, **Dataset**,
+**Version**, **Deployment** (*not deployed*, *version 3 deployed and on*, *version 3
+deployed, switched off*) and when they were **Updated**. Each row has the button that fits:
+**Deploy**, **Deploy version 4** when a newer version has been saved than the one running,
+or **Switch off** and **Switch on**. Click a row to open the flow. Agents are not listed
+here; they have [a section of their own](/using/agents).
+
+## Building a flow
+
+<Steps>
+  <Step title="Name it and pick its data set">
+    **New flow** opens an empty editor with a **Name** and a **Dataset** above it. The
+    external id follows from the name, shown as *Saved as pump_12_flow_clamped*, and cannot
+    change once saved. The data set decides who may see and change the flow, and only data
+    sets you can write are offered.
+  </Step>
+  <Step title="Add the steps">
+    **Add processor** opens a searchable list, grouped as **Read and write**, **Transform**,
+    **Detect** and **Agent**. Pick one and fill in its form. Click a processor in the tree
+    to open its form again.
+  </Step>
+  <Step title="Connect them">
+    In the toolbar, choose **From…**, an **Outcome…** and **To…**, then **Connect**. Every
+    outcome must be connected or ended; see [outcomes](#outcomes-and-connections).
+  </Step>
+  <Step title="Set when it runs">
+    **Flow settings** holds the name, description, data set, **Trigger** and, under
+    **Advanced**, the **Delay** and **Limits**. A new flow starts on a schedule of every
+    hour. See [when a flow runs](#when-a-flow-runs).
+  </Step>
+  <Step title="Save, preview, deploy">
+    **Save** checks the flow and stores it as a new version. **Preview** tries it without
+    writing anything. **Deploy** puts it to work.
+  </Step>
+</Steps>
+
+The editor has four tabs:
+
+| Tab | What it shows |
+| --- | --- |
+| **Processing tree** | The steps and connections as a diagram, with the toolbar above. Solid arrows are connections; dashed lines are outcomes that end there. **Remove selected** removes the processor or connection you clicked |
+| **JSON** | The whole flow as JSON, the same document the tree is drawn from. Edit it, press **Apply JSON**, then **Save**. Some settings are only here, such as parameters, a schedule's time zone and how many runs may run at once: [the full list](/using/flow-definition) |
+| **Versions** | Every saved version, who saved it and when |
+| **Runs** | This flow's runs, newest first. Previews are left out unless you tick **Show previews** |
+
+A processor's form shows what it needs; settings that have a sensible default are folded
+under **Advanced**. A field can often take a placeholder such as
+`${parameters.maxFlow}` instead of a fixed value, filled in when the flow runs:
+[References in flows](/using/flow-references).
+
+## The processors
+
+| Processor | Group | In plain words |
+| --- | --- | --- |
+| **Read timeseries** | Read and write | Reads one numeric series over the run's time window, optionally with some history before it (**Lookback**) |
+| **Read events** | Read and write | Reads the events in the run's window, of the types, subtypes and statuses you name |
+| **Triggering events** | Read and write | Reads the events that woke the run, for a flow whose trigger is **Events** |
+| **Clamp** | Transform | Limits values to a range: below **Min** becomes Min, above **Max** becomes Max. Every point is kept |
+| **Threshold periods** | Detect | Finds the periods a series spends above, or below, a threshold, as events with a start and an end |
+| **Agent** | Agent | A model with tools, acting on the events given to it. Usually built in [Agents](/using/agents) instead |
+| **Write timeseries** | Read and write | Writes the points to a series. **New series** creates the target when the flow is saved; **Existing series** writes to one that is there already |
+| **Write events** | Read and write | Writes one event per row it is given, such as each period Threshold periods found |
+
+A run never creates a series on its own: the person saving the flow does, and the save
+lists them, *Created series pump-12.flow_clamped*. Every property, default and rule is on the
+[flow definition reference](/using/flow-definition#the-processors).
+
+## Outcomes and connections
+
+Each processor sends its results out through named **outcomes**, such as `success` or, for
+Threshold periods, `alarms`. In the JSON they are called relationships. Every outcome must
+go somewhere:
+
+- **Connect it** to the next step. One outcome may feed several steps.
+- **End it there**: tick it under **End these outcomes here** in the processor's form. What
+  is sent to it stops.
+- Some outcomes **end by themselves**, such as a writer's `success`, and some **fail the
+  run** if anything reaches them, such as a writer's `failure`.
+
+An outcome that is a step's whole result, such as Threshold periods' `alarms`, cannot be
+ended and must be connected. Connections may not loop back to an earlier step.
+
+**Retry a failing step**, under **Advanced** on the read and write processors, tries that one
+step again with the same input, up to 10 attempts with a wait of at most one minute between
+them, before the run counts as failed.
+
+## Saving, versions and problems
+
+**Save** sends the whole flow to be checked and, if all is well, stores it as the next
+version: *Saved as version 4.* A saved version never changes.
+
+When something is wrong, nothing is saved and every problem is listed at once above the tabs,
+*The flow has 3 problems:*, each with where it was found, such as
+*Clamp › Max* or *Flow settings › Cron (six fields)*. Click a problem to open the form where
+it can be fixed. Processors with a problem are outlined in red in the tree, and the field is
+marked in its form. Common ones:
+
+| Problem | Fix |
+| --- | --- |
+| *Its "success" outcome goes nowhere* | Connect it, or end it there |
+| *"alarms" cannot be ended there* | That outcome is the step's result: connect it to a writer |
+| *The connections form a cycle* | Remove the connection that leads back |
+| *Required for a schedule: a six-field cron expression* | Pick a schedule, or fix the custom one |
+| *A scheduled flow's parameters need defaults* | Give every parameter a `default` in the JSON tab |
+
+If someone else saved the flow while you had it open, your save is refused with *Someone
+saved this flow after you opened it.* Reload to see their version, then make your change
+again.
+
+**Versions**, then **Open**, loads an older version into the editor; *Save to make it the
+current version.* Saving a new version does not change what is deployed: the running version
+stays until you deploy the new one.
+
+## Preview, the dry run
+
+**Preview** runs the flow now, **as you**, over **the last hour**, and writes nothing. It
+runs the saved version, or what is in the editor if you have unsaved changes, so you can try
+a change before saving it. The run page opens and follows it live.
+
+- Readers really read, with your access, so the steps see real data.
+- Writers report what they would have written, and no series is created.
+- A preview never counts as a failed run, never moves a schedule and cannot be re-run;
+  preview again instead.
+- It needs about a minute left on your sign-in. *Your sign-in is about to expire. Reload
+  the page and try again.* means reload and press Preview again.
+
+## Deploying
+
+A saved flow does nothing until it is deployed. Deploying chooses which version runs and
+**whose identity** its runs act as. A run can only read and write what that identity may,
+and its failure events are written as that identity, so it needs write access to the flow's
+data set.
+
+| Button | Runs act as |
+| --- | --- |
+| **Deploy** | **You.** It takes you through your sign-in page, where you grant the flow a long-lived token, and back: *Deployed. Its runs act as you.* Your account needs the `offline_access` role |
+| **Run as a client** | **A registered client** you pick from the list, such as `reporting`. You can only choose a client whose groups you all hold. [Setting one up →](/administration/flow-credentials#registered-clients) |
+
+Once deployed, the line under the flow's name says so, for example *Version 4 · version 4
+deployed and on · runs as jane · next run 14:00*. **Deploy again** deploys the current version
+as you; **Deploy version 4** in the list moves the deployment to the latest version and
+keeps whoever it runs as. A run already under way finishes on the version it started with.
+
+**A deployment as you does not last for ever.** It runs on your sign-in session for the
+flow, which each run renews; with the sign-in server's defaults it ends after **30 days
+without a run**, and at once if your account is disabled or your offline access revoked.
+The flow then shows *needs re-authorisation: deploy it again* and stops: deploy it again to
+resume. A run always has your access as it is at the time, so losing a data set breaks the
+flow without ending the session. A flow that must keep running whoever built it should run as
+a client. [How long a deployment lasts →](/administration/agents#how-long-a-deployment-lasts)
+
+## When a flow runs
+
+Every run covers a **time window**, and the readers read only what falls inside it. The
+**Trigger** under **Flow settings** decides when runs start and what window each one gets:
+
+| Trigger | Runs start | Each run covers |
+| --- | --- | --- |
+| **Manual** | Only when someone presses **Run now** | The **Window** you set, up to now: `1h` covers the hour before the run starts |
+| **Schedule** | By itself, at the times the schedule sets | The time since the tick before, so every moment is covered once |
+| **Events** | When an event it **Listens for** is recorded | The time since the run before |
+
+**Schedules** on offer are *Every 5 minutes*, *Every 15 minutes*, *Every hour*, *Every day
+at midnight*, *Every Monday at midnight*, or **Custom (cron)**: a
+[cron expression](https://en.wikipedia.org/wiki/Cron) of six fields, seconds first, so
+`0 30 6 * * *` is 06:30 every day. **Delay**, under **Advanced**, starts each run that long
+after its tick, so readings that arrive late are in; durations are written as `30s`, `15m`,
+`1h 30m` or `2d`.
+
+**Time zone.** A schedule is read in UTC unless the flow says otherwise. The form has no
+field for it: in the **JSON** tab, add a `timezone` to the trigger, such as
+`"timezone": "Europe/Oslo"`, and the ticks then follow that clock through daylight saving.
+Times in the console are shown in your own local time.
+
+**Events.** The trigger listens for events by **External ids**, **Event types**,
+**Subtypes**, **Statuses**, **Sources** and **Metadata**, and **Leave out sources** skips
+some, such as `agent:*`. A field left empty matches anything. Only events in a data set the
+flow's identity may read wake it, and a burst of events makes one run. The event only wakes
+the flow; to have the flow read those events, press **Add the triggering events to the
+flow** and connect the **Triggering events** step it adds.
+
+**Run now** appears once the flow is deployed, switched on and has no unsaved changes. It runs
+the deployed version: on a schedule, over the latest tick's window, without moving the
+schedule; otherwise over the **Window**. A flow without one cannot be started this way.
+
+**Missed ticks.** Ticks that fell due while the flow service was down are run when it is back,
+oldest first. Ticks missed while a flow was switched off, not yet deployed, or waiting for
+re-authorisation are not.
+
+## When a run fails
+
+A run that fails is tried again by itself, **2 attempts** in all by default, after a short
+wait that grows with each attempt. A run that goes past its time limit, **15 minutes** by
+default and at most an hour, fails. Both are under **Flow settings**, **Advanced**, **Limits**.
+
+Two failures are not retried: a deployment that needs re-authorisation, since no attempt
+would get further, and a flow whose data set was deleted, which the service switches off
+(*switched off: …*) rather than fail.
+
+When the last attempt fails, the run lands under **Failed runs**, and an event of type `flow`
+and subtype `run-failed`, status `open`, is written in the flow's data set, so failures are
+in the [event log](/using/events) beside everything else.
+
+### Failed runs
+
+The list is grouped by flow, then by error code, with each failed run's **Window**, when it
+**Failed**, the **Error** and the **Attempt**. Each row has:
+
+| Button | What it does |
+| --- | --- |
+| **View run** | Opens the run, to see what went wrong |
+| **Re-run** | Runs the same window again, with the same parameter values, on the version deployed now. When it succeeds, the failure is closed and leaves the list by itself |
+| **Dismiss** | Closes the failure without running anything: *The window stays unprocessed.* Needs write access to the flow's data set |
+
+**Re-run all** and **Dismiss all** do the same for every failure listed. A later successful
+run of the same window also closes it. Re-running needs the flow to be deployed and on, and
+re-running the same failure twice starts it only once.
+
+## The Runs tab
+
+One row per deployed flow you may see, with what it has **Running** and **Queued**, its
+**Last run** and, folded away for the fine ones, its **Next run**. A summary line counts
+them, and the page refreshes itself every few seconds while anything is running or queued.
+
+| State | When |
+| --- | --- |
+| **Problem** | The latest run failed, the deployment needs re-authorisation, or the service switched the flow off |
+| **Watch** | A run is being retried, runs have waited over 5 minutes to start, or a scheduled run is overdue |
+| **Fine** | Nothing to report |
+| **Switched off** | Someone switched it off |
+
+Flows with a problem or something to watch come first, under **Problems and flows to
+watch**; when there are none, *Everything looks fine.*
+
+## The run page
+
+Opened from a flow's **Runs** tab, from **Failed runs** or by **Preview**. At the top, the
+run's status, **Pending**, **Running**, **Succeeded**, **Failed** or **Cancelled**, and its
+facts: **Version**, **Attempt** (such as 1/2), **Trigger**, **Runs as**, **Window**,
+**Started**, **Finished**, the **Error** if it failed, and the **Parameters** it ran with.
+While the run is going the page follows it live.
+
+**What happened** lists every record of the run: each time a step read, wrote, created,
+changed, routed or ended a piece of data. Columns:
+
+| Column | Shows |
+| --- | --- |
+| **Time**, **Attempt**, **Processor** | When, in which attempt, and by which step |
+| **Action** | What the step did: **Read**, **Write**, **Create**, **Modify content**, **Route**, **End** and so on |
+| **Outcome** | The outcome it was sent to |
+| **Item** | Which piece of data, numbered and named after its series, such as *#2 · pump-12.flow* |
+| **Data** | How much it held, such as *3,600 points* or *12 events* |
+| **Source / destination** | The series or events read or written, and over which times |
+| **Changed attributes** | What the step noted on the item, such as `clamp.count=4` |
+
+Pick a step in **All processors** to see only its records, or click a record to follow its
+item: *Only item #2, what it came from and what it became.* **Show all** goes back. A run
+keeps at most 100,000 records per attempt; past that the list ends with a *truncated* row.
+Records are kept with the run's history, 90 days by default.
+
+| Button | When | What it does |
+| --- | --- | --- |
+| **Cancel** | While the run is pending or running | A pending run is cancelled at once; a running one is stopped shortly after. The window is left uncovered, and a cancelled run is not retried and is not a failed run |
+| **Re-run** | Once it has ended, except a preview | A new run over the same window and values, on the version deployed now |
+
+## Switching off and deleting
+
+**Switch off**, on the flow or in the list, pauses it: no new runs start, runs still
+waiting are cancelled, and ticks missed while it is off are not run later. **Switch on**
+resumes it from the next tick. Before planned maintenance on the flow service, switch off the
+flows whose missed runs you do not want made up afterwards.
+
+**Delete** removes the flow, its versions and its runs. Series it wrote, and the
+`run-failed` events, stay.
+
+## Flows and agents
+
+An [agent](/using/agents) is a flow whose middle step is the **Agent** processor: a model
+with tools, woken by events, ending by saying whether a person needs to look. It is built in
+the **Agents** section, with a form of its own, and listed there rather than under Flows. The
+rest is shared: versions, preview, deploying as you or as a client, the run page, and failed
+runs, which appear under **Failed runs** here like any other. **Open in Flows** on an agent
+shows it in this editor.
+
+<References>
+
+- [Cron, the notation a custom schedule follows](https://en.wikipedia.org/wiki/Cron)
+- [The tz database time zone names a schedule takes](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+- [Extract, transform, load, the older idea a flow is a small, scheduled case of](https://en.wikipedia.org/wiki/Extract,_transform,_load)
+
+</References>
+
+<Deeper title="Related">
+- [Flow definition reference](/using/flow-definition): every field of the JSON tab and every
+  processor's properties
+- [References in flows](/using/flow-references): parameters, the run's window, secrets and
+  the other `${…}` placeholders
+- [Agents](/using/agents): flows built around a model with tools
+- [Flow clients and secrets](/administration/flow-credentials): running as a client, and
+  values a flow may refer to without holding them
+- [Running the flow service](/administration/flow-service): the operator's side
+- [Time series](/using/timeseries) and [Events](/using/events): what flows read and write
+</Deeper>
