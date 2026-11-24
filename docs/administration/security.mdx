@@ -121,6 +121,12 @@ Scoping an AI agent is therefore the same administrative act as scoping any
 account in your identity provider, grant its groups read on the data sets it should see,
 and it cannot write or see anything else.
 
+The one credential that is not a DataHub token is the one a tenant stores for a
+[tool server of its own](/using/agents#tool-servers), which the tenant's agents call with
+that credential rather than with the run's token. It is the tenant's credential for the
+tenant's server, kept in the tenant's own secret, and where such a server may sit is
+[bounded by the operator](/administration/agents#tool-servers).
+
 The console's built-in assistant is stricter still:
 
 - It only ever offers its model **read-only tools**, whatever the signed-in user could do.
@@ -198,6 +204,7 @@ store. That is what "mTLS" means on this page, and it is only ever between backe
 | Browser or SDK to the edge | TLS with a standard certificate | At the load balancer. The reference nginx configuration (`nginx/README.md` in the platform repository) allows TLS 1.2 and 1.3 only, six ECDHE AEAD cipher suites and no others, session tickets off, OCSP stapling, and HSTS for two years with `includeSubDomains` |
 | Edge to the API and console instances | The worked examples forward plain HTTP to port 8081 (API) and 8080 (console), opened to the load balancer addresses only, and the API trusts `X-Forwarded-*` headers only from the `internal-proxies` list in its configuration (`systemd/README.md`) | On the application host. Whether this hop also gets TLS is a decision the examples leave to you; on the hosted platform it sits inside a firewalled layer, see [Network layers](#network-layers) |
 | Browser to the analysis service | TLS with a standard certificate | The Analyze tab calls this service **directly from the browser** ([architecture](/administration/architecture#analysis-relationship-analysis)), so it needs a public TLS endpoint of its own next to the API and the console; the nginx examples, which define virtual hosts for the API and the console only, do not include one |
+| Browser to the flow service | TLS with a standard certificate | The console's Flows and Agents pages call it directly from the browser, and Keycloak redirects a deployer back to it ([flow service](/administration/flow-service#network-and-metrics)), so it needs a public TLS endpoint of its own, which the nginx examples do not include |
 | Browser to the RVM converter, where it runs | TLS with a standard certificate | The same as the analysis service: the console's Convert button calls it directly from the browser ([architecture](/administration/architecture#rvm-converter-plant-models-for-the-3d-viewer)), so it needs a public TLS endpoint of its own, which the nginx examples do not include either |
 | Services to the secret store | TLS, and mutual TLS where the store's listener requires a client certificate | At the secret store. Controlled by the `vault.*` settings below |
 | Services to the streaming platform | TLS to the broker, plus OAuth2 client credentials for authentication | At the broker. Controlled by `datahub.pulsar.tls.enabled` below |
@@ -316,12 +323,13 @@ reachable only from the services that need them</span>. The service list on the
 | --- | --- | --- |
 | **Edge** (load balancer) | The API on 8081, the console on 8080 | The internet, on 443 (and 80 for the redirect) |
 | **Console** | The API, the session and cache store, the identity provider, and the secret store at startup | The edge only; its metrics port from the monitoring host |
-| **API** | The relational, graph and columnar databases, the key mapping store, the streaming platform, the file storage root, the secret store, and the identity provider | The edge, the console, the analysis service and the RVM converter; its metrics port from the monitoring host |
+| **API** | The relational, graph and columnar databases, the key mapping store, the streaming platform, the file storage root, the secret store, and the identity provider | The edge, the console, the analysis service, the flow service and the RVM converter; its metrics port from the monitoring host |
 | **Ingest consumer** | The streaming platform, the columnar and relational databases, the key mapping store, the secret store | Nothing. It has no HTTP interface; only its metrics port, from the monitoring host |
 | **Analysis** | The API, and the identity provider to validate the caller's token | Browsers, directly, so it needs a public TLS endpoint of its own; its metrics port from the monitoring host |
+| **Flow service** | The API, the relational, key mapping and columnar stores, the streaming platform, the identity provider, the secret store, and any tool servers organisations register | Browsers, directly, so it needs a public TLS endpoint of its own; its metrics port from the monitoring host |
 | **RVM converter**, where it runs | The API, and the identity provider to validate the caller's token | Browsers, directly, so it needs a public TLS endpoint of its own; its metrics port from the monitoring host |
 | **Housekeeping** | At least the relational database, the streaming platform, the file storage root and the secret store | Nothing; only its metrics port |
-| **Identity provider** | Its own database, and, outbound, the corporate directory it brokers | Browsers (the sign-in redirect), integrations (the token endpoint), the console, the API, the analysis service and the RVM converter |
+| **Identity provider** | Its own database, and, outbound, the corporate directory it brokers | Browsers (the sign-in redirect), integrations (the token endpoint), the console, the API, the analysis service, the flow service and the RVM converter |
 | **Secret store** | Nothing | The services only, and only with a client certificate |
 | **The stores** | Nothing | The services listed against them above. Never the edge, never a browser |
 | **Monitoring host** | Every metrics port | Operators |
@@ -329,9 +337,9 @@ reachable only from the services that need them</span>. The service list on the
 Read down the right-hand column and the layers fall out: an **edge layer** holding the load
 balancer, an **application layer** holding the services, a **data layer** holding the stores
 and the streaming platform, and a **secrets layer** holding the secret store. The identity
-provider, the analysis service and the RVM converter straddle the edge, because browsers must
-reach the sign-in page, and the Analyze tab and the Convert button call their services
-directly, so each needs a TLS-terminated public endpoint and a rule that admits browsers to
+provider, the analysis service, the flow service and the RVM converter straddle the edge,
+because browsers must reach the sign-in page, and the Analyze tab, the Flows and Agents pages
+and the Convert button call their services directly, so each needs a TLS-terminated public endpoint and a rule that admits browsers to
 exactly that.
 
 Rules that follow, all of them things the platform's own examples already assume:

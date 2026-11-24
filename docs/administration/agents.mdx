@@ -1,7 +1,7 @@
 ---
 sidebar_position: 8.6
 title: Enabling agents
-description: How an organisation turns on the console's Agents section. What must be in place and who does each, the flow service settings that bound a run, capacity, storage and retention, the Vault path, and what to check when it does not work.
+description: How an organisation turns on the console's Agents section. What must be in place and who does each, the flow service settings that bound a run, the tool servers an organisation registers, capacity, storage and retention, the Vault path, and what to check when it does not work.
 ---
 
 # Enabling agents
@@ -96,10 +96,39 @@ organisation's spend; the last two bound the platform's own memory.
 | `max-output-tokens` | unset | A ceiling on one model call's output. Unset, the organisation's or the provider's default |
 | `max-tool-result-chars` | `24000` | How much of a tool's answer the model is shown, and of the events a run starts from |
 | `transcript-max-bytes` | `1MB` | How much of a run's transcript is kept |
+| `external-tool-timeout` | `PT30S` | The most one call to a [registered tool server](#tool-servers) may take, reply included. The platform's own servers get a minute |
 
 `datahub.analysis.url` names the analysis service, so that its tool,
 `analysis_related_series`, is offered besides the api's. Left blank, agents get the api's
 tools only.
+
+## Tool servers {#tool-servers}
+
+An organisation can register [tool servers of its own](/using/agents#tool-servers) under
+**Agents**, then **Tool servers**: an address and a credential, stored under its own
+`tenant-config` secret as `flow.mcp.<name>.*`, behind the `/settings/flow/read` and
+`/settings/flow/write` organisation groups that also cover the flow secrets and clients.
+Nothing on the platform side is needed for that, but two things are the operator's:
+
+**Where a server may sit.** The flow service and the api call a registered URL from inside
+the platform's own networks, and what comes back is shown to the organisation's model and
+kept in its transcripts. A URL that resolves to a private, loopback or link-local address
+would therefore let an organisation reach the stores, the other services or a cloud metadata
+endpoint through its agent, so it is refused, and so is plain `http`, since the credential
+travels with every call. On a deployment where the tool servers sit beside the platform, an
+intranet, or the evaluation stack, set `datahub.outbound.allow-private-networks` to `true`
+on **both** the api, which checks what may be registered, and the flow service, which checks
+again right before each first connection. The systemd environment files carry it as
+`DATAHUB_OUTBOUND_ALLOW_PRIVATE_NETWORKS`, commented out; the evaluation stack sets it.
+
+| Property | Default | Where |
+| --- | --- | --- |
+| `datahub.outbound.allow-private-networks` | `false` | The api and the flow service |
+
+**Egress.** The flow service needs to reach whatever the organisations register, token
+endpoints included, which a layered network that lets it reach only its stores will block.
+Open what the organisation needs, by host, rather than everything. Redirects are never
+followed: a registered URL is called as given, one hop.
 
 ## Capacity
 
@@ -128,11 +157,11 @@ transcripts included. [Data lifecycle →](/administration/data-lifecycle)
 ## Vault
 
 The flow service reads the organisation's `tenant-config/<organisation name>` secret: the
-model's `llm.*` values, the same keys the assistant uses, and the deployers' offline tokens
-it keeps there for every flow. Its AppRole policy therefore needs `tenant-config/*`, read for
-the model and create and update for the tokens, besides `datahub-platform` and
-`tenant-resources`. In the evaluation stack the one shared policy already covers the whole
-mount.
+model's `llm.*` values, the same keys the assistant uses, the deployers' offline tokens
+it keeps there for every flow, and the organisation's `flow.mcp.*` tool servers. Its AppRole
+policy therefore needs `tenant-config/*`, read for the model and the tool servers and create
+and update for the tokens, besides `datahub-platform` and `tenant-resources`. In the
+evaluation stack the one shared policy already covers the whole mount.
 
 ## Keycloak {#keycloak}
 
@@ -163,12 +192,18 @@ no longer write as anyone. The console shows it on the flow or agent and as **Pr
 `client_credentials` token has no session to lapse and belongs to no one person; it stops
 only if its secret is rotated in Keycloak and not under **Flows**, then **Clients**, or the
 client is disabled. Whoever assigns a client must hold every group it holds.
+[Setting one up →](/administration/flow-credentials#registered-clients)
 
 ## What a security review should note
 
 - **No credential of DataHub's reaches the model.** A tool call carries the run's token, and
   the api applies that identity's data set grants to it like any other call.
   [Why that holds →](/administration/security#ai-agents-and-the-console-assistant)
+- **A registered tool server is called with its own stored credential, never the run's
+  token**, and only by an agent whose ticked tools name it. What it returns is trusted as
+  much as the organisation that registered it: its tool descriptions and results reach the
+  model and the transcript as they are. Where it may sit is bounded by
+  `datahub.outbound.allow-private-networks` [above](#tool-servers).
 - **Tools that overwrite or destroy are never advertised to an agent**, whatever the
   instructions say. Tools that create are offered only when ticked, and a preview refuses
   them.
@@ -183,11 +218,13 @@ client is disabled. Whoever assigns a client must hold every group it holds.
 | What you see | Most likely cause |
 | --- | --- |
 | No **Agents** in the header, or the notice *"Agents need flows and a model configured for your organization"* | The organisation lacks the `flow` flag, or its model settings are incomplete. After fixing either, allow five minutes |
-| *"Could not load the tools."* on the form | A tool server did not answer: the api, or the analysis service named by `datahub.analysis.url` |
+| *"Could not load the tools."* on the form | A platform tool server did not answer: the api, or the analysis service named by `datahub.analysis.url`. A registered server that does not answer is named on the form instead, with what it said, and the rest of the tools still show |
+| Registering a tool server is refused with *resolves to a private or local address* or *Use https* | The platform does not allow private networks or plain `http`; see [tool servers](#tool-servers). On an intranet deployment, set `datahub.outbound.allow-private-networks` on the api and the flow service |
+| A run fails with *tools name the server "…", which is not registered* | The server was removed after the agent was saved. Edit the agent, or register the server again under the same name |
 | A run fails with *no model configured* | The model settings were removed or are incomplete |
 | A run fails with *not retried: the first attempt changed data* | The first attempt called a tool that may change data and then failed, so the second refused to repeat it. Read the first attempt's transcript |
 | A run fails with *iteration cap* | The agent needed more model calls than allowed. Narrow the instructions, or raise **Model calls per run** on the agent |
-| A tool answers *Not authorised* in the transcript | The run's identity may not call it: it lacks the data set grant the tool needs |
+| A tool answers *Not authorised* in the transcript | The run's identity may not call it: it lacks the data set grant the tool needs. For a registered server's tool, the stored credential was refused, or the token endpoint refused the client |
 | *needs re-authorisation: deploy it again* on the agent, and **Problem** under **Runs** | Keycloak refused the deployment's identity: the person's offline session lapsed or was revoked, the person was disabled, or a registered client's secret changed. [How long a deployment lasts →](#how-long-a-deployment-lasts) |
 | *"Could not dismiss"* under **Flagged** | The person dismissing lacks write access to the agent's data set |
 
@@ -199,7 +236,9 @@ client is disabled. Whoever assigns a client must hold every group it holds.
 </References>
 
 <Deeper title="Related">
-- [Agents](/using/agents): what an agent is, creating one, and what it gives back
+- [Agents](/using/agents): what an agent is, creating one, and what it gives back, and the
+  tool servers an organisation registers for it
+- [Running the flow service](/administration/flow-service): installing and sizing what runs agents
 - [Enabling the assistant](/administration/assistant): the model settings agents share
 - [Limits and quotas](/administration/limits-and-quotas): the request budget a run's
   identity spends
