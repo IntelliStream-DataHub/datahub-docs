@@ -88,6 +88,7 @@ flow creates `pump-12.flow_clamped`, copying the unit of `pump-12.flow`.
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
 | `schemaVersion` | number | required | Must be `1`, the only format there is |
+| `kind` | string | `flow` | `flow` or `agent`. An agent is a flow with a step of type [`agent`](#agent), shown in the console's **Agents** section rather than in Flows. See [Agents](/using/agents) |
 | `externalId` | string | required | The flow's id in your organization. Letters, digits and `_ . : -`, starting with a letter or digit, at most 255 characters. Cannot change once saved |
 | `dataSet` | string | required | External id of the data set the flow belongs to. Saving needs write access to it |
 | `name` | string | required | At most 255 characters |
@@ -234,14 +235,17 @@ once. Sets `timeseries.externalId` on every item.
 
 ### read-events
 
-Reads the events whose event time is in the run's window, oldest first, as events items.
-Events exactly at the window's end belong to the next window.
+Reads the events whose event time, or with `timeField` the time DataHub recorded them, is in
+the run's window, oldest first, as events items. Events exactly at the window's end belong to
+the next window.
 
 | Property | Type | Default | Refs | Meaning |
 | --- | --- | --- | --- | --- |
 | `type` | list | every type | No | Event types to read |
 | `subType` | list | every subtype | No | Event subtypes to read. *Advanced* |
 | `status` | list | every status | No | Statuses to read. *Advanced* |
+| `timeField` | choice | `eventTime` | No | Which time the window bounds: `eventTime`, when the event happened, or `createdTime`, when DataHub recorded it, which also catches late-stamped events and status changes on older ones. *Advanced* |
+| `excludeSource` | list | none | No | Events whose source matches any of these are left out; `*` matches anything, `_` one character. An agent's own events are `agent:*`. *Advanced* |
 | `maxEventsPerItem` | number | `10000` | No | More events are split into several items, at least 1. *JSON only* |
 
 | Relationship | When left unconnected |
@@ -285,6 +289,69 @@ items.
 | `alarms` | Must connect, usually to `write-events`. Sent only when there is at least one row |
 | `success` | Refused. The input series, unchanged |
 
+### agent
+
+A model with tools, acting on the events connected into it: the step that makes a flow an
+[agent](/using/agents). One invocation takes every waiting events item, gives the model their
+events and the instructions, runs the tool calls it asks for against the platform's tool
+servers as the run's identity, and ends when the model calls its built-in `finish` tool with
+an outcome of `done` or `flagged` and a summary. The organisation's model settings apply;
+the properties below override them for this step. Accepts events items. Sets
+`agent.outcome`, `agent.summary`, `agent.iterations`, `agent.tokens.input`,
+`agent.tokens.output` and `agent.toolCalls` on every item.
+
+| Property | Type | Default | Refs | Meaning |
+| --- | --- | --- | --- | --- |
+| `instructions` | string | required | No | What the agent is to do with the events it is given |
+| `tools` | list | none | No | The tools it may use, by name or pattern, e.g. `event_*`, `resource_get`. Tools that destroy or overwrite data are never offered, whatever is listed. Empty: it can only reason over the events |
+| `effort` | choice | the organisation's | No | How hard the model thinks: `low`, `medium`, `high`, `xhigh` or `max` |
+| `maxIterations` | number | the organisation's | No | Model calls in one run, at least 1. Reaching it fails the run. *Advanced* |
+| `maxOutputTokens` | number | the organisation's | No | Ceiling on one model call's output, at least 1. *Advanced* |
+| `turnTimeout` | duration | the organisation's | No | How long one model call may take. Must be positive. *Advanced* |
+| `maxToolResultChars` | number | `24000` | No | A tool result longer than this is cut, and so is the list of events the run starts from. *Advanced* |
+
+| Relationship | When left unconnected |
+| --- | --- |
+| `done` | Ends there. The events acted on; `agent.outcome` and `agent.summary` say how |
+| `flagged` | Refused. One event-shaped item when the agent flagged something for a person: connect it to `write-events`, or terminate it |
+| `failure` | Fails the run. The events of a run that could not finish; `failure.reason` says why |
+
+The Agents form writes an agent as `read-events` on recorded time, leaving agents' own
+events out, then `agent`, then `write-events` for what it flags:
+
+```json
+{
+  "schemaVersion": 1,
+  "kind": "agent",
+  "externalId": "repeat-failures",
+  "dataSet": "plant-a",
+  "name": "Repeat failures",
+  "processors": [
+    { "id": "events", "type": "read-events",
+      "properties": { "type": ["alarm"],
+                      "timeField": "createdTime",
+                      "excludeSource": ["agent:*"] } },
+    { "id": "agent", "type": "agent",
+      "properties": {
+        "instructions": "For each event, look up the resource ...",
+        "tools": ["event_get", "event_filter", "resource_get"] },
+      "terminate": ["done"] },
+    { "id": "flagged", "type": "write-events",
+      "properties": { "type": "agent", "subType": "flagged",
+                      "source": "agent:repeat-failures" } }
+  ],
+  "connections": [
+    { "from": "events", "relationship": "success",
+      "to": "agent" },
+    { "from": "agent", "relationship": "flagged",
+      "to": "flagged" }
+  ],
+  "trigger": { "type": "schedule", "cron": "0 */15 * * * *",
+               "timezone": "Europe/Oslo", "delay": "PT1M" },
+  "execution": { "maxAttempts": 2, "timeout": "PT20M" }
+}
+```
+
 ### write-timeseries
 
 Writes a time series item's points within the run's window to a series, and passes the item
@@ -326,6 +393,7 @@ its value a string that takes references, such as
 | `externalId` | string | the row's | Yes | Overrides the row's external id, e.g. `${timeseries.externalId}:high`. *Advanced* |
 | `dataSet` | string | the flow's | No | Data set of the events; the run's identity needs write access to it. *Advanced* |
 | `description` | string | none | Yes | The events' description. *Advanced* |
+| `source` | string | none | Yes | The events' source, their provenance: what wrote them. An agent's are `agent:<its external id>`, which `read-events` can leave out. *Advanced* |
 
 | Relationship | When left unconnected |
 | --- | --- |
@@ -344,4 +412,6 @@ its value a string that takes references, such as
 - [References in flows](/using/flow-references): what `${…}` can name and when it is filled in
 - [Time series](/using/timeseries): the data most flows read and write
 - [Events](/using/events): what `read-events` and `write-events` handle
+- [Agents](/using/agents): the flows built around the `agent` step, and the form that
+  writes them
 </Deeper>

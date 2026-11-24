@@ -1,0 +1,236 @@
+---
+sidebar_position: 12.7
+title: Agents
+description: Agents DataHub runs for you. Your organisation's own model, given some of the platform's tools and the events recorded since its last run, acting within what you allow and ending by saying whether a person needs to look.
+---
+
+# Agents
+
+<Personas>
+  <Persona primary>Engineers</Persona>
+  <Persona primary>Operations</Persona>
+  <Persona>Domain experts</Persona>
+  <Persona>Leadership</Persona>
+</Personas>
+
+<KeyIdea>
+An **agent** is a small flow that DataHub runs for you: your organisation's own model, the
+one the [assistant](/using/assistant) uses, given some of DataHub's tools and the events
+recorded since its last run, with instructions written in plain language. It reads what it
+is given, calls the tools you allow, and <span className="hl">ends by saying whether a
+person needs to look</span>.
+
+It is built in the **Agents** section of the console and runs unattended, on a schedule or
+only when you start it. Unlike the assistant it may create things, within the tools you
+tick. Unlike an agent you [build yourself](/using/ai-agents) it needs no code and no
+credential of its own.
+</KeyIdea>
+
+## What an agent is here
+
+An agent is a flow of kind `agent` with three fixed steps, which the Agents form writes for
+you:
+
+| Step | What it does |
+| --- | --- |
+| `read-events` | Which events wake it: those recorded in the run's window, of the types, subtypes and statuses you name |
+| `agent` | The model, with your instructions and the tools you allow |
+| `write-events` | What it asks a person to look at, written as events in the agent's data set |
+
+**Open in Flows** shows the same agent as a processing tree in the Flows editor, where the
+[flow definition](/using/flow-definition#agent) shows every property. The Flows list itself
+does not show agents; they have a section of their own.
+
+## Who sees the section
+
+**Agents** appears in the console header when your organisation has flows and a usable
+model is configured under **Settings**, then **AI assistant**. No extra role is needed, and
+the assistant's role is not: the groups are the same as for flows, plus access to the
+agent's data set.
+
+| To | You need |
+| --- | --- |
+| See an agent, its runs and what it raised | `/flows/read` and read access to its data set |
+| Create, change, deploy, run, switch off or delete it, or read a run's transcript | `/flows/write` and write access to its data set |
+
+If the section is missing, or shows a notice instead of a form, see
+[enabling agents](/administration/agents).
+
+## Creating one
+
+One page, in sections. The only text that takes thought is the instructions.
+
+| Section | What you set |
+| --- | --- |
+| **What the agent does** | A name, a description and the **instructions**: what to do with the events it is given. It reads only what you give it and what its tools return, and ends by saying whether a person needs to look |
+| **When it runs** | **On a schedule**: every 5, 15 (the default) or 30 minutes, every hour, once a day at 06:00, or a custom six-field cron expression, in a time zone of your choice. Or **only when started** |
+| **Which events wake it** | Event types, subtypes and statuses, one per line; a field left empty means all. A run happens only when at least one matching event was recorded in the window. Events written by agents never wake an agent |
+| **Who sees it, and whose access it uses** | The **data set**: who may see and change the agent, and where what it raises is written. Runs act as whoever deployed the agent, or as a registered client. The tools bound what the agent may call; that identity's access bounds what the calls can reach |
+| **Tools** | A picker of every tool the platform offers. Tools that may change data are marked; tools that destroy or overwrite data are shown greyed out and cannot be ticked. With no tools ticked the agent can only reason over the events |
+| **Model** | Effort, model calls per run, max output tokens and the turn timeout, such as `2m`. Left empty, the organisation's settings apply. Each run is billed to the organisation's own model credential |
+
+An instruction that works is specific about what to look up and when to flag something:
+
+> For each event, look up the resource it is about and its recent events. Flag it
+> with a short summary when the same resource has failed more than once this week.
+
+Then the buttons:
+
+| Button | What it does |
+| --- | --- |
+| **Save** | Checks the agent and saves it as a new version. Versions never change; a later save is a later version |
+| **Preview** | Runs it now, as you, over the last hour, changing nothing. See [the dry run](#preview-the-dry-run) |
+| **Deploy** | Takes you through your sign-in page, where you grant the agent a long-lived token, and back to the agent. From then on its runs act as you, [for as long as that token lasts](#as-you-or-as-a-client) |
+| **Run as a client** | Deploys it as a registered client instead, so its runs act as that client, with its access and its own request budget |
+| **Run now** | Starts a run over the schedule's latest window, or the last hour for an agent that runs only when started. Shown once the agent is deployed and on |
+| **Switch off**, **Switch on** | Pauses the schedule, and resumes it. Ticks missed while it was off are not run |
+| **Open in Flows** | The same agent in the Flows editor |
+| **Delete** | Removes the agent, its versions and its runs |
+
+Four tabs: **Agent** (the form), **Runs**, **Flagged** (what this agent flagged) and
+**Versions**.
+
+## As you, or as a client {#as-you-or-as-a-client}
+
+An agent deployed **as you** keeps running for as long as your sign-in session for it lasts,
+and each run renews that session. With the sign-in server's defaults, the session ends after
+**30 days without a run**. An agent that runs daily or weekly never notices this; one
+started by hand once a quarter does. Your administrator may set a different idle time, or
+a maximum age after which the session ends however often the agent runs.
+
+The session also ends when your account is disabled or removed, or when your offline access
+is revoked. And a run always has your access **as it is now**, not as it was when you
+deployed: lose a data set and the agent loses it too.
+
+When the session ends, the agent shows *needs re-authorisation: deploy it again* and stops
+running. It raises no event, because it can no longer write as you: what shows it is the
+agent's own page, and **Agents**, then **Runs**, where it is marked **Problem**. **Deploy** it again to
+resume. Windows missed in between are not run.
+
+An agent that must keep running whoever built it should **run as a client**. A registered
+client has no session to lapse and belongs to no one person; your administrator registers it
+under **Flows**, then **Clients**.
+
+## When it runs
+
+Each tick of the schedule, one run looks at the events **recorded** since the tick before
+it. The window is on when DataHub recorded the event, not on when it happened, so an event
+that arrived late still counts, and so does a status change on an older one. The run starts
+one minute after the tick, so events still on their way have arrived.
+
+- A tick with **no matching events** creates a run that does nothing and costs nothing: no
+  model call is made.
+- Ticks missed while the flow service was **down** are run afterwards, one by one, oldest
+  first. Ticks missed while the agent was **switched off**, or not yet deployed, are not.
+- **Run now** on a scheduled agent covers the latest tick's window, the schedule's last full
+  interval, and does not move the schedule. **Preview** covers the last hour, and so does an
+  agent set to run only when started, each time it is started.
+
+## What a run does
+
+The model is given your instructions, the window, the events as JSON, and the tools you
+ticked plus one built-in tool, `finish`, which ends the run with an outcome of `done` or
+`flagged` and a summary. It calls tools, reads what they return, and finishes.
+
+| Limit | Default |
+| --- | --- |
+| Model calls in one run | 6 |
+| One model call | 2 minutes |
+| A whole run | 20 minutes |
+| Attempts | 2 |
+
+A run that reaches a limit, or the model's own output limit, fails. A failed attempt is
+tried once more after a short wait, with one rule of its own: if the first attempt had
+already called a tool that may change data, the second is refused, *not retried: the first
+attempt changed data*, and the run fails, so nothing is done twice. A first attempt that
+died before changing anything, on a model server error for instance, is retried like any
+run.
+
+A failed run appears under **Failed runs** in the Flows section like any other, with the
+usual run-failed event. A run you cancel leaves its window uncovered.
+
+## Tools
+
+The picker shows what the platform's tool servers offer, the api's and the analysis
+service's, with the servers' own word on what each tool does.
+
+| Kind | Tools | In a run |
+| --- | --- | --- |
+| Read only | Every get, search, list, fetch and filter, and `analysis_related_series` | Run freely |
+| May change data | `dataset_create`, `edge_create`, `edge_create_type`, `event_create`, `label_create`, `resource_create`, `timeseries_create` | Offered, marked *may change data* in the picker, and recorded on the run as a write |
+| Never offered | Every `*_update`, every `*_delete`, and `timeseries_send_datapoint`, which replaces a datapoint at an existing time | Greyed out in the picker, left out of what the model is given whatever the instructions say, and refused if asked for |
+
+A tool the run's identity may not call fails in the run, as any call would. Events the agent
+creates through `event_create` carry `source: agent:<the agent's id>` automatically, which is
+why an agent's own events never wake it, or any other agent.
+
+## Preview, the dry run
+
+**Preview** runs the agent now, as you, over the last hour, changing nothing: tools that
+change data are refused. It stops if your sign-in is about to expire.
+
+- Read-only tools really run, so the model sees real data.
+- A refused tool tells the model to go on as if the call had succeeded, so you see what it
+  would have done next.
+- What it would flag is reported in the transcript, not written as an event.
+- The transcript is shown live while the preview runs.
+
+## What it gives back
+
+### Flagged
+
+When the agent finishes with `flagged`, an open event of type `agent` and subtype
+`flagged` is written in the agent's data set, carrying the summary. It is listed under
+**Flagged** in the section's header, across every agent, and on the agent's own tab,
+with **View run**, **Dismiss** and **Dismiss all**.
+
+Dismissing writes the event's `dismissed` state, as the person dismissing, who needs write
+access to the agent's data set. Nothing is re-run, and the entry stays in the agent's runs.
+Approving or acting on what the agent proposes happens outside DataHub: an agent asks, a
+person decides.
+
+### The run page
+
+The facts and records of any flow run, plus the transcript, **What the model said and did**:
+the instructions and the events given to the model (folded), the model's text, each tool
+call with its arguments (marked when it may change data), each result, the token usage of
+each model call, and the outcome, **Done** or **Flagged**. While the run is live it
+updates every two seconds.
+
+Only people who may change the agent can read the transcript, because tool results carry
+data from every data set the run's identity can reach. It is kept as long as the run's
+history, your organisation's flow retention, 90 days by default, and is cut at 1 MB.
+
+## Cost, and where the data goes
+
+- **The bill is yours.** Each run is billed to the model credential your organisation
+  entered under **Settings**, then **AI assistant**. The values there (effort, model calls
+  per run, max output tokens, turn timeout) are defaults an agent may override; there is no
+  ceiling, since the organisation owns its spend. An agent woken every five minutes by a busy
+  event type makes at least one model call every five minutes.
+- **The events, tool results and instructions of every run are sent to the model
+  provider** your organisation configured. With a hosted provider, a party outside your
+  control sees that data; with a model on your own server, it stays inside your network.
+- **Requests count against an identity's budget.** A run as a registered client has its own
+  api request budget; a run as a person shares that person's, 600 writes a minute by
+  default. [Limits and quotas →](/administration/limits-and-quotas)
+
+<References>
+
+- [Model Context Protocol](https://modelcontextprotocol.io/): how an agent reaches its tools
+- [Cron, the scheduling notation a custom schedule follows](https://en.wikipedia.org/wiki/Cron)
+- [The tz database time zone names a schedule takes](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+
+</References>
+
+<Deeper title="Related">
+- [Enabling agents](/administration/agents): what must be in place, and the operator's side
+- [Flow definition reference](/using/flow-definition#agent): the agent step and the two
+  around it, property by property
+- [Events](/using/events): what wakes an agent, and what it raises
+- [The assistant](/using/assistant): the same model, answering you live and read only
+- [Building AI agents](/using/ai-agents): agents you build yourself against DataHub from
+  outside
+- [Security and compliance](/administration/security#ai-agents-and-the-console-assistant):
+  why a tool call is no different from any other call
+</Deeper>
